@@ -44,10 +44,7 @@ const CalendarDropTask = ({ task }: CalendarDropTaskProps) => {
                 <PositionedDomino isVisible={isHoverTask} />
                 <TaskInformation key={task.id}>{task.title}</TaskInformation>
                 <RightContainer>
-                    <DueDate
-                        date={DateTime.fromISO(task.due_date).toJSDate()}
-                        isDoneOrDeleted={task.is_done || task.is_deleted}
-                    />
+                    <DueDate date={DateTime.fromISO(task.due_date)} isDoneOrDeleted={task.is_done || task.is_deleted} />
                     {task.source?.name !== 'Jira' &&
                         task.priority_normalized !== 0 &&
                         Number.isInteger(task.priority_normalized) && (
