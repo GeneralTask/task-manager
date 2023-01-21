@@ -29,6 +29,7 @@ const DropdownMenuContent = styled(DropdownMenu.Content)<{
     ${MenuContentShared};
     ${({ $menuInModal }) => $menuInModal && `z-index: 1000;`}
     ${({ $width }) => $width && `width: ${$width}px;`}
+    ${({ $width }) => ($width ? `max-width: ${$width}px;` : `max-width: ${DROPDOWN_MENU_ITEM_MAX_WIDTH};`)}
     ${({ $textColor }) => $textColor && `color: ${$textColor};`}
     ${({ $fontStyle }) => $fontStyle && Typography[$fontStyle]};
     box-sizing: border-box;
@@ -36,7 +37,6 @@ const DropdownMenuContent = styled(DropdownMenu.Content)<{
 const DropdownMenuItem = styled(DropdownMenu.Item)`
     ${MenuItemShared};
     width: 100%;
-    max-width: ${DROPDOWN_MENU_ITEM_MAX_WIDTH};
     box-sizing: border-box;
 `
 const LeftMarginAutoContainer = styled.span`
