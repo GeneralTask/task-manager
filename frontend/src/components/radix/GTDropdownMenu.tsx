@@ -16,7 +16,7 @@ import {
     MenuTriggerShared,
 } from './RadixUIConstants'
 
-const DROPDOWN_MENU_ITEM_MAX_WIDTH = '200px'
+const DROPDOWN_MENU_ITEM_MAX_WIDTH = '240px'
 const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
     ${MenuTriggerShared};
 `
