@@ -82,7 +82,7 @@ func (api *API) Login(c *gin.Context) {
 func (api *API) LoginCallback(c *gin.Context) {
 	var redirectParams GoogleRedirectParams
 	if c.ShouldBind(&redirectParams) != nil || redirectParams.State == "" || redirectParams.Code == "" || redirectParams.Scope == "" {
-		c.JSON(400, gin.H{"detail": "missing query params"})
+		c.Redirect(302, config.GetConfigValue("HOME_URL"))
 		return
 	}
 
