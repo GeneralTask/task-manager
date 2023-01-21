@@ -12,12 +12,12 @@ const SelectableContainer = styled.div<{ isSelected: boolean }>`
         outline: ${Border.stroke.medium} solid ${Colors.border.light};
     }
 `
-export const OrangeEdge = styled.div`
+export const BlueEdge = styled.div`
     position: absolute;
     left: 0;
     height: 100%;
     width: 4px;
-    background-color: ${Colors.gtColor.orange};
+    background-color: ${Colors.gtColor.blue};
     border-radius: ${Border.radius.mini} 0 0 ${Border.radius.mini};
 `
 export default SelectableContainer

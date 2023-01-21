@@ -9,7 +9,7 @@ import { linearStatus } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
 import CommentCount from '../atoms/CommentCount'
 import Domino from '../atoms/Domino'
-import SelectableContainer, { OrangeEdge } from '../atoms/SelectableContainer'
+import SelectableContainer, { BlueEdge } from '../atoms/SelectableContainer'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTButtonHack } from './Task'
@@ -81,7 +81,7 @@ const LinearTask = ({ task }: LinearTaskProps) => {
             onMouseLeave={() => setIsHovered(false)}
             onMouseEnter={() => setIsHovered(true)}
         >
-            {linearIssueId === task.id && <OrangeEdge />}
+            {linearIssueId === task.id && <BlueEdge />}
             <LeftContainer>
                 <DominoIconContainer>
                     <Domino isVisible={isHovered} />

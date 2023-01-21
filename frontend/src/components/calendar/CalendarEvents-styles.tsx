@@ -184,8 +184,8 @@ export const CalendarDayHeader = styled.div`
 export const DayHeaderText = styled.div<{ isToday: boolean }>`
     border-radius: ${Border.radius.mini};
     padding: ${Spacing._4} ${Spacing._8};
-    color: ${(props) => (props.isToday ? Colors.text.white : Colors.text.black)};
-    background-color: ${(props) => (props.isToday ? Colors.gtColor.orange : 'transparent')};
+    color: ${(props) => (props.isToday ? Colors.text.black : Colors.text.black)};
+    background-color: ${(props) => (props.isToday ? Colors.gtColor.blue : 'transparent')};
     ${Typography.body};
 `
 export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: boolean; hasLeftBorder: boolean }>`

@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
-import { OrangeEdge } from '../atoms/SelectableContainer'
+import { BlueEdge } from '../atoms/SelectableContainer'
 import FocusModeContextMenuWrapper from '../radix/EventBodyContextMenuWrapper'
 import EventDetailPopover from '../radix/EventDetailPopover'
 import { useCalendarContext } from './CalendarContext'
@@ -95,7 +95,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         squareEnd={endedAfterToday}
                         isSelected={selectedEvent?.id === props.event.id}
                     >
-                        <OrangeEdge />
+                        <BlueEdge />
                     </EventFill>
                     <ResizeHandle event={props.event} />
                 </EventBodyStyle>

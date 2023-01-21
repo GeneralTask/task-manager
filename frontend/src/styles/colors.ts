@@ -97,4 +97,5 @@ export const gtColor = {
     primary: PURPLE._1,
     secondary: PURPLE._2,
     orange: ORANGE._1,
+    blue: BLUE._1,
 }
