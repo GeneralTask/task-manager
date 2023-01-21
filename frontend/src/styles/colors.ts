@@ -25,6 +25,7 @@ const GREEN = {
 const BLUE = {
     _1: '#25BEFF',
     _2: '#BEEBFF',
+    _3: '#405EFB',
 }
 const PURPLE = {
     _1: '#5634CF',
@@ -97,5 +98,5 @@ export const gtColor = {
     primary: PURPLE._1,
     secondary: PURPLE._2,
     orange: ORANGE._1,
-    blue: BLUE._1,
+    blue: BLUE._3,
 }
