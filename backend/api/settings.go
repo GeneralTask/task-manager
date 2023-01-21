@@ -10,28 +10,21 @@ import (
 
 func (api *API) SettingsList(c *gin.Context) {
 	userID := getUserIDFromContext(c)
-	userSettings := []settings.UserSetting{}
 	settingsOptions, err := settings.GetSettingsOptions(api.DB, userID)
 	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to load setting definitions")
+		Handle500(c)
+		return
+	}
+
+	userSettings, err := settings.GetUserSettings(api.DB, userID, settingsOptions)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to load settings")
 		Handle500(c)
 		return
 	}
-	for _, setting := range *settingsOptions {
-		if setting.Hidden {
-			continue
-		}
-		settingValue, err := settings.GetUserSetting(api.DB, userID, setting.FieldKey)
-		if err != nil {
-			Handle500(c)
-			return
-		}
-		userSettings = append(userSettings, settings.UserSetting{
-			SettingDefinition: setting,
-			FieldValue:        *settingValue,
-		})
-	}
+
 	c.JSON(200, userSettings)
 }
 

@@ -35,6 +35,7 @@ const CollapseAndCommandPaletteContainer = styled.div`
     display: flex;
     flex-direction: column;
     margin-bottom: ${Spacing._32};
+    gap: ${Spacing._8};
 `
 const CollapsedContainer = styled.div`
     padding: ${Spacing._24} 0;
@@ -44,10 +45,11 @@ const CollapsedContainer = styled.div`
     align-items: center;
     box-sizing: border-box;
 `
-const FoldersContainer = styled.div`
+const FoldersContainer = styled.div<{ isCollapsed?: boolean }>`
     margin-top: ${Spacing._32};
     display: flex;
     flex-direction: column;
+    ${({ isCollapsed }) => isCollapsed && `gap: ${Spacing._8};`}
 `
 const UpperContainer = styled.div`
     display: flex;
@@ -56,10 +58,10 @@ const UpperContainer = styled.div`
 `
 const MiddleContainer = styled.div`
     overflow-y: auto;
+    flex: 1;
 `
 const LowerContainer = styled.div`
     margin-top: auto;
-    padding-top: ${Spacing._32};
     margin-bottom: auto;
     display: flex;
     flex-direction: column;
@@ -145,7 +147,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
             </UpperContainer>
             <MiddleContainer>
                 <IntegrationLinks isCollapsed />
-                <FoldersContainer>
+                <FoldersContainer isCollapsed>
                     {DEFAULT_FOLDER && (
                         <NavigationLink
                             link={`/tasks/${DEFAULT_SECTION_ID}`}

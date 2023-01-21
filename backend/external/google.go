@@ -53,7 +53,7 @@ func getGoogleLoginConfig() OauthConfigWrapper {
 		ClientID:     config.GetConfigValue("GOOGLE_OAUTH_CLIENT_ID"),
 		ClientSecret: config.GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET"),
 		RedirectURL:  config.GetConfigValue("GOOGLE_OAUTH_LOGIN_REDIRECT_URL"),
-		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/calendar.events"},
+		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar"},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
 			TokenURL: "https://oauth2.googleapis.com/token",
@@ -67,7 +67,7 @@ func getGoogleLinkConfig() OauthConfigWrapper {
 		ClientID:     config.GetConfigValue("GOOGLE_OAUTH_CLIENT_ID"),
 		ClientSecret: config.GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET"),
 		RedirectURL:  config.GetConfigValue("GOOGLE_OAUTH_AUTHORIZE_REDIRECT_URL"),
-		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/calendar.events"},
+		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar"},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
 			TokenURL: "https://oauth2.googleapis.com/token",
@@ -200,10 +200,6 @@ func getGoogleGrantedScopes(client *HTTPClient, token *oauth2.Token) []string {
 func hasUserGrantedCalendarScope(client *HTTPClient, token *oauth2.Token) bool {
 	scopes := getGoogleGrantedScopes(client, token)
 	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar.events") || slices.Contains(scopes, "https://www.googleapis.com/auth/calendar")
-}
-
-func hasUserGrantedMultiCalendarScope(scopes []string) bool {
-	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar")
 }
 
 func (Google GoogleService) HandleSignupCallback(db *mongo.Database, params CallbackParams) (primitive.ObjectID, *bool, *string, error) {

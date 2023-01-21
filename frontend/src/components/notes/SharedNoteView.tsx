@@ -6,7 +6,7 @@ import { DateTime } from 'luxon'
 import styled, { css } from 'styled-components'
 import { AUTHORIZATION_COOKE, LOGIN_URL } from '../../constants'
 import getEnvVars from '../../environment'
-import { useAuthWindow } from '../../hooks'
+import { useAuthWindow, usePreviewMode } from '../../hooks'
 import useAnalyticsEventTracker from '../../hooks/useAnalyticsEventTracker'
 import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
@@ -95,7 +95,7 @@ const SharedNoteView = () => {
     const { openAuthWindow } = useAuthWindow()
     const navigate = useNavigate()
     const { noteId } = useParams()
-    if (!noteId) navigate('/')
+    const { isLoading: isPreviewModeLoading } = usePreviewMode()
     const isLoggedIn = !!Cookies.get(AUTHORIZATION_COOKE)
 
     const { data: note, isLoading } = useGetNote({ id: noteId ?? '' })
@@ -103,7 +103,9 @@ const SharedNoteView = () => {
     const { data: notes, isLoading: isLoadingNotes } = useGetNotes(isLoggedIn)
     const isUserNoteOwner = (notes ?? []).some((userNote) => userNote.id === note?.id)
 
-    if (isLoading || isLoadingNotes) return <Spinner />
+    if (!noteId) navigate('/')
+
+    if (isLoading || isLoadingNotes || isPreviewModeLoading) return <Spinner />
     return (
         <>
             {note && (
@@ -152,7 +154,6 @@ const SharedNoteView = () => {
                                     <Flex alignItems="flex-start">
                                         <GTTextField
                                             type="plaintext"
-                                            itemId={note.title}
                                             value={note.title}
                                             onChange={emptyFunction}
                                             fontSize="large"
@@ -162,8 +163,8 @@ const SharedNoteView = () => {
                                         <NoteActionsDropdown note={note} isOwner={isUserNoteOwner} />
                                     </Flex>
                                     <GTTextField
+                                        key={note.id}
                                         type="markdown"
-                                        itemId={note.body}
                                         value={note.body}
                                         onChange={emptyFunction}
                                         fontSize="small"

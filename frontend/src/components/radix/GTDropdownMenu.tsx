@@ -16,6 +16,7 @@ import {
     MenuTriggerShared,
 } from './RadixUIConstants'
 
+const DROPDOWN_MENU_ITEM_MAX_WIDTH = '240px'
 const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
     ${MenuTriggerShared};
 `
@@ -28,6 +29,7 @@ const DropdownMenuContent = styled(DropdownMenu.Content)<{
     ${MenuContentShared};
     ${({ $menuInModal }) => $menuInModal && `z-index: 1000;`}
     ${({ $width }) => $width && `width: ${$width}px;`}
+    max-width: ${({ $width }) => ($width ? `${$width}px` : `${DROPDOWN_MENU_ITEM_MAX_WIDTH}`)};
     ${({ $textColor }) => $textColor && `color: ${$textColor};`}
     ${({ $fontStyle }) => $fontStyle && Typography[$fontStyle]};
     box-sizing: border-box;

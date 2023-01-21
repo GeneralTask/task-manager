@@ -583,8 +583,8 @@ func reorderTaskResultsByDueDate(taskResults []*TaskResult) []*TaskResult {
 	sort.SliceStable(taskResults, func(i, j int) bool {
 		a := taskResults[i]
 		b := taskResults[j]
-		aTime, _ := time.Parse("2006-01-02", a.DueDate)
-		bTime, _ := time.Parse("2006-01-02", b.DueDate)
+		aTime, _ := time.Parse(time.RFC3339, a.DueDate)
+		bTime, _ := time.Parse(time.RFC3339, b.DueDate)
 		return aTime.Unix() < bTime.Unix()
 	})
 	for idx, result := range taskResults {
@@ -805,6 +805,53 @@ func (api *API) ViewDoesExist(db *mongo.Database, userID primitive.ObjectID, par
 		return false, err
 	}
 	return count > 0, nil
+}
+
+type ViewBulkModifyParams struct {
+	OrderedViewIDs []string `json:"ordered_view_ids" binding:"required"`
+}
+
+// NOTE: this endpoint ONLY updates the view IDs provided, so a complete list of view IDs should be provided
+func (api *API) OverviewViewBulkModify(c *gin.Context) {
+	userID := getUserIDFromContext(c)
+	var viewModifyParams ViewBulkModifyParams
+	err := c.BindJSON(&viewModifyParams)
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
+		return
+	}
+
+	var operations []mongo.WriteModel
+	for index, viewIDHex := range viewModifyParams.OrderedViewIDs {
+		viewID, err := primitive.ObjectIDFromHex(viewIDHex)
+		if err != nil {
+			c.JSON(400, gin.H{"detail": "malformatted view ID"})
+			return
+		}
+		newIDOrdering := index + 1
+		operation := mongo.NewUpdateOneModel()
+		operation.SetFilter(bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"_id": viewID},
+			},
+		})
+		operation.SetUpdate(bson.M{"$set": bson.M{"id_ordering": newIDOrdering}})
+		operations = append(operations, operation)
+	}
+
+	viewCollection := database.GetViewCollection(api.DB)
+	result, err := viewCollection.BulkWrite(context.Background(), operations)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to bulk modify view ordering")
+		Handle500(c)
+		return
+	}
+	if result.MatchedCount != int64(len(operations)) {
+		c.JSON(400, gin.H{"detail": "invalid or duplicate view IDs provided"})
+		return
+	}
+	c.JSON(200, gin.H{})
 }
 
 type ViewModifyParams struct {

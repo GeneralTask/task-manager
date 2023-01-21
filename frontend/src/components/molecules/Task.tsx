@@ -63,6 +63,7 @@ interface TaskProps {
     meetingPreparationStartTime?: DateTime
     shouldScrollToTask?: boolean
     setShouldScrollToTask?: (shouldScrollToTask: boolean) => void
+    onMarkTaskDone?: (id: string) => void
 }
 
 const Task = ({
@@ -76,6 +77,7 @@ const Task = ({
     link,
     shouldScrollToTask,
     setShouldScrollToTask,
+    onMarkTaskDone,
 }: TaskProps) => {
     const navigate = useNavigate()
     const observer = useRef<IntersectionObserver>()
@@ -168,11 +170,12 @@ const Task = ({
     }, [])
 
     const [isVisible, setIsVisible] = useState(true)
-    const taskFadeOut = () => {
+    const taskFadeOut = useCallback(() => {
         if (sectionId !== DONE_SECTION_ID) setIsVisible(task.is_done)
-    }
+        onMarkTaskDone?.(task.id)
+    }, [task.is_done, sectionId, onMarkTaskDone])
 
-    const dueDate = DateTime.fromISO(task.due_date).toJSDate()
+    const dueDate = DateTime.fromISO(task.due_date)
     const [contextMenuOpen, setContextMenuOpen] = useState(false)
 
     const deleteTask = useCallback(() => {

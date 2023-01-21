@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"errors"
+	"golang.org/x/exp/slices"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -629,6 +630,29 @@ func GetCalendarEvents(db *mongo.Database, userID primitive.ObjectID, additional
 	return &calendarEvents, err
 }
 
+func GetCalendarAccounts(db *mongo.Database, userID primitive.ObjectID) (*[]CalendarAccount, error) {
+	calendarAccountCollection := GetCalendarAccountCollection(db)
+	cursor, err := calendarAccountCollection.Find(
+		context.Background(),
+		bson.M{"user_id": userID},
+	)
+	if err != nil {
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to fetch calendar accounts for user")
+		return nil, err
+	}
+
+	var accounts []CalendarAccount
+	err = cursor.All(context.Background(), &accounts)
+	if err != nil {
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to fetch calendar accounts for user")
+		return nil, err
+	}
+
+	return &accounts, nil
+}
+
 func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSection, error) {
 	var sections []TaskSection
 	err := FindWithCollection(GetTaskSectionCollection(db), userID, &[]bson.M{{"user_id": userID}}, &sections, nil)
@@ -976,4 +1000,8 @@ func GetTaskSectionCollection(db *mongo.Database) *mongo.Collection {
 
 func GetRecurringTaskTemplateCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("recurring_task_templates")
+}
+
+func HasUserGrantedMultiCalendarScope(scopes []string) bool {
+	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar")
 }

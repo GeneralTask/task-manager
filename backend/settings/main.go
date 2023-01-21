@@ -3,7 +3,6 @@ package settings
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/logging"
@@ -71,6 +70,8 @@ const (
 	// Overview page settings
 	SettingCollapseEmptyLists     = "collapse_empty_lists"
 	SettingMoveEmptyListsToBottom = "move_empty_lists_to_bottom"
+	// Lab settings
+	LabSmartPrioritizeEnabled = "lab_smart_prioritize_enabled"
 )
 
 var SidebarLinearSetting = SettingDefinition{
@@ -205,6 +206,15 @@ var OverviewMoveEmptyListsToBottomSetting = SettingDefinition{
 	},
 }
 
+var LabSmartPrioritizeEnabledSetting = SettingDefinition{
+	FieldKey:      LabSmartPrioritizeEnabled,
+	DefaultChoice: "false",
+	Choices: []SettingChoice{
+		{Key: "true"},
+		{Key: "false"},
+	},
+}
+
 var TaskSectionSettingTypes = []string{"main", "overview"}
 
 var hardcodedSettings = []SettingDefinition{
@@ -223,6 +233,7 @@ var hardcodedSettings = []SettingDefinition{
 	NoteFilteringSetting,
 	OverviewCollapseEmptyListsSetting,
 	OverviewMoveEmptyListsToBottomSetting,
+	LabSmartPrioritizeEnabledSetting,
 }
 
 func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]SettingDefinition, error) {
@@ -324,35 +335,49 @@ func getTaskSectionFieldKey(taskSection database.TaskSection, suffix string, set
 	return taskSection.ID.Hex() + "_" + suffix + "_" + settingType
 }
 
-func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string) (*string, error) {
+func GetUserSettings(db *mongo.Database, userID primitive.ObjectID, settingsOptions *[]SettingDefinition) ([]UserSetting, error) {
 	settingCollection := database.GetUserSettingsCollection(db)
-	var userSetting database.UserSetting
-	err := settingCollection.FindOne(
+	var userSettings []database.UserSetting
+	cursor, err := settingCollection.Find(
 		context.Background(),
-		bson.M{"$and": []bson.M{
-			{"user_id": userID},
-			{"field_key": fieldKey},
-		}},
-	).Decode(&userSetting)
-	if err == nil {
-		return &userSetting.FieldValue, nil
-	}
+		bson.M{"user_id": userID},
+	)
 
-	settingsOptions, err := GetSettingsOptions(db, userID)
 	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to load settings")
-		return nil, errors.New("failed to load settings")
+
+	if err != nil && err != mongo.ErrNoDocuments {
+		logger.Error().Msg("unable to fetch settings results")
+		return nil, err
 	}
 
-	// Default to first choice value
+	err = cursor.All(context.Background(), &userSettings)
+	if err != nil {
+		logger.Error().Msg("unable to unmarshal settings results")
+		return nil, err
+	}
+
+	var settingsResponse []UserSetting
 	for _, setting := range *settingsOptions {
-		if setting.FieldKey == fieldKey {
-			return &setting.DefaultChoice, nil
+		if setting.Hidden {
+			continue
+		}
+		settingValue := GetSettingValue(userSettings, setting)
+		settingsResponse = append(settingsResponse, UserSetting{
+			SettingDefinition: setting,
+			FieldValue:        settingValue,
+		})
+	}
+
+	return settingsResponse, nil
+}
+
+func GetSettingValue(settings []database.UserSetting, searchSetting SettingDefinition) string {
+	for _, settingValue := range settings {
+		if settingValue.FieldKey == searchSetting.FieldKey {
+			return settingValue.FieldValue
 		}
 	}
-	logger.Error().Msgf("invalid setting: %s", fieldKey)
-	return nil, fmt.Errorf("invalid setting: %s", fieldKey)
+	return searchSetting.DefaultChoice
 }
 
 func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string, fieldValue string) error {
