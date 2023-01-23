@@ -341,7 +341,6 @@ export const useSelectedCalendars = () => {
 export const useEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
     const { data: events, ...rest } = useGetEvents(params, calendarType)
     const { selectedCalendars } = useSelectedCalendars()
-    console.log(selectedCalendars)
     const filteredEvents = useMemo(() => {
         if (!events || selectedCalendars.length === 0) return events
         const selectedCalendarsSet = new Set(
