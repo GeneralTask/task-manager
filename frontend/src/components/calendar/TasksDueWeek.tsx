@@ -18,7 +18,6 @@ const TasksDueWeekContainer = styled.div`
     height: fit-content;
     border-top: ${Border.stroke.medium} solid ${Colors.border.light};
     border-bottom: ${Border.stroke.medium} solid ${Colors.border.light};
-    /* padding-left: ${CELL_TIME_WIDTH}; */
     position: relative;
     box-sizing: border-box;
     padding-right: ${scrollbarWidth()}px;

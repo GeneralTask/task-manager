@@ -43,7 +43,7 @@ const DueTask = ({ task, showDueDate }: DueTaskProps) => {
         <ItemContainer
             key={task.id}
             isSelected={false}
-            padded={false}
+            isCompact={true}
             onClick={() => {
                 if (task.isSubtask && task.parent_task_id) {
                     navigateToTask(task.parent_task_id)

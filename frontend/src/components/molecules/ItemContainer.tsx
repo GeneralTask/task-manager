@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { BlueEdge } from '../atoms/SelectableContainer'
 
-const ItemContainerDiv = styled.div<{ isSelected?: boolean; padded?: boolean; forceHoverStyle?: boolean }>`
+const ItemContainerDiv = styled.div<{ isSelected?: boolean; isCompact?: boolean; forceHoverStyle?: boolean }>`
     position: relative;
     display: flex;
     flex-direction: row;
@@ -22,7 +22,7 @@ const ItemContainerDiv = styled.div<{ isSelected?: boolean; padded?: boolean; fo
         `
         outline: ${Border.stroke.medium} solid ${Colors.border.light};
         background-color: ${Colors.background.medium};`}
-    padding: 0 ${({ padded }) => (padded ? Spacing._16 : 0)};
+    padding: 0 ${({ isCompact }) => (isCompact ? 0 : Spacing._16)};
     cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
@@ -31,17 +31,17 @@ const ItemContainerDiv = styled.div<{ isSelected?: boolean; padded?: boolean; fo
 
 interface ItemContainerProps {
     isSelected?: boolean
-    padded?: boolean
+    isCompact?: boolean
     onClick?: () => void
     children: React.ReactNode
     forceHoverStyle?: boolean
     className?: string
 }
 const ItemContainer = forwardRef<HTMLDivElement, ItemContainerProps>(
-    ({ isSelected, padded = true, onClick, children, forceHoverStyle, className }, ref) => (
+    ({ isSelected, isCompact = false, onClick, children, forceHoverStyle, className }, ref) => (
         <ItemContainerDiv
             isSelected={isSelected}
-            padded={padded}
+            isCompact={isCompact}
             onClick={onClick}
             ref={ref}
             forceHoverStyle={forceHoverStyle}
