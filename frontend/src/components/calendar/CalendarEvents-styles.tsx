@@ -18,6 +18,8 @@ export const EVENT_CREATION_INTERVAL_IN_MINUTES = 15
 export const EVENT_CREATION_INTERVAL_HEIGHT = (CELL_HEIGHT_VALUE * EVENT_CREATION_INTERVAL_IN_MINUTES) / 60
 export const EVENT_CREATION_INTERVAL_PER_HOUR = 60 / EVENT_CREATION_INTERVAL_IN_MINUTES
 
+export type TEventBodyHeight = 'long' | 'medium' | 'short'
+
 const getEventWidth = (squishFactor: number) => `calc(
     (${TABLE_WIDTH_PERCENTAGE} - ${CELL_BORDER_WIDTH} - ${CELL_LEFT_MARGIN}) * 1/(${squishFactor})
 )`
@@ -111,7 +113,7 @@ export const EventInfoContainer = styled.div`
     position: absolute;
     z-index: 1;
 `
-export const EventInfo = styled.div<{ isLongEvent: boolean; isShortEvent: boolean }>`
+export const EventInfo = styled.div<{ type: TEventBodyHeight }>`
     display: flex;
     padding: 0 ${Spacing._8} 0 ${Spacing._12};
     width: 100%;
@@ -119,19 +121,20 @@ export const EventInfo = styled.div<{ isLongEvent: boolean; isShortEvent: boolea
     box-sizing: border-box;
     gap: ${Spacing._4};
 
-    ${(props) =>
-        props.isShortEvent
-            ? css``
-            : props.isLongEvent
-            ? css`
-                  flex-direction: column;
-                  justify-content: flex-start;
-                  padding-top: ${Spacing._8};
-              `
-            : css`
-                  flex-direction: column;
-                  justify-content: center;
-              `};
+    ${({ type }) =>
+        type === 'long' &&
+        css`
+            flex-direction: column;
+            justify-content: flex-start;
+            padding-top: ${Spacing._8};
+        `};
+    ${({ type }) =>
+        type === 'medium' &&
+        css`
+            flex-direction: column;
+            justify-content: center;
+        `};
+
     ${Typography.label};
 `
 export const EventIconAndTitle = styled.div`

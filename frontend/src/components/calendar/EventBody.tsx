@@ -47,8 +47,12 @@ function EventBody(props: EventBodyProps): JSX.Element {
     const endTimeString = endTime.toFormat('h:mm a') // ex: 3:00 PM
     const startTimeOnlyString = startTime.toFormat('h:mm a') // ex: 3:00 PM
 
-    const isLongEvent = timeDurationMinutes >= LONG_EVENT_THRESHOLD
-    const isShortEvent = timeDurationMinutes < SHORT_EVENT_THRESHOLD
+    const eventType =
+        timeDurationMinutes >= LONG_EVENT_THRESHOLD
+            ? 'long'
+            : timeDurationMinutes < SHORT_EVENT_THRESHOLD
+            ? 'short'
+            : 'medium'
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
 
     const onClick = () => {
@@ -74,7 +78,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                 >
                     <EventInfoContainer onClick={onClick}>
                         <EventDetailPopover event={props.event} date={props.date} hidePopover={isPopoverDisabled}>
-                            <EventInfo isLongEvent={isLongEvent} isShortEvent={isShortEvent}>
+                            <EventInfo type={eventType}>
                                 <EventIconAndTitle>
                                     {props.event.linked_task_id && (
                                         <EventIcon
@@ -85,7 +89,9 @@ function EventBody(props: EventBodyProps): JSX.Element {
                                     <EventTitle>{props.event.title || '(no title)'}</EventTitle>
                                 </EventIconAndTitle>
                                 <EventTime>
-                                    {isShortEvent ? startTimeOnlyString : `${startTimeString} – ${endTimeString}`}
+                                    {eventType === 'short'
+                                        ? startTimeOnlyString
+                                        : `${startTimeString} – ${endTimeString}`}
                                 </EventTime>
                             </EventInfo>
                         </EventDetailPopover>
