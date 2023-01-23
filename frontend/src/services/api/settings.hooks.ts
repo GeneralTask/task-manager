@@ -108,6 +108,8 @@ export const useDeleteLinkedAccount = () => {
     return useMutation(deleteLinkedAccount, {
         onSettled: () => {
             queryClient.invalidateQueries('linked_accounts')
+            queryClient.invalidateQueries('calendars')
+            queryClient.invalidateQueries('events')
         },
     })
 }

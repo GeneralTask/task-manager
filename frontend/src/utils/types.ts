@@ -372,3 +372,14 @@ export interface TNote {
     shared_until?: string
     optimisticId?: string
 }
+
+export interface TCalendar {
+    calendar_id: string
+    color_id: string
+}
+
+export interface TCalendarAccount {
+    account_id: string
+    calendars: TCalendar[]
+    needs_multical_scopes: boolean
+}

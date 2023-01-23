@@ -5,7 +5,7 @@ import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
 import { EVENT_UNDO_TIMEOUT, NO_TITLE, SINGLE_SECOND_INTERVAL } from '../../constants'
 import { useGlobalKeyboardShortcuts, useInterval, useKeyboardShortcut, usePageFocus, useToast } from '../../hooks'
-import { useDeleteEvent, useGetEvents } from '../../services/api/events.hooks'
+import { useDeleteEvent, useEvents } from '../../services/api/events.hooks'
 import Log from '../../services/api/log'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { focusModeBackground, icons, logos } from '../../styles/images'
@@ -201,7 +201,7 @@ const FocusModeScreen = () => {
     }, [])
     const blocks = getMonthsAroundDate(DateTime.now(), 1)
     const monthBlocks = blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
-    const { data: events } = useGetEvents(monthBlocks[1], 'calendar')
+    const { data: events } = useEvents(monthBlocks[1], 'calendar')
     const currentEvents = getEventsCurrentlyHappening(events ?? [])
     const [chosenEvent, setChosenEvent] = useState<TEvent | null>(null)
     const [time, setTime] = useState(DateTime.local())

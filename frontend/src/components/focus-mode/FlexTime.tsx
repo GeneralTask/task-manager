@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
-import { useCreateEvent, useGetEvents } from '../../services/api/events.hooks'
+import { useCreateEvent, useEvents } from '../../services/api/events.hooks'
 import Log from '../../services/api/log'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
@@ -110,7 +110,7 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
         const blocks = getMonthsAroundDate(date, 1)
         return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
     }, [date])
-    const { data: eventsCurrentMonth } = useGetEvents(monthBlocks[1], 'calendar')
+    const { data: eventsCurrentMonth } = useEvents(monthBlocks[1], 'calendar')
     const todayEvents = eventsCurrentMonth?.filter((event) =>
         DateTime.fromISO(event.datetime_start).hasSame(date, 'day')
     )
