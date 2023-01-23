@@ -83,6 +83,7 @@ interface EventBodyStyleProps {
     eventHasEnded: boolean
     isBeingDragged?: boolean
     isDisabled?: boolean
+    isSelected?: boolean
 }
 // using attrs as recommended by styled-components to avoid re-creating style class for every drag state
 export const EventBodyStyle = styled.div.attrs<EventBodyStyleProps>((props) => ({
@@ -96,7 +97,7 @@ export const EventBodyStyle = styled.div.attrs<EventBodyStyleProps>((props) => (
             props.leftOffset
         })`,
         opacity: props.eventHasEnded && !props.isBeingDragged ? 0.5 : 1,
-        zIndex: props.isBeingDragged ? 1 : 0,
+        zIndex: props.isBeingDragged || props.isSelected ? 1 : 0,
         cursor: props.isDisabled ? 'default' : 'pointer',
     },
 }))<EventBodyStyleProps>`

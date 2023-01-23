@@ -47,6 +47,8 @@ function EventBody(props: EventBodyProps): JSX.Element {
     const isLongEvent = timeDurationMinutes >= LONG_EVENT_THRESHOLD
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
 
+    const isSelected = selectedEvent?.id === props.event.id
+
     const onClick = () => {
         if (disableSelectEvent) return
         if (selectedEvent?.id === props.event.id) {
@@ -67,6 +69,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     eventHasEnded={eventHasEnded}
                     isBeingDragged={props.isBeingDragged}
                     isDisabled={disableSelectEvent}
+                    isSelected={isSelected}
                 >
                     <EventInfoContainer onClick={onClick}>
                         <EventDetailPopover event={props.event} date={props.date} hidePopover={isPopoverDisabled}>
@@ -84,11 +87,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                             </EventInfo>
                         </EventDetailPopover>
                     </EventInfoContainer>
-                    <EventFill
-                        squareStart={startedBeforeToday}
-                        squareEnd={endedAfterToday}
-                        isSelected={selectedEvent?.id === props.event.id}
-                    />
+                    <EventFill squareStart={startedBeforeToday} squareEnd={endedAfterToday} isSelected={isSelected} />
                     <ResizeHandle event={props.event} />
                 </EventBodyStyle>
             </FocusModeContextMenuWrapper>
