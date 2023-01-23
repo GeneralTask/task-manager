@@ -135,6 +135,19 @@ func (api *API) DeleteLinkedAccount(c *gin.Context) {
 			Handle500(c)
 			return
 		}
+	} else if accountToDelete.ServiceID == external.TASK_SERVICE_ID_GOOGLE {
+		_, err := database.GetCalendarAccountCollection(api.DB).DeleteMany(
+			context.Background(),
+			bson.M{"$and": []bson.M{
+				{"id_external": accountToDelete.AccountID},
+				{"user_id": userID},
+			}},
+		)
+		if err != nil {
+			api.Logger.Error().Err(err).Msg("failed to clean up calendar accounts")
+			Handle500(c)
+			return
+		}
 	}
 
 	res, err := externalAPITokenCollection.DeleteOne(
