@@ -448,7 +448,7 @@ func TestCreateNewEvent(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		eventCreateObj := EventCreateObject{
-			AccountID:         "test_account_id",
+			CalendarID:        "test_account_id",
 			Summary:           "test summary",
 			Location:          "test location",
 			Description:       "test description",
@@ -474,7 +474,7 @@ func TestCreateNewEvent(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		eventCreateObj := EventCreateObject{
-			AccountID:         "test_account_id",
+			CalendarID:        "test_account_id",
 			Summary:           "test summary",
 			Location:          "test location",
 			Description:       "test description",
@@ -511,7 +511,7 @@ func TestCreateNewEvent(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		eventCreateObj := EventCreateObject{
-			AccountID:         "test_account_id",
+			CalendarID:        "test_account_id",
 			Summary:           "test summary",
 			Location:          "test location",
 			Description:       "test description",
@@ -550,7 +550,7 @@ func TestCreateNewEvent(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		eventCreateObj := EventCreateObject{
-			AccountID:         "test_account_id",
+			CalendarID:        "test_account_id",
 			Summary:           "test summary",
 			Location:          "test location",
 			Description:       "test description",
