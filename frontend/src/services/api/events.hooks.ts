@@ -332,7 +332,7 @@ export const useSelectedCalendars = () => {
             newSelectedCalendars.splice(index, 1)
         })
         setSelectedCalendars(newSelectedCalendars)
-    }, [calendars?.length])
+    }, [calendars])
 
     return { selectedCalendars }
 }
