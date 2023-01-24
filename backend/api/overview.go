@@ -623,7 +623,7 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 	for _, event := range *events {
 		if accessRole, ok := calendarToAccessRole[calendarKey{event.SourceAccountID, event.CalendarID}]; ok {
 			if accessRole != "owner" {
-				continue
+				continue // only create meeting prep tasks for "owned" calendars
 			}
 		} else {
 			continue // could not find the calendar in db
