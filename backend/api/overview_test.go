@@ -726,6 +726,17 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 	timeOneDayLater := api.GetCurrentTime().Add(24 * time.Hour)
 	timeZero := time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC)
 
+	_, err = database.UpdateOrCreateCalendarAccount(db, userID, "123abc", "foobar_source",
+		&database.CalendarAccount{
+			UserID:     userID,
+			IDExternal: "acctid",
+			Calendars: []database.Calendar{
+				{"owner", "calid", ""},
+				{"reader", "other_calid", ""},
+			},
+		}, nil)
+	assert.NoError(t, err)
+
 	t.Run("InvalidUser", func(t *testing.T) {
 		res, err := api.GetMeetingPreparationOverviewResult(view, primitive.NewObjectID(), timezoneOffset)
 		assert.Error(t, err)
@@ -739,7 +750,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, 0, len(res.ViewItems))
 	})
 	t.Run("EventStartTimeHasPassed", func(t *testing.T) {
-		_, err := createTestEvent(calendarEventCollection, userID, "coffee", primitive.NewObjectID().Hex(), timeOneHourAgo, timeOneHourLater, primitive.NilObjectID)
+		_, err := createTestEvent(calendarEventCollection, userID, "coffee", primitive.NewObjectID().Hex(), timeOneHourAgo, timeOneHourLater, primitive.NilObjectID, "acctid", "calid")
 		assert.NoError(t, err)
 		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
 		assert.NoError(t, err)
@@ -747,9 +758,9 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, 0, len(res.ViewItems))
 	})
 	t.Run("EventStartTimeIsNextDay", func(t *testing.T) {
-		_, err := createTestEvent(calendarEventCollection, userID, "get donuts", primitive.NewObjectID().Hex(), timeOneDayLater, timeOneDayLater, primitive.NilObjectID)
+		_, err := createTestEvent(calendarEventCollection, userID, "get donuts", primitive.NewObjectID().Hex(), timeOneDayLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
 		assert.NoError(t, err)
-		_, err = createTestEvent(calendarEventCollection, userID, "chat", primitive.NewObjectID().Hex(), timeEarlyTomorrow, timeEarlyTomorrow, primitive.NilObjectID)
+		_, err = createTestEvent(calendarEventCollection, userID, "chat", primitive.NewObjectID().Hex(), timeEarlyTomorrow, timeEarlyTomorrow, primitive.NilObjectID, "acctid", "calid")
 		assert.NoError(t, err)
 		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
 		assert.NoError(t, err)
@@ -757,10 +768,10 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, 0, len(res.ViewItems))
 	})
 	t.Run("EventStartTimeIsInValidRange", func(t *testing.T) {
-		_, err := createTestEvent(calendarEventCollection, userID, "Event1", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NilObjectID)
+		_, err := createTestEvent(calendarEventCollection, userID, "Event1", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
 		assert.NoError(t, err)
 		// shouldn't show task to cal events
-		_, err = createTestEvent(calendarEventCollection, userID, "EventTask", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NewObjectID())
+		_, err = createTestEvent(calendarEventCollection, userID, "EventTask", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NewObjectID(), "acctid", "calid")
 		assert.NoError(t, err)
 		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
 		assert.NoError(t, err)
@@ -772,7 +783,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 	})
 	t.Run("MeetingPrepTaskAlreadyExists", func(t *testing.T) {
 		idExternal := primitive.NewObjectID().Hex()
-		insertResult, err := createTestEvent(calendarEventCollection, userID, "Event2", idExternal, timeTwoHoursLater, timeOneDayLater, primitive.NilObjectID)
+		insertResult, err := createTestEvent(calendarEventCollection, userID, "Event2", idExternal, timeTwoHoursLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
 		assert.NoError(t, err)
 
 		_, err = createTestMeetingPreparationTask(taskCollection, userID, "Event2", idExternal, false, timeTwoHoursLater, timeOneDayLater, insertResult.InsertedID.(primitive.ObjectID))
@@ -842,18 +853,32 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.NotEqual(t, primitive.DateTime(0), item.CompletedAt)
 		assert.Equal(t, true, item.MeetingPreparationParams.HasBeenAutomaticallyCompleted)
 	})
+	t.Run("EventIsNotOnOwnedCalendar", func(t *testing.T) {
+		idExternal := primitive.NewObjectID().Hex()
+		insertResult, err := createTestEvent(calendarEventCollection, userID, "Event2", idExternal, timeTwoHoursLater, timeOneDayLater, primitive.NilObjectID, "acctid", "other_calid")
+		assert.NoError(t, err)
+
+		_, err = createTestMeetingPreparationTask(taskCollection, userID, "Event2", idExternal, false, timeTwoHoursLater, timeOneDayLater, insertResult.InsertedID.(primitive.ObjectID))
+		assert.NoError(t, err)
+
+		var item database.Task
+		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertResult.InsertedID.(primitive.ObjectID)}).Decode(&item)
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+	})
 }
 
-func createTestEvent(calendarEventCollection *mongo.Collection, userID primitive.ObjectID, title string, idExternal string, dateTimeStart time.Time, dateTimeEnd time.Time, linkedTaskID primitive.ObjectID) (*mongo.InsertOneResult, error) {
+func createTestEvent(calendarEventCollection *mongo.Collection, userID primitive.ObjectID, title string, idExternal string, dateTimeStart time.Time, dateTimeEnd time.Time, linkedTaskID primitive.ObjectID, account_id string, calendar_id string) (*mongo.InsertOneResult, error) {
 	return calendarEventCollection.InsertOne(context.Background(), database.CalendarEvent{
-		UserID:        userID,
-		Title:         title,
-		Body:          "event body",
-		IDExternal:    idExternal,
-		SourceID:      external.TASK_SOURCE_ID_GCAL,
-		DatetimeStart: primitive.NewDateTimeFromTime(dateTimeStart),
-		DatetimeEnd:   primitive.NewDateTimeFromTime(dateTimeEnd),
-		LinkedTaskID:  linkedTaskID,
+		UserID:          userID,
+		Title:           title,
+		Body:            "event body",
+		IDExternal:      idExternal,
+		SourceID:        external.TASK_SOURCE_ID_GCAL,
+		SourceAccountID: account_id,
+		CalendarID:      calendar_id,
+		DatetimeStart:   primitive.NewDateTimeFromTime(dateTimeStart),
+		DatetimeEnd:     primitive.NewDateTimeFromTime(dateTimeEnd),
+		LinkedTaskID:    linkedTaskID,
 	})
 }
 

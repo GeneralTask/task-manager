@@ -18,10 +18,10 @@ spec:
           resources:
             requests:
               memory: "2Gi"
-              cpu: "1024m"
+              cpu: "1000m"
             limits:
               memory: "2Gi"
-              cpu: "1024m"
+              cpu: "2000m"
           imagePullPolicy: Always
           name: "core"
           env:
