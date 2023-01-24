@@ -183,6 +183,47 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		// assert repo is found
 		assert.NoError(t, err)
 	})
+	t.Run("SuccessGoogle", func(t *testing.T) {
+		authToken := login("deletelinkedaccount_github@generaltask.com", "")
+		userID := getUserIDFromAuthToken(t, api.DB, authToken)
+		accountID := "correctAccountID"
+
+		calendarAccountToDelete, err := database.UpdateOrCreateCalendarAccount(api.DB, userID, "123abc", "foobar_source",
+			&database.CalendarAccount{
+				UserID:     userID,
+				IDExternal: accountID,
+				Calendars:  []database.Calendar{{CalendarID: "cal1", ColorID: "col1"}},
+				Scopes:     []string{"https://www.googleapis.com/auth/calendar"},
+			}, nil)
+		assert.NoError(t, err)
+
+		res, err := database.GetExternalTokenCollection(api.DB).InsertOne(
+			context.Background(),
+			&database.ExternalAPIToken{
+				AccountID:    accountID,
+				ServiceID:    external.TASK_SERVICE_ID_GOOGLE,
+				UserID:       userID,
+				DisplayID:    "Google",
+				IsUnlinkable: true,
+			},
+		)
+		assert.NoError(t, err)
+		externalTokenID := res.InsertedID.(primitive.ObjectID)
+
+		ServeRequest(t, authToken, "DELETE", "/linked_accounts/"+externalTokenID.Hex()+"/", nil, http.StatusOK, api)
+		var token database.ExternalAPIToken
+		err = database.GetExternalTokenCollection(api.DB).FindOne(
+			context.Background(),
+			bson.M{"_id": externalTokenID},
+		).Decode(&token)
+		// assert token is not found in db anymore
+		assert.Error(t, err)
+
+		var account database.CalendarAccount
+		err = database.GetCalendarAccountCollection(api.DB).FindOne(context.Background(), bson.M{"_id": calendarAccountToDelete.ID}).Decode(&account)
+		// assert calendar account is not found in db anymore
+		assert.Error(t, err)
+	})
 	UnauthorizedTest(t, "DELETE", "/linked_accounts/123/", nil)
 }
 
