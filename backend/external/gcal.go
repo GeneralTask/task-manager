@@ -149,6 +149,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		events = append(events, eventResult.CalendarEvents...)
 		calendarAccount.Calendars = []database.Calendar{
 			{
+				AccessRole: "owner",
 				CalendarID: "primary",
 				ColorID:    "",
 			},
@@ -165,6 +166,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 	eventsChannels := []chan CalendarResult{}
 	for _, calendar := range calendarList.Items {
 		calendars = append(calendars, database.Calendar{
+			AccessRole: calendar.AccessRole,
 			CalendarID: calendar.Id,
 			ColorID:    calendar.ColorId,
 		})
