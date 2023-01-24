@@ -190,6 +190,7 @@ type PullRequestComment struct {
 }
 
 type Calendar struct {
+	AccessRole string `bson:"access_role,omitempty"`
 	CalendarID string `bson:"calendar_id,omitempty"`
 	ColorID    string `bson:"color_id,omitempty"`
 	Title      string `bson:"title,omitempty"`
