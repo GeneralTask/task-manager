@@ -4,8 +4,10 @@ import { RecurrenceRate } from './enums'
 
 export type EmptyString = ''
 
+export type TTaskSourceName = 'General Task' | 'Google Calendar' | 'Git PR' | 'Jira' | 'Linear' | 'Slack'
+
 export interface TTaskSource {
-    name: 'General Task' | 'Google Calendar' | 'Git PR' | 'Jira' | 'Linear' | 'Slack'
+    name: TTaskSourceName
     logo: string
     logo_v2: TLogoImage
     is_completable: boolean
@@ -49,7 +51,7 @@ export interface TTask {
     is_done: boolean
     is_deleted: boolean
     is_meeting_preparation_task: boolean
-    comments?: TLinearComment[]
+    comments?: TComment[]
     isSubtask?: boolean
     slack_message_params?: TSlackMessageParams
     meeting_preparation_params?: TMeetingPreparationParams
@@ -72,6 +74,7 @@ export interface TTaskV4 {
     priority_normalized: number
     due_date: string
     source: TTaskSource
+    sender: string
     is_done: boolean
     is_deleted: boolean
     created_at: string
@@ -82,36 +85,10 @@ export interface TTaskV4 {
     subtask_ids?: string[]
     meeting_preparation_params?: TMeetingPreparationParams
     slack_message_params?: TSlackMessageParams
-    comments?: TLinearComment[]
-    external_status?: TExternalStatus
-
-    all_statuses?: TExternalStatus[] // Deprecated but still in response (will be moved to userInfo)
-}
-export interface TTaskV4 {
-    id: string
-    id_ordering: number
-    title: string
-    deeplink: string
-    body: string
-    priority_normalized: number
-    due_date: string
-    source: TTaskSource
-    sender: string // Slack sender name
-    is_done: boolean
-    is_deleted: boolean
-    created_at: string
-    updated_at: string
-    id_folder: string
-    id_nux_number?: number
-    id_parent?: string
-    subtask_ids?: string[]
-    meeting_preparation_params?: TMeetingPreparationParams
-    slack_message_params?: TSlackMessageParams
-    comments?: TLinearComment[]
+    comments?: TComment[]
     external_status?: TExternalStatus
     recurring_task_template_id?: string
 
-    optimisticId?: string // Used only internally, not sent in response
     all_statuses?: TExternalStatus[] // Deprecated but still in response (will be moved to userInfo)
 }
 
@@ -141,13 +118,13 @@ export interface TSlackMessageParams {
     }
 }
 
-export interface TLinearComment {
+export interface TComment {
     body: string
     created_at: string
-    user: TLinearUser
+    user: TCommentUser
 }
 
-export interface TLinearUser {
+export interface TCommentUser {
     DisplayName: string
     Email: string
     ExternalID: string
@@ -394,4 +371,15 @@ export interface TNote {
     is_deleted: boolean
     shared_until?: string
     optimisticId?: string
+}
+
+export interface TCalendar {
+    calendar_id: string
+    color_id: string
+}
+
+export interface TCalendarAccount {
+    account_id: string
+    calendars: TCalendar[]
+    needs_multical_scopes: boolean
 }

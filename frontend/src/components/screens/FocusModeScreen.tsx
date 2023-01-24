@@ -3,9 +3,9 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
-import { EVENT_UNDO_TIMEOUT, SINGLE_SECOND_INTERVAL } from '../../constants'
-import { useGlobalKeyboardShortcuts, useInterval, useKeyboardShortcut, useToast } from '../../hooks'
-import { useDeleteEvent, useGetEvents } from '../../services/api/events.hooks'
+import { EVENT_UNDO_TIMEOUT, NO_TITLE, SINGLE_SECOND_INTERVAL } from '../../constants'
+import { useGlobalKeyboardShortcuts, useInterval, useKeyboardShortcut, usePageFocus, useToast } from '../../hooks'
+import { useDeleteEvent, useEvents } from '../../services/api/events.hooks'
 import Log from '../../services/api/log'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { focusModeBackground, icons, logos } from '../../styles/images'
@@ -19,9 +19,10 @@ import { Icon } from '../atoms/Icon'
 import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
-import JoinMeetingButton from '../atoms/buttons/JoinMeetingButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import { Bold } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
+import EventMeetingAction from '../focus-mode/EventMeetingAction'
 import FlexTime from '../focus-mode/FlexTime'
 import CardSwitcher from '../molecules/CardSwitcher'
 import CommandPalette from '../molecules/CommandPalette'
@@ -33,8 +34,10 @@ const FOCUS_MODE_WIDTH = '956px'
 const EventHeaderContainer = styled.div`
     display: flex;
 `
-const MarginLeftContainer = styled.div`
+const ActionsContainer = styled.div`
     margin-left: auto;
+    display: flex;
+    height: fit-content;
 `
 export const IconButton = styled(NoStyleButton)`
     padding: ${Spacing._8};
@@ -78,16 +81,7 @@ const ClockContainer = styled.div`
     padding: ${Spacing._24} ${Spacing._32};
     font-weight: 274;
 `
-const NotificationMessage = styled.div<{ isCentered?: boolean }>`
-    position: relative;
-    ${(props) => props.isCentered && `justify-content: center;`}
-    border: 1px solid ${Colors.border.light};
-    border-radius: ${Border.radius.large};
-    display: flex;
-    padding: ${Spacing._24} ${Spacing._16};
-    align-items: center;
-    ${Typography.bodySmall};
-`
+
 const NextEventContainer = styled.div`
     ${Typography.body};
 `
@@ -100,9 +94,6 @@ const AdvanceEventContainer = styled.div`
     cursor: pointer;
     gap: ${Spacing._8};
     ${Typography.body};
-`
-const BoldText = styled.span`
-    ${Typography.bold};
 `
 const EventContainer = styled.div`
     padding: ${Spacing._32};
@@ -126,6 +117,7 @@ const BodyHeader = styled.div`
 `
 const Body = styled.div`
     ${Typography.body};
+    overflow-wrap: break-word;
 `
 const Subtitle = styled.div`
     ${Typography.subtitle};
@@ -143,10 +135,7 @@ const CurrentEvent = styled(GTShadowContainer)`
     border: ${Border.stroke.small} solid ${Colors.border.light};
     cursor: pointer;
 `
-const RightAbsoluteContainer = styled.div`
-    position: absolute;
-    right: ${Spacing._16};
-`
+
 const EventTitle = styled.div`
     display: flex;
     align-items: center;
@@ -184,11 +173,12 @@ const getEventsCurrentlyHappening = (events: TEvent[]) => {
 }
 
 const FocusModeScreen = () => {
-    const { selectedEvent, setSelectedEvent, setIsPopoverDisabled, setIsCollapsed, setCalendarType } =
-        useCalendarContext(true)
+    const { selectedEvent, setSelectedEvent, setIsPopoverDisabled, setIsCollapsed, setCalendarType, setDate } =
+        useCalendarContext()
     useEffect(() => {
         setIsCollapsed(false)
         setCalendarType('day')
+        setDate(DateTime.local())
         setIsPopoverDisabled(true)
         return () => {
             setIsPopoverDisabled(false)
@@ -197,11 +187,13 @@ const FocusModeScreen = () => {
     }, [])
     const blocks = getMonthsAroundDate(DateTime.now(), 1)
     const monthBlocks = blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
-    const { data: events } = useGetEvents(monthBlocks[1], 'calendar')
+    const { data: events } = useEvents(monthBlocks[1], 'calendar')
     const currentEvents = getEventsCurrentlyHappening(events ?? [])
     const [chosenEvent, setChosenEvent] = useState<TEvent | null>(null)
     const [time, setTime] = useState(DateTime.local())
     const [shouldAutoAdvanceEvent, setShouldAutoAdvanceEvent] = useState(true)
+    usePageFocus(true)
+
     const nextEvent = events?.find((event) => {
         const eventStart = DateTime.fromISO(event.datetime_start)
         return eventStart.hasSame(time, 'day') && eventStart > time
@@ -262,8 +254,6 @@ const FocusModeScreen = () => {
         false
     )
 
-    const conferenceCall = chosenEvent?.conference_call.logo ? chosenEvent.conference_call : null
-    const eventHasEnded = DateTime.fromISO(chosenEvent?.datetime_end || '') < DateTime.local()
     const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
     const gtToast = useToast()
     useGlobalKeyboardShortcuts()
@@ -327,7 +317,7 @@ const FocusModeScreen = () => {
                                             <CurrentEvent key={event.id} onClick={() => setSelectedEvent(event)}>
                                                 <EventTitle>
                                                     <Icon icon={logos[event.logo]} />
-                                                    <EventTitleText>{event.title}</EventTitleText>
+                                                    <EventTitleText>{event.title || NO_TITLE}</EventTitleText>
                                                 </EventTitle>
                                                 <TimeRange
                                                     start={DateTime.fromISO(event.datetime_start)}
@@ -342,36 +332,18 @@ const FocusModeScreen = () => {
                             {chosenEvent && (
                                 <>
                                     <EventHeaderContainer>
-                                        <GTHeader title={title}>{title}</GTHeader>
-                                        <MarginLeftContainer>
+                                        <GTHeader>{title || NO_TITLE}</GTHeader>
+                                        <ActionsContainer>
                                             <ExternalLinkButton link={chosenEvent.deeplink} />
                                             <IconButton onClick={onDelete}>
                                                 <Icon icon={icons.trash} />
                                             </IconButton>
-                                        </MarginLeftContainer>
+                                        </ActionsContainer>
                                     </EventHeaderContainer>
                                     <GTTitle>
                                         <TimeRange start={timeStart} end={timeEnd} />
                                     </GTTitle>
-                                    {conferenceCall && !eventHasEnded && (
-                                        <NotificationMessage>
-                                            <span>
-                                                <span>This meeting is happening</span>
-                                                <BoldText> right now</BoldText>.
-                                            </span>
-                                            <RightAbsoluteContainer>
-                                                <JoinMeetingButton conferenceCall={conferenceCall} shortened={false} />
-                                            </RightAbsoluteContainer>
-                                        </NotificationMessage>
-                                    )}
-                                    {eventHasEnded && (
-                                        <NotificationMessage isCentered>
-                                            <span>
-                                                <span>This event is</span>
-                                                <BoldText> in the past</BoldText>.
-                                            </span>
-                                        </NotificationMessage>
-                                    )}
+                                    {chosenEvent && <EventMeetingAction event={chosenEvent} />}
                                     <div>
                                         {chosenEvent.linked_view_id ? (
                                             <CardSwitcher viewId={chosenEvent.linked_view_id} />
@@ -393,7 +365,6 @@ const FocusModeScreen = () => {
                                 initialShowMainHeader={false}
                                 hideContainerShadow
                                 hasLeftBorder
-                                ignoreContext
                             />
                         </CalendarContainer>
                     </MainContainer>
@@ -402,7 +373,7 @@ const FocusModeScreen = () => {
                             {nextEvent && isDateToday(DateTime.fromISO(nextEvent.datetime_start)) && (
                                 <span>
                                     Next event is in
-                                    <BoldText> {getTimeUntilNextEvent(nextEvent)}</BoldText>.
+                                    <Bold> {getTimeUntilNextEvent(nextEvent)}</Bold>.
                                 </span>
                             )}
                         </NextEventContainer>

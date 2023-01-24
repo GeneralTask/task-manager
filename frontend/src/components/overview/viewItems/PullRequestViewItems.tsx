@@ -17,8 +17,6 @@ const PullRequestViewItems = forwardRef(
         const { overviewItemId } = useParams()
         const sortAndFilterSettings = useSortAndFilterSettings<TPullRequest>(PR_SORT_AND_FILTER_CONFIG, view.id)
         const { isPreviewMode } = usePreviewMode()
-        const basePath =
-            location.pathname.split('/')[1] === 'daily-overview' && isPreviewMode ? '/daily-overview' : '/overview'
 
         return (
             <>
@@ -45,7 +43,7 @@ const PullRequestViewItems = forwardRef(
                         <PullRequest
                             key={pr.id}
                             pullRequest={pr}
-                            link={`${basePath}/${view.id}/${pr.id}`}
+                            link={`/overview/${view.id}/${pr.id}`}
                             isSelected={pr.id === overviewItemId}
                         />
                     ))}

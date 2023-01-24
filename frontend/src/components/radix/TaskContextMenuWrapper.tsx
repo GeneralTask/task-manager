@@ -80,7 +80,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
                     label: 'Calendar',
                     renderer: () => (
                         <GTDatePicker
-                            initialDate={DateTime.fromISO(task.due_date).toJSDate()}
+                            initialDate={DateTime.fromISO(task.due_date)}
                             setDate={(date) => {
                                 if (parentTask && task) {
                                     modifyTask(

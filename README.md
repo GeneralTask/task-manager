@@ -120,7 +120,8 @@ While we still have the waitlist in place (until October 7th), these are the ste
 Follow these steps, and you should see what a new user to General Task would see when signing up.
 
 ## Deploying backend
-Our backend is currently on AWS EKS in us-west-1 region. These are the steps to setup access
+Our backend is currently on AWS EKS in us-west-1 region. These are the steps to setup access.
+
 We currently perform backend deploys using the Heroku CLI. Assuming you have the heroku credentials, you can deploy with the following steps:
 
 ### One-time Kubernetes setup
@@ -168,7 +169,7 @@ contexts:
 
 ### Interacting with the Kubernetes clusters
 
-To test your configuration, run the following command to make sure your access permissions are correct and to verify the cluster connectivity: `kubectl get svc`, and you should see something like:
+To test your configuration and verify the cluster connectivty, run the following command and you should see something like:
 
 ```
 ➜ kubectl get svc                                        09:26:00
@@ -178,7 +179,7 @@ core-service   NodePort   172.19.64.51   <none>        8080:31254/TCP   21d
 ```
 
 #### Common Commands
-Here's a list of nice k8s commands to add to your shell file:
+Here's a list of nice k8s commands to add to your shell startup file:
 ```
 alias kp="kubectl config use-context prod --namespace prd-gtsk-uswest1"
 alias kgp="kubectl get pods"

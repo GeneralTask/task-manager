@@ -1,5 +1,6 @@
 import { Suspense, lazy } from 'react'
 import ReactGA from 'react-ga4'
+import { Helmet } from 'react-helmet'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Spinner from './src/components/atoms/Spinner'
@@ -20,10 +21,49 @@ ReactGA.initialize(GA_TRACKING_ID, {
 const AuthenticatedRoutes = lazy(() => import('./src/AuthenticatedRoutes'))
 const CompanyPolicyView = lazy(() => import('./src/components/views/CompanyPolicyView'))
 
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: Infinity,
+            cacheTime: Infinity,
+            refetchIntervalInBackground: true,
+        },
+    },
+})
+
 const App = () => {
-    const queryClient = new QueryClient()
     return (
         <QueryClientProvider client={queryClient}>
+            <Helmet>
+                <meta charSet="utf-8" />
+                <title>General Task (beta)</title>
+                <link rel="icon" href="/images/favicon.png" />
+                <script src="https://kit.fontawesome.com/ad8a57c09f.js" crossOrigin="anonymous"></script>
+                <base target="_blank" />
+                <meta
+                    content="Find focus like never before with the best free productivity tool on the market!"
+                    name="description"
+                />
+                <meta
+                    content="General Task (beta) — Free productivity tools for builders like you"
+                    property="og:title"
+                />
+                <meta
+                    content="Find focus like never before with the best free productivity tool on the market!"
+                    property="og:description"
+                />
+                <meta
+                    content="General Task (beta) — Free productivity tools for builders like you"
+                    property="twitter:title"
+                />
+                <meta
+                    content="Find focus like never before with the best free productivity tool on the market!"
+                    property="twitter:description"
+                />
+                <meta property="og:type" content="website" />
+                <meta property="og:image" content="/images/futureman.png" />
+                <meta content="summary_large_image" name="twitter:card" />
+            </Helmet>
             <BrowserRouter>
                 <GlobalStyle />
                 <Suspense fallback={<Spinner />}>

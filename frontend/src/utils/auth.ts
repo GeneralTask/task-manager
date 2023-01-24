@@ -1,10 +1,6 @@
 import Cookie from 'js-cookie'
-import { AUTHORIZATION_COOKE, COOKIE_DOMAIN, GOOGLE_AUTH_ROUTE } from '../constants'
+import { AUTHORIZATION_COOKE, COOKIE_DOMAIN } from '../constants'
 import getEnvVars from '../environment'
-import Log from '../services/api/log'
-
-const AUTH_WINDOW_WIDTH = 960
-const AUTH_WINDOW_HEIGHT = 640
 
 export const isAuthenticated = () => Cookie.get(AUTHORIZATION_COOKE) !== undefined
 
@@ -12,37 +8,4 @@ export const authSignOut = () => {
     Cookie.remove(AUTHORIZATION_COOKE, { path: '/', domain: COOKIE_DOMAIN })
     Cookie.remove(AUTHORIZATION_COOKE) // used for cypress tests
     window.location.href = getEnvVars().REACT_APP_TRY_BASE_URL
-}
-
-export const openPopupWindow = (
-    authorizationURL: string,
-    onWindowClose: () => void,
-    logEvent = true,
-    closeOnCookieSet = false,
-    isGoogleSignIn = false
-) => {
-    if (logEvent) Log(`open_auth_window_${authorizationURL}`)
-    const left = (screen.width - AUTH_WINDOW_WIDTH) / 2
-    const top = (screen.height - AUTH_WINDOW_HEIGHT) / 4
-    const link = isGoogleSignIn
-        ? `${getEnvVars().REACT_APP_FRONTEND_BASE_URL}/${GOOGLE_AUTH_ROUTE}?authUrl=${authorizationURL}`
-        : authorizationURL
-    const win = window.open(
-        link,
-        '_blank',
-        `height=${AUTH_WINDOW_HEIGHT},width=${AUTH_WINDOW_WIDTH},top=${top},left=${left}toolbar=no,menubar=no,scrollbars=no,location=no,status=no`
-    )
-    if (win != null) {
-        const timer = setInterval(() => {
-            if (closeOnCookieSet && Cookie.get(AUTHORIZATION_COOKE)) {
-                win.close()
-                clearInterval(timer)
-                onWindowClose()
-            }
-            if (win.closed) {
-                clearInterval(timer)
-                onWindowClose()
-            }
-        })
-    }
 }

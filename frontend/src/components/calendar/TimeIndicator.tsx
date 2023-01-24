@@ -9,14 +9,21 @@ import { CELL_HEIGHT_VALUE } from './CalendarEvents-styles'
 const INDICATOR_HEIGHT = 1
 const DOT_SIZE = 6
 
-const TimeIndicatorContainer = styled.div<{ topOffset: number; hideDot: boolean }>`
+interface TimeIndicatorContainerProps {
+    topOffset: number
+    hideDot: boolean
+}
+const TimeIndicatorContainer = styled.div.attrs(({ topOffset }: TimeIndicatorContainerProps) => ({
+    style: {
+        top: topOffset,
+    },
+}))<TimeIndicatorContainerProps>`
     width: 100%;
     background-color: ${Colors.gtColor.orange};
     height: ${INDICATOR_HEIGHT}px;
     position: absolute;
-    top: ${(props) => props.topOffset}px;
-    ${(props) =>
-        !props.hideDot &&
+    ${({ hideDot }) =>
+        !hideDot &&
         `::before {
         content: '';
         position: absolute;

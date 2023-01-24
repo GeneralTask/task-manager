@@ -33,11 +33,6 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 		return &database.CalendarEvent{}
 	}
 
-	//exclude clockwise events
-	if strings.Contains(strings.ToLower(event.Summary), "via clockwise") {
-		return &database.CalendarEvent{}
-	}
-
 	//exclude events we declined.
 	for _, attendee := range event.Attendees {
 		if attendee.Self && attendee.ResponseStatus == "declined" {
@@ -95,6 +90,7 @@ func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar
 		List(calendarId).
 		TimeMin(startTime.Format(time.RFC3339)).
 		TimeMax(endTime.Format(time.RFC3339)).
+		MaxResults(2500).
 		SingleEvents(true).
 		OrderBy("startTime").
 		Do()
@@ -135,7 +131,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 
 	fetchAllCalendars := false
 	var calendarList *calendar.CalendarList
-	if hasUserGrantedMultiCalendarScope(scopes) {
+	if database.HasUserGrantedMultiCalendarScope(scopes) {
 		calendarList, err = calendarService.CalendarList.List().Do()
 		if err == nil && calendarList != nil {
 			fetchAllCalendars = true
@@ -157,7 +153,9 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		calendarAccount.Calendars = []database.Calendar{
 			{
 				CalendarID: accountID,
+				AccessRole: "owner",
 				ColorID:    "",
+				Title:      "",
 			},
 		}
 		_, err = database.UpdateOrCreateCalendarAccount(db, userID, accountID, TASK_SOURCE_ID_GCAL, calendarAccount, nil)
@@ -172,8 +170,10 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 	eventsChannels := []chan CalendarResult{}
 	for _, calendar := range calendarList.Items {
 		calendars = append(calendars, database.Calendar{
+			AccessRole: calendar.AccessRole,
 			CalendarID: calendar.Id,
 			ColorID:    calendar.ColorId,
+			Title:      calendar.Summary,
 		})
 		eventChannel := make(chan CalendarResult)
 		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, calendar.Id, startTime, endTime, eventChannel)

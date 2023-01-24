@@ -1,14 +1,14 @@
-import { useCallback, useLayoutEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { ExtensionPriority, RemirrorEventListenerProps } from '@remirror/core'
 import { Remirror, useRemirror } from '@remirror/react'
 import jsx from 'refractor/lang/jsx'
 import typescript from 'refractor/lang/typescript'
 import * as RemirrorExtensions from 'remirror/extensions'
 import tlds from 'tlds'
-import { MarkdownEditorProps } from '../types'
+import { RichTextEditorProps } from '../types'
 import MarkdownEditorInternal from './MarkdownEditorInternal'
 
-const MarkdownEditor = (props: MarkdownEditorProps) => {
+const MarkdownEditor = (props: RichTextEditorProps) => {
     const linkExtension = useMemo(() => {
         const extension = new RemirrorExtensions.LinkExtension({ autoLink: true, autoLinkAllowedTLDs: tlds })
         extension.addHandler('onClick', (_, data) => {
@@ -37,18 +37,12 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
             new RemirrorExtensions.StrikeExtension(),
             new RemirrorExtensions.TableExtension(),
             new RemirrorExtensions.TrailingNodeExtension(),
-            new RemirrorExtensions.UnderlineExtension(),
             new RemirrorExtensions.ImageExtension({ enableResizing: true }),
         ],
         content: props.value,
         selection: 'end',
         stringHandler: 'markdown',
     })
-
-    // when the selected task changes, update the content
-    useLayoutEffect(() => {
-        manager.view.updateState(manager.createState({ content: props.value }))
-    }, [props.itemId])
 
     const onEdit = useCallback(
         ({ helpers }: RemirrorEventListenerProps<Remirror.Extensions>) => {

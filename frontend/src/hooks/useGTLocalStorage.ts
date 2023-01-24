@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
 
 type TLocalStorageKeys =
     | 'noteCreation'
@@ -9,6 +9,9 @@ type TLocalStorageKeys =
     | 'overdueCollapsed'
     | 'dueTodayCollapsed'
     | 'taskToCalendarSidebar'
+    | 'overviewAutomaticEmptySort'
+    | 'isUsingSmartPrioritization'
+    | 'selectedCalendars'
 
 // based on https://usehooks.com/useLocalStorage/
 // if updateOnStoreChange is true, the hook will update the state when the value is changed on this tab or another tab
@@ -24,22 +27,25 @@ const useGTLocalStorage = <T>(
         return item ? JSON.parse(item) : initialValue
     })
 
-    const setValue = (value: T | ((val: T) => T)) => {
-        // Allow value to be a function so we have same API as useState
-        const valueToStore = value instanceof Function ? value(storedValue) : value
-        // Save state
-        setStoredValue(valueToStore)
-        const serialized = JSON.stringify(valueToStore)
-        // Save to local storage
-        window.localStorage.setItem(key, serialized)
-        // Dispatch custom event so other instances of this hook can re-render
-        window.dispatchEvent(
-            new StorageEvent('storage', {
-                key,
-                newValue: serialized,
-            })
-        )
-    }
+    const setValue = useCallback(
+        (value: T | ((val: T) => T)) => {
+            // Allow value to be a function so we have same API as useState
+            const valueToStore = value instanceof Function ? value(storedValue) : value
+            // Save state
+            setStoredValue(valueToStore)
+            const serialized = JSON.stringify(valueToStore)
+            // Save to local storage
+            window.localStorage.setItem(key, serialized)
+            // Dispatch custom event so other instances of this hook can re-render
+            window.dispatchEvent(
+                new StorageEvent('storage', {
+                    key,
+                    newValue: serialized,
+                })
+            )
+        },
+        [storedValue, key, setStoredValue]
+    )
 
     useEffect(() => {
         if (!updateOnStoreChange) return

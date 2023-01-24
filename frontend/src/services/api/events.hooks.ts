@@ -1,13 +1,14 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { useCalendarContext } from '../../components/calendar/CalendarContext'
 import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
+import { useGTLocalStorage } from '../../hooks'
 import apiClient from '../../utils/api'
-import { TEvent, TOverviewView, TTask } from '../../utils/types'
-import { useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { TCalendarAccount, TEvent, TOverviewView, TTask } from '../../utils/types'
+import { getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
 
 interface TEventAttendee {
     name: string
@@ -77,10 +78,7 @@ export const useGetEvents = (params: { startISO: string; endISO: string }, calen
     return useQuery<TEvent[]>(
         ['events', calendarType, params.startISO],
         (queryFunctionContext) => getEvents(params, queryFunctionContext),
-        {
-            refetchInterval: EVENTS_REFETCH_INTERVAL,
-            refetchIntervalInBackground: true,
-        }
+        getBackgroundQueryOptions(EVENTS_REFETCH_INTERVAL)
     )
 }
 const getEvents = async (params: { startISO: string; endISO: string }, { signal }: QueryFunctionContext) => {
@@ -278,4 +276,77 @@ const modifyEvent = async (data: TModifyEventData) => {
     } catch {
         throw new Error('modifyEvent failed')
     }
+}
+
+export const useGetCalendars = () => {
+    return useQuery<TCalendarAccount[]>('calendars', getCalendars, getBackgroundQueryOptions(EVENTS_REFETCH_INTERVAL))
+}
+const getCalendars = async () => {
+    try {
+        const res = await apiClient.get('/calendars/')
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('getCalendars failed')
+    }
+}
+
+export const useSelectedCalendars = () => {
+    const { data: calendars } = useGetCalendars()
+    const [selectedCalendars, setSelectedCalendars] = useGTLocalStorage<TCalendarAccount[]>(
+        'selectedCalendars',
+        [],
+        true
+    )
+
+    // update selected calendars when calendar accounts are added/removed
+    useEffect(() => {
+        if (!calendars) return
+
+        const newAccounts = calendars.filter(
+            (calendar) =>
+                !selectedCalendars.find((selectedCalendar) => selectedCalendar.account_id === calendar.account_id)
+        )
+
+        const removedAccounts = selectedCalendars.filter(
+            (selectedCalendar) => !calendars.find((calendar) => calendar.account_id === selectedCalendar.account_id)
+        )
+
+        if (!newAccounts.length && !removedAccounts.length) return
+
+        const newSelectedCalendars = [...selectedCalendars]
+        // when a new account is added, select the primary calendar
+        newAccounts.forEach((account) => {
+            const primaryCalendar = account.calendars.find(
+                (calendar) => calendar.calendar_id === account.account_id || calendar.calendar_id === 'primary'
+            )
+            if (primaryCalendar)
+                newSelectedCalendars.push({
+                    ...account,
+                    calendars: [primaryCalendar],
+                })
+        })
+        removedAccounts.forEach((removedAccount) => {
+            const index = newSelectedCalendars.findIndex(
+                (newSelectedCalendar) => newSelectedCalendar.account_id === removedAccount.account_id
+            )
+            newSelectedCalendars.splice(index, 1)
+        })
+        setSelectedCalendars(newSelectedCalendars)
+    }, [calendars])
+
+    return { selectedCalendars }
+}
+
+// wrapper around useGetEvents that filters out events that are not in the selected calendars
+export const useEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
+    const { data: events, ...rest } = useGetEvents(params, calendarType)
+    const { selectedCalendars } = useSelectedCalendars()
+    const filteredEvents = useMemo(() => {
+        if (!events || selectedCalendars.length === 0) return events
+        const selectedCalendarsSet = new Set(
+            selectedCalendars.map((account) => account.calendars.map((calendar) => calendar.calendar_id)).flat()
+        )
+        return events.filter((event) => selectedCalendarsSet.has(event.calendar_id))
+    }, [events, selectedCalendars])
+    return { data: filteredEvents, ...rest }
 }

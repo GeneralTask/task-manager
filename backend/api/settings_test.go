@@ -166,13 +166,17 @@ func TestSettingsModify(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
-		userID := getUserIDFromAuthToken(t, db, authToken)
-		setting, err := settings.GetUserSetting(db, userID, settings.SettingFieldGithubFilteringPreference)
+		request, _ = http.NewRequest("GET", "/settings/", nil)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder = httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err = io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, settings.ChoiceKeyAllPRs, *setting)
+		assert.Contains(t, string(body), "{\"field_key\":\"github_filtering_preference\",\"field_name\":\"\",\"choices\":[{\"choice_key\":\"actionable_only\",\"choice_name\":\"\"},{\"choice_key\":\"all_prs\",\"choice_name\":\"\"}],\"field_value\":\"all_prs\"}")
 	})
 	t.Run("SuccessAlreadyExists", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
+		authToken := login("approved2@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 		settings.UpdateUserSetting(db, userID, settings.SettingFieldGithubFilteringPreference, settings.ChoiceKeyActionableOnly)
 
@@ -192,8 +196,13 @@ func TestSettingsModify(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
-		setting, err := settings.GetUserSetting(db, userID, settings.SettingFieldGithubFilteringPreference)
+		request, _ = http.NewRequest("GET", "/settings/", nil)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder = httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err = io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, settings.ChoiceKeyAllPRs, *setting)
+		assert.Contains(t, string(body), "{\"field_key\":\"github_filtering_preference\",\"field_name\":\"\",\"choices\":[{\"choice_key\":\"actionable_only\",\"choice_name\":\"\"},{\"choice_key\":\"all_prs\",\"choice_name\":\"\"}],\"field_value\":\"all_prs\"}")
 	})
 }

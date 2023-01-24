@@ -118,6 +118,13 @@ spec:
                   key: MONGO_URI_MIGRATIONS
                   optional: false
 
+            - name: OPEN_AI_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: core-secrets
+                  key: OPEN_AI_CLIENT_SECRET
+                  optional: false
+
             - name: SERVER_URL
               valueFrom:
                 secretKeyRef:

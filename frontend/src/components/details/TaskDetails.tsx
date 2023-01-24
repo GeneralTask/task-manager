@@ -24,7 +24,7 @@ import {
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { TRecurringTaskTemplate, TTask } from '../../utils/types'
-import { getFolderIdFromTask } from '../../utils/utils'
+import { EMPTY_ARRAY, getFolderIdFromTask } from '../../utils/utils'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
@@ -51,7 +51,7 @@ import PriorityDropdown from '../radix/PriorityDropdown'
 import TaskActionsDropdown from '../radix/TaskActionsDropdown'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import TaskBody from './TaskBody'
-import LinearCommentList from './linear/LinearCommentList'
+import CommentList from './comments/CommentList'
 import SlackMessage from './slack/SlackMessage'
 
 const TITLE_MAX_HEIGHT = 208
@@ -289,6 +289,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                                         renderTrigger={(isOpen, setIsOpen) => (
                                             <GTIconButton
                                                 icon={icons.folder}
+                                                shortcutName="moveTaskToFolder"
                                                 onClick={() => setIsOpen(!isOpen)}
                                                 forceShowHoverEffect={isOpen}
                                                 asDiv
@@ -309,7 +310,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                 <GTTextField
                     type="plaintext"
                     ref={titleRef}
-                    itemId={currentTask.id}
+                    key={currentTask.id}
                     value={isInTrash ? `${currentTask.title} (deleted)` : currentTask.title}
                     disabled={
                         !!currentTask.optimisticId ||
@@ -356,7 +357,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                 )}
                 {!isRecurringTaskTemplate && (
                     <GTDatePicker
-                        initialDate={DateTime.fromISO(currentTask.due_date ?? '').toJSDate()}
+                        initialDate={DateTime.fromISO(currentTask.due_date ?? '')}
                         setDate={(date) => modifyTask({ id: task.id, dueDate: date, subtaskId: subtask?.id })}
                         disabled={isInTrash}
                     />
@@ -401,6 +402,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                     <TaskBody
                         id={currentTask.id}
                         body={currentTask.body ?? ''}
+                        contentType={currentTask.source?.name === 'Jira' ? 'atlassian' : 'markdown'}
                         onChange={(val) => onEdit({ id: currentTask.id, body: val })}
                         disabled={isInTrash}
                         nux_number_id={currentTask.nux_number_id}
@@ -408,10 +410,13 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                     {currentTask.source?.name === GENERAL_TASK_SOURCE_NAME && !isInTrash && (
                         <SubtaskList parentTask={currentTask as TTask} subtasks={currentTask.sub_tasks ?? []} />
                     )}
-                    {currentTask.external_status && (
+                    {currentTask.external_status && currentTask.source && (
                         <CommentContainer>
                             <Divider color={Colors.border.extra_light} />
-                            <LinearCommentList comments={currentTask.comments ?? []} />
+                            <CommentList
+                                comments={currentTask.comments ?? EMPTY_ARRAY}
+                                sourceName={currentTask.source.name}
+                            />
                         </CommentContainer>
                     )}
                     {currentTask.source?.name !== 'Jira' && currentTask.external_status && !isInTrash && (

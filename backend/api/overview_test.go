@@ -35,7 +35,7 @@ func TestOverview(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		regex := `\[{"id":"[a-z0-9]{24}","name":"Task Inbox","type":"task_section","logo":"generaltask","is_linked":true,"sources":\[\],"task_section_id":"000000000000000000000001","is_reorderable":true,"ordering_id":1,"view_items":\[{"id":"[a-z0-9]{24}","id_ordering":1,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Put tasks on your calendar with click-and-drag","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":1,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":2,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Shut out distractions with Focus Mode","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":2,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":3,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Connect other services to see things in one place","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":3,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":4,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"A sincere thank you from the team","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":4,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"}],"has_tasks_completed_today":false},{"id":"[a-z0-9]{24}","name":"Linear Issues","type":"linear","logo":"linear","is_linked":false,"sources":\[{"name":"Linear","authorization_url":"http://localhost:8080/link/linear/"}],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":2,"view_items":\[\],"has_tasks_completed_today":false},{"id":"[a-z0-9]{24}","name":"Slack Messages","type":"slack","logo":"slack","is_linked":false,"sources":\[{"name":"Slack","authorization_url":"http://localhost:8080/link/slack/"}\],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":3,"view_items":\[\],"has_tasks_completed_today":false}]`
+		regex := `\[{"id":"[a-z0-9]{24}","name":"Task Inbox","type":"task_section","logo":"generaltask","is_linked":true,"sources":\[\],"task_section_id":"000000000000000000000001","is_reorderable":true,"ordering_id":1,"view_items":\[{"id":"[a-z0-9]{24}","id_ordering":1,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"🗓 Drag tasks onto your calendar","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":1,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":2,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"🔎 Shut out distractions with Focus Mode","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":2,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":3,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"⚙️ Connect your services to see things in one place","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":3,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":4,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"💬 Create tasks out of Slack Messages","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":5,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":5,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"A sincere thank you from the team","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":4,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"}],"has_tasks_completed_today":false},{"id":"[a-z0-9]{24}","name":"Linear Issues","type":"linear","logo":"linear","is_linked":false,"sources":\[{"name":"Linear","authorization_url":"http://localhost:8080/link/linear/"}],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":2,"view_items":\[\],"has_tasks_completed_today":false},{"id":"[a-z0-9]{24}","name":"Slack Messages","type":"slack","logo":"slack","is_linked":false,"sources":\[{"name":"Slack","authorization_url":"http://localhost:8080/link/slack/"}\],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":3,"view_items":\[\],"has_tasks_completed_today":false}]`
 		assert.Regexp(t, regex, string(body))
 	})
 	t.Run("NoViews", func(t *testing.T) {
@@ -726,6 +726,17 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 	timeOneDayLater := api.GetCurrentTime().Add(24 * time.Hour)
 	timeZero := time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC)
 
+	_, err = database.UpdateOrCreateCalendarAccount(db, userID, "123abc", "foobar_source",
+		&database.CalendarAccount{
+			UserID:     userID,
+			IDExternal: "acctid",
+			Calendars: []database.Calendar{
+				{"owner", "calid", "", ""},
+				{"reader", "other_calid", "", ""},
+			},
+		}, nil)
+	assert.NoError(t, err)
+
 	t.Run("InvalidUser", func(t *testing.T) {
 		res, err := api.GetMeetingPreparationOverviewResult(view, primitive.NewObjectID(), timezoneOffset)
 		assert.Error(t, err)
@@ -739,7 +750,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, 0, len(res.ViewItems))
 	})
 	t.Run("EventStartTimeHasPassed", func(t *testing.T) {
-		_, err := createTestEvent(calendarEventCollection, userID, "coffee", primitive.NewObjectID().Hex(), timeOneHourAgo, timeOneHourLater, primitive.NilObjectID)
+		_, err := createTestEvent(calendarEventCollection, userID, "coffee", primitive.NewObjectID().Hex(), timeOneHourAgo, timeOneHourLater, primitive.NilObjectID, "acctid", "calid")
 		assert.NoError(t, err)
 		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
 		assert.NoError(t, err)
@@ -747,9 +758,9 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, 0, len(res.ViewItems))
 	})
 	t.Run("EventStartTimeIsNextDay", func(t *testing.T) {
-		_, err := createTestEvent(calendarEventCollection, userID, "get donuts", primitive.NewObjectID().Hex(), timeOneDayLater, timeOneDayLater, primitive.NilObjectID)
+		_, err := createTestEvent(calendarEventCollection, userID, "get donuts", primitive.NewObjectID().Hex(), timeOneDayLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
 		assert.NoError(t, err)
-		_, err = createTestEvent(calendarEventCollection, userID, "chat", primitive.NewObjectID().Hex(), timeEarlyTomorrow, timeEarlyTomorrow, primitive.NilObjectID)
+		_, err = createTestEvent(calendarEventCollection, userID, "chat", primitive.NewObjectID().Hex(), timeEarlyTomorrow, timeEarlyTomorrow, primitive.NilObjectID, "acctid", "calid")
 		assert.NoError(t, err)
 		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
 		assert.NoError(t, err)
@@ -757,10 +768,10 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, 0, len(res.ViewItems))
 	})
 	t.Run("EventStartTimeIsInValidRange", func(t *testing.T) {
-		_, err := createTestEvent(calendarEventCollection, userID, "Event1", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NilObjectID)
+		_, err := createTestEvent(calendarEventCollection, userID, "Event1", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
 		assert.NoError(t, err)
 		// shouldn't show task to cal events
-		_, err = createTestEvent(calendarEventCollection, userID, "EventTask", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NewObjectID())
+		_, err = createTestEvent(calendarEventCollection, userID, "EventTask", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NewObjectID(), "acctid", "calid")
 		assert.NoError(t, err)
 		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
 		assert.NoError(t, err)
@@ -772,7 +783,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 	})
 	t.Run("MeetingPrepTaskAlreadyExists", func(t *testing.T) {
 		idExternal := primitive.NewObjectID().Hex()
-		insertResult, err := createTestEvent(calendarEventCollection, userID, "Event2", idExternal, timeTwoHoursLater, timeOneDayLater, primitive.NilObjectID)
+		insertResult, err := createTestEvent(calendarEventCollection, userID, "Event2", idExternal, timeTwoHoursLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
 		assert.NoError(t, err)
 
 		_, err = createTestMeetingPreparationTask(taskCollection, userID, "Event2", idExternal, false, timeTwoHoursLater, timeOneDayLater, insertResult.InsertedID.(primitive.ObjectID))
@@ -842,18 +853,32 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.NotEqual(t, primitive.DateTime(0), item.CompletedAt)
 		assert.Equal(t, true, item.MeetingPreparationParams.HasBeenAutomaticallyCompleted)
 	})
+	t.Run("EventIsNotOnOwnedCalendar", func(t *testing.T) {
+		idExternal := primitive.NewObjectID().Hex()
+		insertResult, err := createTestEvent(calendarEventCollection, userID, "Event2", idExternal, timeTwoHoursLater, timeOneDayLater, primitive.NilObjectID, "acctid", "other_calid")
+		assert.NoError(t, err)
+
+		_, err = createTestMeetingPreparationTask(taskCollection, userID, "Event2", idExternal, false, timeTwoHoursLater, timeOneDayLater, insertResult.InsertedID.(primitive.ObjectID))
+		assert.NoError(t, err)
+
+		var item database.Task
+		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertResult.InsertedID.(primitive.ObjectID)}).Decode(&item)
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+	})
 }
 
-func createTestEvent(calendarEventCollection *mongo.Collection, userID primitive.ObjectID, title string, idExternal string, dateTimeStart time.Time, dateTimeEnd time.Time, linkedTaskID primitive.ObjectID) (*mongo.InsertOneResult, error) {
+func createTestEvent(calendarEventCollection *mongo.Collection, userID primitive.ObjectID, title string, idExternal string, dateTimeStart time.Time, dateTimeEnd time.Time, linkedTaskID primitive.ObjectID, account_id string, calendar_id string) (*mongo.InsertOneResult, error) {
 	return calendarEventCollection.InsertOne(context.Background(), database.CalendarEvent{
-		UserID:        userID,
-		Title:         title,
-		Body:          "event body",
-		IDExternal:    idExternal,
-		SourceID:      external.TASK_SOURCE_ID_GCAL,
-		DatetimeStart: primitive.NewDateTimeFromTime(dateTimeStart),
-		DatetimeEnd:   primitive.NewDateTimeFromTime(dateTimeEnd),
-		LinkedTaskID:  linkedTaskID,
+		UserID:          userID,
+		Title:           title,
+		Body:            "event body",
+		IDExternal:      idExternal,
+		SourceID:        external.TASK_SOURCE_ID_GCAL,
+		SourceAccountID: account_id,
+		CalendarID:      calendar_id,
+		DatetimeStart:   primitive.NewDateTimeFromTime(dateTimeStart),
+		DatetimeEnd:     primitive.NewDateTimeFromTime(dateTimeEnd),
+		LinkedTaskID:    linkedTaskID,
 	})
 }
 
@@ -1274,6 +1299,7 @@ func TestOverviewModify(t *testing.T) {
 	thirdViewID := result.InsertedIDs[2].(primitive.ObjectID)
 	fourthViewID := result.InsertedIDs[3].(primitive.ObjectID)
 
+	UnauthorizedTest(t, "PATCH", fmt.Sprintf("/overview/views/%s/", firstViewID.Hex()), nil)
 	t.Run("MissingIDOrdering", func(t *testing.T) {
 		url := fmt.Sprintf("/overview/views/%s/", firstViewID.Hex())
 		ServeRequest(t, authToken, "PATCH", url, nil, http.StatusBadRequest, nil)
@@ -1323,6 +1349,46 @@ func TestOverviewModify(t *testing.T) {
 		checkViewPosition(t, viewCollection, firstViewID, 1)
 		checkViewPosition(t, viewCollection, secondViewID, 2)
 		checkViewPosition(t, viewCollection, thirdViewID, 3)
+		checkViewPosition(t, viewCollection, fourthViewID, 1)
+	})
+	// reuse same views for bulk modify tests
+	UnauthorizedTest(t, "PATCH", "/overview/views/bulk_modify/", nil)
+	t.Run("MissingParams", func(t *testing.T) {
+		// Expected Result: [1, 2, 3]
+		body := ServeRequest(t, authToken, "PATCH", "/overview/views/bulk_modify/", bytes.NewBuffer([]byte(`{}`)), http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"invalid or missing parameter\"}", string(body))
+		checkViewPosition(t, viewCollection, firstViewID, 1)
+		checkViewPosition(t, viewCollection, secondViewID, 2)
+		checkViewPosition(t, viewCollection, thirdViewID, 3)
+		checkViewPosition(t, viewCollection, fourthViewID, 1)
+	})
+	t.Run("MalformattedParams", func(t *testing.T) {
+		// Expected Result: [1, 2, 3]
+		body := ServeRequest(t, authToken, "PATCH", "/overview/views/bulk_modify/", bytes.NewBuffer([]byte(`{"ordered_view_ids": [1, "oops"]}`)), http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"invalid or missing parameter\"}", string(body))
+		checkViewPosition(t, viewCollection, firstViewID, 1)
+		checkViewPosition(t, viewCollection, secondViewID, 2)
+		checkViewPosition(t, viewCollection, thirdViewID, 3)
+		checkViewPosition(t, viewCollection, fourthViewID, 1)
+	})
+	t.Run("InvalidIDs", func(t *testing.T) {
+		// Expected Result: [1, 2, 3]
+		params := fmt.Sprintf(`{"ordered_view_ids": ["%s"]}`, fourthViewID.Hex())
+		body := ServeRequest(t, authToken, "PATCH", "/overview/views/bulk_modify/", bytes.NewBuffer([]byte(params)), http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"invalid or duplicate view IDs provided\"}", string(body))
+		checkViewPosition(t, viewCollection, firstViewID, 1)
+		checkViewPosition(t, viewCollection, secondViewID, 2)
+		checkViewPosition(t, viewCollection, thirdViewID, 3)
+		checkViewPosition(t, viewCollection, fourthViewID, 1)
+	})
+	t.Run("Success", func(t *testing.T) {
+		// Expected Result: [3, 1, 2]
+		params := fmt.Sprintf(`{"ordered_view_ids": ["%s", "%s", "%s"]}`, secondViewID.Hex(), thirdViewID.Hex(), firstViewID.Hex())
+		body := ServeRequest(t, authToken, "PATCH", "/overview/views/bulk_modify/", bytes.NewBuffer([]byte(params)), http.StatusOK, nil)
+		assert.Equal(t, "{}", string(body))
+		checkViewPosition(t, viewCollection, firstViewID, 3)
+		checkViewPosition(t, viewCollection, secondViewID, 1)
+		checkViewPosition(t, viewCollection, thirdViewID, 2)
 		checkViewPosition(t, viewCollection, fourthViewID, 1)
 	})
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -9,6 +10,7 @@ import { Icon } from '../atoms/Icon'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { Label, Truncated } from '../atoms/typography/Typography'
 import ItemContainer from '../molecules/ItemContainer'
+import NoteContextMenuWrapper from './NoteContextMenuWrapper'
 
 const NoteTitle = styled(Truncated)`
     ${Typography.bodySmall};
@@ -28,20 +30,23 @@ interface NoteProps {
     onSelect: (note: TNote) => void
 }
 const Note = ({ note, isSelected, onSelect }: NoteProps) => {
+    const [contextMenuOpen, setContextMenuOpen] = useState(false)
     const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
     return (
-        <TaskTemplate>
-            <ItemContainer isSelected={isSelected} onClick={() => onSelect(note)}>
-                <TitleContainer deleted={note.is_deleted}>
-                    <Icon icon={icons.note} />
-                    <NoteTitle>{note.title}</NoteTitle>
-                </TitleContainer>
-                <Flex gap={Spacing._12} alignItems="center">
-                    {isShared && <Icon icon={icons.link} />}
-                    <Label color="light">{getHumanDateTime(DateTime.fromISO(note.created_at))}</Label>
-                </Flex>
-            </ItemContainer>
-        </TaskTemplate>
+        <NoteContextMenuWrapper note={note} onOpenChange={setContextMenuOpen}>
+            <TaskTemplate>
+                <ItemContainer isSelected={isSelected} onClick={() => onSelect(note)} forceHoverStyle={contextMenuOpen}>
+                    <TitleContainer deleted={note.is_deleted}>
+                        <Icon icon={icons.note} />
+                        <NoteTitle>{note.title}</NoteTitle>
+                    </TitleContainer>
+                    <Flex gap={Spacing._12} alignItems="center">
+                        {isShared && <Icon icon={icons.link} />}
+                        <Label color="light">{getHumanDateTime(DateTime.fromISO(note.created_at))}</Label>
+                    </Flex>
+                </ItemContainer>
+            </TaskTemplate>
+        </NoteContextMenuWrapper>
     )
 }
 

@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME, SINGLE_SECOND_INTERVAL } from '../../constants'
 import { useInterval, usePreviewMode } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
-import { useGetEvents } from '../../services/api/events.hooks'
+import { useEvents } from '../../services/api/events.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { getMonthsAroundDate, isDateToday } from '../../utils/time'
 import { useCalendarContext } from '../calendar/CalendarContext'
@@ -32,7 +32,6 @@ interface CalendarViewProps {
     hideContainerShadow?: boolean
     hasLeftBorder?: boolean
     additonalHeaderContent?: React.ReactNode
-    ignoreContext?: boolean
 }
 const CalendarView = ({
     initialType,
@@ -42,18 +41,17 @@ const CalendarView = ({
     hideContainerShadow = false,
     hasLeftBorder = false,
     additonalHeaderContent,
-    ignoreContext = false,
 }: CalendarViewProps) => {
     const [showMainHeader, setShowMainHeader] = useState<boolean>(initialShowMainHeader ?? true)
     const [showDateHeader, setShowDateHeader] = useState<boolean>(initialShowDateHeader ?? true)
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
     const { date, calendarType, isCollapsed, setDate, setCalendarType, setIsCollapsed, setShowTaskToCalSidebar } =
-        useCalendarContext(ignoreContext)
+        useCalendarContext()
     const monthBlocks = useMemo(() => {
         const blocks = getMonthsAroundDate(date, 1)
         return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
     }, [date])
-    useGetEvents(monthBlocks[1], 'calendar')
+    useEvents(monthBlocks[1], 'calendar')
 
     const { pathname } = useLocation()
     const isFocusMode = pathname.startsWith('/focus-mode')
@@ -67,7 +65,13 @@ const CalendarView = ({
 
     useInterval(
         () => {
-            if (timeoutTimer.isIdle()) setDate(DateTime.now())
+            if (timeoutTimer.isIdle()) {
+                if (calendarType === 'day') {
+                    setDate(DateTime.now())
+                } else {
+                    setDate(DateTime.now().minus({ days: DateTime.now().weekday % 7 }))
+                }
+            }
         },
         SINGLE_SECOND_INTERVAL,
         false

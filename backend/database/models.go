@@ -8,16 +8,18 @@ import (
 
 // User model
 type User struct {
-	ID                 primitive.ObjectID `bson:"_id,omitempty"`
-	GoogleID           string             `bson:"google_id"`
-	Email              string             `bson:"email"`
-	Name               string             `bson:"name"`
-	LastRefreshed      primitive.DateTime `bson:"last_refreshed,omitempty"`
-	AgreedToTerms      *bool              `bson:"agreed_to_terms,omitempty"`
-	OptedIntoMarketing *bool              `bson:"opted_into_marketing,omitempty"`
-	CreatedAt          primitive.DateTime `bson:"created_at,omitempty"`
-	LinearName         string             `bson:"linear_name"`
-	LinearDisplayName  string             `bson:"linear_display_name"`
+	ID                    primitive.ObjectID `bson:"_id,omitempty"`
+	GoogleID              string             `bson:"google_id"`
+	Email                 string             `bson:"email"`
+	Name                  string             `bson:"name"`
+	LastRefreshed         primitive.DateTime `bson:"last_refreshed,omitempty"`
+	AgreedToTerms         *bool              `bson:"agreed_to_terms,omitempty"`
+	OptedIntoMarketing    *bool              `bson:"opted_into_marketing,omitempty"`
+	CreatedAt             primitive.DateTime `bson:"created_at,omitempty"`
+	LinearName            string             `bson:"linear_name"`
+	LinearDisplayName     string             `bson:"linear_display_name"`
+	GPTSuggestionsLeft    int                `bson:"gpt_suggestions_left"`
+	GPTLastSuggestionTime primitive.DateTime `bson:"gpt_last_suggestion_time"`
 }
 
 type UserChangeable struct {
@@ -188,8 +190,10 @@ type PullRequestComment struct {
 }
 
 type Calendar struct {
+	AccessRole string `bson:"access_role,omitempty"`
 	CalendarID string `bson:"calendar_id,omitempty"`
 	ColorID    string `bson:"color_id,omitempty"`
+	Title      string `bson:"title,omitempty"`
 }
 
 type CalendarAccount struct {

@@ -1,6 +1,7 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import useQueryContext from '../../context/QueryContext'
+import { useGTLocalStorage } from '../../hooks'
 import apiClient from '../../utils/api'
 import { TOverviewView, TOverviewViewType, TSupportedView, TSupportedViewItem } from '../../utils/types'
 import { arrayMoveInPlace } from '../../utils/utils'
@@ -24,10 +25,12 @@ interface TReorderViewData {
 }
 export const useReorderViews = () => {
     const queryClient = useGTQueryClient()
+    const [, setIsUsingSmartPrioritization] = useGTLocalStorage('isUsingSmartPrioritization', false, true)
     return useQueuedMutation((data: TReorderViewData) => reorderView(data), {
         tag: 'overview',
         invalidateTagsOnSettled: ['overview'],
         onMutate: async ({ id, idOrdering }: TReorderViewData) => {
+            setIsUsingSmartPrioritization(false)
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             if (!views) return
             await Promise.all([queryClient.cancelQueries('overview'), queryClient.cancelQueries('tasks')])
@@ -57,6 +60,44 @@ const reorderView = async (data: TReorderViewData) => {
         return castImmutable(res.data)
     } catch {
         throw new Error('reorderView failed')
+    }
+}
+
+interface TBulkModifyViewsData {
+    ordered_view_ids?: string[]
+}
+export const useBulkModifyViews = () => {
+    const queryClient = useGTQueryClient()
+    return useQueuedMutation((data: TBulkModifyViewsData) => bulkModifyViews(data), {
+        tag: 'overview',
+        invalidateTagsOnSettled: ['overview'],
+        onMutate: async (data: TBulkModifyViewsData) => {
+            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+            if (!views) return
+            await Promise.all([queryClient.cancelQueries('overview'), queryClient.cancelQueries('tasks')])
+            const newViews = produce(views, (draft) => {
+                // if ordered_view_ids is provided, reorder the views
+                if (data.ordered_view_ids) {
+                    const idToNewIndex = new Map(data.ordered_view_ids.map((id, index) => [id, index]))
+                    draft.sort((a, b) => {
+                        const aIndex = idToNewIndex.get(a.id)
+                        const bIndex = idToNewIndex.get(b.id)
+                        if (aIndex === undefined || bIndex === undefined) return 0
+                        return aIndex - bIndex
+                    })
+                }
+            })
+            queryClient.setQueryData('overview', newViews)
+        },
+    })
+}
+
+const bulkModifyViews = async (data: TBulkModifyViewsData) => {
+    try {
+        const res = await apiClient.patch('/overview/views/bulk_modify/', data)
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('bulkModifyViews failed')
     }
 }
 
@@ -91,6 +132,7 @@ interface TAddViewReponse {
 export const useAddView = () => {
     const queryClient = useGTQueryClient()
     const { setOptimisticId } = useQueryContext()
+    const [, setIsUsingSmartPrioritization] = useGTLocalStorage('isUsingSmartPrioritization', false, true)
 
     return useQueuedMutation<TAddViewReponse, unknown, TAddViewData, unknown>(
         ({ supportedView, supportedViewItem }: TAddViewData) => {
@@ -112,6 +154,7 @@ export const useAddView = () => {
                 supportedViewItem,
                 supportedViewItemIndex,
             }: TAddViewData) => {
+                setIsUsingSmartPrioritization(false)
                 await Promise.all([
                     queryClient.cancelQueries('overview-supported-views'),
                     queryClient.cancelQueries('overview'),
@@ -176,10 +219,13 @@ interface TRemoveViewData {
 }
 export const useRemoveView = () => {
     const queryClient = useGTQueryClient()
+    const [, setIsUsingSmartPrioritization] = useGTLocalStorage('isUsingSmartPrioritization', false, true)
+
     return useQueuedMutation(({ id }: TRemoveViewData) => removeView(id), {
         tag: 'overview',
         invalidateTagsOnSettled: ['overview', 'overview-supported-views'],
         onMutate: async ({ id }) => {
+            setIsUsingSmartPrioritization(false)
             const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             await Promise.all([
@@ -225,4 +271,29 @@ const removeView = async (viewId: string) => {
     } catch {
         throw new Error('removeView failed')
     }
+}
+
+export const useSmartPrioritizationSuggestionsRemaining = () => {
+    return useQuery<number>('overview-suggestions-remaining', getSmartPrioritizationSuggestionsRemaining, {
+        refetchOnMount: 'always',
+    })
+}
+const getSmartPrioritizationSuggestionsRemaining = async ({ signal }: QueryFunctionContext) => {
+    try {
+        const res = await apiClient.get('/overview/views/suggestions_remaining/', { signal })
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('getOverviewSuggestionsRemaining failed')
+    }
+}
+
+export interface TOverviewSuggestion {
+    id: string
+    reasoning: string
+}
+
+export const getOverviewSmartSuggestion = async () => {
+    const res = await apiClient.get('/overview/views/suggestion/')
+    if (res.status !== 200) throw new Error('getOverviewSmartSuggestion failed')
+    return res.data
 }
