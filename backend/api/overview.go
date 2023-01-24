@@ -489,8 +489,48 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 		return nil, err
 	}
 
-	// Get all meeting prep tasks for user
+	// complete meeting preparation task whose events have changed to different days
 	meetingTasks, err := database.GetMeetingPreparationTasks(api.DB, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, meetingTask := range *meetingTasks {
+		//get event 
+		eventId := meetingTask.MeetingPreparationParams.CalendarEventID
+		event, err := database.GetCalendarEvent(api.DB, eventId, userID)
+		if err != nil {
+			fmt.Printf("error getting event: %v\n", *meetingTask.Title)
+			return nil, err
+		}
+		//if event is not on the same day as the meeting prep task, mark task as complete
+		fmt.Printf("event: %v\n", event.Title)
+
+		fmt.Printf("time of event: %v\n", event.DatetimeStart.Time().Truncate(24*time.Hour))
+		fmt.Printf("time of meeting prep task: %v\n\n", meetingTask.MeetingPreparationParams.DatetimeStart.Time().Truncate(24*time.Hour))
+		//print if times are same
+		fmt.Printf("time of event: %v\n", event.DatetimeStart.Time().Truncate(24*time.Hour) == meetingTask.MeetingPreparationParams.DatetimeStart.Time().Truncate(24*time.Hour))
+
+		if event.DatetimeStart.Time().Truncate(24*time.Hour) != meetingTask.MeetingPreparationParams.DatetimeStart.Time().Truncate(24*time.Hour) {
+			fmt.Printf("event: %v\n", event.Title)
+
+			isCompleted := true
+			updateTask := database.Task{
+				MeetingPreparationParams: &database.MeetingPreparationParams{
+					DatetimeStart: event.DatetimeStart,
+					DatetimeEnd:  event.DatetimeEnd,
+					CalendarEventID: event.ID,
+					IDExternal: event.IDExternal,
+				},
+				IsCompleted: &isCompleted,
+			}
+			database.UpdateOrCreateTask(api.DB, userID, meetingTask.IDExternal, meetingTask.SourceID, nil, updateTask, nil)
+		}
+	}
+
+
+	// Get all meeting prep tasks for user
+	meetingTasks, err = database.GetMeetingPreparationTasks(api.DB, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -666,6 +706,7 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 			IsDeleted:                &isDeleted,
 			SourceID:                 event.SourceID,
 			IsMeetingPreparationTask: true,
+			IDExternal: primitive.NewObjectID().Hex(),
 			MeetingPreparationParams: &database.MeetingPreparationParams{
 				CalendarEventID:               event.ID,
 				IDExternal:                    event.IDExternal,
