@@ -593,31 +593,28 @@ func reorderTaskResultsByDueDate(taskResults []*TaskResult) []*TaskResult {
 	return taskResults
 }
 
-func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID, events *[]database.CalendarEvent) error {
-	var calendarAccounts []database.CalendarAccount
-	cursor, err := database.GetCalendarAccountCollection(db).Find(
-		context.Background(),
-		bson.M{"user_id": userID},
-	)
-	if err != nil {
-		return err
-	}
-	err = cursor.All(context.Background(), &calendarAccounts)
-	if err != nil {
-		return err
-	}
+type calendarKey struct {
+	accountID  string
+	calendarID string
+}
 
-	type calendarKey struct {
-		accountID  string
-		calendarID string
-	}
+func createCalendarToAccessRoleMap(calendarAccounts *[]database.CalendarAccount) map[calendarKey]string {
 	calendarToAccessRole := make(map[calendarKey]string)
-	for _, calendarAccount := range calendarAccounts {
+	for _, calendarAccount := range *calendarAccounts {
 		for _, calendar := range calendarAccount.Calendars {
 			calendarToAccessRole[calendarKey{calendarAccount.IDExternal, calendar.CalendarID}] = calendar.AccessRole
 		}
 		calendarToAccessRole[calendarKey{calendarAccount.IDExternal, "primary"}] = "owner"
 	}
+	return calendarToAccessRole
+}
+
+func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID, events *[]database.CalendarEvent) error {
+	calendarAccounts, err := database.GetCalendarAccounts(db, userID)
+	if err != nil {
+		return err
+	}
+	calendarToAccessRole := createCalendarToAccessRoleMap(calendarAccounts)
 
 	taskCollection := database.GetTaskCollection(db)
 	for _, event := range *events {
