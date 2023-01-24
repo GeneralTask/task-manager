@@ -9,7 +9,7 @@ interface CalendarSelectorProps {
 }
 const CalendarSelector = ({ mode, trigger }: CalendarSelectorProps) => {
     const { data: calendars } = useGetCalendars()
-    const { lookupTable } = useSelectedCalendars()
+    const { isCalendarSelected } = useSelectedCalendars()
 
     const items = useMemo(
         () =>
@@ -31,10 +31,10 @@ const CalendarSelector = ({ mode, trigger }: CalendarSelectorProps) => {
                     .map((calendar) => ({
                         label: calendar.title || account.account_id, // backend sends empty string for title if it is the primary calendar
                         selected:
-                            mode === 'cal-selection' && lookupTable.get(account.account_id)?.has(calendar.calendar_id),
+                            mode === 'cal-selection' && isCalendarSelected(account.account_id, calendar.calendar_id),
                     })),
             ]) ?? [],
-        [calendars, lookupTable, mode]
+        [calendars, isCalendarSelected, mode]
     )
 
     return <GTDropdownMenu items={items} trigger={trigger} />

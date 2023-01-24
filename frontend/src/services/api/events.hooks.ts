@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
@@ -334,7 +334,6 @@ export const useSelectedCalendars = () => {
         setSelectedCalendars(newSelectedCalendars)
     }, [calendars?.length])
 
-    // used to check if a calendar is selected in O(1) time
     const lookupTable: Map<string, Set<string>> = useMemo(() => {
         return new Map(
             selectedCalendars.map((account) => [
@@ -344,16 +343,22 @@ export const useSelectedCalendars = () => {
         )
     }, [selectedCalendars])
 
-    return { selectedCalendars, lookupTable }
+    // used to check if a calendar is selected in O(1) time
+    const isCalendarSelected = useCallback(
+        (accountId: string, calendarId: string) => lookupTable.get(accountId)?.has(calendarId) ?? false,
+        [lookupTable]
+    )
+
+    return { selectedCalendars, isCalendarSelected }
 }
 
 // wrapper around useGetEvents that filters out events that are not in the selected calendars
 export const useEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
     const { data: events, ...rest } = useGetEvents(params, calendarType)
-    const { selectedCalendars, lookupTable } = useSelectedCalendars()
+    const { selectedCalendars, isCalendarSelected } = useSelectedCalendars()
     const filteredEvents = useMemo(() => {
         if (!events || selectedCalendars.length === 0) return events
-        return events.filter((event) => lookupTable.get(event.account_id)?.has(event.calendar_id))
-    }, [events, selectedCalendars, lookupTable])
+        return events.filter((event) => isCalendarSelected(event.account_id, event.calendar_id))
+    }, [events, selectedCalendars, isCalendarSelected])
     return { data: filteredEvents, ...rest }
 }
