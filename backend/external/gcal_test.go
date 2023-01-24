@@ -115,6 +115,7 @@ func TestGetEvents(t *testing.T) {
 			}},
 		).Decode(&calendarAccount)
 		assert.Equal(t, "primary", calendarAccount.Calendars[0].CalendarID)
+		assert.Equal(t, "owner", calendarAccount.Calendars[0].AccessRole)
 		assert.NoError(t, err)
 	})
 	t.Run("ExistingEvent", func(t *testing.T) {
