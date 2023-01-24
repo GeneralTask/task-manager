@@ -594,8 +594,41 @@ func reorderTaskResultsByDueDate(taskResults []*TaskResult) []*TaskResult {
 }
 
 func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID, events *[]database.CalendarEvent) error {
+	var calendarAccounts []database.CalendarAccount
+	cursor, err := database.GetCalendarAccountCollection(db).Find(
+		context.Background(),
+		bson.M{"user_id": userID},
+	)
+	if err != nil {
+		return err
+	}
+	err = cursor.All(context.Background(), &calendarAccounts)
+	if err != nil {
+		return err
+	}
+
+	type calendarKey struct {
+		accountID  string
+		calendarID string
+	}
+	calendarToAccessRole := make(map[calendarKey]string)
+	for _, calendarAccount := range calendarAccounts {
+		for _, calendar := range calendarAccount.Calendars {
+			calendarToAccessRole[calendarKey{calendarAccount.IDExternal, calendar.CalendarID}] = calendar.AccessRole
+		}
+		calendarToAccessRole[calendarKey{calendarAccount.IDExternal, "primary"}] = "owner"
+	}
+
 	taskCollection := database.GetTaskCollection(db)
 	for _, event := range *events {
+		if accessRole, ok := calendarToAccessRole[calendarKey{event.SourceAccountID, event.CalendarID}]; ok {
+			if accessRole != "owner" {
+				continue
+			}
+		} else {
+			continue // could not find the calendar in db
+		}
+
 		// Check if meeting prep task exists
 		var meetingTask *database.Task
 		err := taskCollection.FindOne(
