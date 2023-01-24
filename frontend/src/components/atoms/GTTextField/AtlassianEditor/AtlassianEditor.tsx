@@ -5,8 +5,8 @@ import Editor from './Editor'
 import Toolbar from './Toolbar'
 
 const EditorAndToolbarContainer = styled.div`
-    height: 100%;
     display: flex;
+    height: 100%;
     flex-direction: column;
     :not(:focus-within) {
         .toolbar {
