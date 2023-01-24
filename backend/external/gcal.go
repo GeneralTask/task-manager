@@ -152,6 +152,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 				AccessRole: "owner",
 				CalendarID: "primary",
 				ColorID:    "",
+				Title:      "",
 			},
 		}
 		_, err = database.UpdateOrCreateCalendarAccount(db, userID, accountID, TASK_SOURCE_ID_GCAL, calendarAccount, nil)
@@ -169,6 +170,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 			AccessRole: calendar.AccessRole,
 			CalendarID: calendar.Id,
 			ColorID:    calendar.ColorId,
+			Title:      calendar.Summary,
 		})
 		eventChannel := make(chan CalendarResult)
 		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, calendar.Id, startTime, endTime, eventChannel)
