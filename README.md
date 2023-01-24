@@ -169,7 +169,7 @@ contexts:
 
 ### Interacting with the Kubernetes clusters
 
-To test your configuration, run the following command to make sure your access permissions are correct and to verify the cluster connectivity: `kubectl get svc`, and you should see something like:
+To test your configuration and verify the cluster connectivty, run the following command and you should see something like:
 
 ```
 ➜ kubectl get svc                                        09:26:00
