@@ -53,6 +53,7 @@ type EventCreateObject struct {
 
 type EventModifyObject struct {
 	AccountID         string      `json:"account_id" binding:"required"`
+	CalendarID        string      `json:"calendar_id"`
 	Summary           *string     `json:"summary"`
 	Location          *string     `json:"location"`
 	Description       *string     `json:"description"`
