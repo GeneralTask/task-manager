@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME, SINGLE_SECOND_INTERVAL } from '../../constants'
 import { useInterval, usePreviewMode } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
-import { useGetEvents } from '../../services/api/events.hooks'
+import { useEvents } from '../../services/api/events.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { getMonthsAroundDate, isDateToday } from '../../utils/time'
 import { useCalendarContext } from '../calendar/CalendarContext'
@@ -51,7 +51,7 @@ const CalendarView = ({
         const blocks = getMonthsAroundDate(date, 1)
         return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
     }, [date])
-    useGetEvents(monthBlocks[1], 'calendar')
+    useEvents(monthBlocks[1], 'calendar')
 
     const { pathname } = useLocation()
     const isFocusMode = pathname.startsWith('/focus-mode')
