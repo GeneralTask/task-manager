@@ -38,7 +38,8 @@ type Attendee struct {
 
 type EventCreateObject struct {
 	ID                primitive.ObjectID `json:"id,omitempty"`
-	CalendarID        string             `json:"account_id" binding:"required"`
+	AccountID         string             `json:"account_id" binding:"required"`
+	CalendarID        string             `json:"calendar_id"`
 	Summary           string             `json:"summary,omitempty"`
 	Location          string             `json:"location,omitempty"`
 	Description       string             `json:"description,omitempty"`
