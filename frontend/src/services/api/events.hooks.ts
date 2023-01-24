@@ -334,19 +334,26 @@ export const useSelectedCalendars = () => {
         setSelectedCalendars(newSelectedCalendars)
     }, [calendars?.length])
 
-    return { selectedCalendars }
+    // used to check if a calendar is selected in O(1) time
+    const lookupTable: Map<string, Set<string>> = useMemo(() => {
+        return new Map(
+            selectedCalendars.map((account) => [
+                account.account_id,
+                new Set(account.calendars.map((calendar) => calendar.calendar_id)),
+            ])
+        )
+    }, [selectedCalendars])
+
+    return { selectedCalendars, lookupTable }
 }
 
 // wrapper around useGetEvents that filters out events that are not in the selected calendars
 export const useEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
     const { data: events, ...rest } = useGetEvents(params, calendarType)
-    const { selectedCalendars } = useSelectedCalendars()
+    const { selectedCalendars, lookupTable } = useSelectedCalendars()
     const filteredEvents = useMemo(() => {
         if (!events || selectedCalendars.length === 0) return events
-        const selectedCalendarsSet = new Set(
-            selectedCalendars.map((account) => account.calendars.map((calendar) => calendar.calendar_id)).flat()
-        )
-        return events.filter((event) => selectedCalendarsSet.has(event.calendar_id))
-    }, [events, selectedCalendars])
+        return events.filter((event) => lookupTable.get(event.account_id)?.has(event.calendar_id))
+    }, [events, selectedCalendars, lookupTable])
     return { data: filteredEvents, ...rest }
 }

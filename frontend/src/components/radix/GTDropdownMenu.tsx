@@ -129,7 +129,9 @@ const GTDropdownMenu = ({
                                                                     $disabled={subItem.disabled}
                                                                     $textColor={subItem.textColor}
                                                                     onSelect={
-                                                                        subItem.keepOpenOnSelect || keepOpenOnSelect
+                                                                        subItem.keepOpenOnSelect ||
+                                                                        keepOpenOnSelect ||
+                                                                        subItem.disabled
                                                                             ? (e) => e.preventDefault()
                                                                             : emptyFunction
                                                                     }
@@ -174,7 +176,7 @@ const GTDropdownMenu = ({
                                                     $disabled={item.disabled}
                                                     $textColor={item.textColor}
                                                     onSelect={
-                                                        item.keepOpenOnSelect || keepOpenOnSelect
+                                                        item.keepOpenOnSelect || keepOpenOnSelect || item.disabled
                                                             ? (e) => e.preventDefault()
                                                             : emptyFunction
                                                     }
