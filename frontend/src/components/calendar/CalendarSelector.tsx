@@ -23,7 +23,7 @@ const CalendarSelector = ({ mode, trigger }: CalendarSelectorProps) => {
                     icon: logos.gcal,
                 },
                 ...account.calendars.map((calendar) => ({
-                    label: calendar.calendar_id,
+                    label: calendar.title || account.account_id, // backend sends empty string for title if it is the primary calendar
                     selected:
                         mode === 'cal-selection' && lookupTable.get(account.account_id)?.has(calendar.calendar_id),
                 })),

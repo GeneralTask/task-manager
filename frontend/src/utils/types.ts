@@ -376,6 +376,7 @@ export interface TNote {
 export interface TCalendar {
     calendar_id: string
     color_id: string
+    title: string
 }
 
 export interface TCalendarAccount {
