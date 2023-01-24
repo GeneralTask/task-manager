@@ -3,7 +3,7 @@ import { useIdleTimer } from 'react-idle-timer'
 import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME, SINGLE_SECOND_INTERVAL } from '../../constants'
-import { useInterval, usePreviewMode } from '../../hooks'
+import { useInterval } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
@@ -55,7 +55,6 @@ const CalendarView = ({
 
     const { pathname } = useLocation()
     const isFocusMode = pathname.startsWith('/focus-mode')
-    const { isPreviewMode } = usePreviewMode()
     useEffect(() => {
         setCalendarType(initialType)
         if (showMainHeader !== undefined) setShowMainHeader(showMainHeader)
@@ -113,7 +112,7 @@ const CalendarView = ({
             setCalendarType('week')
             setShowTaskToCalSidebar(true)
         }, [calendarType, setCalendarType, setIsCollapsed, setShowTaskToCalSidebar]),
-        isFocusMode || !isPreviewMode
+        isFocusMode
     )
 
     return isCollapsed ? (
