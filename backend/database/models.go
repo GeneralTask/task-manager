@@ -192,6 +192,7 @@ type PullRequestComment struct {
 type Calendar struct {
 	CalendarID string `bson:"calendar_id,omitempty"`
 	ColorID    string `bson:"color_id,omitempty"`
+	Title      string `bson:"title,omitempty"`
 }
 
 type CalendarAccount struct {
