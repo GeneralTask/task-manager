@@ -22,7 +22,7 @@ const ItemContainerDiv = styled.div<{ isSelected?: boolean; isCompact?: boolean;
         `
         outline: ${Border.stroke.medium} solid ${Colors.border.light};
         background-color: ${Colors.background.medium};`}
-    padding: 0 ${({ isCompact }) => (isCompact ? 0 : Spacing._16)};
+    padding: 0 ${({ isCompact }) => (isCompact ? `${Spacing._4} 0 0` : Spacing._16)};
     cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
