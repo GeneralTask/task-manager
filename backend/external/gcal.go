@@ -246,14 +246,18 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(db *mongo.Database, us
 	return nil
 }
 
-func (googleCalendar GoogleCalendarSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error {
+func (googleCalendar GoogleCalendarSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string, calendarID string) error {
 	// TODO: create a EventDeleteURL
 	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarDeleteURL, userID, accountID, context.Background(), db)
 	if err != nil {
 		return err
 	}
 
-	err = calendarService.Events.Delete(accountID, externalID).Do()
+	calendarIDToDelete := accountID
+	if calendarID != "" {
+		calendarIDToDelete = calendarID
+	}
+	err = calendarService.Events.Delete(calendarIDToDelete, externalID).Do()
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to create event")

@@ -604,7 +604,7 @@ func TestDeleteEvent(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarDeleteURL: &server.URL},
 			},
 		}
-		err := googleCalendar.DeleteEvent(db, userID, "exampleAccountID", gcalEventID)
+		err := googleCalendar.DeleteEvent(db, userID, "exampleAccountID", gcalEventID, "")
 		assert.Error(t, err)
 	})
 	t.Run("Success", func(t *testing.T) {
@@ -620,7 +620,7 @@ func TestDeleteEvent(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarDeleteURL: &server.URL},
 			},
 		}
-		err := googleCalendar.DeleteEvent(db, userID, accountID, gcalEventID)
+		err := googleCalendar.DeleteEvent(db, userID, accountID, gcalEventID, "")
 		assert.NoError(t, err)
 	})
 }

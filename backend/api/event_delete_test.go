@@ -27,13 +27,25 @@ func TestEventDelete(t *testing.T) {
 	eventCollection := database.GetCalendarEventCollection(db)
 
 	insertResult, err := eventCollection.InsertOne(context.Background(), database.CalendarEvent{
-		UserID:     userID,
-		IDExternal: "sample_calendar_id",
-		SourceID:   external.TASK_SOURCE_ID_GCAL,
+		UserID:          userID,
+		SourceAccountID: "account_id",
+		CalendarID:      "cal_1",
+		IDExternal:      "sample_calendar_id",
+		SourceID:        external.TASK_SOURCE_ID_GCAL,
+	})
+	assert.NoError(t, err)
+	insertResult2, err := eventCollection.InsertOne(context.Background(), database.CalendarEvent{
+		UserID:          userID,
+		SourceAccountID: "account_id",
+		CalendarID:      "cal_2",
+		IDExternal:      "sample_calendar_id",
+		SourceID:        external.TASK_SOURCE_ID_GCAL,
 	})
 	assert.NoError(t, err)
 	calendarTaskID := insertResult.InsertedID.(primitive.ObjectID)
 	calendarTaskIDHex := calendarTaskID.Hex()
+	calendarTaskID2 := insertResult2.InsertedID.(primitive.ObjectID)
+	calendarTaskIDHex2 := calendarTaskID2.Hex()
 
 	calendarDeleteServer := testutils.GetMockAPIServer(t, 200, "[]")
 	api, dbCleanup := GetAPIWithDBCleanup()
@@ -51,7 +63,7 @@ func TestEventDelete(t *testing.T) {
 		ServeRequest(t, secondAuthToken, "DELETE", "/events/delete/"+calendarTaskIDHex+"1/", nil, http.StatusNotFound, nil)
 	})
 
-	t.Run("MarkAsDoneSuccess", func(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
 		var event database.CalendarEvent
 		err = eventCollection.FindOne(context.Background(), bson.M{"_id": calendarTaskID}).Decode(&event)
 		assert.Equal(t, "sample_calendar_id", event.IDExternal)
@@ -66,6 +78,24 @@ func TestEventDelete(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
 		count, _ := eventCollection.CountDocuments(context.Background(), bson.M{"_id": calendarTaskID})
+		assert.Equal(t, int64(0), count)
+	})
+
+	t.Run("SuccessDifferentEventWithSameAccountID", func(t *testing.T) {
+		var event database.CalendarEvent
+		err = eventCollection.FindOne(context.Background(), bson.M{"_id": calendarTaskID2}).Decode(&event)
+		assert.Equal(t, "sample_calendar_id", event.IDExternal)
+
+		request, _ := http.NewRequest(
+			"DELETE",
+			"/events/delete/"+calendarTaskIDHex2+"/",
+			bytes.NewBuffer([]byte(`{}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		count, _ := eventCollection.CountDocuments(context.Background(), bson.M{"_id": calendarTaskID2})
 		assert.Equal(t, int64(0), count)
 	})
 }

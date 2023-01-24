@@ -821,7 +821,7 @@ func (gitPR GithubPRSource) CreateNewEvent(db *mongo.Database, userID primitive.
 	return errors.New("has not been implemented yet")
 }
 
-func (gitPR GithubPRSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error {
+func (gitPR GithubPRSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string, calendarID string) error {
 	return errors.New("has not been implemented yet")
 }
 
