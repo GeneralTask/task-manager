@@ -1,7 +1,6 @@
 import { ReactNode, useMemo } from 'react'
 import { useGetCalendars, useSelectedCalendars } from '../../services/api/events.hooks'
 import { logos } from '../../styles/images'
-import { EMPTY_ARRAY } from '../../utils/utils'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 
 interface CalendarSelectorProps {
@@ -22,12 +21,19 @@ const CalendarSelector = ({ mode, trigger }: CalendarSelectorProps) => {
                     disabled: true,
                     icon: logos.gcal,
                 },
-                ...account.calendars.map((calendar) => ({
-                    label: calendar.title || account.account_id, // backend sends empty string for title if it is the primary calendar
-                    selected:
-                        mode === 'cal-selection' && lookupTable.get(account.account_id)?.has(calendar.calendar_id),
-                })),
-            ]) ?? EMPTY_ARRAY,
+                ...account.calendars
+                    .sort((a, b) => {
+                        // place the primary calendar at the top
+                        if (a.calendar_id === 'primary' || a.calendar_id === account.account_id) return -1
+                        if (b.calendar_id === 'primary' || b.calendar_id === account.account_id) return 1
+                        return 0
+                    })
+                    .map((calendar) => ({
+                        label: calendar.title || account.account_id, // backend sends empty string for title if it is the primary calendar
+                        selected:
+                            mode === 'cal-selection' && lookupTable.get(account.account_id)?.has(calendar.calendar_id),
+                    })),
+            ]) ?? [],
         [calendars, lookupTable, mode]
     )
 
