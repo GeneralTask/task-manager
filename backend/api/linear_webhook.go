@@ -71,7 +71,7 @@ type LinearCommentPayload struct {
 func (api *API) LinearWebhook(c *gin.Context) {
 	requestIP := c.Request.Header.Get("X-Forwarded-For")
 	if requestIP != ValidLinearIP1 && requestIP != ValidLinearIP2 {
-		api.Logger.Error().Msg("incorrect IP for linear wekbook")
+		api.Logger.Error().Msg("incorrect IP for linear webhook: " + requestIP)
 		c.JSON(400, gin.H{"detail": "invalid request format"})
 		return
 	}
