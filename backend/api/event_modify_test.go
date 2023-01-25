@@ -27,13 +27,26 @@ func TestEventModify(t *testing.T) {
 
 	eventCollection := database.GetCalendarEventCollection(db)
 	event, err := eventCollection.InsertOne(context.Background(), database.CalendarEvent{
-		UserID:        userID,
-		IDExternal:    accountID,
-		SourceID:      external.TASK_SOURCE_ID_GCAL,
-		Title:         "initial summary",
-		Body:          "initial description",
-		DatetimeStart: primitive.DateTime(1609559200000),
-		DatetimeEnd:   primitive.DateTime(1609459200000),
+		UserID:          userID,
+		SourceAccountID: accountID,
+		IDExternal:      "id_external_1",
+		SourceID:        external.TASK_SOURCE_ID_GCAL,
+		Title:           "initial summary",
+		Body:            "initial description",
+		DatetimeStart:   primitive.DateTime(1609559200000),
+		DatetimeEnd:     primitive.DateTime(1609459200000),
+	})
+	assert.NoError(t, err)
+	eventWithCalendarID, err := eventCollection.InsertOne(context.Background(), database.CalendarEvent{
+		UserID:          userID,
+		SourceAccountID: accountID,
+		IDExternal:      "id_external_2",
+		CalendarID:      "calendar_id",
+		SourceID:        external.TASK_SOURCE_ID_GCAL,
+		Title:           "initial summary",
+		Body:            "initial description",
+		DatetimeStart:   primitive.DateTime(1609559200000),
+		DatetimeEnd:     primitive.DateTime(1609459200000),
 	})
 	assert.NoError(t, err)
 	eventObjectID := event.InsertedID.(primitive.ObjectID)
@@ -79,6 +92,30 @@ func TestEventModify(t *testing.T) {
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/events/modify/"+eventID+"/",
+			body)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		event, err := database.GetCalendarEvent(api.DB, eventObjectID, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, "new summary", event.Title)
+		assert.Equal(t, "new description", event.Body)
+		assert.Equal(t, primitive.DateTime(1577836800000), event.DatetimeStart)
+		assert.Equal(t, primitive.DateTime(1580515200000), event.DatetimeEnd)
+	})
+	t.Run("SuccessWithCalendarID", func(t *testing.T) {
+		body := bytes.NewBuffer([]byte(`{
+			"account_id": "duck@duck.com",
+			"summary": "new summary",
+			"description": "new description",
+			"datetime_start": "2020-01-01T00:00:00Z",
+			"datetime_end": "2020-02-01T00:00:00Z"
+		}`))
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/events/modify/"+eventWithCalendarID.InsertedID.(primitive.ObjectID).Hex()+"/",
 			body)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()

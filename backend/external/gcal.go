@@ -47,6 +47,9 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 	if event.Organizer != nil {
 		canModify = canModify || event.Organizer.Self
 	}
+	if calendarID == "primary" {
+		calendarID = accountID
+	}
 	dbEvent := &database.CalendarEvent{
 		UserID:          userID,
 		IDExternal:      event.Id,
@@ -149,8 +152,8 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		events = append(events, eventResult.CalendarEvents...)
 		calendarAccount.Calendars = []database.Calendar{
 			{
+				CalendarID: accountID,
 				AccessRole: "owner",
-				CalendarID: "primary",
 				ColorID:    "",
 				Title:      "",
 			},
@@ -235,7 +238,11 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(db *mongo.Database, us
 		gcalEvent.Visibility = "private"
 	}
 
-	gcalEvent, err = calendarService.Events.Insert(accountID, gcalEvent).
+	calendarID := event.AccountID
+	if event.CalendarID != "" {
+		calendarID = event.CalendarID
+	}
+	gcalEvent, err = calendarService.Events.Insert(calendarID, gcalEvent).
 		ConferenceDataVersion(1).
 		Do()
 	logger := logging.GetSentryLogger()
@@ -248,14 +255,18 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(db *mongo.Database, us
 	return nil
 }
 
-func (googleCalendar GoogleCalendarSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error {
+func (googleCalendar GoogleCalendarSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string, calendarID string) error {
 	// TODO: create a EventDeleteURL
 	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarDeleteURL, userID, accountID, context.Background(), db)
 	if err != nil {
 		return err
 	}
 
-	err = calendarService.Events.Delete(accountID, externalID).Do()
+	calendarIDToDelete := accountID
+	if calendarID != "" {
+		calendarIDToDelete = calendarID
+	}
+	err = calendarService.Events.Delete(calendarIDToDelete, externalID).Do()
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to create event")
@@ -365,7 +376,11 @@ func (googleCalendar GoogleCalendarSource) ModifyEvent(db *mongo.Database, userI
 	if updateFields.Attendees != nil {
 		gcalEvent.Attendees = *createGcalAttendees(updateFields.Attendees)
 	}
-	_, err = calendarService.Events.Patch(accountID, eventID, &gcalEvent).Do()
+	calendarID := accountID
+	if updateFields.CalendarID != "" {
+		calendarID = updateFields.CalendarID
+	}
+	_, err = calendarService.Events.Patch(calendarID, eventID, &gcalEvent).Do()
 	if err != nil {
 		return err
 	}

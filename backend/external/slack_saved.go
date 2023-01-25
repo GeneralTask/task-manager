@@ -106,7 +106,7 @@ func (slackTask SlackSavedTaskSource) CreateNewEvent(db *mongo.Database, userID 
 	return errors.New("has not been implemented yet")
 }
 
-func (slackTask SlackSavedTaskSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error {
+func (slackTask SlackSavedTaskSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string, calendarID string) error {
 	return errors.New("has not been implemented yet")
 }
 

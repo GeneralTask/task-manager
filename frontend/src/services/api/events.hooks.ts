@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 import { useCalendarContext } from '../../components/calendar/CalendarContext'
 import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
-import { useGTLocalStorage } from '../../hooks'
+import { useGTLocalStorage, usePreviewMode } from '../../hooks'
 import apiClient from '../../utils/api'
 import { TCalendarAccount, TEvent, TOverviewView, TTask } from '../../utils/types'
 import { getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
@@ -97,6 +97,7 @@ export const useCreateEvent = () => {
     const queryClient = useGTQueryClient()
     const { selectedEvent, setSelectedEvent } = useCalendarContext()
     const { setOptimisticId } = useQueryContext()
+    const { selectedCalendars } = useSelectedCalendars()
 
     // Keep selectedEvent in a ref so that it can be accessed in can be updated in the onSuccess callback
     const selectedEventRef = useRef(selectedEvent)
@@ -115,13 +116,18 @@ export const useCreateEvent = () => {
             )
             if (!events) return
 
+            // temporarily select the first calendar of the primary account
+            const calendarId =
+                selectedCalendars.find((calendar) => calendar.account_id === createEventPayload.account_id)
+                    ?.calendars[0]?.calendar_id ?? ''
+
             const newEvent: TEvent = {
                 id: optimisticId,
                 optimisticId: optimisticId,
                 title: createEventPayload.summary ?? '',
                 body: createEventPayload.description ?? '',
                 account_id: createEventPayload.account_id,
-                calendar_id: 'TODO',
+                calendar_id: calendarId,
                 logo: linkedTask?.source.logo_v2 ?? 'gcal',
                 deeplink: '',
                 datetime_start: createEventPayload.datetime_start,
@@ -354,11 +360,14 @@ export const useSelectedCalendars = () => {
 
 // wrapper around useGetEvents that filters out events that are not in the selected calendars
 export const useEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
+    const { isPreviewMode } = usePreviewMode()
     const { data: events, ...rest } = useGetEvents(params, calendarType)
     const { selectedCalendars, isCalendarSelected } = useSelectedCalendars()
     const filteredEvents = useMemo(() => {
         if (!events || selectedCalendars.length === 0) return events
+        if (isPreviewMode) {
+            return events.filter((event) => event.calendar_id === event.account_id || event.calendar_id === 'primary')
+        }
         return events.filter((event) => isCalendarSelected(event.account_id, event.calendar_id))
-    }, [events, selectedCalendars, isCalendarSelected])
     return { data: filteredEvents, ...rest }
 }

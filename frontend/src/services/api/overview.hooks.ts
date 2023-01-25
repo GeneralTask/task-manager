@@ -274,7 +274,9 @@ const removeView = async (viewId: string) => {
 }
 
 export const useSmartPrioritizationSuggestionsRemaining = () => {
-    return useQuery<number>('overview-suggestions-remaining', getSmartPrioritizationSuggestionsRemaining)
+    return useQuery<number>('overview-suggestions-remaining', getSmartPrioritizationSuggestionsRemaining, {
+        refetchOnMount: 'always',
+    })
 }
 const getSmartPrioritizationSuggestionsRemaining = async ({ signal }: QueryFunctionContext) => {
     try {
