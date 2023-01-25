@@ -369,5 +369,6 @@ export const useEvents = (params: { startISO: string; endISO: string }, calendar
             return events.filter((event) => event.calendar_id === event.account_id || event.calendar_id === 'primary')
         }
         return events.filter((event) => isCalendarSelected(event.account_id, event.calendar_id))
+    }, [events, selectedCalendars, isPreviewMode, isCalendarSelected])
     return { data: filteredEvents, ...rest }
 }
