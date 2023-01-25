@@ -49,11 +49,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
 
     const onClick = () => {
         if (disableSelectEvent) return
-        if (selectedEvent?.id === props.event.id) {
-            setSelectedEvent(null)
-        } else {
-            setSelectedEvent(props.event)
-        }
+        setSelectedEvent(props.event)
     }
     return (
         <div>
