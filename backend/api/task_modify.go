@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type TaskChangeable struct {
@@ -258,6 +259,7 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 
 	dbQuery := []bson.M{
 		{"_id": bson.M{"$ne": taskID}},
+		{"is_deleted": bson.M{"$ne": true}},
 		{"id_ordering": bson.M{"$gte": *IDOrdering}},
 		{"user_id": userID},
 	}
@@ -270,8 +272,9 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 		taskQuery = append(taskQuery, bson.M{"parent_task_id": task.ParentTaskID})
 	} else {
 		dbQuery = append(dbQuery, bson.M{"id_task_section": IDTaskSection})
+		dbQuery = append(dbQuery, bson.M{"is_completed": bson.M{"$ne": true}})
 		taskQuery = append(taskQuery, bson.M{"id_task_section": IDTaskSection})
-		taskQuery = append(taskQuery, bson.M{"is_completed": false})
+		taskQuery = append(taskQuery, bson.M{"is_completed": bson.M{"$ne": true}})
 	}
 
 	// Move back other tasks to ensure ordering is preserved
@@ -295,9 +298,11 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 
 func (api *API) getTaskResultsFromQuery(taskQuery []bson.M, userID primitive.ObjectID) ([]*TaskResult, error) {
 	taskCollection := database.GetTaskCollection(api.DB)
+	options := options.Find().SetSort(bson.M{"id_ordering": 1})
 	cursor, err := taskCollection.Find(
 		context.Background(),
 		bson.M{"$and": taskQuery},
+		options,
 	)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to fetch tasks")
