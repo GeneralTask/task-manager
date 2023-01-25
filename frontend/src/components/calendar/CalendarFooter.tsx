@@ -17,7 +17,7 @@ const CalendarFooter = () => {
         <Container>
             <CalendarSelector
                 mode="cal-selection"
-                trigger={<GTIconButton icon={icons.eye} tooltipText="Show/hide calendars" />}
+                trigger={<GTIconButton icon={icons.eye} tooltipText="Show/hide calendars" asDiv />}
             />
         </Container>
     )
