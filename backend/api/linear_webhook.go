@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -70,7 +71,7 @@ type LinearCommentPayload struct {
 
 func (api *API) LinearWebhook(c *gin.Context) {
 	requestIP := c.Request.Header.Get("X-Forwarded-For")
-	if requestIP != ValidLinearIP1 && requestIP != ValidLinearIP2 {
+	if !strings.Contains(requestIP, ValidLinearIP1) && !strings.Contains(requestIP, ValidLinearIP2) {
 		api.Logger.Error().Msg("incorrect IP for linear webhook: " + requestIP)
 		c.JSON(400, gin.H{"detail": "invalid request format"})
 		return
