@@ -229,6 +229,20 @@ func GetCalendarEvent(db *mongo.Database, itemID primitive.ObjectID, userID prim
 	return &event, nil
 }
 
+func GetCalendarEventByExternalId(db *mongo.Database, externalID string, userID primitive.ObjectID) (*CalendarEvent, error) {
+	logger := logging.GetSentryLogger()
+	eventCollection := GetCalendarEventCollection(db)
+	mongoResult := FindOneExternalWithCollection(eventCollection, userID, externalID)
+
+	var event CalendarEvent
+	err := mongoResult.Decode(&event)
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to get event: %+v", externalID)
+		return nil, err
+	}
+	return &event, nil
+}
+
 func GetPullRequestByExternalID(db *mongo.Database, externalID string, userID primitive.ObjectID) (*PullRequest, error) {
 	logger := logging.GetSentryLogger()
 	var pullRequest PullRequest

@@ -477,6 +477,7 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
+
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
 	events, err := database.GetEventsUntilEndOfDay(api.DB, userID, timeNow)
 	if err != nil {
@@ -491,6 +492,14 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 
 	// Get all meeting prep tasks for user
 	meetingTasks, err := database.GetMeetingPreparationTasks(api.DB, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Sync existing Meeting prep tasks with their events
+	api.SyncMeetingTasksWithEvents(meetingTasks, userID)
+
+	meetingTasks, err = database.GetMeetingPreparationTasks(api.DB, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -662,6 +671,7 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 		_, err = taskCollection.InsertOne(context.Background(), database.Task{
 			Title:                    &event.Title,
 			UserID:                   userID,
+			IDExternal:               primitive.NewObjectID().Hex(),
 			IsCompleted:              &isCompleted,
 			IsDeleted:                &isDeleted,
 			SourceID:                 event.SourceID,
@@ -672,6 +682,7 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 				DatetimeStart:                 event.DatetimeStart,
 				DatetimeEnd:                   event.DatetimeEnd,
 				HasBeenAutomaticallyCompleted: false,
+				EventMovedOrDeleted:           false,
 			},
 		})
 		if err != nil {
@@ -681,6 +692,34 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 	return nil
 }
 
+func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID primitive.ObjectID) {
+	taskCollection := database.GetTaskCollection(api.DB)
+	for _, task := range *meetingTasks {
+		event, err := database.GetCalendarEventByExternalId(api.DB, task.MeetingPreparationParams.IDExternal, userID)
+		if err != nil || event == nil {
+			continue
+		}
+		eventMovedOrDeleted := task.MeetingPreparationParams.EventMovedOrDeleted
+		// if event has been moved to different day, update event_moved_or_deleted
+		if event.DatetimeStart.Time().Day() != task.MeetingPreparationParams.DatetimeStart.Time().Day() {
+			eventMovedOrDeleted = true
+		}
+
+		task.MeetingPreparationParams.DatetimeStart = event.DatetimeStart
+		task.MeetingPreparationParams.DatetimeEnd = event.DatetimeEnd
+
+		taskCollection.UpdateOne(
+			context.Background(),
+			bson.M{"_id": task.ID},
+			bson.M{"$set": bson.M{
+				"meeting_preparation_params.datetime_start": event.DatetimeStart,
+				"meeting_preparation_params.datetime_end":   event.DatetimeEnd,
+				"meeting_preparation_params.event_moved_or_deleted": eventMovedOrDeleted,
+			}},
+		)
+	}
+}
+
 // GetMeetingPrepTaskResult returns a result of meeting prep tasks for a user, and auto-completes tasks that have ended
 func (api *API) GetMeetingPrepTaskResult(userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
 	eventCollection := database.GetCalendarEventCollection(api.DB)
@@ -688,11 +727,24 @@ func (api *API) GetMeetingPrepTaskResult(userID primitive.ObjectID, expirationTi
 	result := []*TaskResult{}
 	for _, task := range *tasks {
 		// if meeting has ended or linked event no longer exists, mark task as complete
-		count, err := eventCollection.CountDocuments(context.Background(), bson.M{"_id": task.MeetingPreparationParams.CalendarEventID})
+		count, err := eventCollection.CountDocuments(context.Background(), bson.M{"id_external": task.MeetingPreparationParams.IDExternal})
 		if err != nil {
 			return nil, err
 		}
-		if count == int64(0) || task.MeetingPreparationParams.DatetimeEnd.Time().Before(expirationTime) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
+		if count == int64(0) {
+			_, err := taskCollection.UpdateOne(
+				context.Background(),
+				bson.M{"$and": []bson.M{
+					{"_id": task.ID},
+					{"user_id": userID},
+				}},
+				bson.M{"$set": bson.M{
+					"meeting_preparation_params.event_moved_or_deleted": true,
+				}})
+			if err != nil {
+				return nil, err
+			}
+		} else if task.MeetingPreparationParams.DatetimeEnd.Time().Before(expirationTime) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
 			_, err := taskCollection.UpdateOne(
 				context.Background(),
 				bson.M{"$and": []bson.M{
