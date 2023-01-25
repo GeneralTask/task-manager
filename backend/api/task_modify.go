@@ -291,7 +291,17 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 
 	// Remove gaps in ordering IDs
 	taskResults, err := api.getTaskResultsFromQuery(taskQuery, userID)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to fetch tasks in db")
+		Handle500(c)
+		return err
+	}
 	err = api.updateOrderingIDsV2(api.DB, &taskResults)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to update surrounding ordering IDs")
+		Handle500(c)
+		return err
+	}
 
 	return nil
 }
