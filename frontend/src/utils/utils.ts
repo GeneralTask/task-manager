@@ -207,7 +207,8 @@ export const getFormattedDate = (
     textColor: TTextColor
     iconColor: TIconColor
 } => {
-    if (!date || !date.isValid) {
+    // Empty due dates are represented using 0 epoch time
+    if (!date || !date.isValid || +date === 0) {
         return { dateString: 'No due date', textColor: 'light', iconColor: 'gray' }
     }
     if (date.hasSame(DateTime.local(), 'day')) {

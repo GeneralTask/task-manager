@@ -212,7 +212,7 @@ func (linearTask LinearTaskSource) CreateNewEvent(db *mongo.Database, userID pri
 	return errors.New("has not been implemented yet")
 }
 
-func (linearTask LinearTaskSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error {
+func (linearTask LinearTaskSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string, calendarID string) error {
 	return errors.New("has not been implemented yet")
 }
 

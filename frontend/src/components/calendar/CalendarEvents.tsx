@@ -1,6 +1,6 @@
 import { useLayoutEffect, useMemo, useRef } from 'react'
 import { DateTime } from 'luxon'
-import { useGetEvents } from '../../services/api/events.hooks'
+import { useEvents } from '../../services/api/events.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { getMonthsAroundDate, isDateToday } from '../../utils/time'
 import { TEvent } from '../../utils/types'
@@ -139,9 +139,9 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
         return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
     }, [date])
 
-    const { data: eventPreviousMonth } = useGetEvents(monthBlocks[0], 'calendar')
-    const { data: eventsCurrentMonth } = useGetEvents(monthBlocks[1], 'calendar')
-    const { data: eventsNextMonth } = useGetEvents(monthBlocks[2], 'calendar')
+    const { data: eventPreviousMonth } = useEvents(monthBlocks[0], 'calendar')
+    const { data: eventsCurrentMonth } = useEvents(monthBlocks[1], 'calendar')
+    const { data: eventsNextMonth } = useEvents(monthBlocks[2], 'calendar')
 
     const allGroups = useMemo(() => {
         const events = [...(eventPreviousMonth ?? []), ...(eventsCurrentMonth ?? []), ...(eventsNextMonth ?? [])]

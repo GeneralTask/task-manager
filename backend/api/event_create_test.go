@@ -52,6 +52,15 @@ func TestEventCreate(t *testing.T) {
 		assert.Equal(t, eventID, dbEvent.ID)
 		checkEventMatchesCreateObject(t, *dbEvent, defaultEventCreateObject)
 	})
+	t.Run("SuccessNoLinkedTaskWithCalendarID", func(t *testing.T) {
+		eventCreateObj := defaultEventCreateObject
+		eventCreateObj.CalendarID = "calendar_id"
+		eventID := makeCreateRequest(t, &eventCreateObj, http.StatusCreated, "", url, authToken, api)
+		dbEvent, err := database.GetCalendarEvent(api.DB, eventID, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, eventID, dbEvent.ID)
+		checkEventMatchesCreateObject(t, *dbEvent, defaultEventCreateObject)
+	})
 	t.Run("SuccessLinkedView", func(t *testing.T) {
 		viewCollection := database.GetViewCollection(db)
 		mongoResult, err := viewCollection.InsertOne(context.Background(), database.View{
@@ -150,6 +159,7 @@ func TestEventCreate(t *testing.T) {
 
 func checkEventMatchesCreateObject(t *testing.T, event database.CalendarEvent, createObject external.EventCreateObject) {
 	assert.Equal(t, createObject.AccountID, event.SourceAccountID)
+	assert.Equal(t, createObject.CalendarID, event.CalendarID)
 	assert.Equal(t, createObject.Summary, event.Title)
 	assert.Equal(t, createObject.Description, event.Body)
 	assert.Equal(t, primitive.NewDateTimeFromTime(*createObject.DatetimeStart), event.DatetimeStart)

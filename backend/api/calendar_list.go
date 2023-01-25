@@ -10,6 +10,7 @@ import (
 type CalendarResult struct {
 	CalendarID string `json:"calendar_id,omitempty"`
 	ColorID    string `json:"color_id,omitempty"`
+	Title      string `json:"title,omitempty"`
 }
 
 type CalendarAccountResult struct {
@@ -42,6 +43,7 @@ func (api *API) CalendarsList(c *gin.Context) {
 			calendarResult := CalendarResult{
 				CalendarID: calendar.CalendarID,
 				ColorID:    calendar.ColorID,
+				Title:      calendar.Title,
 			}
 			calendars = append(calendars, calendarResult)
 

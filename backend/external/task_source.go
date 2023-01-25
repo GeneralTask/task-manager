@@ -17,7 +17,7 @@ type TaskSource interface {
 	ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error
 	CreateNewEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, event EventCreateObject) error
 	ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error
-	DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error
+	DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string, calendarID string) error
 	AddComment(db *mongo.Database, userID primitive.ObjectID, accountID string, comment database.Comment, task *database.Task) error
 }
 
@@ -39,6 +39,7 @@ type Attendee struct {
 type EventCreateObject struct {
 	ID                primitive.ObjectID `json:"id,omitempty"`
 	AccountID         string             `json:"account_id" binding:"required"`
+	CalendarID        string             `json:"calendar_id"`
 	Summary           string             `json:"summary,omitempty"`
 	Location          string             `json:"location,omitempty"`
 	Description       string             `json:"description,omitempty"`

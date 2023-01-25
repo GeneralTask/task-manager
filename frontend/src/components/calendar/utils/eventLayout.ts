@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon'
 import { FIFTEEN_MINUTE_INTERVAL } from '../../../constants'
 import { TEvent } from '../../../utils/types'
 
@@ -28,7 +29,6 @@ function eventsDoOverlap(eventA: TEvent, eventB: TEvent): boolean {
  * overlap with event A.
  */
 function findCollisionGroups(events: TEvent[]): TEvent[][] {
-    events.sort((a, b) => a.title.localeCompare(b.title))
     const collisionGroups: TEvent[][] = [[]]
     events.forEach((event) => {
         let placed = false
@@ -40,6 +40,10 @@ function findCollisionGroups(events: TEvent[]): TEvent[][] {
             }
         }
         if (!placed) collisionGroups.push([event])
+    })
+    // Sort each collision group by start time so that they remain in same order
+    collisionGroups.forEach((group) => {
+        group.sort((a, b) => +DateTime.fromISO(a.datetime_start) - +DateTime.fromISO(b.datetime_start))
     })
     return collisionGroups
 }

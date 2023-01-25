@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -70,7 +71,8 @@ type LinearCommentPayload struct {
 
 func (api *API) LinearWebhook(c *gin.Context) {
 	requestIP := c.Request.Header.Get("X-Forwarded-For")
-	if requestIP != ValidLinearIP1 && requestIP != ValidLinearIP2 {
+	if !strings.Contains(requestIP, ValidLinearIP1) && !strings.Contains(requestIP, ValidLinearIP2) {
+		api.Logger.Error().Msg("incorrect IP for linear webhook: " + requestIP)
 		c.JSON(400, gin.H{"detail": "invalid request format"})
 		return
 	}
@@ -78,6 +80,7 @@ func (api *API) LinearWebhook(c *gin.Context) {
 	// make request body readable
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
+		api.Logger.Error().Err(err).Msg("unable to read linear webhook request body")
 		c.JSON(400, gin.H{"detail": "unable to read request body"})
 		return
 	}
@@ -89,6 +92,7 @@ func (api *API) LinearWebhook(c *gin.Context) {
 	var webhookPayload LinearWebhookPayload
 	err = json.Unmarshal(body, &webhookPayload)
 	if err != nil {
+		api.Logger.Error().Err(err).Msg("unable to process linear webhook payload")
 		c.JSON(400, gin.H{"detail": "unable to process linear webhook payload"})
 		return
 	}
@@ -97,12 +101,13 @@ func (api *API) LinearWebhook(c *gin.Context) {
 	case IssueType:
 		var issuePayload LinearIssuePayload
 		if err := json.Unmarshal([]byte(*webhookPayload.RawData), &issuePayload); (err != nil || issuePayload == LinearIssuePayload{}) {
-			api.Logger.Error().Err(err).Msg("failed to unmarshal linear comment object")
+			api.Logger.Error().Err(err).Msg("failed to unmarshal linear issue object")
 			c.JSON(400, gin.H{"detail": "unable to unmarshal linear issue object"})
 			return
 		}
 		err = api.processLinearIssueWebhook(c, webhookPayload, issuePayload)
 		if err != nil {
+			api.Logger.Error().Err(err).Msg("failed to process linear issue object")
 			c.JSON(400, gin.H{"detail": "unable to process linear issue webhook"})
 			return
 		}
@@ -115,6 +120,7 @@ func (api *API) LinearWebhook(c *gin.Context) {
 		}
 		err = api.processLinearCommentWebhook(c, webhookPayload, commentPayload)
 		if err != nil {
+			api.Logger.Error().Err(err).Msg("failed to process linear comment object")
 			c.JSON(400, gin.H{"detail": "unable to process linear comment webhook"})
 			return
 		}

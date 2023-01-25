@@ -16,7 +16,7 @@ import {
     toggleStrong,
     toggleUnderline,
 } from '@atlaskit/editor-core'
-import { CMD_CTRL, CTRL, SHIFT } from '../../../../constants/shortcuts'
+import { CMD_CTRL, SHIFT } from '../../../../constants/shortcuts'
 import { icons } from '../../../../styles/images'
 import ToolbarButton from '../toolbar/ToolbarButton'
 import { Divider, MarginLeftGap, MenuContainer } from '../toolbar/styles'
@@ -86,7 +86,7 @@ const Toolbar = ({ editorActions, isMarkdown, rightContent }: ToolbarProps) => {
                             action={getToggleTextFormattingAction(toggleStrike)}
                             isActive={textFormattingState.strikeActive}
                             shortcutLabel="Strikethrough"
-                            shortcut={`${CMD_CTRL.label}+D`}
+                            shortcut={`${CMD_CTRL.label}+${SHIFT}+S`}
                         />
                         <Divider />
                         {/* TODO: will add this back with full link functionality */}
@@ -102,7 +102,7 @@ const Toolbar = ({ editorActions, isMarkdown, rightContent }: ToolbarProps) => {
                             }
                             isActive={listState.orderedListActive}
                             shortcutLabel="Ordered list"
-                            shortcut={`${CMD_CTRL.label}+${SHIFT}+9`}
+                            shortcut={`${CMD_CTRL.label}+${SHIFT}+7`}
                         />
                         <ToolbarButton
                             icon={icons.list_ul}
@@ -122,19 +122,21 @@ const Toolbar = ({ editorActions, isMarkdown, rightContent }: ToolbarProps) => {
                             action={getInsertBlockAction('blockquote')}
                             isActive={false}
                             shortcutLabel="Blockquote"
-                            shortcut={`${CTRL.label}+>`}
+                            shortcut={`>`}
                         />
                         <ToolbarButton
                             icon={icons.code}
                             action={getToggleTextFormattingAction(toggleCode)}
                             isActive={textFormattingState.codeActive}
                             shortcutLabel="Code"
+                            shortcut={`${CMD_CTRL.label}+${SHIFT}+M`}
                         />
                         <ToolbarButton
                             icon={icons.code_block}
                             action={getInsertBlockAction('codeblock')}
                             isActive={false}
                             shortcutLabel="Code block"
+                            shortcut="```"
                         />
                         <MarginLeftGap>{rightContent}</MarginLeftGap>
                     </MenuContainer>
