@@ -97,6 +97,7 @@ export const useCreateEvent = () => {
     const queryClient = useGTQueryClient()
     const { selectedEvent, setSelectedEvent } = useCalendarContext()
     const { setOptimisticId } = useQueryContext()
+    const { selectedCalendars } = useSelectedCalendars()
 
     // Keep selectedEvent in a ref so that it can be accessed in can be updated in the onSuccess callback
     const selectedEventRef = useRef(selectedEvent)
@@ -115,13 +116,18 @@ export const useCreateEvent = () => {
             )
             if (!events) return
 
+            // temporarily select the first calendar of the primary account
+            const calendarId =
+                selectedCalendars.find((calendar) => calendar.account_id === createEventPayload.account_id)
+                    ?.calendars[0]?.calendar_id ?? ''
+
             const newEvent: TEvent = {
                 id: optimisticId,
                 optimisticId: optimisticId,
                 title: createEventPayload.summary ?? '',
                 body: createEventPayload.description ?? '',
                 account_id: createEventPayload.account_id,
-                calendar_id: 'TODO',
+                calendar_id: calendarId,
                 logo: linkedTask?.source.logo_v2 ?? 'gcal',
                 deeplink: '',
                 datetime_start: createEventPayload.datetime_start,
