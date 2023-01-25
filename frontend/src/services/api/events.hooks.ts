@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 import { useCalendarContext } from '../../components/calendar/CalendarContext'
 import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
-import { useGTLocalStorage } from '../../hooks'
+import { useGTLocalStorage, usePreviewMode } from '../../hooks'
 import apiClient from '../../utils/api'
 import { TCalendarAccount, TEvent, TOverviewView, TTask } from '../../utils/types'
 import { getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
@@ -345,14 +345,18 @@ export const useSelectedCalendars = () => {
 
 // wrapper around useGetEvents that filters out events that are not in the selected calendars
 export const useEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
+    const { isPreviewMode } = usePreviewMode()
     const { data: events, ...rest } = useGetEvents(params, calendarType)
     const { selectedCalendars } = useSelectedCalendars()
     const filteredEvents = useMemo(() => {
         if (!events || selectedCalendars.length === 0) return events
+        if (isPreviewMode)
+            return events.filter((event) => event.calendar_id === event.account_id || event.calendar_id === 'primary')
+
         const selectedCalendarsSet = new Set(
             selectedCalendars.map((account) => account.calendars.map((calendar) => calendar.calendar_id)).flat()
         )
         return events.filter((event) => selectedCalendarsSet.has(event.calendar_id))
-    }, [events, selectedCalendars])
+    }, [events, selectedCalendars, isPreviewMode])
     return { data: filteredEvents, ...rest }
 }
