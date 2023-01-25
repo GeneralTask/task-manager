@@ -235,7 +235,11 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(db *mongo.Database, us
 		gcalEvent.Visibility = "private"
 	}
 
-	gcalEvent, err = calendarService.Events.Insert(accountID, gcalEvent).
+	calendarID := event.AccountID
+	if event.CalendarID != "" {
+		calendarID = event.CalendarID
+	}
+	gcalEvent, err = calendarService.Events.Insert(calendarID, gcalEvent).
 		ConferenceDataVersion(1).
 		Do()
 	logger := logging.GetSentryLogger()
