@@ -19,7 +19,6 @@ export const EVENTS_REFETCH_INTERVAL = 60 * 1000
 export const ONE_MINUTE_INTERVAL = 60 * 1000
 export const FIVE_MINUTE_INTERVAL = 5 * 60 * 1000
 export const FIFTEEN_MINUTE_INTERVAL = 15 * 60 * 1000
-export const ONE_SECOND = 1 * 1000
 export const FIVE_SECOND_TIMEOUT = 5 * 1000
 export const NOTE_SYNC_TIMEOUT = 1 * 1000
 export const PR_REFETCH_INTERVAL = 120 * 1000

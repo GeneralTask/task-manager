@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQueryClient } from 'react-query'
 import Cookie from 'js-cookie'
-import { AUTHORIZATION_COOKE, COOKIE_DOMAIN, GOOGLE_AUTH_ROUTE, ONE_SECOND } from '../constants'
+import { AUTHORIZATION_COOKE, COOKIE_DOMAIN, GOOGLE_AUTH_ROUTE, SINGLE_SECOND_INTERVAL } from '../constants'
 import getEnvVars from '../environment'
 import Log from '../services/api/log'
 
@@ -64,7 +64,7 @@ const useAuthWindow = () => {
                 if (win.closed) {
                     onClose(timer)
                 }
-            }, ONE_SECOND)
+            }, SINGLE_SECOND_INTERVAL)
         }
     }
 
