@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
@@ -340,23 +340,35 @@ export const useSelectedCalendars = () => {
         setSelectedCalendars(newSelectedCalendars)
     }, [calendars])
 
-    return { selectedCalendars }
+    const lookupTable: Map<string, Set<string>> = useMemo(() => {
+        return new Map(
+            selectedCalendars.map((account) => [
+                account.account_id,
+                new Set(account.calendars.map((calendar) => calendar.calendar_id)),
+            ])
+        )
+    }, [selectedCalendars])
+
+    // used to check if a calendar is selected in O(1) time
+    const isCalendarSelected = useCallback(
+        (accountId: string, calendarId: string) => lookupTable.get(accountId)?.has(calendarId) ?? false,
+        [lookupTable]
+    )
+
+    return { selectedCalendars, isCalendarSelected }
 }
 
 // wrapper around useGetEvents that filters out events that are not in the selected calendars
 export const useEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
     const { isPreviewMode } = usePreviewMode()
     const { data: events, ...rest } = useGetEvents(params, calendarType)
-    const { selectedCalendars } = useSelectedCalendars()
+    const { selectedCalendars, isCalendarSelected } = useSelectedCalendars()
     const filteredEvents = useMemo(() => {
         if (!events || selectedCalendars.length === 0) return events
-        if (isPreviewMode)
+        if (isPreviewMode) {
             return events.filter((event) => event.calendar_id === event.account_id || event.calendar_id === 'primary')
-
-        const selectedCalendarsSet = new Set(
-            selectedCalendars.map((account) => account.calendars.map((calendar) => calendar.calendar_id)).flat()
-        )
-        return events.filter((event) => selectedCalendarsSet.has(event.calendar_id))
-    }, [events, selectedCalendars, isPreviewMode])
+        }
+        return events.filter((event) => isCalendarSelected(event.account_id, event.calendar_id))
+    }, [events, selectedCalendars, isPreviewMode, isCalendarSelected])
     return { data: filteredEvents, ...rest }
 }

@@ -16,6 +16,7 @@ import {
     CalendarWeekDateHeaderContainer,
     DayHeaderText,
 } from '../calendar/CalendarEvents-styles'
+import CalendarFooter from '../calendar/CalendarFooter'
 import CalendarHeader from '../calendar/CalendarHeader'
 import CollapsedCalendarSidebar from '../calendar/CollapsedCalendarSidebar'
 import TasksDue from '../calendar/TasksDue'
@@ -142,6 +143,7 @@ const CalendarView = ({
             </CalendarWeekDateHeaderContainer>
             {calendarType === 'week' && <TasksDueWeek date={date} />}
             <CalendarEvents date={date} primaryAccountID={primaryAccountID} />
+            {isPreviewMode && calendarType === 'day' && <CalendarFooter />}
         </CalendarContainer>
     )
 }
