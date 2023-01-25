@@ -365,7 +365,7 @@ export const useEvents = (params: { startISO: string; endISO: string }, calendar
     const { selectedCalendars, isCalendarSelected } = useSelectedCalendars()
     const filteredEvents = useMemo(() => {
         if (!events || selectedCalendars.length === 0) return events
-        if (isPreviewMode) {
+        if (!isPreviewMode) {
             return events.filter((event) => event.calendar_id === event.account_id || event.calendar_id === 'primary')
         }
         return events.filter((event) => isCalendarSelected(event.account_id, event.calendar_id))
