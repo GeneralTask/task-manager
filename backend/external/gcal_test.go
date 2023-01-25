@@ -114,7 +114,7 @@ func TestGetEvents(t *testing.T) {
 				{"user_id": userID},
 			}},
 		).Decode(&calendarAccount)
-		assert.Equal(t, "primary", calendarAccount.Calendars[0].CalendarID)
+		assert.Equal(t, "exampleAccountID", calendarAccount.Calendars[0].CalendarID)
 		assert.Equal(t, "", calendarAccount.Calendars[0].Title)
 		assert.Equal(t, "owner", calendarAccount.Calendars[0].AccessRole)
 		assert.NoError(t, err)
@@ -420,7 +420,7 @@ func TestGetEvents(t *testing.T) {
 		assert.Equal(t, 2, len(result.CalendarEvents)) // the event exists in both calendars
 		firstEvent := result.CalendarEvents[0]
 		assertCalendarEventsEqual(t, &standardDBEvent, firstEvent)
-		assert.Equal(t, "primary", firstEvent.CalendarID)
+		assert.Equal(t, "exampleAccountID", firstEvent.CalendarID)
 
 		secondEvent := result.CalendarEvents[1]
 		assertCalendarEventsEqual(t, &standardDBEvent, secondEvent)
