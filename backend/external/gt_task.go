@@ -88,7 +88,7 @@ func (generalTask GeneralTaskTaskSource) CreateNewEvent(db *mongo.Database, user
 	return errors.New("has not been implemented yet")
 }
 
-func (generalTask GeneralTaskTaskSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error {
+func (generalTask GeneralTaskTaskSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string, calendarID string) error {
 	return errors.New("has not been implemented yet")
 }
 

@@ -202,7 +202,7 @@ func (asanaTask AsanaTaskSource) ModifyEvent(db *mongo.Database, userID primitiv
 	return errors.New("has not been implemented yet")
 }
 
-func (asanaTask AsanaTaskSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error {
+func (asanaTask AsanaTaskSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string, calendarID string) error {
 	return errors.New("has not been implemented yet")
 }
 
