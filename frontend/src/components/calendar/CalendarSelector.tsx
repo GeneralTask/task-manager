@@ -84,8 +84,7 @@ const CalendarSelector = ({ mode }: CalendarSelectorProps) => {
                     <GTIconButton icon={icons.eye} tooltipText="Show/hide calendars" asDiv />
                 ) : (
                     <GTButton
-                        // value={selectedTaskToCalCalendar?.title || 'Select a calendar'}
-                        value="djhflkajdshfjjkdsahfljkadshfljkadshfljkasdhfljkdshfljkdsafhlkjdsaflkhj"
+                        value={selectedTaskToCalCalendar?.title || 'Select a calendar'}
                         asDiv
                         isDropdown
                         styleType="secondary"
