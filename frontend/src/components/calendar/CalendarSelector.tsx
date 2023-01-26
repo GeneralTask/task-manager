@@ -1,7 +1,8 @@
 import { ReactNode, useMemo } from 'react'
 import { useGetCalendars, useSelectedCalendars } from '../../services/api/events.hooks'
-import { logos } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
+import { DEFAULT_CALENDAR_COLOR, calendarColors } from './utils/colors'
 
 interface CalendarSelectorProps {
     mode: 'task-to-cal' | 'cal-selection'
@@ -10,7 +11,6 @@ interface CalendarSelectorProps {
 const CalendarSelector = ({ mode, trigger }: CalendarSelectorProps) => {
     const { data: calendars } = useGetCalendars()
     const { isCalendarSelected } = useSelectedCalendars()
-
     const items = useMemo(
         () =>
             calendars?.map((account) => [
@@ -30,6 +30,10 @@ const CalendarSelector = ({ mode, trigger }: CalendarSelectorProps) => {
                     })
                     .map((calendar) => ({
                         label: calendar.title || account.account_id, // backend sends empty string for title if it is the primary calendar
+                        icon: icons.square,
+                        iconColorHex:
+                            calendarColors[calendar.color_id as keyof typeof calendarColors]?.background ??
+                            DEFAULT_CALENDAR_COLOR,
                         selected:
                             mode === 'cal-selection' && isCalendarSelected(account.account_id, calendar.calendar_id),
                     })),
@@ -37,7 +41,7 @@ const CalendarSelector = ({ mode, trigger }: CalendarSelectorProps) => {
         [calendars, isCalendarSelected, mode]
     )
 
-    return <GTDropdownMenu items={items} trigger={trigger} />
+    return <GTDropdownMenu items={items} trigger={trigger} fontStyle="bodySmall" />
 }
 
 export default CalendarSelector

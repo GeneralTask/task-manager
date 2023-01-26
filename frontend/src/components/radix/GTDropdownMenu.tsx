@@ -48,6 +48,9 @@ const DropdownMenuSubTrigger = styled(DropdownMenu.SubTrigger)`
 const DropdownMenuSubContent = styled(DropdownMenu.SubContent)`
     ${MenuContentShared};
 `
+
+const getItemKey = (item: GTMenuItem) => `${item.label}${item.icon}${item.iconColor}${item.iconColorHex}`
+
 interface GTDropdownMenuProps {
     items: GTMenuItem[] | GTMenuItem[][] // allow for divided groups of items
     trigger: React.ReactNode // component that opens the dropdown menu when clicked
@@ -101,15 +104,21 @@ const GTDropdownMenu = ({
                             <Fragment key={groupIndex}>
                                 <DropdownMenu.Group>
                                     {group.map((item) => (
-                                        <Fragment key={item.label}>
+                                        <Fragment key={getItemKey(item)}>
                                             {item.subItems ? (
                                                 <DropdownMenu.Sub>
                                                     <DropdownMenuSubTrigger
-                                                        key={item.label}
+                                                        key={getItemKey(item)}
                                                         onClick={item.onClick}
                                                         $textColor={item.textColor}
                                                     >
-                                                        {item.icon && <Icon icon={item.icon} color={item.iconColor} />}
+                                                        {item.icon && (
+                                                            <Icon
+                                                                icon={item.icon}
+                                                                color={item.iconColor}
+                                                                colorHex={item.iconColorHex}
+                                                            />
+                                                        )}
                                                         <MenuItemLabel>{item.label}</MenuItemLabel>
                                                         <MarginLeftIcon>
                                                             <Icon icon={icons.caret_right} />
@@ -119,7 +128,7 @@ const GTDropdownMenu = ({
                                                         <DropdownMenuSubContent>
                                                             {item.subItems.map((subItem) => (
                                                                 <DropdownMenuItem
-                                                                    key={subItem.label}
+                                                                    key={getItemKey(subItem)}
                                                                     textValue={subItem.label}
                                                                     onClick={
                                                                         subItem.disabled
@@ -151,6 +160,7 @@ const GTDropdownMenu = ({
                                                                                 <Icon
                                                                                     icon={subItem.icon}
                                                                                     color={subItem.iconColor}
+                                                                                    colorHex={subItem.iconColorHex}
                                                                                 />
                                                                             )}
                                                                             <MenuItemLabel>
@@ -170,7 +180,7 @@ const GTDropdownMenu = ({
                                                 </DropdownMenu.Sub>
                                             ) : (
                                                 <DropdownMenuItem
-                                                    key={item.label}
+                                                    key={getItemKey(item)}
                                                     textValue={item.label}
                                                     onClick={item.disabled ? emptyFunction : item.onClick}
                                                     $disabled={item.disabled}
@@ -191,7 +201,11 @@ const GTDropdownMenu = ({
                                                                 </FixedSizeIcon>
                                                             )}
                                                             {item.icon && (
-                                                                <Icon icon={item.icon} color={item.iconColor} />
+                                                                <Icon
+                                                                    icon={item.icon}
+                                                                    color={item.iconColor}
+                                                                    colorHex={item.iconColorHex}
+                                                                />
                                                             )}
                                                             <MenuItemLabel>{item.label}</MenuItemLabel>
                                                             {item.count && (

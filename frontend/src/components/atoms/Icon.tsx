@@ -24,18 +24,21 @@ const ImageContainer = styled.img`
 interface IconProps {
     icon: TIconType
     size?: TIconSize
-    color?: TIconColor
+    color?: TIconColor // should take priority over colorHex
+    colorHex?: string
     className?: string
 }
-export const Icon = ({ icon, size = 'default', color = 'black', className }: IconProps) => {
+export const Icon = ({ icon, size = 'default', color, colorHex, className }: IconProps) => {
     const dimension = Dimensions.iconSize[size]
+    // priority is color -> colorHex -> black
+    const iconColor = color ? Colors.icon[color] : colorHex ?? Colors.icon.black
 
     return (
         <IconContainer size={dimension} className={className}>
             {typeof icon === 'string' ? (
                 <ImageContainer src={icon} />
             ) : (
-                <FontAwesomeIcon icon={icon} color={Colors.icon[color]} />
+                <FontAwesomeIcon icon={icon} color={iconColor} />
             )}
         </IconContainer>
     )
