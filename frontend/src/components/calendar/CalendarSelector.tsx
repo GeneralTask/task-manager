@@ -74,7 +74,7 @@ const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSele
                             DEFAULT_CALENDAR_COLOR,
                         selected: isCalendarChecked(account, calendar),
                         onClick: () => handleCalendarClick(account, calendar),
-                        keepOpenOnSelect: true,
+                        keepOpenOnSelect: mode === 'cal-selection',
                     })),
             ]) ?? EMPTY_ARRAY,
         [calendars, isCalendarChecked, handleCalendarClick]
