@@ -12,6 +12,8 @@ import (
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/testutils"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -343,6 +345,13 @@ func TestProcessIssue(t *testing.T) {
 		assert.Equal(t, "Hello there!", *task.Title)
 		assert.Equal(t, "6942069422", task.CompletedStatus.ExternalID)
 
+		task, err = database.GetTaskByExternalIDWithoutUser(db, "aaad850c-8df6-482f-90b0-82725bd54155")
+		assert.NoError(t, err)
+		taskCollection := database.GetTaskCollection(db)
+		newSectionID := primitive.NewObjectID()
+		_, err = taskCollection.UpdateOne(context.Background(), bson.M{"_id": task.ID}, bson.M{"$set": bson.M{"id_task_section": newSectionID}})
+		assert.NoError(t, err)
+
 		request, _ = http.NewRequest(
 			"POST",
 			"/linear/webhook/",
@@ -357,6 +366,7 @@ func TestProcessIssue(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "Hello there 2.0!", *task.Title)
 		assert.Equal(t, "6942069422", task.CompletedStatus.ExternalID)
+		assert.Equal(t, newSectionID, task.IDTaskSection)
 	})
 	t.Run("ModifyToCompleteSuccess", func(t *testing.T) {
 		request, _ := http.NewRequest(

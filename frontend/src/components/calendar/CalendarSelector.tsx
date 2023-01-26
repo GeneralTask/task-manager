@@ -14,7 +14,7 @@ interface CalendarSelectorProps {
 }
 const CalendarSelector = ({ mode }: CalendarSelectorProps) => {
     const { data: calendars } = useGetCalendars()
-    const { isCalendarSelected, toggleCalendar } = useSelectedCalendars()
+    const { isCalendarSelected, toggleCalendarSelection } = useSelectedCalendars()
     const { field_value: taskToCalAccount, updateSetting: setTaskToCalAccount } = useSetting(
         'calendar_account_id_for_new_tasks'
     )
@@ -37,10 +37,10 @@ const CalendarSelector = ({ mode }: CalendarSelectorProps) => {
                 setTaskToCalAccount(account.account_id)
                 setTaskToCalCalendar(calendar.calendar_id)
             } else {
-                toggleCalendar(account.account_id, calendar)
+                toggleCalendarSelection(account.account_id, calendar)
             }
         },
-        [mode, setTaskToCalAccount, setTaskToCalCalendar, toggleCalendar]
+        [mode, setTaskToCalAccount, setTaskToCalCalendar, toggleCalendarSelection]
     )
 
     const selectedTaskToCalCalendar = useMemo(() => {
