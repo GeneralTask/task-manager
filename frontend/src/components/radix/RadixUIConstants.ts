@@ -51,6 +51,7 @@ export const MenuContentShared = css`
     background-color: ${Colors.background.white};
     border-radius: ${Border.radius.mini};
     box-shadow: ${Shadows.light};
+    user-select: none;
 `
 export const MarginLeftIcon = styled.div`
     margin-left: auto;

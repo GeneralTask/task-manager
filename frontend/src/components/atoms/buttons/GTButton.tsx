@@ -4,6 +4,7 @@ import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import { TIconColor, TTextColor } from '../../../styles/colors'
 import { icons } from '../../../styles/images'
 import { Icon } from '../Icon'
+import { Truncated } from '../typography/Typography'
 import NoStyleButton from './NoStyleButton'
 
 type TButtonStyle = 'primary' | 'secondary' | 'simple'
@@ -146,7 +147,7 @@ const GTButton = ({
             {...rest}
         >
             {icon && <Icon icon={icon} color={iconColor} />}
-            {value}
+            <Truncated>{value}</Truncated>
             {isDropdown && (
                 <MarginLeftAuto>
                     <Icon icon={icons.caret_down_solid} color="gray" />

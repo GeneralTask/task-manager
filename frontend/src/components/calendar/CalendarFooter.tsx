@@ -6,19 +6,27 @@ import CalendarSelector from './CalendarSelector'
 
 const Container = styled.div`
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     background-color: ${Colors.background.white};
+    padding: 0 ${Spacing._8};
+`
+const TaskToCalContainer = styled.div`
+    flex: 1;
+    background-color: white;
+    border-radius: 4px;
     padding: ${Spacing._8};
+    overflow: hidden;
 `
 
 const CalendarFooter = () => {
     return (
         <Container>
-            <CalendarSelector
-                mode="cal-selection"
-                trigger={<GTIconButton icon={icons.eye} tooltipText="Show/hide calendars" asDiv />}
-            />
+            <CalendarSelector mode="cal-selection" />
+            <TaskToCalContainer>
+                <CalendarSelector mode="task-to-cal" />
+            </TaskToCalContainer>
+            <GTIconButton icon={icons.gear} tooltipText="Calendar settings" />
         </Container>
     )
 }

@@ -7,7 +7,7 @@ import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
 import { useGTLocalStorage, usePreviewMode } from '../../hooks'
 import apiClient from '../../utils/api'
-import { TCalendarAccount, TEvent, TOverviewView, TTask } from '../../utils/types'
+import { TCalendar, TCalendarAccount, TEvent, TOverviewView, TTask } from '../../utils/types'
 import { getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
 
 interface TEventAttendee {
@@ -308,35 +308,36 @@ export const useSelectedCalendars = () => {
     useEffect(() => {
         if (!calendars) return
 
-        const newAccounts = calendars.filter(
-            (calendar) =>
-                !selectedCalendars.find((selectedCalendar) => selectedCalendar.account_id === calendar.account_id)
-        )
-
-        const removedAccounts = selectedCalendars.filter(
-            (selectedCalendar) => !calendars.find((calendar) => calendar.account_id === selectedCalendar.account_id)
-        )
-
-        if (!newAccounts.length && !removedAccounts.length) return
-
-        const newSelectedCalendars = [...selectedCalendars]
-        // when a new account is added, select the primary calendar
-        newAccounts.forEach((account) => {
-            const primaryCalendar = account.calendars.find(
-                (calendar) => calendar.calendar_id === account.account_id || calendar.calendar_id === 'primary'
+        const newSelectedCalendars = produce(selectedCalendars, (draft) => {
+            const newAccounts = calendars.filter(
+                (calendar) =>
+                    !selectedCalendars.find((selectedCalendar) => selectedCalendar.account_id === calendar.account_id)
             )
-            if (primaryCalendar)
-                newSelectedCalendars.push({
-                    ...account,
-                    calendars: [primaryCalendar],
-                })
-        })
-        removedAccounts.forEach((removedAccount) => {
-            const index = newSelectedCalendars.findIndex(
-                (newSelectedCalendar) => newSelectedCalendar.account_id === removedAccount.account_id
+
+            const removedAccounts = selectedCalendars.filter(
+                (selectedCalendar) => !calendars.find((calendar) => calendar.account_id === selectedCalendar.account_id)
             )
-            newSelectedCalendars.splice(index, 1)
+            if (!newAccounts.length && !removedAccounts.length) return
+
+            // when a new account is added, select the primary calendar
+            newAccounts.forEach((account) => {
+                const primaryCalendar = account.calendars.find(
+                    (calendar) => calendar.calendar_id === account.account_id || calendar.calendar_id === 'primary'
+                )
+                if (primaryCalendar)
+                    draft.push({
+                        ...account,
+                        calendars: [{ ...primaryCalendar }],
+                    })
+            })
+            removedAccounts.forEach((removedAccount) => {
+                const index = draft.findIndex(
+                    (newSelectedCalendar) => newSelectedCalendar.account_id === removedAccount.account_id
+                )
+                draft.splice(index, 1)
+            })
         })
+
         setSelectedCalendars(newSelectedCalendars)
     }, [calendars])
 
@@ -355,7 +356,25 @@ export const useSelectedCalendars = () => {
         [lookupTable]
     )
 
-    return { selectedCalendars, isCalendarSelected }
+    const toggleCalendar = useCallback(
+        (accountId: string, calendar: TCalendar) => {
+            const newSelectedCalendars = produce(selectedCalendars, (draft) => {
+                const accountIdx = draft.findIndex((account) => account.account_id === accountId)
+                if (accountIdx === -1) return
+
+                const calendarIdx = draft[accountIdx].calendars.findIndex((c) => c.calendar_id === calendar.calendar_id)
+                if (calendarIdx === -1) {
+                    draft[accountIdx].calendars.push({ ...calendar })
+                } else {
+                    draft[accountIdx].calendars.splice(calendarIdx, 1)
+                }
+            })
+            setSelectedCalendars(newSelectedCalendars)
+        },
+        [selectedCalendars]
+    )
+
+    return { selectedCalendars, isCalendarSelected, toggleCalendar }
 }
 
 // wrapper around useGetEvents that filters out events that are not in the selected calendars
