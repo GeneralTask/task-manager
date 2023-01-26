@@ -45,6 +45,7 @@ const getSettings = async ({ signal }: QueryFunctionContext) => {
     try {
         const res = await apiClient.get('/settings/', { signal })
         const settings: TSetting[] = res.data
+        // temporarily mock this setting
         return castImmutable([
             ...settings,
             {
