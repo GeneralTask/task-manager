@@ -1,9 +1,10 @@
 import { forwardRef } from 'react'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
-import { OrangeEdge } from '../atoms/SelectableContainer'
+import { TItemEdgeColors } from '../../styles/colors'
+import { EdgeHighlight } from '../atoms/SelectableContainer'
 
-const ItemContainerDiv = styled.div<{ isSelected?: boolean; forceHoverStyle?: boolean }>`
+const ItemContainerDiv = styled.div<{ isSelected?: boolean; isCompact?: boolean; forceHoverStyle?: boolean }>`
     position: relative;
     display: flex;
     flex-direction: row;
@@ -22,7 +23,7 @@ const ItemContainerDiv = styled.div<{ isSelected?: boolean; forceHoverStyle?: bo
         `
         outline: ${Border.stroke.medium} solid ${Colors.border.light};
         background-color: ${Colors.background.medium};`}
-    padding: 0 ${Spacing._16};
+    padding: 0 ${({ isCompact }) => (isCompact ? `${Spacing._4} 0 0` : Spacing._16)};
     cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
@@ -31,21 +32,24 @@ const ItemContainerDiv = styled.div<{ isSelected?: boolean; forceHoverStyle?: bo
 
 interface ItemContainerProps {
     isSelected?: boolean
+    isCompact?: boolean
     onClick?: () => void
     children: React.ReactNode
     forceHoverStyle?: boolean
     className?: string
+    edgeColor?: TItemEdgeColors
 }
 const ItemContainer = forwardRef<HTMLDivElement, ItemContainerProps>(
-    ({ isSelected, onClick, children, forceHoverStyle, className }, ref) => (
+    ({ isSelected, isCompact = false, onClick, children, forceHoverStyle, className, edgeColor = 'orange' }, ref) => (
         <ItemContainerDiv
             isSelected={isSelected}
+            isCompact={isCompact}
             onClick={onClick}
             ref={ref}
             forceHoverStyle={forceHoverStyle}
             className={className}
         >
-            {isSelected && <OrangeEdge />}
+            {isSelected && <EdgeHighlight color={edgeColor} />}
             {children}
         </ItemContainerDiv>
     )
