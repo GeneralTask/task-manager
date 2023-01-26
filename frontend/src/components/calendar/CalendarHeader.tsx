@@ -3,10 +3,11 @@ import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
+import { useGetCalendars } from '../../services/api/events.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
-import { isGoogleCalendarLinked } from '../../utils/utils'
+import { EMPTY_ARRAY, isGoogleCalendarLinked } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
@@ -49,7 +50,10 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
     const isCalendarExpanded = calendarType === 'week' && !isCollapsed
     const { pathname } = useLocation()
     const { isPreviewMode } = usePreviewMode()
+    const { data: calendars } = useGetCalendars()
+
     const isFocusMode = pathname.startsWith('/focus-mode')
+    const calendarsNeedingReauth = calendars?.filter((calendar) => !calendar.has_multical_scopes) ?? EMPTY_ARRAY
 
     const toggleCalendar = () => {
         if (calendarType === 'week') {
@@ -165,9 +169,17 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                     )}
                 </>
             )}
-            {showOauthPrompt && (
+            {(showOauthPrompt || calendarsNeedingReauth.length > 0) && (
                 <ConnectContainer>
-                    <ConnectIntegration type="google_calendar" />
+                    {showOauthPrompt && <ConnectIntegration type="google_calendar" />}
+                    {isPreviewMode &&
+                        calendarsNeedingReauth.map((calendar) => (
+                            <ConnectIntegration
+                                key={calendar.account_id}
+                                type="google_calendar"
+                                reauthorizeAccountName={calendar.account_id}
+                            />
+                        ))}
                 </ConnectContainer>
             )}
         </RelativeDiv>
