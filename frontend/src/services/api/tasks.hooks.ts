@@ -272,7 +272,19 @@ export const createTask = async (data: TCreateTaskData) => {
         throw new Error('createTask failed')
     }
 }
-
+const modifyTaskOptimisticUpdate = (task: TTask, data: TModifyTaskData) => {
+    task.title = data.title || task.title
+    task.due_date = data.dueDate ?? task.due_date
+    task.body = data.body ?? task.body
+    task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
+    task.external_status = data.status ?? task.external_status
+    task.recurring_task_template_id = data.recurringTaskTemplateId ?? task.recurring_task_template_id
+    task.updated_at = DateTime.utc().toISO()
+    if (data.external_priority_id) {
+        const newPriority = task.all_priorities?.find((priority) => priority.external_id === data.external_priority_id)
+        if (newPriority) task.priority = newPriority
+    }
+}
 export const useModifyTask = () => {
     const queryClient = useGTQueryClient()
     return useQueuedMutation((data: TModifyTaskData) => modifyTask(data), {
@@ -293,19 +305,7 @@ export const useModifyTask = () => {
                         ? getSubtaskFromSections(draft, data.id, data.subtaskId)
                         : getTaskFromSections(draft, data.id)
                     if (!task) return
-                    task.title = data.title ?? task.title
-                    task.due_date = data.dueDate ?? task.due_date
-                    task.body = data.body ?? task.body
-                    task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
-                    task.external_status = data.status ?? task.external_status
-                    task.recurring_task_template_id = data.recurringTaskTemplateId ?? task.recurring_task_template_id
-                    task.updated_at = DateTime.utc().toISO()
-                    if (data.external_priority_id) {
-                        const newPriority = task.all_priorities?.find(
-                            (priority) => priority.external_id === data.external_priority_id
-                        )
-                        if (newPriority) task.priority = newPriority
-                    }
+                    modifyTaskOptimisticUpdate(task, data)
                 })
 
                 queryClient.setQueryData('tasks', newSections)
@@ -330,34 +330,20 @@ export const useModifyTask = () => {
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             if (views) {
                 const newViews = produce(views, (draft) => {
-                    const sections = views.map((view) => ({
-                        id: view.task_section_id,
-                        tasks: view.view_items,
-                    }))
-                    const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(
-                        sections,
-                        data.id,
-                        undefined,
-                        data.subtaskId
-                    )
-                    if (sectionIndex === undefined || taskIndex === undefined) return
-                    if (data.subtaskId && subtaskIndex === undefined) return
-                    const task =
-                        subtaskIndex === undefined
-                            ? draft[sectionIndex].view_items[taskIndex]
-                            : draft[sectionIndex].view_items[taskIndex].sub_tasks?.[subtaskIndex]
-                    if (!task) return
-                    task.title = data.title || task.title
-                    task.due_date = data.dueDate ?? task.due_date
-                    task.body = data.body ?? task.body
-                    task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
-                    task.external_status = data.status ?? task.external_status
-                    task.updated_at = DateTime.utc().toISO()
-                    if (data.external_priority_id) {
-                        const newPriority = task.all_priorities?.find(
-                            (priority) => priority.external_id === data.external_priority_id
-                        )
-                        if (newPriority) task.priority = newPriority
+                    for (const view of draft) {
+                        for (const task of view.view_items) {
+                            if (task.id === data.id) {
+                                if (data.subtaskId && task.sub_tasks) {
+                                    for (const subtask of task.sub_tasks) {
+                                        if (subtask.id === data.subtaskId) {
+                                            modifyTaskOptimisticUpdate(subtask, data)
+                                        }
+                                    }
+                                } else {
+                                    modifyTaskOptimisticUpdate(task, data)
+                                }
+                            }
+                        }
                     }
                 })
 
