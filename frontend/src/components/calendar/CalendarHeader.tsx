@@ -217,13 +217,14 @@ export default function CalendarHeader({
             {(showOauthPrompt || calendarsNeedingReauth.length > 0) && (
                 <ConnectContainer>
                     {showOauthPrompt && <ConnectIntegration type="google_calendar" />}
-                    {calendarsNeedingReauth.map((calendar) => (
-                        <ConnectIntegration
-                            key={calendar.account_id}
-                            type="google_calendar"
-                            reauthorizeAccountName={calendar.account_id}
-                        />
-                    ))}
+                    {isPreviewMode &&
+                        calendarsNeedingReauth.map((calendar) => (
+                            <ConnectIntegration
+                                key={calendar.account_id}
+                                type="google_calendar"
+                                reauthorizeAccountName={calendar.account_id}
+                            />
+                        ))}
                 </ConnectContainer>
             )}
         </RelativeDiv>
