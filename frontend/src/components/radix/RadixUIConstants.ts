@@ -71,7 +71,8 @@ export interface GTMenuItem {
     label: string
     onClick?: () => void
     icon?: TIconType
-    iconColor?: TIconColor
+    iconColor?: TIconColor // should take priority over iconColorHex
+    iconColorHex?: string
     textColor?: TTextColor
     selected?: boolean
     hideCheckmark?: boolean

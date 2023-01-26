@@ -7,6 +7,7 @@ import { EMPTY_ARRAY } from '../../utils/utils'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
+import { DEFAULT_CALENDAR_COLOR, calendarColors } from './utils/colors'
 
 interface CalendarSelectorProps {
     mode: 'task-to-cal' | 'cal-selection'
@@ -14,7 +15,6 @@ interface CalendarSelectorProps {
 const CalendarSelector = ({ mode }: CalendarSelectorProps) => {
     const { data: calendars } = useGetCalendars()
     const { isCalendarSelected, toggleCalendarSelection } = useSelectedCalendars()
-
     const { field_value: taskToCalAccount, updateSetting: setTaskToCalAccount } = useSetting(
         'calendar_account_id_for_new_tasks'
     )
@@ -68,6 +68,10 @@ const CalendarSelector = ({ mode }: CalendarSelectorProps) => {
                     })
                     .map((calendar) => ({
                         label: calendar.title || account.account_id, // backend sends empty string for title if it is the primary calendar
+                        icon: icons.square,
+                        iconColorHex:
+                            calendarColors[calendar.color_id as keyof typeof calendarColors]?.background ??
+                            DEFAULT_CALENDAR_COLOR,
                         selected: isCalendarChecked(account, calendar),
                         onClick: () => handleCalendarClick(account, calendar),
                         keepOpenOnSelect: true,
@@ -85,6 +89,11 @@ const CalendarSelector = ({ mode }: CalendarSelectorProps) => {
                 ) : (
                     <GTButton
                         value={selectedTaskToCalCalendar?.title || 'Select a calendar'}
+                        icon={icons.square}
+                        iconColorHex={
+                            calendarColors[selectedTaskToCalCalendar?.color_id as keyof typeof calendarColors]
+                                ?.background ?? DEFAULT_CALENDAR_COLOR
+                        }
                         asDiv
                         isDropdown
                         styleType="secondary"
@@ -95,6 +104,7 @@ const CalendarSelector = ({ mode }: CalendarSelectorProps) => {
             }
             align={mode === 'cal-selection' ? 'start' : 'center'}
             unstyledTrigger
+            fontStyle="bodySmall"
         />
     )
 }
