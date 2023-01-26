@@ -7,7 +7,7 @@ import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
 import { useGTLocalStorage, usePreviewMode } from '../../hooks'
 import apiClient from '../../utils/api'
-import { TCalendarAccount, TEvent, TOverviewView, TTask } from '../../utils/types'
+import { TCalendar, TCalendarAccount, TEvent, TOverviewView, TTask } from '../../utils/types'
 import { getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
 
 interface TEventAttendee {
@@ -355,7 +355,23 @@ export const useSelectedCalendars = () => {
         [lookupTable]
     )
 
-    return { selectedCalendars, isCalendarSelected }
+    const toggleCalendar = useCallback((accountId: string, calendar: TCalendar) => {
+        const newSelectedCalendars = [...selectedCalendars]
+        const accountIdx = newSelectedCalendars.findIndex((account) => account.account_id === accountId)
+        if (accountIdx === -1) return
+
+        const calendarIdx = newSelectedCalendars[accountIdx].calendars.findIndex(
+            (c) => c.calendar_id === calendar.calendar_id
+        )
+        if (calendarIdx === -1) {
+            newSelectedCalendars[accountIdx].calendars.push(calendar)
+        } else {
+            newSelectedCalendars[accountIdx].calendars.splice(calendarIdx, 1)
+        }
+        setSelectedCalendars(newSelectedCalendars)
+    }, [])
+
+    return { selectedCalendars, isCalendarSelected, toggleCalendar }
 }
 
 // wrapper around useGetEvents that filters out events that are not in the selected calendars
