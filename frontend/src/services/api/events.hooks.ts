@@ -364,7 +364,7 @@ export const useSelectedCalendars = () => {
             (c) => c.calendar_id === calendar.calendar_id
         )
         if (calendarIdx === -1) {
-            newSelectedCalendars[accountIdx].calendars.push(calendar)
+            newSelectedCalendars[accountIdx].calendars.push({ ...calendar })
         } else {
             newSelectedCalendars[accountIdx].calendars.splice(calendarIdx, 1)
         }
