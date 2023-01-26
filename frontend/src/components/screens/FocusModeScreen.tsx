@@ -361,8 +361,7 @@ const FocusModeScreen = () => {
                         <CalendarContainer>
                             <CalendarView
                                 initialType="day"
-                                initialShowDateHeader={false}
-                                initialShowMainHeader={false}
+                                initialShowHeader={false}
                                 hideContainerShadow
                                 hasLeftBorder
                             />
