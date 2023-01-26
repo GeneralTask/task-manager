@@ -2,7 +2,6 @@ import { useCallback, useMemo } from 'react'
 import { useSetting } from '../../hooks'
 import { useGetCalendars, useSelectedCalendars } from '../../services/api/events.hooks'
 import { icons, logos } from '../../styles/images'
-=======
 import { TCalendar, TCalendarAccount } from '../../utils/types'
 import { EMPTY_ARRAY } from '../../utils/utils'
 import GTButton from '../atoms/buttons/GTButton'
