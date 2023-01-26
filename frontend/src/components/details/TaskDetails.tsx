@@ -9,6 +9,7 @@ import {
     GENERAL_TASK_SOURCE_NAME,
     NO_TITLE,
     SINGLE_SECOND_INTERVAL,
+    SLACK_SOURCE_NAME,
     SYNC_MESSAGES,
     TRASH_SECTION_ID,
 } from '../../constants'
@@ -105,6 +106,8 @@ const BackButtonText = styled(Label)`
     white-space: nowrap;
     color: inherit;
 `
+
+const SOURCES_ALLOWED_WITH_SUBTASKS = [GENERAL_TASK_SOURCE_NAME, SLACK_SOURCE_NAME]
 
 interface TaskDetailsProps {
     task: Partial<TTask> & Partial<TRecurringTaskTemplate> & { id: string; title: string }
@@ -407,7 +410,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         disabled={isInTrash}
                         nux_number_id={currentTask.nux_number_id}
                     />
-                    {currentTask.source?.name === GENERAL_TASK_SOURCE_NAME && !isInTrash && (
+                    {SOURCES_ALLOWED_WITH_SUBTASKS.includes(currentTask.source?.name ?? '') && !isInTrash && (
                         <SubtaskList parentTask={currentTask as TTask} subtasks={currentTask.sub_tasks ?? []} />
                     )}
                     {currentTask.external_status && currentTask.source && (
