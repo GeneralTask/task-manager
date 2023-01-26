@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID } from '../../constants'
 import KEYBOARD_SHORTCUTS, { ShortcutCategories } from '../../constants/shortcuts'
 import useShortcutContext from '../../context/ShortcutContext'
-import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
+import { useKeyboardShortcut } from '../../hooks'
 import useNavigateToTask from '../../hooks/useNavigateToTask'
 import Log from '../../services/api/log'
 import { useGetTasks } from '../../services/api/tasks.hooks'
@@ -125,7 +125,6 @@ interface CommandPaletteProps {
     hideButton?: boolean
 }
 const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
-    const { isPreviewMode } = usePreviewMode()
     const { showCommandPalette, setShowCommandPalette, activeKeyboardShortcuts } = useShortcutContext()
     const [selectedShortcut, setSelectedShortcut] = useState<string>()
     const [searchValue, setSearchValue] = useState<string>()
@@ -189,11 +188,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                 }}
                 value={selectedShortcut}
                 onValueChange={setSelectedShortcut}
-                filter={
-                    isPreviewMode
-                        ? (value, search) => (value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0)
-                        : undefined
-                }
+                filter={(value, search) => (value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0)}
             >
                 <Searchbar>
                     <IconContainer>
@@ -206,7 +201,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                     />
                 </Searchbar>
                 <Divider color={Colors.background.dark} />
-                <CommandEmpty>No commands found</CommandEmpty>
+                <CommandEmpty>No results found</CommandEmpty>
                 <CommandList>
                     {shortcutGroups.map(
                         ({ category, shortcuts }) =>
