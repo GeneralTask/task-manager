@@ -129,7 +129,6 @@ func (api *API) LinearWebhook(c *gin.Context) {
 }
 
 func (api *API) processLinearIssueWebhook(c *gin.Context, webhookPayload LinearWebhookPayload, issuePayload LinearIssuePayload) error {
-	logger := logging.GetSentryLogger()
 	token, err := database.GetExternalTokenByExternalID(api.DB, issuePayload.AssigneeID, external.TASK_SERVICE_ID_LINEAR)
 	if err != nil {
 		// if the owner of the task is not found, we must check if the task exists
