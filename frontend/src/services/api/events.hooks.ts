@@ -327,7 +327,7 @@ export const useSelectedCalendars = () => {
                 if (primaryCalendar)
                     draft.push({
                         ...account,
-                        calendars: [primaryCalendar],
+                        calendars: [{ ...primaryCalendar }],
                     })
             })
             removedAccounts.forEach((removedAccount) => {
