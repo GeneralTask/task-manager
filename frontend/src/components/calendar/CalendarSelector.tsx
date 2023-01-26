@@ -36,7 +36,7 @@ const CalendarSelector = ({ mode, trigger }: CalendarSelectorProps) => {
                         keepOpenOnSelect: true,
                     })),
             ]) ?? [],
-        [calendars, isCalendarSelected, mode]
+        [calendars, isCalendarSelected, mode, toggleCalendar]
     )
 
     return <GTDropdownMenu items={items} trigger={trigger} />
