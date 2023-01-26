@@ -2,6 +2,7 @@ import styled from 'styled-components'
 import { Border, Colors, Spacing } from '../../styles'
 import { TIconImage, icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
+import { Truncated } from '../atoms/typography/Typography'
 
 const ButtonContainer = styled.div`
     display: flex;
@@ -28,7 +29,7 @@ const DropdownButton = ({ icon, iconColorHex, label }: DropdownButtonProps) => {
     return (
         <ButtonContainer>
             <Icon icon={icons[icon]} colorHex={iconColorHex} />
-            {label}
+            <Truncated>{label}</Truncated>
             <PositionedIcon icon={icons.caret_down_solid} />
         </ButtonContainer>
     )
