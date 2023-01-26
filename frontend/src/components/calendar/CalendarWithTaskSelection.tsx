@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID } from '../../constants'
+import { usePreviewMode } from '../../hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
@@ -13,7 +14,9 @@ import GTDropdownMenu from '../radix/GTDropdownMenu'
 import CalendarView from '../views/CalendarView'
 import { useCalendarContext } from './CalendarContext'
 import CalendarDropTask from './CalendarDropTask'
+import CalendarSelector from './CalendarSelector'
 import DropdownButton from './DropdownButton'
+import { DEFAULT_CALENDAR_COLOR, calendarColors } from './utils/colors'
 
 const SIDEBAR_WIDTH = '326px'
 const ScheduleTaskSidebar = styled.div`
@@ -40,6 +43,7 @@ const CalendarWithTaskSelection = () => {
     const { calendarType, showTaskToCalSidebar, setShowTaskToCalSidebar } = useCalendarContext()
     const [isTaskDropdownOpen, setIsTaskDropdownOpen] = useState(false)
     const [folderIndex, setFolderIndex] = useState(0)
+    const { isPreviewMode } = usePreviewMode()
     const validDragFolders =
         taskFolders?.filter((folder) => folder.id !== DONE_SECTION_ID && folder.id !== TRASH_SECTION_ID) ?? []
 
@@ -75,13 +79,42 @@ const CalendarWithTaskSelection = () => {
                             tooltipText="Hide task to calendar sidebar"
                         />
                     </SidebarHeader>
-                    <GTDropdownMenu
-                        items={DropdownMenuItem}
-                        trigger={<DropdownButton label={triggerText} />}
-                        isOpen={isTaskDropdownOpen}
-                        setIsOpen={setIsTaskDropdownOpen}
-                        useTriggerWidth
-                    />
+                    <Flex column gap={Spacing._8}>
+                        <GTDropdownMenu
+                            items={DropdownMenuItem}
+                            trigger={<DropdownButton icon="folder" label={triggerText} />}
+                            isOpen={isTaskDropdownOpen}
+                            setIsOpen={setIsTaskDropdownOpen}
+                            useTriggerWidth
+                        />
+                        {isPreviewMode && (
+                            <>
+                                <CalendarSelector
+                                    mode="task-to-cal"
+                                    renderTrigger={(calendar) => (
+                                        <DropdownButton
+                                            icon="square"
+                                            iconColorHex={
+                                                calendarColors[calendar?.color_id as keyof typeof calendarColors]
+                                                    ?.background ?? DEFAULT_CALENDAR_COLOR
+                                            }
+                                            label={calendar?.title ?? 'Select a calendar'}
+                                        />
+                                    )}
+                                    useTriggerWidth
+                                />
+                                <Flex justifyContent="end">
+                                    <CalendarSelector
+                                        mode="cal-selection"
+                                        renderTrigger={() => (
+                                            <GTIconButton icon={icons.eye} tooltipText="Show/hide calendars" asDiv />
+                                        )}
+                                    />
+                                    <GTIconButton icon={icons.gear} tooltipText="Calendar settings" />
+                                </Flex>
+                            </>
+                        )}
+                    </Flex>
                     <MarginDivider color={Colors.border.light} />
                     {selectedFolder?.tasks.map((task) => (
                         <CalendarDropTask task={task} key={task.id} />
