@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/logging"
@@ -17,6 +16,7 @@ import (
 	"github.com/shurcooL/graphql"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const IssueType = "Issue"
@@ -177,6 +177,16 @@ func (api *API) createOrModifyIssueFromPayload(userID primitive.ObjectID, accoun
 	if task.Status.Type == external.LinearCompletedType || task.Status.Type == external.LinearCanceledType {
 		isCompleted := true
 		task.IsCompleted = &isCompleted
+	}
+
+	dbTask, err := database.GetTaskByExternalIDWithoutUser(api.DB, issuePayload.ID)
+	if err != nil && err != mongo.ErrNoDocuments {
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("could not find matching linear issue")
+		return err
+	}
+	if dbTask != nil && dbTask.UserID == userID && dbTask.IDTaskSection != primitive.NilObjectID {
+		task.IDTaskSection = dbTask.IDTaskSection
 	}
 
 	_, err = database.UpdateOrCreateTask(
@@ -368,7 +378,6 @@ func populateLinearTask(userID primitive.ObjectID, accountID string, webhookPayl
 	task := &database.Task{
 		UserID:             userID,
 		IDExternal:         issuePayload.ID,
-		IDTaskSection:      constants.IDTaskSectionDefault,
 		Deeplink:           webhookPayload.Url,
 		SourceID:           external.TASK_SOURCE_ID_LINEAR,
 		Title:              &issuePayload.Title,
