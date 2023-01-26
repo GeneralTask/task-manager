@@ -9,7 +9,7 @@ import { RichTextEditorProps } from '../types'
 
 const serializer = new JSONTransformer()
 
-const EditorContainer = styled.div`
+const EditorContainer = styled.div<{ isMarkdown: boolean }>`
     height: 100%;
     :focus-within {
         height: calc(100% - ${TOOLBAR_HEIGHT});
@@ -40,6 +40,7 @@ const EditorContainer = styled.div`
     .assistive {
         display: none;
     }
+    ${({ isMarkdown }) => isMarkdown && `u { text-decoration: none; } `}/* remove underline if in markdown mode */
 `
 
 interface EditorProps extends RichTextEditorProps {
@@ -61,9 +62,10 @@ const Editor = ({
             editorActions.blur()
         }
     }
+    const isMarkdown = type === 'markdown'
 
     return (
-        <EditorContainer onKeyDown={handleKeyDown}>
+        <EditorContainer onKeyDown={handleKeyDown} isMarkdown={isMarkdown}>
             <AtlaskitEditor
                 defaultValue={value}
                 placeholder={placeholder}
@@ -72,15 +74,13 @@ const Editor = ({
                 appearance="chromeless"
                 onChange={(e) => {
                     const json = serializer.encode(e.state.doc)
-                    if (type === 'markdown') {
+                    if (isMarkdown) {
                         onChange(adf2md.convert(json).result)
                     } else {
                         onChange(JSON.stringify(json))
                     }
                 }}
-                contentTransformerProvider={
-                    type === 'markdown' ? (schema) => new MarkdownTransformer(schema) : undefined
-                }
+                contentTransformerProvider={isMarkdown ? (schema) => new MarkdownTransformer(schema) : undefined}
             />
         </EditorContainer>
     )
