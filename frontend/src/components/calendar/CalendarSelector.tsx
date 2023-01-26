@@ -49,6 +49,40 @@ const CalendarSelector = ({ mode }: CalendarSelectorProps) => {
             ?.calendars.find((calendar) => calendar.calendar_id === taskToCalCalendar)
     }, [calendars, taskToCalAccount, taskToCalCalendar])
 
+    const { field_value: taskToCalAccount, updateSetting: setTaskToCalAccount } = useSetting(
+        'calendar_account_id_for_new_tasks'
+    )
+    const { field_value: taskToCalCalendar, updateSetting: setTaskToCalCalendar } =
+        useSetting('calendar_id_for_new_tasks')
+
+    const isCalendarChecked = useCallback(
+        (account: TCalendarAccount, calendar: TCalendar) => {
+            if (mode === 'task-to-cal') {
+                return taskToCalAccount === account.account_id && taskToCalCalendar === calendar.calendar_id
+            }
+            return isCalendarSelected(account.account_id, calendar.calendar_id)
+        },
+        [mode, taskToCalAccount, taskToCalCalendar, isCalendarSelected]
+    )
+
+    const handleCalendarClick = useCallback(
+        (account: TCalendarAccount, calendar: TCalendar) => {
+            if (mode === 'task-to-cal') {
+                setTaskToCalAccount(account.account_id)
+                setTaskToCalCalendar(calendar.calendar_id)
+            } else {
+                toggleCalendarSelection(account.account_id, calendar)
+            }
+        },
+        [mode, setTaskToCalAccount, setTaskToCalCalendar, toggleCalendarSelection]
+    )
+
+    const selectedTaskToCalCalendar = useMemo(() => {
+        return calendars
+            ?.find((account) => account.account_id === taskToCalAccount)
+            ?.calendars.find((calendar) => calendar.calendar_id === taskToCalCalendar)
+    }, [calendars, taskToCalAccount, taskToCalCalendar])
+
     const items = useMemo(
         () =>
             calendars?.map((account) => [
