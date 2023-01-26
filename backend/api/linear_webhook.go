@@ -101,31 +101,26 @@ func (api *API) LinearWebhook(c *gin.Context) {
 	case IssueType:
 		var issuePayload LinearIssuePayload
 		if err := json.Unmarshal([]byte(*webhookPayload.RawData), &issuePayload); (err != nil || issuePayload == LinearIssuePayload{}) {
-			api.Logger.Error().Err(err).Msg("failed to unmarshal linear issue object")
 			c.JSON(400, gin.H{"detail": "unable to unmarshal linear issue object"})
 			return
 		}
 		err = api.processLinearIssueWebhook(c, webhookPayload, issuePayload)
 		if err != nil {
-			api.Logger.Error().Err(err).Msg("failed to process linear issue object")
 			c.JSON(400, gin.H{"detail": "unable to process linear issue webhook"})
 			return
 		}
 	case CommentType:
 		var commentPayload LinearCommentPayload
 		if err := json.Unmarshal([]byte(*webhookPayload.RawData), &commentPayload); (err != nil || commentPayload == LinearCommentPayload{}) {
-			api.Logger.Error().Err(err).Msg("failed to unmarshal linear comment object")
 			c.JSON(400, gin.H{"detail": "unable to unmarshal linear issue object"})
 			return
 		}
 		err = api.processLinearCommentWebhook(c, webhookPayload, commentPayload)
 		if err != nil {
-			api.Logger.Error().Err(err).Msg("failed to process linear comment object")
 			c.JSON(400, gin.H{"detail": "unable to process linear comment webhook"})
 			return
 		}
 	default:
-		api.Logger.Error().Err(err).Msg("unrecognized linear payload format")
 		c.JSON(400, gin.H{"detail": "unrecognized linear payload format"})
 		return
 	}
@@ -134,13 +129,11 @@ func (api *API) LinearWebhook(c *gin.Context) {
 }
 
 func (api *API) processLinearIssueWebhook(c *gin.Context, webhookPayload LinearWebhookPayload, issuePayload LinearIssuePayload) error {
-	logger := logging.GetSentryLogger()
 	token, err := database.GetExternalTokenByExternalID(api.DB, issuePayload.AssigneeID, external.TASK_SERVICE_ID_LINEAR)
 	if err != nil {
 		// if the owner of the task is not found, we must check if the task exists
 		// if the task does exist, we must delete as we do not want it to show on the user's list
 		api.removeTaskOwnerIfExists(issuePayload)
-		logger.Error().Err(err).Msg("could not find matching external ID")
 		return err
 	}
 
@@ -156,7 +149,6 @@ func (api *API) processLinearIssueWebhook(c *gin.Context, webhookPayload LinearW
 		err = api.removeIssueFromPayload(userID, issuePayload)
 	default:
 		err = errors.New("action type not recognized")
-		logger.Error().Err(err).Msg("invalid action type")
 	}
 	return err
 }
@@ -208,8 +200,6 @@ func (api *API) createOrModifyIssueFromPayload(userID primitive.ObjectID, accoun
 func (api *API) removeIssueFromPayload(userID primitive.ObjectID, issuePayload LinearIssuePayload) error {
 	task, err := database.GetTaskByExternalIDWithoutUser(api.DB, issuePayload.ID)
 	if err != nil {
-		logger := logging.GetSentryLogger()
-		logger.Error().Err(err).Msg("could not find matching linear issue")
 		return err
 	}
 
@@ -227,13 +217,11 @@ func (api *API) processLinearCommentWebhook(c *gin.Context, webhookPayload Linea
 	logger := logging.GetSentryLogger()
 	task, err := database.GetTaskByExternalIDWithoutUser(api.DB, commentPayload.IssueID)
 	if err != nil {
-		logger.Error().Err(err).Msg("could not find matching linear task")
 		return err
 	}
 
 	token, err := database.GetExternalToken(api.DB, task.SourceAccountID, external.TASK_SERVICE_ID_LINEAR)
 	if err != nil {
-		logger.Error().Err(err).Msg("could not find matching external ID")
 		return err
 	}
 
@@ -258,8 +246,6 @@ func (api *API) processLinearCommentWebhook(c *gin.Context, webhookPayload Linea
 func (api *API) createCommentFromPayload(userID primitive.ObjectID, externalUserID string, accountID string, commentPayload LinearCommentPayload, task *database.Task) error {
 	userStruct, err := api.getLinearUserInfo(userID, accountID, externalUserID)
 	if err != nil {
-		logger := logging.GetSentryLogger()
-		logger.Error().Err(err).Msg("could not fetch linear user struct")
 		return err
 	}
 
