@@ -31,6 +31,7 @@ export type TSettingsKey =
     | 'sidebar_linear_preference'
     | 'sidebar_github_preference'
     | 'sidebar_slack_preference'
+    | 'calendar_account_id_for_new_tasks'
 
 type TUpdateSettingsData = {
     key: TSettingsKey

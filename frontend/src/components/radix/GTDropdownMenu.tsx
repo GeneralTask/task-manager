@@ -51,7 +51,7 @@ const DropdownMenuSubContent = styled(DropdownMenu.SubContent)`
 interface GTDropdownMenuProps {
     items: GTMenuItem[] | GTMenuItem[][] // allow for divided groups of items
     trigger: React.ReactNode // component that opens the dropdown menu when clicked
-    align?: 'start' | 'end'
+    align?: 'start' | 'center' | 'end'
     side?: 'top' | 'bottom' | 'left' | 'right'
     isOpen?: boolean
     setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>
