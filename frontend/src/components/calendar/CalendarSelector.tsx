@@ -89,6 +89,11 @@ const CalendarSelector = ({ mode }: CalendarSelectorProps) => {
                 ) : (
                     <GTButton
                         value={selectedTaskToCalCalendar?.title || 'Select a calendar'}
+                        icon={icons.square}
+                        iconColorHex={
+                            calendarColors[selectedTaskToCalCalendar?.color_id as keyof typeof calendarColors]
+                                ?.background ?? DEFAULT_CALENDAR_COLOR
+                        }
                         asDiv
                         isDropdown
                         styleType="secondary"

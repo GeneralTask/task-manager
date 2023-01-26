@@ -114,6 +114,7 @@ interface GTButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElemen
     wrapText?: boolean
     icon?: IconProp | string
     iconColor?: TIconColor
+    iconColorHex?: string
     textColor?: TTextColor
     value?: React.ReactNode
     fitContent?: boolean
@@ -128,6 +129,7 @@ const GTButton = ({
     fitContent = true,
     icon,
     iconColor,
+    iconColorHex,
     textColor,
     value,
     active,
@@ -146,7 +148,7 @@ const GTButton = ({
             as={asDiv ? 'div' : 'button'}
             {...rest}
         >
-            {icon && <Icon icon={icon} color={iconColor} />}
+            {icon && <Icon icon={icon} color={iconColor} colorHex={iconColorHex} />}
             <Truncated>{value}</Truncated>
             {isDropdown && (
                 <MarginLeftAuto>
