@@ -9,7 +9,7 @@ import { RichTextEditorProps } from '../types'
 
 const serializer = new JSONTransformer()
 
-const EditorContainer = styled.div`
+const EditorContainer = styled.div<{ isMarkdown: boolean }>`
     height: 100%;
     :focus-within {
         height: calc(100% - ${TOOLBAR_HEIGHT});
