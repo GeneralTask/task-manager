@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME, SINGLE_SECOND_INTERVAL } from '../../constants'
 import { useInterval, usePreviewMode } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
-import { useGetEvents } from '../../services/api/events.hooks'
+import { useEvents } from '../../services/api/events.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { getMonthsAroundDate, isDateToday } from '../../utils/time'
 import { useCalendarContext } from '../calendar/CalendarContext'
@@ -16,6 +16,7 @@ import {
     CalendarWeekDateHeaderContainer,
     DayHeaderText,
 } from '../calendar/CalendarEvents-styles'
+import CalendarFooter from '../calendar/CalendarFooter'
 import CalendarHeader from '../calendar/CalendarHeader'
 import CollapsedCalendarSidebar from '../calendar/CollapsedCalendarSidebar'
 import TasksDue from '../calendar/TasksDue'
@@ -45,13 +46,21 @@ const CalendarView = ({
     const [showMainHeader, setShowMainHeader] = useState<boolean>(initialShowMainHeader ?? true)
     const [showDateHeader, setShowDateHeader] = useState<boolean>(initialShowDateHeader ?? true)
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
-    const { date, calendarType, isCollapsed, setDate, setCalendarType, setIsCollapsed, setShowTaskToCalSidebar } =
-        useCalendarContext()
+    const {
+        date,
+        calendarType,
+        isCollapsed,
+        setDate,
+        setCalendarType,
+        setIsCollapsed,
+        setShowTaskToCalSidebar,
+        dayViewDate,
+    } = useCalendarContext()
     const monthBlocks = useMemo(() => {
         const blocks = getMonthsAroundDate(date, 1)
         return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
     }, [date])
-    useGetEvents(monthBlocks[1], 'calendar')
+    useEvents(monthBlocks[1], 'calendar')
 
     const { pathname } = useLocation()
     const isFocusMode = pathname.startsWith('/focus-mode')
@@ -94,6 +103,7 @@ const CalendarView = ({
         'showDailyCalendar',
         useCallback(() => {
             setIsCollapsed(false)
+            setDate(dayViewDate)
             setCalendarType('day')
         }, [calendarType, setCalendarType, setIsCollapsed]),
         isFocusMode
@@ -102,6 +112,7 @@ const CalendarView = ({
         'showWeeklyCalendar',
         useCallback(() => {
             setIsCollapsed(false)
+            setDate(date.minus({ days: date.weekday % 7 }))
             setCalendarType('week')
         }, [calendarType, setCalendarType, setIsCollapsed]),
         isFocusMode
@@ -142,6 +153,7 @@ const CalendarView = ({
             </CalendarWeekDateHeaderContainer>
             {calendarType === 'week' && <TasksDueWeek date={date} />}
             <CalendarEvents date={date} primaryAccountID={primaryAccountID} />
+            {isPreviewMode && calendarType === 'day' && <CalendarFooter />}
         </CalendarContainer>
     )
 }

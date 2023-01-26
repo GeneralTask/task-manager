@@ -4,7 +4,7 @@ import { DateTime } from 'luxon'
 import { useInterval, useKeyboardShortcut } from '.'
 import ToastTemplate from '../components/atoms/toast/ToastTemplate'
 import { NO_TITLE, SINGLE_SECOND_INTERVAL } from '../constants'
-import { useGetEvents } from '../services/api/events.hooks'
+import { useEvents } from '../services/api/events.hooks'
 import { icons } from '../styles/images'
 import { TEvent } from '../utils/types'
 
@@ -17,7 +17,7 @@ const isEventWithinTenMinutes = (event: TEvent) => {
 export default function useEventBanners(date: DateTime) {
     const eventBannerLastShownAt = useRef<Map<string, number>>(new Map<string, number>())
     const eventsWithinTenMinutes = useRef<TEvent[]>([])
-    const { data: events } = useGetEvents(
+    const { data: events } = useEvents(
         {
             startISO: date.startOf('day').toISO(),
             endISO: date.endOf('day').plus({ minutes: 15 }).toISO(),
@@ -97,6 +97,7 @@ export default function useEventBanners(date: DateTime) {
             if (currentMeeting?.conference_call.url) {
                 window.open(currentMeeting.conference_call.url, '_blank')
             }
-        }, [])
+        }, [eventsWithinTenMinutes]),
+        !eventsWithinTenMinutes.current.find((event) => isEventWithinTenMinutes(event))?.conference_call.url
     )
 }

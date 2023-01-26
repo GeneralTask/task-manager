@@ -114,7 +114,9 @@ func TestGetEvents(t *testing.T) {
 				{"user_id": userID},
 			}},
 		).Decode(&calendarAccount)
-		assert.Equal(t, "primary", calendarAccount.Calendars[0].CalendarID)
+		assert.Equal(t, "exampleAccountID", calendarAccount.Calendars[0].CalendarID)
+		assert.Equal(t, "", calendarAccount.Calendars[0].Title)
+		assert.Equal(t, "owner", calendarAccount.Calendars[0].AccessRole)
 		assert.NoError(t, err)
 	})
 	t.Run("ExistingEvent", func(t *testing.T) {
@@ -418,7 +420,7 @@ func TestGetEvents(t *testing.T) {
 		assert.Equal(t, 2, len(result.CalendarEvents)) // the event exists in both calendars
 		firstEvent := result.CalendarEvents[0]
 		assertCalendarEventsEqual(t, &standardDBEvent, firstEvent)
-		assert.Equal(t, "primary", firstEvent.CalendarID)
+		assert.Equal(t, "exampleAccountID", firstEvent.CalendarID)
 
 		secondEvent := result.CalendarEvents[1]
 		assertCalendarEventsEqual(t, &standardDBEvent, secondEvent)
@@ -448,7 +450,7 @@ func TestCreateNewEvent(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		eventCreateObj := EventCreateObject{
-			AccountID:         "test_account_id",
+			CalendarID:        "test_account_id",
 			Summary:           "test summary",
 			Location:          "test location",
 			Description:       "test description",
@@ -474,7 +476,7 @@ func TestCreateNewEvent(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		eventCreateObj := EventCreateObject{
-			AccountID:         "test_account_id",
+			CalendarID:        "test_account_id",
 			Summary:           "test summary",
 			Location:          "test location",
 			Description:       "test description",
@@ -511,7 +513,7 @@ func TestCreateNewEvent(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		eventCreateObj := EventCreateObject{
-			AccountID:         "test_account_id",
+			CalendarID:        "test_account_id",
 			Summary:           "test summary",
 			Location:          "test location",
 			Description:       "test description",
@@ -550,7 +552,7 @@ func TestCreateNewEvent(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		eventCreateObj := EventCreateObject{
-			AccountID:         "test_account_id",
+			CalendarID:        "test_account_id",
 			Summary:           "test summary",
 			Location:          "test location",
 			Description:       "test description",
@@ -603,7 +605,7 @@ func TestDeleteEvent(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarDeleteURL: &server.URL},
 			},
 		}
-		err := googleCalendar.DeleteEvent(db, userID, "exampleAccountID", gcalEventID)
+		err := googleCalendar.DeleteEvent(db, userID, "exampleAccountID", gcalEventID, "")
 		assert.Error(t, err)
 	})
 	t.Run("Success", func(t *testing.T) {
@@ -619,7 +621,7 @@ func TestDeleteEvent(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarDeleteURL: &server.URL},
 			},
 		}
-		err := googleCalendar.DeleteEvent(db, userID, accountID, gcalEventID)
+		err := googleCalendar.DeleteEvent(db, userID, accountID, gcalEventID, "")
 		assert.NoError(t, err)
 	})
 }

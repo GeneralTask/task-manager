@@ -43,9 +43,8 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
     const navigateToTask = useNavigateToTask()
 
     useEffect(() => {
-        if (!isOpen) {
-            setSelectedEvent(null)
-        }
+        if (isOpen || hidePopover) return
+        setSelectedEvent(null)
     }, [isOpen])
 
     const onDelete = useCallback(() => {
