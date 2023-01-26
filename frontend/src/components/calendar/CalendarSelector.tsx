@@ -1,23 +1,25 @@
-import { ReactNode, useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useSetting } from '../../hooks'
 import { useGetCalendars, useSelectedCalendars } from '../../services/api/events.hooks'
-import { logos } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import { TCalendar, TCalendarAccount } from '../../utils/types'
 import { EMPTY_ARRAY } from '../../utils/utils'
+import GTButton from '../atoms/buttons/GTButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 
 interface CalendarSelectorProps {
     mode: 'task-to-cal' | 'cal-selection'
-    trigger: ReactNode
 }
-const CalendarSelector = ({ mode, trigger }: CalendarSelectorProps) => {
+const CalendarSelector = ({ mode }: CalendarSelectorProps) => {
     const { data: calendars } = useGetCalendars()
     const { isCalendarSelected, toggleCalendar } = useSelectedCalendars()
 
     const { field_value: taskToCalAccount, updateSetting: setTaskToCalAccount } = useSetting(
         'calendar_account_id_for_new_tasks'
     )
-    const [taskToCalCalendar, setTaskToCalCalendar] = useState(taskToCalAccount)
+    const { field_value: taskToCalCalendar, updateSetting: setTaskToCalCalendar } =
+        useSetting('calendar_id_for_new_tasks')
 
     const isCalendarChecked = useCallback(
         (account: TCalendarAccount, calendar: TCalendar) => {
@@ -40,6 +42,12 @@ const CalendarSelector = ({ mode, trigger }: CalendarSelectorProps) => {
         },
         [mode, setTaskToCalAccount, setTaskToCalCalendar, toggleCalendar]
     )
+
+    const selectedTaskToCalCalendar = useMemo(() => {
+        return calendars
+            ?.find((account) => account.account_id === taskToCalAccount)
+            ?.calendars.find((calendar) => calendar.calendar_id === taskToCalCalendar)
+    }, [calendars, taskToCalAccount, taskToCalCalendar])
 
     const items = useMemo(
         () =>
@@ -68,7 +76,28 @@ const CalendarSelector = ({ mode, trigger }: CalendarSelectorProps) => {
         [calendars, isCalendarChecked, handleCalendarClick]
     )
 
-    return <GTDropdownMenu items={items} trigger={trigger} align={mode === 'cal-selection' ? 'start' : 'center'} />
+    return (
+        <GTDropdownMenu
+            items={items}
+            trigger={
+                mode === 'cal-selection' ? (
+                    <GTIconButton icon={icons.eye} tooltipText="Show/hide calendars" asDiv />
+                ) : (
+                    <GTButton
+                        // value={selectedTaskToCalCalendar?.title || 'Select a calendar'}
+                        value="djhflkajdshfjjkdsahfljkadshfljkadshfljkasdhfljkdshfljkdsafhlkjdsaflkhj"
+                        asDiv
+                        isDropdown
+                        styleType="secondary"
+                        size="small"
+                        fitContent={false}
+                    />
+                )
+            }
+            align={mode === 'cal-selection' ? 'start' : 'center'}
+            unstyledTrigger
+        />
+    )
 }
 
 export default CalendarSelector
