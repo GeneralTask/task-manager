@@ -80,6 +80,7 @@ export const TASK_PRIORITIES: TTaskPriority[] = [
 
 export const GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME = 'Google Calendar'
 export const GENERAL_TASK_SOURCE_NAME = 'General Task'
+export const SLACK_SOURCE_NAME = 'Slack'
 
 export const SYNC_MESSAGES = {
     SYNCING: 'Syncing...',
