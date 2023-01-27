@@ -6,6 +6,7 @@ import { TCalendar, TCalendarAccount } from '../../utils/types'
 import { EMPTY_ARRAY } from '../../utils/utils'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
+import { Truncated } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { DEFAULT_CALENDAR_COLOR, calendarColors } from './utils/colors'
 
@@ -88,7 +89,7 @@ const CalendarSelector = ({ mode }: CalendarSelectorProps) => {
                     <GTIconButton icon={icons.eye} tooltipText="Show/hide calendars" asDiv />
                 ) : (
                     <GTButton
-                        value={selectedTaskToCalCalendar?.title || 'Select a calendar'}
+                        value={<Truncated>{selectedTaskToCalCalendar?.title || 'Select a calendar'}</Truncated>}
                         icon={icons.square}
                         iconColorHex={
                             calendarColors[selectedTaskToCalCalendar?.color_id as keyof typeof calendarColors]
