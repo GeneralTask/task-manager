@@ -25,5 +25,5 @@ const (
 )
 
 const (
-	MAX_OVERVIEW_SUGGESTION int = 3
+	MAX_OVERVIEW_SUGGESTION int = 5
 )

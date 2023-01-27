@@ -112,7 +112,7 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 		promptConstruction = promptConstruction + `), `
 	}
 
-	if utf8.RuneCountInString(getPrompt(promptConstruction)) > 2200 {
+	if utf8.RuneCountInString(getPrompt(promptConstruction)) > 4000 {
 		api.Logger.Error().Err(err).Msg("prompt too long for suggestion")
 		c.JSON(400, gin.H{"error": "prompt is too long for suggestion"})
 		return
@@ -133,7 +133,7 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 	ctx := context.Background()
 	req := gogpt.CompletionRequest{
 		Model:            gogpt.GPT3TextDavinci003,
-		MaxTokens:        1500,
+		MaxTokens:        3000,
 		Temperature:      0.2,
 		TopP:             1.0,
 		FrequencyPenalty: 0.0,
