@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
 import { useKeyboardShortcut, useNavigateToTask, usePreviewMode, useToast } from '../../hooks'
-import { useDeleteEvent } from '../../services/api/events.hooks'
+import { useDeleteEvent, useGetCalendars } from '../../services/api/events.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
@@ -12,12 +12,11 @@ import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
 import { Label } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
+import getCalendarColor from '../calendar/utils/colors'
 import {
     CopyButton,
     Description,
     EventBoxStyle,
-    EventDate,
-    EventDateContainer,
     EventHeader,
     EventHeaderIcons,
     EventTitle,
@@ -41,6 +40,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
     const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
     const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
     const navigateToTask = useNavigateToTask()
+    const { data: calendars } = useGetCalendars()
 
     useEffect(() => {
         if (isOpen || hidePopover) return
@@ -103,6 +103,9 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
     )
     useKeyboardShortcut('deleteCalendarEvent', onDelete, event.id !== selectedEvent?.id)
 
+    const calendarAccount = calendars?.find((c) => c.account_id === event.account_id)
+    const calendar = calendarAccount?.calendars.find((c) => c.calendar_id === event.calendar_id)
+
     const content = (
         <EventBoxStyle>
             <EventHeader>
@@ -117,17 +120,18 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                 </EventHeaderIcons>
             </EventHeader>
             <EventTitle>{event.title}</EventTitle>
-            {isPreviewMode && (
-                <Label style={{ wordBreak: 'break-all' }}>
-                    <strong>Calendar ID:</strong> {event.calendar_id}
-                </Label>
+            {isPreviewMode && calendarAccount && calendar && (
+                <Flex alignItems="center" gap={Spacing._8}>
+                    <Icon icon={icons.square} colorHex={getCalendarColor(event.color_id)} />
+                    <Label>{`${calendar.title} (${calendarAccount.account_id})`}</Label>
+                </Flex>
             )}
-            <EventDateContainer>
+            <Flex alignItems="center" gap={Spacing._8}>
                 <Icon icon={icons.calendar_blank} />
-                <EventDate>
+                <Label>
                     {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
-                </EventDate>
-            </EventDateContainer>
+                </Label>
+            </Flex>
             <Description dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.body) }} />
             <Flex flex="1" gap={Spacing._8}>
                 {event.linked_task_id && (
