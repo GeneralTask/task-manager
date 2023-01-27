@@ -59,10 +59,10 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
             const suggestion = await getOverviewSmartSuggestion()
             setSuggestions(suggestion)
             setState(SmartPrioritizeState.LOADED)
-            queryClient.invalidateQueries('overview-suggestions-remaining')
         } catch (e) {
             setState(SmartPrioritizeState.ERROR)
         }
+        queryClient.invalidateQueries('overview-suggestions-remaining')
     }
 
     const getBodyContent = () => {
