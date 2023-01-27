@@ -1,4 +1,6 @@
 import { DateTime } from 'luxon'
+import { usePreviewMode } from '../../hooks'
+import { Colors } from '../../styles'
 import { logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
 import { EdgeHighlight } from '../atoms/SelectableContainer'
@@ -17,6 +19,7 @@ import {
     EventTitle,
 } from './CalendarEvents-styles'
 import ResizeHandle from './ResizeHandle'
+import getCalendarColor from './utils/colors'
 
 const LONG_EVENT_THRESHOLD = 60 // minutes
 const SHORT_EVENT_THRESHOLD = 45 // minutes
@@ -30,6 +33,7 @@ interface EventBodyProps {
     isBeingDragged?: boolean
 }
 function EventBody(props: EventBodyProps): JSX.Element {
+    const { isPreviewMode } = usePreviewMode()
     const { selectedEvent, setSelectedEvent, isPopoverDisabled, disableSelectEvent } = useCalendarContext()
     const startTime = DateTime.fromISO(props.event.datetime_start)
     const endTime = DateTime.fromISO(props.event.datetime_end)
@@ -104,6 +108,9 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         squareStart={startedBeforeToday}
                         squareEnd={endedAfterToday}
                         isSelected={selectedEvent?.id === props.event.id}
+                        backgroundColor={
+                            isPreviewMode ? getCalendarColor(props.event.color_id) : Colors.background.white
+                        }
                     >
                         <EdgeHighlight color="blue" squareStart={startedBeforeToday} squareEnd={endedAfterToday} />
                     </EventFill>

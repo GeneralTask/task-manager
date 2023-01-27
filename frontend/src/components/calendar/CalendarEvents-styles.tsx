@@ -159,13 +159,18 @@ export const EventTime = styled.div`
     white-space: nowrap;
     overflow: hidden;
 `
-export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean; isSelected: boolean }>`
+export const EventFill = styled.div<{
+    squareStart: boolean
+    squareEnd: boolean
+    isSelected: boolean
+    backgroundColor: string
+}>`
     width: 100%;
     height: 100%;
-    background: ${Colors.background.white};
     outline: ${Border.stroke.medium} solid ${(props) => (props.isSelected ? Colors.border.purple : 'transparent')};
     box-sizing: border-box;
     box-shadow: ${Shadows.light};
+    background: ${(props) => props.backgroundColor};
     border-top-left-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
     border-top-right-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
     border-bottom-left-radius: ${(props) => (props.squareEnd ? '0' : Border.radius.mini)};

@@ -1,5 +1,7 @@
+import { Colors } from '../../../styles'
+
 // (hopefully) temporary solution to get colors for calendar events until backend provides them
-export const DEFAULT_CALENDAR_COLOR = '#039BE5'
+export const DEFAULT_CALENDAR_COLOR = Colors.background.white
 
 export const calendarColors = {
     '1': {
@@ -146,3 +148,11 @@ export const eventColors = {
         foreground: '#1d1d1d',
     },
 }
+
+// gcal tends to use the event color, but we don't have a complete list of event colors so fall back to calendar colors
+const getCalendarColor = (colorId: string): string =>
+    eventColors[colorId as keyof typeof eventColors]?.background ??
+    calendarColors[colorId as keyof typeof calendarColors]?.background ??
+    DEFAULT_CALENDAR_COLOR
+
+export default getCalendarColor

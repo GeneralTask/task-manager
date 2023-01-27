@@ -144,6 +144,7 @@ export interface TEvent {
     body: string
     account_id: string
     calendar_id: string
+    color_id: string
     logo: TLogoImage
     deeplink: string
     datetime_start: string
