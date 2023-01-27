@@ -126,7 +126,7 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 	ctx := context.Background()
 	req := gogpt.CompletionRequest{
 		Model:            gogpt.GPT3TextDavinci003,
-		MaxTokens:        1500,
+		MaxTokens:        3000,
 		Temperature:      0.2,
 		TopP:             1.0,
 		FrequencyPenalty: 0.0,
