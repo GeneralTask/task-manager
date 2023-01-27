@@ -121,12 +121,14 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
             </EventHeader>
             <EventTitle>{event.title}</EventTitle>
             {isPreviewMode && calendarAccount && calendar && (
-                <Flex alignItems="center" gap={Spacing._8}>
+                <Flex gap={Spacing._8}>
                     <Icon icon={icons.square} colorHex={getCalendarColor(event.color_id)} />
-                    <Label>{`${calendar.title} (${calendarAccount.account_id})`}</Label>
+                    <Label>
+                        {calendar.title} ({calendarAccount.account_id})
+                    </Label>
                 </Flex>
             )}
-            <Flex alignItems="center" gap={Spacing._8}>
+            <Flex gap={Spacing._8}>
                 <Icon icon={icons.calendar_blank} />
                 <Label>
                     {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
