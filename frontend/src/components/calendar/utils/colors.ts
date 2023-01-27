@@ -1,7 +1,5 @@
-import { Colors } from '../../../styles'
-
 // (hopefully) temporary solution to get colors for calendar events until backend provides them
-export const DEFAULT_CALENDAR_COLOR = Colors.background.white
+export const DEFAULT_CALENDAR_COLOR = '#039BE5'
 
 export const calendarColors = {
     '1': {
