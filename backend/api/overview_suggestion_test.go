@@ -162,7 +162,7 @@ func TestOverviewRemaining(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, `3`, string(body))
+		assert.Equal(t, fmt.Sprint(constants.MAX_OVERVIEW_SUGGESTION), string(body))
 	})
 
 	t.Run("SuccessWithRefresh", func(t *testing.T) {
