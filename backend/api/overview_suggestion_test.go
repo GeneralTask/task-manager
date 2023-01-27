@@ -11,6 +11,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/testutils"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
@@ -67,6 +68,50 @@ func TestOverviewSuggestions(t *testing.T) {
 		err = userCollection.FindOne(context.Background(), bson.M{"email": "test_overview_suggestion_invalid@generaltask.com"}).Decode(&resultUser)
 		assert.NoError(t, err)
 		assert.Equal(t, constants.MAX_OVERVIEW_SUGGESTION-1, resultUser.GPTSuggestionsLeft)
+	})
+
+	t.Run("PromptTooLong", func(t *testing.T) {
+		server := testutils.GetMockAPIServer(t, http.StatusOK, `{"id": "1", "choices": [{"text": "1. Task Inbox: This is the reasoning\n2. Linear Issues: Reasoning 2\n3. Slack Messages: Reasoning 3"}]}`)
+		api.ExternalConfig.OpenAIOverrideURL = server.URL
+		currentTime := time.Now().UTC()
+		api.OverrideTime = &currentTime
+
+		authtoken := login("prompt_too_long@generaltask.com", "")
+		request, _ := http.NewRequest("GET", "/overview/views/suggestion/", nil)
+		request.Header.Set("Authorization", "Bearer "+authtoken)
+		request.Header.Set("Timezone-Offset", "0")
+
+		userCollection := database.GetUserCollection(api.DB)
+		_, err := userCollection.UpdateOne(context.Background(), bson.M{"email": "prompt_too_long@generaltask.com"}, bson.M{"$set": bson.M{"gpt_suggestions_left": constants.MAX_OVERVIEW_SUGGESTION}})
+		assert.NoError(t, err)
+
+		result := userCollection.FindOne(context.Background(), bson.M{"email": "prompt_too_long@generaltask.com"}, nil)
+		var userObject database.User
+		err = result.Decode(&userObject)
+		assert.NoError(t, err)
+
+		taskCollection := database.GetTaskCollection(api.DB)
+		notComplete := false
+		longTitle := "here is a long title here is a long title here is a long title here is a long title here is a long title here is a long title here is a long title here is a long title here is a long title here is a long title here is a long title here is a long title here is a long title here is a long title here is a long title here is a long title here is a long title"
+		for i := 1; i < 100; i++ {
+			_, err = taskCollection.InsertOne(context.Background(), database.Task{
+				UserID:        userObject.ID,
+				Title:         &longTitle,
+				IsCompleted:   &notComplete,
+				IDTaskSection: constants.IDTaskSectionDefault,
+				SourceID:      external.TASK_SOURCE_ID_GT_TASK,
+				IDOrdering:    4,
+			}, nil)
+			assert.NoError(t, err)
+		}
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := io.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		responseBody := fmt.Sprint(`{"error":"prompt is too long for suggestion"}`)
+		assert.Equal(t, responseBody, string(body))
 	})
 
 	t.Run("Success", func(t *testing.T) {
