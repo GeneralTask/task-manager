@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { DropType, TEvent } from '../../utils/types'
 
 const DraggableContainer = styled.div<{ isDragging: boolean }>`
-    opacity: ${({ isDragging }) => (isDragging ? 0.5 : 1)};
+    display: ${({ isDragging }) => (isDragging ? 'none' : 'block')};
 `
 
 interface EventBodyDraggableProps {

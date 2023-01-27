@@ -163,18 +163,26 @@ export const EventFill = styled.div<{
     squareStart: boolean
     squareEnd: boolean
     isSelected: boolean
-    backgroundColor: string
+    backgroundColorHex: string
 }>`
     width: 100%;
     height: 100%;
     outline: ${Border.stroke.medium} solid ${(props) => (props.isSelected ? Colors.border.purple : 'transparent')};
     box-sizing: border-box;
     box-shadow: ${Shadows.light};
-    background: ${(props) => props.backgroundColor};
+    background-color: ${(props) => props.backgroundColorHex + '80'};
     border-top-left-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
     border-top-right-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
     border-bottom-left-radius: ${(props) => (props.squareEnd ? '0' : Border.radius.mini)};
     border-bottom-right-radius: ${(props) => (props.squareEnd ? '0' : Border.radius.mini)};
+    ::before {
+        content: '';
+        background-color: white;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+    }
 `
 export const CalendarDayHeader = styled.div`
     display: flex;

@@ -108,12 +108,11 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         squareStart={startedBeforeToday}
                         squareEnd={endedAfterToday}
                         isSelected={selectedEvent?.id === props.event.id}
-                        backgroundColor={
+                        backgroundColorHex={
                             isPreviewMode ? getCalendarColor(props.event.color_id) : Colors.background.white
                         }
-                    >
-                        <EdgeHighlight color="blue" squareStart={startedBeforeToday} squareEnd={endedAfterToday} />
-                    </EventFill>
+                    />
+                    <EdgeHighlight color="blue" squareStart={startedBeforeToday} squareEnd={endedAfterToday} />
                     <ResizeHandle event={props.event} />
                 </EventBodyStyle>
             </FocusModeContextMenuWrapper>
