@@ -14,6 +14,7 @@ import { Icon } from '../../atoms/Icon'
 import GTButton from '../../atoms/buttons/GTButton'
 import RefreshSpinner from '../../atoms/buttons/RefreshSpinner'
 import { BodySmall, Label, Mini } from '../../atoms/typography/Typography'
+import Tip from '../../radix/Tip'
 import SmartSuggestion from './SmartSuggestion'
 
 const Container = styled.div`
@@ -112,7 +113,13 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                             styleType="secondary"
                             onClick={() => setState(SmartPrioritizeState.MANUAL)}
                         />
-                        <GTButton size="small" value="Retry" onClick={getSuggestion} />
+                        {hasSuggestionsRemaining || isPreviewMode ? (
+                            <GTButton size="small" value="Retry" onClick={getSuggestion} />
+                        ) : (
+                            <Tip content="You have no uses remaining">
+                                <GTButton size="small" value="Retry" onClick={getSuggestion} disabled />
+                            </Tip>
+                        )}
                     </Flex>
                 )
             case SmartPrioritizeState.LOADED:
