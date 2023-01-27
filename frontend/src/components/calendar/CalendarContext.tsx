@@ -80,9 +80,12 @@ export const CalendarContextProvider = (props: CalendarContextProviderProps) => 
     const collapseAndSetType = useCallback(
         (isCollapsed: boolean) => {
             setIsCollapsed(isCollapsed)
-            if (isCollapsed) setCalendarType('day')
+            if (isCollapsed) {
+                setCalendarType('day')
+                setDate(dayViewDate)
+            }
         },
-        [setIsCollapsed, setCalendarType]
+        [dayViewDate, setIsCollapsed, setCalendarType]
     )
 
     const value = {
