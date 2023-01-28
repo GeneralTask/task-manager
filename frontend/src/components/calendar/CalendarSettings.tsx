@@ -13,7 +13,7 @@ const Calendar = styled(Flex)`
     cursor: pointer;
     border: ${Border.stroke.small} solid transparent;
     border-radius: ${Border.radius.mini};
-    padding: ${Spacing._4};
+    padding: ${Spacing._8} ${Spacing._4};
     box-sizing: border-box;
     :hover {
         border: ${Border.stroke.small} solid ${Colors.border.light};
@@ -41,7 +41,7 @@ const CalendarSettings = () => {
             </Flex>
 
             {calendars?.map((account) => (
-                <Flex column gap={Spacing._16} key={account.account_id}>
+                <Flex column gap={Spacing._8} key={account.account_id}>
                     <Flex alignItems="center" gap={Spacing._8}>
                         <Icon icon={logos.gcal} />
                         <BodySmall>{account.account_id}</BodySmall>
