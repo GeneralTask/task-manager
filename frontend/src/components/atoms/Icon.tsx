@@ -27,19 +27,21 @@ interface IconProps {
     color?: TIconColor // should take priority over colorHex
     colorHex?: string
     className?: string
+    hidden?: boolean
 }
-export const Icon = ({ icon, size = 'default', color, colorHex, className }: IconProps) => {
+export const Icon = ({ icon, size = 'default', color, colorHex, className, hidden }: IconProps) => {
     const dimension = Dimensions.iconSize[size]
     // priority is color -> colorHex -> black
     const iconColor = color ? Colors.icon[color] : colorHex ?? Colors.icon.black
+    const getIcon = () => {
+        if (hidden) return null
+        if (typeof icon === 'string') return <ImageContainer src={icon} />
+        return <FontAwesomeIcon icon={icon} color={iconColor} />
+    }
 
     return (
         <IconContainer size={dimension} className={className}>
-            {typeof icon === 'string' ? (
-                <ImageContainer src={icon} />
-            ) : (
-                <FontAwesomeIcon icon={icon} color={iconColor} />
-            )}
+            {getIcon()}
         </IconContainer>
     )
 }
