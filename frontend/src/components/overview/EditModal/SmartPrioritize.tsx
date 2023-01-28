@@ -110,7 +110,7 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                         <Label color="red">
                             There was an error sorting your lists.{' '}
                             {hasSuggestionsRemaining
-                                ? `Please try again (${suggestionsRemaining} uses remaining)`
+                                ? `Please try again (${suggestionsRemaining} uses remaining).`
                                 : null}
                         </Label>
                         <GTButton
