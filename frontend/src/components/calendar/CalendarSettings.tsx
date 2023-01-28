@@ -1,12 +1,17 @@
 import styled from 'styled-components'
-import { useSetting } from '../../hooks'
+import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
+import { useAuthWindow, useSetting } from '../../hooks'
 import { useGetCalendars } from '../../services/api/events.hooks'
+import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Border, Colors, Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { TCalendar, TCalendarAccount } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
+import GTButton from '../atoms/buttons/GTButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Body, BodySmall, Label } from '../atoms/typography/Typography'
+import GTDropdownMenu from '../radix/GTDropdownMenu'
 import getCalendarColor from './utils/colors'
 
 const Calendar = styled(Flex)`
@@ -28,9 +33,28 @@ const CalendarSettings = () => {
     )
     const { field_value: taskToCalCalendar, updateSetting: setTaskToCalCalendar } =
         useSetting('calendar_id_for_new_tasks')
-    const handleClick = (account: TCalendarAccount, calendar: TCalendar) => {
+    const { openAuthWindow } = useAuthWindow()
+    const { data: linkedAccounts } = useGetLinkedAccounts()
+    const { mutate: deleteAccount } = useDeleteLinkedAccount()
+    const { data: supportedTypes } = useGetSupportedTypes()
+
+    const handleTaskToCalSelect = (account: TCalendarAccount, calendar: TCalendar) => {
         setTaskToCalAccount(account.account_id)
         setTaskToCalCalendar(calendar.calendar_id)
+    }
+    const handleReauthorization = () => {
+        const authUrl = supportedTypes?.find(
+            (supportedType) => supportedType.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME
+        )?.authorization_url
+        openAuthWindow({ url: authUrl, isGoogleSignIn: true })
+    }
+    const handleDeleteAccount = (accountId: string) => {
+        const linkedAccountId = linkedAccounts
+            ?.filter((linkedAccount) => linkedAccount.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)
+            .find((linkedAccount) => linkedAccount.display_id === accountId)?.id
+        if (linkedAccountId) {
+            deleteAccount({ id: linkedAccountId })
+        }
     }
 
     return (
@@ -42,9 +66,33 @@ const CalendarSettings = () => {
 
             {calendars?.map((account) => (
                 <Flex column gap={Spacing._16} key={account.account_id}>
-                    <Flex alignItems="center" gap={Spacing._8}>
-                        <Icon icon={logos.gcal} />
-                        <BodySmall>{account.account_id}</BodySmall>
+                    <Flex alignItems="center" justifyContent="space-between">
+                        <Flex alignItems="center" gap={Spacing._8}>
+                            <Icon icon={logos.gcal} />
+                            <BodySmall>{account.account_id}</BodySmall>
+                        </Flex>
+                        <Flex gap={Spacing._8}>
+                            {account.has_multical_scopes && (
+                                <GTButton
+                                    value="Enable all calendars"
+                                    styleType="secondary"
+                                    size="small"
+                                    onClick={handleReauthorization}
+                                />
+                            )}
+                            <GTDropdownMenu
+                                hideCheckmark
+                                items={[
+                                    {
+                                        label: 'Disconnect account',
+                                        onClick: () => handleDeleteAccount(account.account_id),
+                                    },
+                                ]}
+                                trigger={
+                                    <GTIconButton icon={icons.ellipsisVertical} tooltipText="More options" asDiv />
+                                }
+                            />
+                        </Flex>
                     </Flex>
                     <div>
                         {account.calendars
@@ -59,7 +107,7 @@ const CalendarSettings = () => {
                                     key={calendar.calendar_id}
                                     gap={Spacing._8}
                                     alignItems="center"
-                                    onClick={() => handleClick(account, calendar)}
+                                    onClick={() => handleTaskToCalSelect(account, calendar)}
                                 >
                                     <Icon
                                         icon={icons.check}
