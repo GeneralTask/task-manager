@@ -72,7 +72,7 @@ const CalendarSettings = () => {
                             <BodySmall>{account.account_id}</BodySmall>
                         </Flex>
                         <Flex gap={Spacing._8}>
-                            {account.has_multical_scopes && (
+                            {!account.has_multical_scopes && (
                                 <GTButton
                                     value="Enable all calendars"
                                     styleType="secondary"
