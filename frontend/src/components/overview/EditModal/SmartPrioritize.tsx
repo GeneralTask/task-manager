@@ -107,7 +107,12 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                 return (
                     <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
                         <Icon icon={icons.warning} color="red" />
-                        <Label color="red">There was an error sorting your lists. Please try again.</Label>
+                        <Label color="red">
+                            There was an error sorting your lists.{' '}
+                            {hasSuggestionsRemaining
+                                ? `Please try again (${suggestionsRemaining} uses remaining)`
+                                : null}
+                        </Label>
                         <GTButton
                             size="small"
                             value="Cancel"
