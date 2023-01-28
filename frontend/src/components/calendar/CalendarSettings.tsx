@@ -1,5 +1,5 @@
 import { useSetting } from '../../hooks'
-import { useGetCalendars, useSelectedCalendars } from '../../services/api/events.hooks'
+import { useGetCalendars } from '../../services/api/events.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import Flex from '../atoms/Flex'
@@ -9,12 +9,8 @@ import getCalendarColor from './utils/colors'
 
 const CalendarSettings = () => {
     const { data: calendars } = useGetCalendars()
-    const { isCalendarSelected, toggleCalendarSelection } = useSelectedCalendars()
-    const { field_value: taskToCalAccount, updateSetting: setTaskToCalAccount } = useSetting(
-        'calendar_account_id_for_new_tasks'
-    )
-    const { field_value: taskToCalCalendar, updateSetting: setTaskToCalCalendar } =
-        useSetting('calendar_id_for_new_tasks')
+    const { field_value: taskToCalAccount } = useSetting('calendar_account_id_for_new_tasks')
+    const { field_value: taskToCalCalendar } = useSetting('calendar_id_for_new_tasks')
 
     return (
         <Flex gap={Spacing._24} column>
