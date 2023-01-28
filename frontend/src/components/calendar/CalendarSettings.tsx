@@ -38,7 +38,15 @@ const CalendarSettings = () => {
                         })
                         .map((calendar) => (
                             <Flex key={calendar.calendar_id} gap={Spacing._8} alignItems="center">
-                                <Icon icon={icons.check} hidden />
+                                <Icon
+                                    icon={icons.check}
+                                    hidden={
+                                        !(
+                                            account.account_id === taskToCalAccount &&
+                                            calendar.calendar_id === taskToCalCalendar
+                                        )
+                                    }
+                                />
                                 <Icon icon={icons.square} colorHex={getCalendarColor(calendar.color_id)} />
                                 <BodySmall>{calendar.title}</BodySmall>
                             </Flex>
