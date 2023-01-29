@@ -129,24 +129,21 @@ export const getTaskIndexFromSections = (
     return invalidResult
 }
 
-export const getSubtaskFromSections = (
-    sections: TTaskSection[],
-    parentId: string,
-    subtaskId: string
-): TTask | undefined => {
-    const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(sections, parentId, undefined, subtaskId)
-    if (taskIndex === undefined || sectionIndex === undefined || subtaskIndex === undefined) return undefined
-    return sections[sectionIndex].tasks[taskIndex].sub_tasks?.[subtaskIndex]
-}
-
 export const getTaskFromSections = (
     sections: TTaskSection[],
     taskId: string,
-    sectionId?: string
+    sectionId?: string,
+    subtaskId?: string
 ): TTask | undefined => {
-    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, taskId, sectionId)
+    const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(sections, taskId, sectionId, subtaskId)
     if (taskIndex === undefined || sectionIndex === undefined) return undefined
-    return sections[sectionIndex].tasks[taskIndex]
+    if (subtaskId !== undefined && subtaskIndex !== undefined) {
+        return sections[sectionIndex].tasks[taskIndex].sub_tasks?.[subtaskIndex]
+    }
+    if (!subtaskId !== undefined) {
+        return sections[sectionIndex].tasks[taskIndex]
+    }
+    return undefined
 }
 
 export const getSectionFromTask = (sections: TTaskSection[], taskId: string): TTaskSection | undefined => {

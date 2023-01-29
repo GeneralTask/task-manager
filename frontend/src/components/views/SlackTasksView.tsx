@@ -87,11 +87,7 @@ const SlackTasksView = () => {
                     )}
                 </ScrollableListTemplate>
             </Flex>
-            {task ? (
-                <TaskDetails task={task} link={`/slack/${task.id}`} />
-            ) : (
-                <EmptyDetails icon={icons.check} text="You have no Slack tasks" />
-            )}
+            {task ? <TaskDetails task={task} /> : <EmptyDetails icon={icons.check} text="You have no Slack tasks" />}
         </>
     )
 }

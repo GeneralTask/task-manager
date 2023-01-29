@@ -62,11 +62,7 @@ const RecurringTasksView = () => {
                 </ScrollableListTemplate>
             </Flex>
             {selectedRecurringTask ? (
-                <TaskDetails
-                    task={selectedRecurringTask}
-                    link={`/recurring-tasks/${selectedRecurringTask.id}`}
-                    isRecurringTaskTemplate
-                />
+                <TaskDetails task={selectedRecurringTask} isRecurringTaskTemplate />
             ) : (
                 <EmptyDetails icon={icons.arrows_repeat} text="You have no recurring tasks" />
             )}

@@ -72,11 +72,7 @@ const LinearView = () => {
                     )}
                 </ScrollableListTemplate>
             </Flex>
-            {task ? (
-                <TaskDetails task={task} link={`/linear/${task.id}`} />
-            ) : (
-                <EmptyDetails icon={icons.check} text="You have no Linear tasks" />
-            )}
+            {task ? <TaskDetails task={task} /> : <EmptyDetails icon={icons.check} text="You have no Linear tasks" />}
         </>
     )
 }

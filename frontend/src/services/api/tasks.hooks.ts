@@ -1,4 +1,5 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
+import { useNavigate } from 'react-router-dom'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL, TRASH_SECTION_ID } from '../../constants'
@@ -15,7 +16,6 @@ import {
 } from '../../utils/types'
 import {
     arrayMoveInPlace,
-    getSubtaskFromSections,
     getTaskFromSections,
     getTaskIndexFromSections,
     resetOrderingIds,
@@ -164,6 +164,8 @@ const updateCacheForOptimsticSubtask = (queryClient: GTQueryClient, data: TCreat
 export const useCreateTask = () => {
     const queryClient = useGTQueryClient()
     const { setOptimisticId } = useQueryContext()
+    const navigate = useNavigate()
+
     return useQueuedMutation((data: TCreateTaskData) => createTask(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
@@ -230,31 +232,72 @@ export const useCreateTask = () => {
 
             if (sections) {
                 const updatedSections = produce(sections, (draft) => {
-                    const task = getTaskFromSections(draft, createData.optimisticId, createData.taskSectionId)
-                    if (!task?.id) return
-                    task.id = response.task_id
-                    task.optimisticId = undefined
+                    const task = getTaskFromSections(
+                        draft,
+                        createData.parent_task_id ?? createData.optimisticId,
+                        createData.taskSectionId,
+                        createData.parent_task_id ? createData.optimisticId : undefined
+                    )
+                    if (task?.id) {
+                        task.id = response.task_id
+                        task.optimisticId = undefined
+                    }
                 })
                 queryClient.setQueryData('tasks', updatedSections)
+                if (
+                    createData.parent_task_id &&
+                    window.location.pathname ===
+                        `/tasks/${createData.taskSectionId}/${createData.parent_task_id}/${createData.optimisticId}`
+                ) {
+                    navigate(`/tasks/${createData.taskSectionId}/${createData.parent_task_id}/${response.task_id}`)
+                } else if (
+                    window.location.pathname === `/tasks/${createData.taskSectionId}/${createData.optimisticId}`
+                ) {
+                    navigate(`/tasks/${createData.taskSectionId}/${response.task_id}`)
+                }
             }
             if (tasks_v4) {
                 const updatedTasks = produce(tasks_v4, (draft) => {
                     const task = draft.find((task) => task.id === createData.optimisticId)
-                    if (!task?.id) return
-                    task.id = response.task_id
-                    task.optimisticId = undefined
+                    if (task?.id) {
+                        task.id = response.task_id
+                        task.optimisticId = undefined
+                    }
                 })
                 queryClient.setQueryData('tasks_v4', updatedTasks)
             }
             if (views) {
-                const updatedViews = produce(views, (draft) => {
-                    const section = draft.find((section) => section.task_section_id === createData.taskSectionId)
-                    const task = section?.view_items.find((task) => task.id === createData.optimisticId)
-                    if (!task) return
-                    task.id = response.task_id
-                    task.optimisticId = undefined
-                })
-                queryClient.setQueryData('overview', updatedViews)
+                const sectionIdx = views.findIndex((section) => section.task_section_id === createData.taskSectionId)
+                if (sectionIdx !== -1) {
+                    const updatedViews = produce(views, (draft) => {
+                        const tempSections = draft.map((view) => ({
+                            id: view.task_section_id,
+                            tasks: view.view_items,
+                        }))
+                        const task = getTaskFromSections(
+                            tempSections as unknown as TTaskSection[],
+                            createData.parent_task_id ?? createData.optimisticId,
+                            createData.taskSectionId,
+                            createData.parent_task_id ? createData.optimisticId : undefined
+                        )
+                        if (task?.id) {
+                            task.id = response.task_id
+                            task.optimisticId = undefined
+                        }
+                    })
+                    queryClient.setQueryData('overview', updatedViews)
+                    if (
+                        createData.parent_task_id &&
+                        window.location.pathname ===
+                            `/overview/${views[sectionIdx].id}/${createData.parent_task_id}/${createData.optimisticId}`
+                    ) {
+                        navigate(`/overview/${views[sectionIdx].id}/${createData.parent_task_id}/${response.task_id}`)
+                    } else if (
+                        window.location.pathname === `/overview/${views[sectionIdx].id}/${createData.optimisticId}`
+                    ) {
+                        navigate(`/overview/${views[sectionIdx].id}/${response.task_id}`)
+                    }
+                }
             }
         },
     })
@@ -301,9 +344,7 @@ export const useModifyTask = () => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (sections) {
                 const newSections = produce(sections, (draft) => {
-                    const task = data.subtaskId
-                        ? getSubtaskFromSections(draft, data.id, data.subtaskId)
-                        : getTaskFromSections(draft, data.id)
+                    const task = getTaskFromSections(draft, data.id, data.subtaskId)
                     if (!task) return
                     modifyTaskOptimisticUpdate(task, data)
                 })
