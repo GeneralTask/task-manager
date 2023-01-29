@@ -206,8 +206,12 @@ func (api *API) countTasksToCreateForWeeklyTemplate(currentTime time.Time, lastB
 	if lastBackfillAttemptTime.Sub(validCreationTime) > 0 {
 		validCreationTime = validCreationTime.AddDate(0, 0, 1)
 	}
+	dayToCreateTask := *template.DayToCreateTask
+	if dayToCreateTask == 7 {
+		dayToCreateTask = int(time.Sunday)
+	}
 	// continue adding days until the weekday matches the day of the week which the trigger is
-	for int(validCreationTime.Weekday()) != *template.DayToCreateTask {
+	for int(validCreationTime.Weekday()) != dayToCreateTask {
 		validCreationTime = validCreationTime.AddDate(0, 0, 1)
 	}
 
