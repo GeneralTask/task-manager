@@ -2,17 +2,17 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { FOCUS_MODE_ROUTE } from '../../constants'
 import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import { useGetCalendars } from '../../services/api/events.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import { Colors, Spacing, Typography } from '../../styles'
+import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { EMPTY_ARRAY, isGoogleCalendarLinked } from '../../utils/utils'
-import NoStyleLink from '../atoms/NoStyleLink'
+import Flex from '../atoms/Flex'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
+import { Subtitle } from '../atoms/typography/Typography'
 import ConnectIntegration from '../molecules/ConnectIntegration'
 import { useCalendarContext } from './CalendarContext'
 
@@ -24,37 +24,17 @@ const ConnectContainer = styled.div`
     z-index: 100;
 `
 const PaddedContainer = styled.div`
-    padding: ${Spacing._8} ${Spacing._12};
-`
-const HeaderBodyContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-`
-const ButtonContainer = styled.div`
-    display: flex;
-    align-items: center;
-    gap: ${Spacing._8};
-`
-const HeaderActionsContainer = styled.div`
-    display: flex;
-    align-items: center;
-    gap: ${Spacing._8};
-`
-const CalendarDateText = styled.div`
-    ${Typography.subtitle};
+    padding: ${Spacing._8} ${Spacing._12};
 `
 
 interface CalendarHeaderProps {
-    showMainHeader?: boolean
-    showDateHeader?: boolean
+    showHeader?: boolean
     additionalHeaderContent?: React.ReactNode
 }
-export default function CalendarHeader({
-    showMainHeader = true,
-    showDateHeader = true,
-    additionalHeaderContent,
-}: CalendarHeaderProps) {
+export default function CalendarHeader({ showHeader = true, additionalHeaderContent }: CalendarHeaderProps) {
     const {
         calendarType,
         setCalendarType,
@@ -96,7 +76,6 @@ export default function CalendarHeader({
         }
         setDate(isCalendarExpanded ? DateTime.now().minus({ days: DateTime.now().weekday % 7 }) : DateTime.now())
     }, [setDate, isCalendarExpanded])
-
     const selectNext = useCallback(() => {
         if (calendarType === 'day') {
             setDayViewDate(dayViewDate.plus({ days: 1 }))
@@ -109,6 +88,12 @@ export default function CalendarHeader({
         }
         setDate(date.minus({ days: isCalendarExpanded ? 7 : 1 }))
     }, [date, setDate, setDayViewDate, dayViewDate, isCalendarExpanded])
+    const isCalendarShowingToday = useMemo(() => {
+        const startOfToday = DateTime.now().startOf('day')
+        const isToday = date.startOf('day').equals(startOfToday)
+        const isThisWeek = date.startOf('day').equals(startOfToday.minus({ days: startOfToday.weekday % 7 }))
+        return isToday || (calendarType === 'week' && isThisWeek)
+    }, [date, calendarType])
     useKeyboardShortcut('jumpToToday', selectToday, isFocusMode)
     useKeyboardShortcut('nextDate', selectNext, isFocusMode)
     useKeyboardShortcut('previousDate', selectPrevious, isFocusMode)
@@ -116,103 +101,73 @@ export default function CalendarHeader({
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const showOauthPrompt = linkedAccounts !== undefined && !isGoogleCalendarLinked(linkedAccounts)
 
-    if (!showMainHeader && !showDateHeader) return null
+    const goToTodayButton = (
+        <GTButton
+            value="Today"
+            onClick={selectToday}
+            size="small"
+            styleType="secondary"
+            disabled={isCalendarShowingToday}
+        />
+    )
+    const nextPreviousButtons = (
+        <Flex gap={Spacing._8} alignItems="center">
+            <GTIconButton shortcutName="previousDate" onClick={selectPrevious} icon={icons.caret_left} />
+            <GTIconButton shortcutName="nextDate" onClick={selectNext} icon={icons.caret_right} />
+            {additionalHeaderContent}
+        </Flex>
+    )
 
-    const isCalendarShowingToday = useMemo(() => {
-        const startOfToday = DateTime.now().startOf('day')
-        const isToday = date.startOf('day').equals(startOfToday)
-        const isThisWeek = date.startOf('day').equals(startOfToday.minus({ days: startOfToday.weekday % 7 }))
-        return isToday || (calendarType === 'week' && isThisWeek)
-    }, [date, calendarType])
-
-    const topLeftButtons = useMemo(() => {
-        if (isPreviewMode) {
-            return (
-                <>
-                    {(isCalendarShowingToday || calendarType === 'week') &&
-                        (!showTaskToCalSidebar || calendarType === 'day') && (
-                            <GTButton
-                                icon={icons.calendar_pen}
-                                iconColor="black"
-                                value="Schedule Tasks"
-                                size="small"
-                                styleType="secondary"
-                                onClick={() => {
-                                    setCalendarType('week')
-                                    setDate(date.minus({ days: date.weekday % 7 }))
-                                    setShowTaskToCalSidebar(true)
-                                }}
-                            />
-                        )}
-                    {!isCalendarShowingToday && (
-                        <GTButton
-                            value="Jump to Today"
-                            icon={icons.calendar_star}
-                            onClick={selectToday}
-                            size="small"
-                            styleType="secondary"
-                        />
-                    )}
-                </>
-            )
-        }
-        if (isCalendarShowingToday) {
-            return (
-                <NoStyleLink to={`/${FOCUS_MODE_ROUTE}`}>
-                    <GTButton
-                        icon={icons.headphones}
-                        iconColor="black"
-                        value="Enter Focus Mode"
-                        size="small"
-                        styleType="secondary"
-                    />
-                </NoStyleLink>
-            )
-        }
-        return <GTButton value="Jump to Today" onClick={selectToday} size="small" styleType="secondary" />
-    }, [isPreviewMode, isCalendarShowingToday, calendarType, date, showTaskToCalSidebar])
-
+    if (!showHeader) return null
     return (
         <RelativeDiv>
-            {showMainHeader && (
+            {showHeader && (
                 <>
                     <PaddedContainer>
-                        <HeaderBodyContainer>
-                            <HeaderActionsContainer>{topLeftButtons}</HeaderActionsContainer>
-                            <HeaderActionsContainer>
-                                <GTIconButton
-                                    shortcutName={calendarType === 'week' ? 'showDailyCalendar' : 'showWeeklyCalendar'}
-                                    onClick={toggleCalendar}
-                                    icon={calendarType === 'week' ? icons.arrows_in : icons.arrows_out}
+                        <Flex gap={Spacing._16} alignItems="center">
+                            {isPreviewMode && isCalendarExpanded && !showTaskToCalSidebar && (
+                                <GTButton
+                                    icon={icons.hamburger}
+                                    iconColor="black"
+                                    value="Open task list"
+                                    size="small"
+                                    styleType="secondary"
+                                    onClick={() => {
+                                        setShowTaskToCalSidebar(true)
+                                    }}
                                 />
-                                <GTIconButton
-                                    shortcutName="calendar"
-                                    onClick={() => setIsCollapsed(true)}
-                                    icon={icons.sidebarFlipped}
-                                />
-                            </HeaderActionsContainer>
-                        </HeaderBodyContainer>
+                            )}
+                            {isCalendarExpanded && (
+                                <>
+                                    {goToTodayButton}
+                                    {nextPreviousButtons}
+                                </>
+                            )}
+                            <Subtitle>
+                                {calendarType === 'week' ? date.toFormat('LLLL yyyy') : date.toFormat('ccc, LLLL d')}
+                            </Subtitle>
+                        </Flex>
+                        <Flex gap={Spacing._8} alignItems="center">
+                            <GTIconButton
+                                shortcutName={calendarType === 'week' ? 'showDailyCalendar' : 'showWeeklyCalendar'}
+                                onClick={toggleCalendar}
+                                icon={calendarType === 'week' ? icons.arrows_in : icons.arrows_out}
+                            />
+                            <GTIconButton
+                                shortcutName="calendar"
+                                onClick={() => setIsCollapsed(true)}
+                                icon={icons.sidebarFlipped}
+                            />
+                        </Flex>
                     </PaddedContainer>
                     <Divider color={Colors.border.light} />
+                    {!isCalendarExpanded && (
+                        <PaddedContainer>
+                            {nextPreviousButtons}
+                            {goToTodayButton}
+                        </PaddedContainer>
+                    )}
                 </>
-            )}
-            {showDateHeader && (
-                <PaddedContainer>
-                    <HeaderBodyContainer>
-                        <CalendarDateText>
-                            {calendarType === 'week' ? date.toFormat('LLLL yyyy') : date.toFormat('ccc, LLL d')}
-                        </CalendarDateText>
-                        <ButtonContainer>
-                            <GTIconButton
-                                shortcutName="previousDate"
-                                onClick={selectPrevious}
-                                icon={icons.caret_left}
-                            />
-                            <GTIconButton shortcutName="nextDate" onClick={selectNext} icon={icons.caret_right} />
-                            {additionalHeaderContent}
-                        </ButtonContainer>
-                    </HeaderBodyContainer>
-                </PaddedContainer>
             )}
             {(showOauthPrompt || calendarsNeedingReauth.length > 0) && (
                 <ConnectContainer>
