@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"golang.org/x/exp/slices"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
@@ -46,7 +47,7 @@ func (api *API) CalendarsList(c *gin.Context) {
 				CalendarID: calendar.CalendarID,
 				ColorID:    calendar.ColorID,
 				Title:      calendar.Title,
-				CanWrite:   (calendar.AccessRole == "owner") || (calendar.AccessRole == "writer"),
+				CanWrite:   slices.Contains([]string{"owner", "writer"}, calendar.AccessRole),
 			}
 			calendars = append(calendars, calendarResult)
 
