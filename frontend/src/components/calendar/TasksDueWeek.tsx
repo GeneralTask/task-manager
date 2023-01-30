@@ -17,7 +17,9 @@ const TasksDueWeekContainer = styled.div`
     min-width: 0;
     height: fit-content;
     border-top: ${Border.stroke.medium} solid ${Colors.border.light};
-    border-bottom: ${Border.stroke.medium} solid ${Colors.border.light};
+    border-bottom: ${Border.stroke.large} solid ${Colors.border.light};
+    background-color: ${Colors.background.white};
+    padding-left: ${CELL_TIME_WIDTH};
     position: relative;
     box-sizing: border-box;
     padding-right: ${scrollbarWidth()}px;
@@ -27,11 +29,10 @@ const TaskDueContainer = styled.div`
     min-width: 0;
     margin: 0 auto;
 `
-const CaretButton = styled.div`
-    display: flex;
-    justify-content: center;
-    width: ${CELL_TIME_WIDTH};
-    padding-top: ${Spacing._8};
+const AbsoluteCaretIcon = styled.div`
+    position: absolute;
+    top: ${Spacing._8};
+    right: ${Spacing._12};
     cursor: pointer;
 `
 
@@ -54,9 +55,9 @@ const TasksDueWeek = ({ date }: TasksDueWeekProps) => {
     if (!anyTasksDueThisWeek) return null
     return (
         <TasksDueWeekContainer>
-            <CaretButton onClick={() => setIsTasksDueViewCollapsed(!isTasksDueViewCollapsed)}>
-                <Icon icon={caretIcon} color="gray" />
-            </CaretButton>
+            <AbsoluteCaretIcon onClick={() => setIsTasksDueViewCollapsed(!isTasksDueViewCollapsed)}>
+                <Icon icon={caretIcon} />
+            </AbsoluteCaretIcon>
             {[...Array(7)].map((_, index) => (
                 <TaskDueContainer key={index}>
                     {tasksDueWeek[index].length > 0 && (

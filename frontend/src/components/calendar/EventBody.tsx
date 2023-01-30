@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon'
 import { logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
-import { EdgeHighlight } from '../atoms/SelectableContainer'
 import FocusModeContextMenuWrapper from '../radix/EventBodyContextMenuWrapper'
 import EventDetailPopover from '../radix/EventDetailPopover'
 import { useCalendarContext } from './CalendarContext'
@@ -18,8 +17,7 @@ import {
 } from './CalendarEvents-styles'
 import ResizeHandle from './ResizeHandle'
 
-const LONG_EVENT_THRESHOLD = 60 // minutes
-const SHORT_EVENT_THRESHOLD = 45 // minutes
+const LONG_EVENT_THRESHOLD = 45 // minutes
 const MINIMUM_BODY_HEIGHT = 15 // minutes
 
 interface EventBodyProps {
@@ -33,15 +31,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
     const { selectedEvent, setSelectedEvent, isPopoverDisabled, disableSelectEvent } = useCalendarContext()
     const startTime = DateTime.fromISO(props.event.datetime_start)
     const endTime = DateTime.fromISO(props.event.datetime_end)
-    const timeDurationMillis = endTime.diff(startTime).toMillis()
-    const timeDurationTodayMinutes =
-        Math.min(
-            timeDurationMillis,
-            +props.date.endOf('day').diff(startTime),
-            +endTime.diff(props.date.startOf('day'))
-        ) /
-        1000 /
-        60
+    const timeDurationMinutes = endTime.diff(startTime).toMillis() / 1000 / 60
     const startedBeforeToday = startTime <= props.date.startOf('day')
     const endedAfterToday = endTime >= props.date.endOf('day')
 
@@ -53,14 +43,8 @@ function EventBody(props: EventBodyProps): JSX.Element {
 
     const startTimeString = startTime.toFormat('h:mm') // ex: 3:00
     const endTimeString = endTime.toFormat('h:mm a') // ex: 3:00 PM
-    const startTimeOnlyString = startTime.toFormat('h:mm a') // ex: 3:00 PM
 
-    const eventType =
-        timeDurationTodayMinutes >= LONG_EVENT_THRESHOLD
-            ? 'long'
-            : timeDurationTodayMinutes < SHORT_EVENT_THRESHOLD
-            ? 'short'
-            : 'medium'
+    const isLongEvent = timeDurationMinutes >= LONG_EVENT_THRESHOLD
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
 
     const onClick = () => {
@@ -82,21 +66,17 @@ function EventBody(props: EventBodyProps): JSX.Element {
                 >
                     <EventInfoContainer onClick={onClick}>
                         <EventDetailPopover event={props.event} date={props.date} hidePopover={isPopoverDisabled}>
-                            <EventInfo type={eventType}>
+                            <EventInfo isLongEvent={isLongEvent}>
                                 <EventIconAndTitle>
                                     {props.event.linked_task_id && (
                                         <EventIcon
                                             icon={logos[props.event.logo]}
-                                            isShort={timeDurationTodayMinutes <= MINIMUM_BODY_HEIGHT}
+                                            isShort={timeDurationMinutes <= MINIMUM_BODY_HEIGHT}
                                         />
                                     )}
                                     <EventTitle>{props.event.title || '(no title)'}</EventTitle>
                                 </EventIconAndTitle>
-                                <EventTime>
-                                    {eventType === 'short'
-                                        ? startTimeOnlyString
-                                        : `${startTimeString} – ${endTimeString}`}
-                                </EventTime>
+                                <EventTime>{`${startTimeString} – ${endTimeString}`}</EventTime>
                             </EventInfo>
                         </EventDetailPopover>
                     </EventInfoContainer>
@@ -104,9 +84,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         squareStart={startedBeforeToday}
                         squareEnd={endedAfterToday}
                         isSelected={selectedEvent?.id === props.event.id}
-                    >
-                        <EdgeHighlight color="blue" squareStart={startedBeforeToday} squareEnd={endedAfterToday} />
-                    </EventFill>
+                    />
                     <ResizeHandle event={props.event} />
                 </EventBodyStyle>
             </FocusModeContextMenuWrapper>

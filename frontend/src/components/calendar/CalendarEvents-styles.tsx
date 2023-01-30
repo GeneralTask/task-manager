@@ -18,8 +18,6 @@ export const EVENT_CREATION_INTERVAL_IN_MINUTES = 15
 export const EVENT_CREATION_INTERVAL_HEIGHT = (CELL_HEIGHT_VALUE * EVENT_CREATION_INTERVAL_IN_MINUTES) / 60
 export const EVENT_CREATION_INTERVAL_PER_HOUR = 60 / EVENT_CREATION_INTERVAL_IN_MINUTES
 
-export type TEventBodyHeight = 'long' | 'medium' | 'short'
-
 const getEventWidth = (squishFactor: number) => `calc(
     (${TABLE_WIDTH_PERCENTAGE} - ${CELL_BORDER_WIDTH} - ${CELL_LEFT_MARGIN}) * 1/(${squishFactor})
 )`
@@ -113,27 +111,22 @@ export const EventInfoContainer = styled.div`
     position: absolute;
     z-index: 1;
 `
-export const EventInfo = styled.div<{ type: TEventBodyHeight }>`
+export const EventInfo = styled.div<{ isLongEvent: boolean }>`
     display: flex;
-    padding: 0 ${Spacing._8} 0 ${Spacing._12};
+    padding: 0 ${Spacing._12};
     width: 100%;
-    height: 100%;
     box-sizing: border-box;
-    gap: ${Spacing._4};
-    ${({ type }) =>
-        type === 'long' &&
-        `
-            flex-direction: column;
-            justify-content: flex-start;
-            padding-top: ${Spacing._8};
-        `};
-    ${({ type }) =>
-        type === 'medium' &&
-        `
-            flex-direction: column;
-            justify-content: center;
-        `};
     ${Typography.label};
+    justify-content: ${({ isLongEvent }) => (isLongEvent ? 'flex-start' : 'space-between')};
+    ${(props) =>
+        props.isLongEvent
+            ? `
+            padding-top: ${Spacing._12};
+            height: 100%;
+            flex-direction: column;
+            gap: ${Spacing._4};
+        `
+            : 'flex-direction: row;'}
 `
 export const EventIconAndTitle = styled.div`
     display: flex;
@@ -152,18 +145,20 @@ export const EventTitle = styled.div`
     white-space: nowrap;
 `
 export const EventTime = styled.div`
-    display: flex;
-    align-items: center;
     color: ${Colors.text.light};
+    float: left;
     max-height: 100%;
     white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 `
 export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean; isSelected: boolean }>`
     width: 100%;
     height: 100%;
     background: ${Colors.background.white};
-    outline: ${Border.stroke.medium} solid ${(props) => (props.isSelected ? Colors.border.purple : 'transparent')};
+    border: ${Border.stroke.medium} solid
+        ${(props) => (props.isSelected ? Colors.border.purple : Colors.background.light)};
     box-sizing: border-box;
     box-shadow: ${Shadows.light};
     border-top-left-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
@@ -183,10 +178,10 @@ export const CalendarDayHeader = styled.div`
     margin: 0 auto;
 `
 export const DayHeaderText = styled.div<{ isToday: boolean }>`
-    border-radius: ${Border.radius.mini};
+    border-radius: 50vh;
     padding: ${Spacing._4} ${Spacing._8};
     color: ${(props) => (props.isToday ? Colors.text.white : Colors.text.black)};
-    background-color: ${(props) => (props.isToday ? Colors.gtColor.blue : 'transparent')};
+    background-color: ${(props) => (props.isToday ? Colors.gtColor.primary : 'transparent')};
     ${Typography.body};
 `
 export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: boolean; hasLeftBorder: boolean }>`
