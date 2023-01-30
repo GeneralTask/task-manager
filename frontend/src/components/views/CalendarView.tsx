@@ -137,7 +137,10 @@ const CalendarView = ({
                 {calendarType === 'week' &&
                     [...Array(7)].map((_, offset) => (
                         <CalendarDayHeader key={offset}>
-                            <DayHeaderText isToday={isDateToday(date.plus({ days: offset }))}>
+                            <DayHeaderText
+                                isToday={isDateToday(date.plus({ days: offset }))}
+                                isPreviewMode={isPreviewMode}
+                            >
                                 {date.plus({ days: offset }).toFormat('ccc dd')}
                             </DayHeaderText>
                         </CalendarDayHeader>
