@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import 'react-loading-skeleton/dist/skeleton.css'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
@@ -10,9 +11,9 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { DropItem, DropType, TTaskSection } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
-import Loading from '../atoms/Loading'
 import NoStyleInput from '../atoms/NoStyleInput'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
+import Skeleton from '../atoms/Skeleton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import NavigationContextMenuWrapper from '../radix/NavigationContextMenuWrapper'
 import IntegrationLinks from './IntegrationLinks'
@@ -45,7 +46,7 @@ const NavigationSectionLinks = () => {
     const { mutate: addTaskSection } = useAddTaskSection()
     const { mutate: modifyTaskSection } = useModifyTaskSection()
 
-    const { data: folders } = useGetTasks()
+    const { data: folders, isLoading: isFoldersLoading } = useGetTasks()
     const { section: sectionId } = useParams()
 
     const onKeyChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,7 +78,7 @@ const NavigationSectionLinks = () => {
             setIsAddSectionInputVisible(true)
             inputRef.current?.focus()
         },
-        [inputRef]
+        [inputRef, inputRef.current, setIsAddSectionInputVisible]
     )
 
     useEffect(() => {
@@ -135,11 +136,6 @@ const NavigationSectionLinks = () => {
             setSectionBeingEdited(null)
         }
     }
-
-    if (!folders) {
-        return <Loading />
-    }
-
     useKeyboardShortcut('createFolder', onOpenAddSectionInputHandler)
 
     return (
@@ -151,6 +147,7 @@ const NavigationSectionLinks = () => {
                     <GTIconButton icon={icons.plus} onClick={onOpenAddSectionInputHandler} tooltipText="Add Folder" />
                 }
             />
+            {isFoldersLoading && <Skeleton />}
             {defaultFolder && (
                 <NavigationLink
                     link={`/tasks/${defaultFolder.id}`}
@@ -235,36 +232,38 @@ const NavigationSectionLinks = () => {
                     </AddSectionContainer>
                 </NavigationLinkTemplate>
             )}
-            <ReorderDropContainer
-                index={folders.length - 2} // -2 because we skip the done and trash folders
-                acceptDropType={DropType.FOLDER}
-                onReorder={handleReorder}
-                indicatorType="TOP_ONLY"
-            >
-                <>
-                    {doneFolder && (
-                        <NavigationLink
-                            link={`/tasks/${doneFolder.id}`}
-                            title={doneFolder.name}
-                            icon={icons.checkbox_checked}
-                            isCurrentPage={sectionId === doneFolder.id}
-                            count={doneFolder.tasks.length}
-                            taskSection={doneFolder}
-                            droppable
-                        />
-                    )}
-                    {trashFolder && (
-                        <NavigationLink
-                            link={`/tasks/${trashFolder.id}`}
-                            title={trashFolder.name}
-                            icon={icons.trash}
-                            isCurrentPage={sectionId === trashFolder.id}
-                            taskSection={trashFolder}
-                            droppable
-                        />
-                    )}
-                </>
-            </ReorderDropContainer>
+            {folders && (
+                <ReorderDropContainer
+                    index={folders.length - 2} // -2 because we skip the done and trash folders
+                    acceptDropType={DropType.FOLDER}
+                    onReorder={handleReorder}
+                    indicatorType="TOP_ONLY"
+                >
+                    <>
+                        {doneFolder && (
+                            <NavigationLink
+                                link={`/tasks/${doneFolder.id}`}
+                                title={doneFolder.name}
+                                icon={icons.checkbox_checked}
+                                isCurrentPage={sectionId === doneFolder.id}
+                                count={doneFolder.tasks.length}
+                                taskSection={doneFolder}
+                                droppable
+                            />
+                        )}
+                        {trashFolder && (
+                            <NavigationLink
+                                link={`/tasks/${trashFolder.id}`}
+                                title={trashFolder.name}
+                                icon={icons.trash}
+                                isCurrentPage={sectionId === trashFolder.id}
+                                taskSection={trashFolder}
+                                droppable
+                            />
+                        )}
+                    </>
+                </ReorderDropContainer>
+            )}
         </>
     )
 }

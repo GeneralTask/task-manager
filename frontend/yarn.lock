@@ -12472,6 +12472,11 @@ react-loadable@^5.1.0:
   dependencies:
     prop-types "^15.5.0"
 
+react-loading-skeleton@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/react-loading-skeleton/-/react-loading-skeleton-3.1.0.tgz#ce22942f1af77bfd60854417075792367f54f41e"
+  integrity sha512-j1U1CWWs68nBPOg7tkQqnlFcAMFF6oEK6MgqAo15f8A5p7mjH6xyKn2gHbkcimpwfO0VQXqxAswnSYVr8lWzjw==
+
 react-loosely-lazy@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/react-loosely-lazy/-/react-loosely-lazy-1.0.0.tgz#acdfdace4408062120c46f7320784f6a961be0f8"
