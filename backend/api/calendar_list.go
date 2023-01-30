@@ -12,7 +12,7 @@ type CalendarResult struct {
 	CalendarID string `json:"calendar_id,omitempty"`
 	ColorID    string `json:"color_id,omitempty"`
 	Title      string `json:"title,omitempty"`
-	AccessRole string `json:"access_role,omitempty"`
+	CanWrite   bool   `json:"can_write,omitempty"`
 }
 
 type CalendarAccountResult struct {
@@ -46,7 +46,7 @@ func (api *API) CalendarsList(c *gin.Context) {
 				CalendarID: calendar.CalendarID,
 				ColorID:    calendar.ColorID,
 				Title:      calendar.Title,
-				AccessRole: calendar.AccessRole,
+				CanWrite:   (calendar.AccessRole == "owner") || (calendar.AccessRole == "writer"),
 			}
 			calendars = append(calendars, calendarResult)
 

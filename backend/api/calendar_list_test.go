@@ -32,7 +32,6 @@ func TestCalendarList(t *testing.T) {
 					AccessRole: "owner",
 				},
 			},
-			Scopes: []string{"https://www.googleapis.com/auth/calendar"},
 		},
 		nil,
 	)
@@ -56,8 +55,10 @@ func TestCalendarList(t *testing.T) {
 					CalendarID: "cal3",
 					ColorID:    "col3",
 					Title:      "title3",
+					AccessRole: "writer",
 				},
 			},
+			Scopes: []string{"https://www.googleapis.com/auth/calendar"},
 		},
 		nil,
 	)
@@ -95,8 +96,8 @@ func TestCalendarList(t *testing.T) {
 		assert.Equal(t, 2, len(result))
 
 		assert.Equal(t, []CalendarAccountResult{
-			{AccountID: "account1", Calendars: []CalendarResult{{CalendarID: "cal1", ColorID: "col1", Title: "title1", AccessRole: "owner"}}, HasMulticalScope: true},
-			{AccountID: "account2", Calendars: []CalendarResult{{CalendarID: "cal2", ColorID: "col2", Title: "title2", AccessRole: "reader"}, {CalendarID: "cal3", ColorID: "col3", Title: "title3"}}, HasMulticalScope: false},
+			{AccountID: "account1", Calendars: []CalendarResult{{CalendarID: "cal1", ColorID: "col1", Title: "title1", CanWrite: true}}, HasMulticalScope: false},
+			{AccountID: "account2", Calendars: []CalendarResult{{CalendarID: "cal2", ColorID: "col2", Title: "title2", CanWrite: false}, {CalendarID: "cal3", ColorID: "col3", Title: "title3", CanWrite: true}}, HasMulticalScope: true},
 		},
 			result)
 	})
