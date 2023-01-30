@@ -1,5 +1,7 @@
+import { useMemo } from 'react'
 import { DateTime } from 'luxon'
 import { usePreviewMode } from '../../hooks'
+import { useGetCalendars } from '../../services/api/events.hooks'
 import { Colors } from '../../styles'
 import { logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
@@ -37,6 +39,15 @@ function EventBody(props: EventBodyProps): JSX.Element {
     const { selectedEvent, setSelectedEvent, isPopoverDisabled, disableSelectEvent } = useCalendarContext()
     const startTime = DateTime.fromISO(props.event.datetime_start)
     const endTime = DateTime.fromISO(props.event.datetime_end)
+    const { data: calendars } = useGetCalendars()
+    const calendar = useMemo(
+        () =>
+            calendars
+                ?.find((account) => account.account_id === props.event.account_id)
+                ?.calendars.find((calendar) => calendar.calendar_id === props.event.calendar_id),
+        [props.event, calendars]
+    )
+
     const timeDurationMillis = endTime.diff(startTime).toMillis()
     const timeDurationTodayMinutes =
         Math.min(
@@ -109,7 +120,10 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         squareEnd={endedAfterToday}
                         isSelected={selectedEvent?.id === props.event.id}
                         backgroundColorHex={
-                            isPreviewMode ? getCalendarColor(props.event.color_id) : Colors.background.white
+                            // fall back to calendar color_id if the event doesn't have a color_id
+                            isPreviewMode
+                                ? getCalendarColor(props.event.color_id || calendar?.color_id || '')
+                                : Colors.background.white
                         }
                     />
                     <EdgeHighlight color="blue" squareStart={startedBeforeToday} squareEnd={endedAfterToday} />
