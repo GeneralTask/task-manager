@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -62,13 +63,6 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 		return
 	}
 
-	err = api.decrementGPTRemainingByOne(user, timezoneOffset)
-	if err != nil {
-		api.Logger.Error().Err(err).Msg("unable to decrement suggestions remaining")
-		Handle500(c)
-		return
-	}
-
 	cursor, err := database.GetViewCollection(api.DB).Find(
 		context.Background(),
 		bson.M{"user_id": userID},
@@ -118,6 +112,19 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 		promptConstruction = promptConstruction + `), `
 	}
 
+	if utf8.RuneCountInString(getPrompt(promptConstruction)) > 4000 {
+		api.Logger.Error().Err(err).Msg("prompt too long for suggestion")
+		c.JSON(400, gin.H{"error": "prompt is too long for suggestion"})
+		return
+	}
+
+	err = api.decrementGPTRemainingByOne(user, timezoneOffset)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("unable to decrement suggestions remaining")
+		Handle500(c)
+		return
+	}
+
 	token := config.GetConfigValue("OPEN_AI_CLIENT_SECRET")
 	client := gogpt.NewClient(token)
 	if api.ExternalConfig.OpenAIOverrideURL != "" {
@@ -126,7 +133,7 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 	ctx := context.Background()
 	req := gogpt.CompletionRequest{
 		Model:            gogpt.GPT3TextDavinci003,
-		MaxTokens:        1500,
+		MaxTokens:        3000,
 		Temperature:      0.2,
 		TopP:             1.0,
 		FrequencyPenalty: 0.0,
@@ -134,6 +141,7 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 		BestOf:           1,
 		Prompt:           getPrompt(promptConstruction),
 	}
+
 	resp, err := client.CreateCompletion(ctx, req)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to fetch suggestion")

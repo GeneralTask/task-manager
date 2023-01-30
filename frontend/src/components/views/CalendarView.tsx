@@ -26,8 +26,7 @@ export type TCalendarType = 'day' | 'week'
 
 interface CalendarViewProps {
     initialType: TCalendarType
-    initialShowMainHeader?: boolean
-    initialShowDateHeader?: boolean
+    initialShowHeader?: boolean
     initialCalendarType?: TCalendarType
     isInitiallyCollapsed?: boolean
     hideContainerShadow?: boolean
@@ -36,15 +35,13 @@ interface CalendarViewProps {
 }
 const CalendarView = ({
     initialType,
-    initialShowMainHeader,
-    initialShowDateHeader,
+    initialShowHeader,
     isInitiallyCollapsed,
     hideContainerShadow = false,
     hasLeftBorder = false,
     additonalHeaderContent,
 }: CalendarViewProps) => {
-    const [showMainHeader, setShowMainHeader] = useState<boolean>(initialShowMainHeader ?? true)
-    const [showDateHeader, setShowDateHeader] = useState<boolean>(initialShowDateHeader ?? true)
+    const [showHeader, setShowHeader] = useState<boolean>(initialShowHeader ?? true)
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
     const {
         date,
@@ -67,8 +64,7 @@ const CalendarView = ({
     const { isPreviewMode } = usePreviewMode()
     useEffect(() => {
         setCalendarType(initialType)
-        if (showMainHeader !== undefined) setShowMainHeader(showMainHeader)
-        if (showDateHeader !== undefined) setShowDateHeader(showDateHeader)
+        if (showHeader !== undefined) setShowHeader(showHeader)
         if (isInitiallyCollapsed !== undefined) setIsCollapsed(isInitiallyCollapsed)
     }, [])
 
@@ -135,11 +131,7 @@ const CalendarView = ({
             showShadow={!hideContainerShadow}
             hasLeftBorder={hasLeftBorder}
         >
-            <CalendarHeader
-                showMainHeader={showMainHeader}
-                showDateHeader={showDateHeader}
-                additionalHeaderContent={additonalHeaderContent}
-            />
+            <CalendarHeader showHeader={showHeader} additionalHeaderContent={additonalHeaderContent} />
             {calendarType === 'day' && <TasksDue date={date} />}
             <CalendarWeekDateHeaderContainer>
                 {calendarType === 'week' &&
