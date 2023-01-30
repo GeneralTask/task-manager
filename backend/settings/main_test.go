@@ -69,6 +69,17 @@ func TestGetSettingsOptions(t *testing.T) {
 		},
 	)
 	assert.NoError(t, err)
+
+	calendarAccountCollection := database.GetCalendarAccountCollection(db)
+	_, err = calendarAccountCollection.InsertOne(
+		context.Background(),
+		&database.CalendarAccount{
+			UserID:     userID,
+			IDExternal: "b",
+			Calendars:  []database.Calendar{{"", "cal1", "", "title1"}, {"", "cal2", "", "title2"}},
+		},
+	)
+	assert.NoError(t, err)
 	// wrong user id
 	_, err = externalTokenCollection.InsertOne(
 		context.Background(),
@@ -91,7 +102,7 @@ func TestGetSettingsOptions(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		settings, err := GetSettingsOptions(db, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 26, len(*settings))
+		assert.Equal(t, 27, len(*settings))
 		assert.Equal(t, "sidebar_linear_preference", (*settings)[3].FieldKey)
 		assert.Equal(t, "sidebar_jira_preference", (*settings)[4].FieldKey)
 		assert.Equal(t, "sidebar_github_preference", (*settings)[5].FieldKey)
@@ -121,5 +132,12 @@ func TestGetSettingsOptions(t *testing.T) {
 			{Key: "a", Name: "oof 1"},
 			{Key: "b", Name: "oof 2"},
 		}, calendarSetting.Choices)
+		calendarIDSetting := (*settings)[26]
+		assert.Equal(t, SettingFieldCalendarIDForNewTasks, calendarIDSetting.FieldKey)
+		//assert.Equal(t, "a", calendarIDSetting.DefaultChoice)
+		assert.Equal(t, []SettingChoice{
+			{Key: "cal1", Name: "title1"},
+			{Key: "cal2", Name: "title2"},
+		}, calendarIDSetting.Choices)
 	})
 }

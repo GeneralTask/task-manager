@@ -66,7 +66,8 @@ const (
 	ChoiceKeyNoDeleted                  = "no_deleted"
 	ChoiceKeyShowDeleted                = "show_deleted"
 	// Calendar choice
-	SettingFieldCalendarForNewTasks = "calendar_account_id_for_new_tasks"
+	SettingFieldCalendarForNewTasks   = "calendar_account_id_for_new_tasks"
+	SettingFieldCalendarIDForNewTasks = "calendar_calendar_id_for_new_tasks"
 	// Overview page settings
 	SettingCollapseEmptyLists     = "collapse_empty_lists"
 	SettingMoveEmptyListsToBottom = "move_empty_lists_to_bottom"
@@ -316,6 +317,27 @@ func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]Setti
 			FieldKey:      SettingFieldCalendarForNewTasks,
 			DefaultChoice: calendarChoices[0].Key,
 			Choices:       calendarChoices,
+		})
+	}
+
+	calendarAccounts, err := database.GetCalendarAccounts(db, userID)
+	if err != nil {
+		return nil, err
+	}
+	calendarIDChoices := []SettingChoice{}
+	for _, account := range *calendarAccounts {
+		for _, calendar := range account.Calendars {
+			calendarIDChoices = append(calendarIDChoices, SettingChoice{
+				Key:  calendar.CalendarID,
+				Name: calendar.Title,
+			})
+		}
+	}
+	if len(calendarIDChoices) > 0 {
+		settingsOptions = append(settingsOptions, SettingDefinition{
+			FieldKey:      SettingFieldCalendarIDForNewTasks,
+			DefaultChoice: calendarIDChoices[0].Key,
+			Choices:       calendarIDChoices,
 		})
 	}
 
