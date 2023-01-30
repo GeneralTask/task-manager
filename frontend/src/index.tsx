@@ -15,7 +15,7 @@ if (!isDevelopmentMode) {
         // sessions when an error occurs.
         replaysOnErrorSampleRate: 1.0,
 
-        integrations: [new Sentry.Replay()],
+        integrations: [new Sentry.Replay({ blockAllMedia: false })],
     })
 }
 const root = createRoot(document.getElementById('root') as Element)
