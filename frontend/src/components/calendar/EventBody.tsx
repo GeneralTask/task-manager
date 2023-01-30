@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon'
+import { usePreviewMode } from '../../hooks'
 import { logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
 import { EdgeHighlight } from '../atoms/SelectableContainer'
@@ -63,6 +64,8 @@ function EventBody(props: EventBodyProps): JSX.Element {
             : 'medium'
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
 
+    const { isPreviewMode } = usePreviewMode()
+
     const onClick = () => {
         if (disableSelectEvent) return
         setSelectedEvent(props.event)
@@ -105,7 +108,9 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         squareEnd={endedAfterToday}
                         isSelected={selectedEvent?.id === props.event.id}
                     >
-                        <EdgeHighlight color="blue" squareStart={startedBeforeToday} squareEnd={endedAfterToday} />
+                        {isPreviewMode && (
+                            <EdgeHighlight color="blue" squareStart={startedBeforeToday} squareEnd={endedAfterToday} />
+                        )}
                     </EventFill>
                     <ResizeHandle event={props.event} />
                 </EventBodyStyle>

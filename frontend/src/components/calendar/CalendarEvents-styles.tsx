@@ -182,11 +182,12 @@ export const CalendarDayHeader = styled.div`
     z-index: 2;
     margin: 0 auto;
 `
-export const DayHeaderText = styled.div<{ isToday: boolean }>`
+export const DayHeaderText = styled.div<{ isToday: boolean; isPreviewMode: boolean }>`
     border-radius: ${Border.radius.mini};
     padding: ${Spacing._4} ${Spacing._8};
     color: ${(props) => (props.isToday ? Colors.text.white : Colors.text.black)};
-    background-color: ${(props) => (props.isToday ? Colors.gtColor.blue : 'transparent')};
+    background-color: ${(props) =>
+        !props.isToday ? 'transparent' : props.isPreviewMode ? Colors.gtColor.blue : Colors.gtColor.primary};
     ${Typography.body};
 `
 export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: boolean; hasLeftBorder: boolean }>`
