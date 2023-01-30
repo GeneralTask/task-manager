@@ -1,7 +1,8 @@
 import styled from 'styled-components'
 import { Border, Colors, Spacing } from '../../styles'
-import { icons } from '../../styles/images'
+import { TIconImage, icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
+import { Truncated } from '../atoms/typography/Typography'
 
 const ButtonContainer = styled.div`
     display: flex;
@@ -20,13 +21,15 @@ const PositionedIcon = styled(Icon)`
 `
 
 interface DropdownButtonProps {
+    icon: TIconImage
+    iconColorHex?: string
     label: string
 }
-const DropdownButton = ({ label }: DropdownButtonProps) => {
+const DropdownButton = ({ icon, iconColorHex, label }: DropdownButtonProps) => {
     return (
         <ButtonContainer>
-            <Icon icon={icons.folder} />
-            {label}
+            <Icon icon={icons[icon]} colorHex={iconColorHex} />
+            <Truncated>{label}</Truncated>
             <PositionedIcon icon={icons.caret_down_solid} />
         </ButtonContainer>
     )
