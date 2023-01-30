@@ -106,6 +106,11 @@ const CalendarSelector = ({ mode }: CalendarSelectorProps) => {
             align={mode === 'cal-selection' ? 'start' : 'center'}
             unstyledTrigger
             fontStyle="bodySmall"
+            description={
+                mode === 'cal-selection'
+                    ? 'Choose which calendars to show or hide'
+                    : 'Choose the default calendar for new events to appear in'
+            }
         />
     )
 }
