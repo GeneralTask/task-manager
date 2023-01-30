@@ -17,6 +17,7 @@ import { DropItem, DropType, TTask } from '../../utils/types'
 import { getTaskIndexFromSections } from '../../utils/utils'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import Spinner from '../atoms/Spinner'
+import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import CreateNewItemInput from '../molecules/CreateNewItemInput'
@@ -58,6 +59,7 @@ const TaskSectionView = () => {
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
+    const { calendarType } = useCalendarContext()
     const { data: taskSections, isLoading: isLoadingTasks } = useGetTasks()
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderTask } = useReorderTask()
@@ -257,10 +259,14 @@ const TaskSectionView = () => {
                     </TaskSectionViewContainer>
                 </ScrollableListTemplate>
             </TaskSectionContainer>
-            {task && section ? (
-                <TaskDetails task={task} subtask={subtask} link={detailsLink} />
-            ) : (
-                <EmptyDetails icon={icons.check} text="You have no tasks" />
+            {calendarType === 'day' && (
+                <>
+                    {task && section ? (
+                        <TaskDetails task={task} subtask={subtask} link={detailsLink} />
+                    ) : (
+                        <EmptyDetails icon={icons.check} text="You have no tasks" />
+                    )}
+                </>
             )}
         </>
     )
