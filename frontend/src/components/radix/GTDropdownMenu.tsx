@@ -18,6 +18,7 @@ import {
 } from './RadixUIConstants'
 
 const DROPDOWN_MENU_ITEM_MAX_WIDTH = '240px'
+const DROPDOWN_MENU_ITEM_MAX_HEIGHT = '75vh'
 const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
     ${MenuTriggerShared};
 `
@@ -28,6 +29,8 @@ const DropdownMenuContent = styled(DropdownMenu.Content)<{
     $fontStyle?: 'body' | 'bodySmall' | 'label'
 }>`
     ${MenuContentShared};
+    max-height: ${DROPDOWN_MENU_ITEM_MAX_HEIGHT};
+    overflow: auto;
     ${({ $menuInModal }) => $menuInModal && `z-index: 1000;`}
     ${({ $width }) => $width && `width: ${$width}px;`}
     max-width: ${({ $width }) => ($width ? `${$width}px` : `${DROPDOWN_MENU_ITEM_MAX_WIDTH}`)};

@@ -382,5 +382,5 @@ export interface TCalendar {
 export interface TCalendarAccount {
     account_id: string
     calendars: TCalendar[]
-    needs_multical_scopes: boolean
+    has_multical_scopes: boolean
 }

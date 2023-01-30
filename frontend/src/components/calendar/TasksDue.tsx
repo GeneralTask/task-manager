@@ -14,7 +14,6 @@ import TasksDueHeader from './TasksDueHeader'
 const CONTAINER_MAX_HEIGHT = '130px'
 
 const TasksDueContainer = styled.div<{ hasTopBorder?: boolean }>`
-    background-color: ${Colors.background.white};
     ${({ hasTopBorder }) => hasTopBorder && `border-top: ${Border.stroke.medium} solid ${Colors.border.light};`}
     border-bottom: ${Border.stroke.medium} solid ${Colors.border.light};
 `

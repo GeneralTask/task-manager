@@ -464,12 +464,14 @@ func TestTaskReorder(t *testing.T) {
 
 	UnauthorizedTest(t, "PATCH", "/tasks/modify/123/", nil)
 	t.Run("Success", func(t *testing.T) {
+		originalTaskSectionID := primitive.NewObjectID()
+
 		insertResult, err := taskCollection.InsertOne(
 			context.Background(),
 			database.Task{
 				UserID:        userID,
 				IDOrdering:    2,
-				IDTaskSection: constants.IDTaskSectionDefault,
+				IDTaskSection: originalTaskSectionID,
 				SourceID:      external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
@@ -481,7 +483,7 @@ func TestTaskReorder(t *testing.T) {
 			database.Task{
 				UserID:        primitive.NewObjectID(),
 				IDOrdering:    3,
-				IDTaskSection: constants.IDTaskSectionDefault,
+				IDTaskSection: originalTaskSectionID,
 				SourceID:      external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
@@ -518,7 +520,8 @@ func TestTaskReorder(t *testing.T) {
 			context.Background(),
 			database.Task{
 				UserID:        userID,
-				IDTaskSection: constants.IDTaskSectionDefault,
+				IDOrdering:    1,
+				IDTaskSection: originalTaskSectionID,
 				SourceID:      external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
@@ -529,7 +532,7 @@ func TestTaskReorder(t *testing.T) {
 		api, dbCleanup := GetAPIWithDBCleanup()
 		defer dbCleanup()
 		router := GetRouter(api)
-		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "`+constants.IDTaskSectionDefault.Hex()+`"}`)))
+		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 3, "id_task_section": "`+originalTaskSectionID.Hex()+`"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -544,12 +547,12 @@ func TestTaskReorder(t *testing.T) {
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": taskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, task.IDOrdering)
-		assert.Equal(t, constants.IDTaskSectionDefault, task.IDTaskSection)
+		assert.Equal(t, originalTaskSectionID, task.IDTaskSection)
 		assert.True(t, task.HasBeenReordered)
 
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": taskToBeMovedID}).Decode(&task)
 		assert.NoError(t, err)
-		assert.Equal(t, 3, task.IDOrdering)
+		assert.Equal(t, 1, task.IDOrdering)
 
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": taskToNotBeMovedID}).Decode(&task)
 		assert.NoError(t, err)
@@ -790,11 +793,12 @@ func TestTaskReorder(t *testing.T) {
 		assert.True(t, task.HasBeenReordered)
 	})
 	t.Run("OnlyReorderingID", func(t *testing.T) {
+		newTaskSectionID := primitive.NewObjectID()
 		insertResult, err := taskCollection.InsertOne(
 			context.Background(),
 			database.Task{
 				UserID:        userID,
-				IDTaskSection: constants.IDTaskSectionDefault,
+				IDTaskSection: newTaskSectionID,
 				SourceID:      external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
@@ -820,8 +824,8 @@ func TestTaskReorder(t *testing.T) {
 
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": taskID}).Decode(&task)
 		assert.NoError(t, err)
-		assert.Equal(t, 2, task.IDOrdering)
-		assert.Equal(t, constants.IDTaskSectionDefault, task.IDTaskSection)
+		assert.Equal(t, 1, task.IDOrdering)
+		assert.Equal(t, newTaskSectionID, task.IDTaskSection)
 		assert.True(t, task.HasBeenReordered)
 	})
 }
