@@ -29,6 +29,7 @@ func TestCalendarList(t *testing.T) {
 					CalendarID: "cal1",
 					ColorID:    "col1",
 					Title:      "title1",
+					AccessRole: "owner",
 				},
 			},
 			Scopes: []string{"https://www.googleapis.com/auth/calendar"},
@@ -49,6 +50,7 @@ func TestCalendarList(t *testing.T) {
 					CalendarID: "cal2",
 					ColorID:    "col2",
 					Title:      "title2",
+					AccessRole: "reader",
 				},
 				{
 					CalendarID: "cal3",
@@ -93,8 +95,8 @@ func TestCalendarList(t *testing.T) {
 		assert.Equal(t, 2, len(result))
 
 		assert.Equal(t, []CalendarAccountResult{
-			{AccountID: "account1", Calendars: []CalendarResult{{CalendarID: "cal1", ColorID: "col1", Title: "title1"}}, HasMulticalScope: true},
-			{AccountID: "account2", Calendars: []CalendarResult{{CalendarID: "cal2", ColorID: "col2", Title: "title2"}, {CalendarID: "cal3", ColorID: "col3", Title: "title3"}}, HasMulticalScope: false},
+			{AccountID: "account1", Calendars: []CalendarResult{{CalendarID: "cal1", ColorID: "col1", Title: "title1", AccessRole: "owner"}}, HasMulticalScope: true},
+			{AccountID: "account2", Calendars: []CalendarResult{{CalendarID: "cal2", ColorID: "col2", Title: "title2", AccessRole: "reader"}, {CalendarID: "cal3", ColorID: "col3", Title: "title3"}}, HasMulticalScope: false},
 		},
 			result)
 	})
