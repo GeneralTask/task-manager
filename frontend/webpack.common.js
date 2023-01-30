@@ -40,6 +40,7 @@ module.exports = {
                     path.resolve(__dirname, 'node_modules/animate.css'),
                     path.resolve(__dirname, 'node_modules/@remirror'),
                     path.resolve(__dirname, 'node_modules/@atlaskit/css-reset'),
+                    path.resolve(__dirname, 'node_modules/react-loading-skeleton'),
                 ],
             },
         ],

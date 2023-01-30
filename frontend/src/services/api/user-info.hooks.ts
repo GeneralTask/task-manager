@@ -1,4 +1,5 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
+import * as Sentry from '@sentry/react'
 import { castImmutable } from 'immer'
 import apiClient from '../../utils/api'
 import { TUserInfo } from '../../utils/types'
@@ -9,6 +10,7 @@ export const useGetUserInfo = () => {
 const getUserInfo = async ({ signal }: QueryFunctionContext) => {
     try {
         const res = await apiClient.get('/user_info/', { signal })
+        Sentry.setUser({ email: res.data.email })
         return castImmutable(res.data)
     } catch {
         throw new Error('getUserInfo failed')
