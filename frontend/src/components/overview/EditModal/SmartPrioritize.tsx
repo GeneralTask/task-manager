@@ -14,6 +14,7 @@ import { Icon } from '../../atoms/Icon'
 import GTButton from '../../atoms/buttons/GTButton'
 import RefreshSpinner from '../../atoms/buttons/RefreshSpinner'
 import { BodySmall, Label, Mini } from '../../atoms/typography/Typography'
+import Tip from '../../radix/Tip'
 import SmartSuggestion from './SmartSuggestion'
 
 const Container = styled.div`
@@ -57,10 +58,11 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
         setState(SmartPrioritizeState.LOADING)
         try {
             const suggestion = await getOverviewSmartSuggestion()
+            await queryClient.invalidateQueries('overview-suggestions-remaining')
             setSuggestions(suggestion)
             setState(SmartPrioritizeState.LOADED)
-            queryClient.invalidateQueries('overview-suggestions-remaining')
         } catch (e) {
+            await queryClient.invalidateQueries('overview-suggestions-remaining')
             setState(SmartPrioritizeState.ERROR)
         }
     }
@@ -105,14 +107,25 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                 return (
                     <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
                         <Icon icon={icons.warning} color="red" />
-                        <Label color="red">There was an error sorting your lists. Please try again.</Label>
+                        <Label color="red">
+                            There was an error sorting your lists.{' '}
+                            {hasSuggestionsRemaining
+                                ? `Please try again (${suggestionsRemaining} uses remaining).`
+                                : null}
+                        </Label>
                         <GTButton
                             size="small"
                             value="Cancel"
                             styleType="secondary"
                             onClick={() => setState(SmartPrioritizeState.MANUAL)}
                         />
-                        <GTButton size="small" value="Retry" onClick={getSuggestion} />
+                        {hasSuggestionsRemaining || isPreviewMode ? (
+                            <GTButton size="small" value="Retry" onClick={getSuggestion} />
+                        ) : (
+                            <Tip content="You have no uses remaining">
+                                <GTButton size="small" value="Retry" onClick={getSuggestion} disabled />
+                            </Tip>
+                        )}
                     </Flex>
                 )
             case SmartPrioritizeState.LOADED:

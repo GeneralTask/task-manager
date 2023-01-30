@@ -13,18 +13,19 @@ import GTButton from '../atoms/buttons/GTButton'
 const Container = styled(GTShadowContainer)`
     display: flex;
     align-items: center;
+    justify-content: space-between;
     ${Typography.bodySmall};
     box-sizing: border-box;
     height: fit-content;
 `
 const Text = styled.span`
     padding: ${Spacing._4} ${Spacing._8};
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `
-const IconAndText = styled.span`
-    display: flex;
-    align-items: center;
-    gap: ${Spacing._12};
-    margin-right: auto;
+const ButtonWrapper = styled.div`
+    margin-left: auto;
 `
 
 const getAuthorizationUrl = (supportedTypes: TSupportedType[], name: TLinkedAccountName) => {
@@ -41,9 +42,10 @@ const getAuthorizationUrl = (supportedTypes: TSupportedType[], name: TLinkedAcco
 interface ConnectIntegrationProps {
     type: 'github' | 'google_calendar' | 'slack' | 'linear'
     reconnect?: boolean
+    reauthorizeAccountName?: string
 }
 
-const ConnectIntegration = ({ type, reconnect = false }: ConnectIntegrationProps) => {
+const ConnectIntegration = ({ type, reconnect = false, reauthorizeAccountName }: ConnectIntegrationProps) => {
     const { data: supportedTypes } = useGetSupportedTypes()
     const { openAuthWindow, isAuthWindowOpen } = useAuthWindow()
     const { icon, name, authUrl } = (() => {
@@ -77,29 +79,41 @@ const ConnectIntegration = ({ type, reconnect = false }: ConnectIntegrationProps
         }
     })()
 
-    const title = isAuthWindowOpen ? `Connecting to ${name}...` : `Connect to ${name}`
+    const getTitle = () => {
+        if (reauthorizeAccountName) return reauthorizeAccountName
+        if (isAuthWindowOpen) return `Connecting to ${name}...`
+        if (reconnect) return 'This account needs to be re-linked.'
+        if (type === 'google_calendar') return name
+        else return `Connect to ${name}`
+    }
 
-    const isGCal = type === 'google_calendar'
+    const getButtonLabel = () => {
+        if (isAuthWindowOpen && reauthorizeAccountName) return 'Authorizing...'
+        if (isAuthWindowOpen) return 'Connecting...'
+        if (reauthorizeAccountName) return 'Authorize'
+        if (reconnect) return 'Re-link account'
+        return 'Connect'
+    }
 
     const onClick = () => {
         if (!authUrl) return
         openAuthWindow({ url: authUrl })
     }
 
-    if (!icon || !name || !authUrl || !title) return null
+    if (!icon || !name || !authUrl) return null
     return (
         <Container>
-            <IconAndText>
-                <Icon icon={reconnect ? icons.warning : icon} color={reconnect ? 'red' : 'black'} />
-                <Text>{reconnect ? 'This account needs to be re-linked.' : isGCal ? name : title}</Text>
-            </IconAndText>
-            <GTButton
-                disabled={isAuthWindowOpen}
-                value={reconnect ? 'Re-link account' : 'Connect'}
-                color={Colors.gtColor.primary}
-                size="small"
-                onClick={onClick}
-            />
+            <Icon icon={reconnect ? icons.warning : icon} color={reconnect ? 'red' : 'black'} />
+            <Text>{getTitle()}</Text>
+            <ButtonWrapper>
+                <GTButton
+                    disabled={isAuthWindowOpen}
+                    value={getButtonLabel()}
+                    color={Colors.gtColor.primary}
+                    size="small"
+                    onClick={onClick}
+                />
+            </ButtonWrapper>
         </Container>
     )
 }

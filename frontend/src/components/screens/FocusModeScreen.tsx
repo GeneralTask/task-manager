@@ -226,6 +226,9 @@ const FocusModeScreen = () => {
 
     useEffect(() => {
         if (selectedEvent) {
+            if (!currentEvents.includes(selectedEvent)) {
+                setShouldAutoAdvanceEvent(false)
+            }
             setChosenEvent(selectedEvent)
         }
     }, [selectedEvent])
@@ -361,8 +364,7 @@ const FocusModeScreen = () => {
                         <CalendarContainer>
                             <CalendarView
                                 initialType="day"
-                                initialShowDateHeader={false}
-                                initialShowMainHeader={false}
+                                initialShowHeader={false}
                                 hideContainerShadow
                                 hasLeftBorder
                             />

@@ -357,7 +357,7 @@ export const useSelectedCalendars = () => {
         [lookupTable]
     )
 
-    const toggleCalendar = useCallback(
+    const toggleCalendarSelection = useCallback(
         (accountId: string, calendar: TCalendar) => {
             const newSelectedCalendars = produce(selectedCalendars, (draft) => {
                 const accountIdx = draft.findIndex((account) => account.account_id === accountId)
@@ -375,7 +375,7 @@ export const useSelectedCalendars = () => {
         [selectedCalendars]
     )
 
-    return { selectedCalendars, isCalendarSelected, toggleCalendar }
+    return { selectedCalendars, isCalendarSelected, toggleCalendarSelection }
 }
 
 // wrapper around useGetEvents that filters out events that are not in the selected calendars

@@ -14,7 +14,7 @@ const TaskTitle = styled.span`
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    ${Typography.bodySmall};
+    ${Typography.label};
 `
 const TaskDueDate = styled.span`
     margin-left: auto;
@@ -22,7 +22,7 @@ const TaskDueDate = styled.span`
     ${Typography.label};
 `
 const TaskDue = styled.div`
-    padding: ${Spacing._8} 0;
+    padding: ${Spacing._4};
     display: flex;
     align-items: center;
     overflow: hidden;
@@ -43,6 +43,7 @@ const DueTask = ({ task, showDueDate }: DueTaskProps) => {
         <ItemContainer
             key={task.id}
             isSelected={false}
+            isCompact={true}
             onClick={() => {
                 if (task.isSubtask && task.parent_task_id) {
                     navigateToTask(task.parent_task_id)
@@ -54,7 +55,7 @@ const DueTask = ({ task, showDueDate }: DueTaskProps) => {
         >
             <TaskDue>
                 <Icon icon={logos[task.source.logo_v2]} />
-                <TaskTitle>{task.title}</TaskTitle>
+                <TaskTitle title={task.title}>{task.title}</TaskTitle>
             </TaskDue>
             {showDueDate && <TaskDueDate>{DateTime.fromISO(task.due_date).toFormat('MMM dd')}</TaskDueDate>}
         </ItemContainer>
