@@ -133,10 +133,10 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
  * If the window is focused, refetch regularly
  * If the window is not focused for more than refetchInterval, refetch when the user returns to the window
  **/
-export const getBackgroundQueryOptions = ({
+export const getBackgroundQueryOptions = (
     refetchInterval = TASK_REFETCH_INTERVAL,
-    staleTime = DEFAULT_BACKGROUND_QUERY_STALE_TIME,
-} = {}) => ({
+    staleTime = DEFAULT_BACKGROUND_QUERY_STALE_TIME
+) => ({
     staleTime,
     refetchInterval,
     refetchIntervalInBackground: false,
