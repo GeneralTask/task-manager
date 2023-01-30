@@ -356,7 +356,7 @@ const FocusModeScreen = () => {
                                                 <BodyHeader>EVENT DESCRIPTON</BodyHeader>
                                                 <Body
                                                     dangerouslySetInnerHTML={{
-                                                        __html: sanitizeHtml(body || 'This event has no content'),
+                                                        __html: sanitizeHtml(body || 'No event description set'),
                                                     }}
                                                     $isEmpty={!body}
                                                 />
