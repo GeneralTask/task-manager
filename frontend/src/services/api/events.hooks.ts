@@ -78,7 +78,7 @@ export const useGetEvents = (params: { startISO: string; endISO: string }, calen
     return useQuery<TEvent[]>(
         ['events', calendarType, params.startISO],
         (queryFunctionContext) => getEvents(params, queryFunctionContext),
-        getBackgroundQueryOptions(EVENTS_REFETCH_INTERVAL)
+        getBackgroundQueryOptions({ refetchInterval: EVENTS_REFETCH_INTERVAL })
     )
 }
 const getEvents = async (params: { startISO: string; endISO: string }, { signal }: QueryFunctionContext) => {
@@ -285,7 +285,11 @@ const modifyEvent = async (data: TModifyEventData) => {
 }
 
 export const useGetCalendars = () => {
-    return useQuery<TCalendarAccount[]>('calendars', getCalendars, getBackgroundQueryOptions(EVENTS_REFETCH_INTERVAL))
+    return useQuery<TCalendarAccount[]>(
+        'calendars',
+        getCalendars,
+        getBackgroundQueryOptions({ refetchInterval: EVENTS_REFETCH_INTERVAL })
+    )
 }
 const getCalendars = async () => {
     try {

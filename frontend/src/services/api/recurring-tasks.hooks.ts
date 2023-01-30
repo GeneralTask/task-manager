@@ -177,7 +177,10 @@ export const useBackfillRecurringTasks = () => {
     return useQuery(
         'backfill-recurring-tasks',
         backfillRecurringTasks,
-        getBackgroundQueryOptions(BACKFILL_RECURRING_TASKS_INTERVAL)
+        getBackgroundQueryOptions({
+            refetchInterval: BACKFILL_RECURRING_TASKS_INTERVAL,
+            staleTime: BACKFILL_RECURRING_TASKS_INTERVAL,
+        })
     )
 }
 
