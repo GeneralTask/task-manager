@@ -186,6 +186,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 	t.Run("SuccessGoogle", func(t *testing.T) {
 		authToken := login("deletelinkedaccount_github@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, api.DB, authToken)
+		notUserID := primitive.NewObjectID()
 		accountID := "correctAccountID"
 
 		calendarAccountToDelete, err := database.UpdateOrCreateCalendarAccount(api.DB, userID, "123abc", "foobar_source",
@@ -193,6 +194,15 @@ func TestDeleteLinkedAccount(t *testing.T) {
 				UserID:     userID,
 				IDExternal: accountID,
 				Calendars:  []database.Calendar{{CalendarID: "cal1", ColorID: "col1"}},
+				Scopes:     []string{"https://www.googleapis.com/auth/calendar"},
+			}, nil)
+		assert.NoError(t, err)
+
+		calendarAccountNotToDelete, err := database.UpdateOrCreateCalendarAccount(api.DB, notUserID, "123abc", "foobar_source",
+			&database.CalendarAccount{
+				UserID:     notUserID,
+				IDExternal: "otherAccountID",
+				Calendars:  []database.Calendar{{CalendarID: "cal2", ColorID: "col2"}},
 				Scopes:     []string{"https://www.googleapis.com/auth/calendar"},
 			}, nil)
 		assert.NoError(t, err)
@@ -220,9 +230,13 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		assert.Error(t, err)
 
 		var account database.CalendarAccount
-		err = database.GetCalendarAccountCollection(api.DB).FindOne(context.Background(), bson.M{"_id": calendarAccountToDelete.ID}).Decode(&account)
 		// assert calendar account is not found in db anymore
+		err = database.GetCalendarAccountCollection(api.DB).FindOne(context.Background(), bson.M{"_id": calendarAccountToDelete.ID}).Decode(&account)
 		assert.Error(t, err)
+		// assert other calendar account is still in the db
+		err = database.GetCalendarAccountCollection(api.DB).FindOne(context.Background(), bson.M{"_id": calendarAccountNotToDelete.ID}).Decode(&account)
+		assert.NoError(t, err)
+		assert.Equal(t, "otherAccountID", account.IDExternal)
 	})
 	UnauthorizedTest(t, "DELETE", "/linked_accounts/123/", nil)
 }
