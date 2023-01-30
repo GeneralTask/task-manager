@@ -89,6 +89,7 @@ import {
     faHeadphones,
     faMinus,
     faQuoteRight,
+    faSquare as faSquareSolid,
 } from '@fortawesome/pro-solid-svg-icons'
 
 export const logos = Object.freeze({
@@ -193,6 +194,7 @@ export const icons = Object.freeze({
     sortArrows: faSort,
     spinner: faArrowRotateRight,
     strikethrough: faStrikethrough,
+    square: faSquareSolid,
     squarePlus: faSquarePlus,
     squareMinus: faSquareMinus,
     subtask: faDiagramSubtask,

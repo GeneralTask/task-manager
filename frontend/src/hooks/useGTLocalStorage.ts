@@ -11,6 +11,7 @@ type TLocalStorageKeys =
     | 'taskToCalendarSidebar'
     | 'overviewAutomaticEmptySort'
     | 'isUsingSmartPrioritization'
+    | 'selectedCalendars'
 
 // based on https://usehooks.com/useLocalStorage/
 // if updateOnStoreChange is true, the hook will update the state when the value is changed on this tab or another tab

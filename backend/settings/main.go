@@ -72,6 +72,8 @@ const (
 	SettingMoveEmptyListsToBottom = "move_empty_lists_to_bottom"
 	// Lab settings
 	LabSmartPrioritizeEnabled = "lab_smart_prioritize_enabled"
+	// Misc settings
+	HasDismissedMulticalPrompt = "has_dismissed_multical_prompt"
 )
 
 var SidebarLinearSetting = SettingDefinition{
@@ -215,6 +217,15 @@ var LabSmartPrioritizeEnabledSetting = SettingDefinition{
 	},
 }
 
+var HasDismissedMulticalPromptSetting = SettingDefinition{
+	FieldKey:      HasDismissedMulticalPrompt,
+	DefaultChoice: "false",
+	Choices: []SettingChoice{
+		{Key: "true"},
+		{Key: "false"},
+	},
+}
+
 var TaskSectionSettingTypes = []string{"main", "overview"}
 
 var hardcodedSettings = []SettingDefinition{
@@ -234,6 +245,7 @@ var hardcodedSettings = []SettingDefinition{
 	OverviewCollapseEmptyListsSetting,
 	OverviewMoveEmptyListsToBottomSetting,
 	LabSmartPrioritizeEnabledSetting,
+	HasDismissedMulticalPromptSetting,
 }
 
 func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]SettingDefinition, error) {

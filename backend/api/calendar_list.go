@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -10,12 +11,13 @@ import (
 type CalendarResult struct {
 	CalendarID string `json:"calendar_id,omitempty"`
 	ColorID    string `json:"color_id,omitempty"`
+	Title      string `json:"title,omitempty"`
 }
 
 type CalendarAccountResult struct {
 	AccountID        string           `json:"account_id"`
 	Calendars        []CalendarResult `json:"calendars"`
-	HasMulticalScope bool             `json:"needs_multical_scopes"`
+	HasMulticalScope bool             `json:"has_multical_scopes"`
 }
 
 func (api *API) CalendarsList(c *gin.Context) {
@@ -42,6 +44,7 @@ func (api *API) CalendarsList(c *gin.Context) {
 			calendarResult := CalendarResult{
 				CalendarID: calendar.CalendarID,
 				ColorID:    calendar.ColorID,
+				Title:      calendar.Title,
 			}
 			calendars = append(calendars, calendarResult)
 

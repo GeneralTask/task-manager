@@ -1,12 +1,13 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { useCalendarContext } from '../../components/calendar/CalendarContext'
 import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
+import { useGTLocalStorage, usePreviewMode } from '../../hooks'
 import apiClient from '../../utils/api'
-import { TEvent, TOverviewView, TTask } from '../../utils/types'
+import { TCalendar, TCalendarAccount, TEvent, TOverviewView, TTask } from '../../utils/types'
 import { getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
 
 interface TEventAttendee {
@@ -86,11 +87,7 @@ const getEvents = async (params: { startISO: string; endISO: string }, { signal 
             params: { datetime_start: params.startISO, datetime_end: params.endISO },
             signal,
         })
-        return castImmutable(
-            res.data.filter(
-                (event: TEvent) => event.calendar_id === 'primary' || event.calendar_id === event.account_id
-            )
-        )
+        return castImmutable(res.data)
     } catch {
         throw new Error('getEvents failed')
     }
@@ -100,6 +97,7 @@ export const useCreateEvent = () => {
     const queryClient = useGTQueryClient()
     const { selectedEvent, setSelectedEvent } = useCalendarContext()
     const { setOptimisticId } = useQueryContext()
+    const { selectedCalendars } = useSelectedCalendars()
 
     // Keep selectedEvent in a ref so that it can be accessed in can be updated in the onSuccess callback
     const selectedEventRef = useRef(selectedEvent)
@@ -118,13 +116,18 @@ export const useCreateEvent = () => {
             )
             if (!events) return
 
+            // temporarily select the first calendar of the primary account
+            const calendarId =
+                selectedCalendars.find((calendar) => calendar.account_id === createEventPayload.account_id)
+                    ?.calendars[0]?.calendar_id ?? ''
+
             const newEvent: TEvent = {
                 id: optimisticId,
                 optimisticId: optimisticId,
                 title: createEventPayload.summary ?? '',
                 body: createEventPayload.description ?? '',
                 account_id: createEventPayload.account_id,
-                calendar_id: 'TODO',
+                calendar_id: calendarId,
                 logo: linkedTask?.source.logo_v2 ?? 'gcal',
                 deeplink: '',
                 datetime_start: createEventPayload.datetime_start,
@@ -279,4 +282,112 @@ const modifyEvent = async (data: TModifyEventData) => {
     } catch {
         throw new Error('modifyEvent failed')
     }
+}
+
+export const useGetCalendars = () => {
+    return useQuery<TCalendarAccount[]>('calendars', getCalendars, getBackgroundQueryOptions(EVENTS_REFETCH_INTERVAL))
+}
+const getCalendars = async () => {
+    try {
+        const res = await apiClient.get('/calendars/')
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('getCalendars failed')
+    }
+}
+
+export const useSelectedCalendars = () => {
+    const { data: calendars } = useGetCalendars()
+    const [selectedCalendars, setSelectedCalendars] = useGTLocalStorage<TCalendarAccount[]>(
+        'selectedCalendars',
+        [],
+        true
+    )
+
+    // update selected calendars when calendar accounts are added/removed
+    useEffect(() => {
+        if (!calendars) return
+
+        const newSelectedCalendars = produce(selectedCalendars, (draft) => {
+            const newAccounts = calendars.filter(
+                (calendar) =>
+                    !selectedCalendars.find((selectedCalendar) => selectedCalendar.account_id === calendar.account_id)
+            )
+
+            const removedAccounts = selectedCalendars.filter(
+                (selectedCalendar) => !calendars.find((calendar) => calendar.account_id === selectedCalendar.account_id)
+            )
+            if (!newAccounts.length && !removedAccounts.length) return
+
+            // when a new account is added, select the primary calendar
+            newAccounts.forEach((account) => {
+                const primaryCalendar = account.calendars.find(
+                    (calendar) => calendar.calendar_id === account.account_id || calendar.calendar_id === 'primary'
+                )
+                if (primaryCalendar)
+                    draft.push({
+                        ...account,
+                        calendars: [{ ...primaryCalendar }],
+                    })
+            })
+            removedAccounts.forEach((removedAccount) => {
+                const index = draft.findIndex(
+                    (newSelectedCalendar) => newSelectedCalendar.account_id === removedAccount.account_id
+                )
+                draft.splice(index, 1)
+            })
+        })
+
+        setSelectedCalendars(newSelectedCalendars)
+    }, [calendars])
+
+    const lookupTable: Map<string, Set<string>> = useMemo(() => {
+        return new Map(
+            selectedCalendars.map((account) => [
+                account.account_id,
+                new Set(account.calendars.map((calendar) => calendar.calendar_id)),
+            ])
+        )
+    }, [selectedCalendars])
+
+    // used to check if a calendar is selected in O(1) time
+    const isCalendarSelected = useCallback(
+        (accountId: string, calendarId: string) => lookupTable.get(accountId)?.has(calendarId) ?? false,
+        [lookupTable]
+    )
+
+    const toggleCalendarSelection = useCallback(
+        (accountId: string, calendar: TCalendar) => {
+            const newSelectedCalendars = produce(selectedCalendars, (draft) => {
+                const accountIdx = draft.findIndex((account) => account.account_id === accountId)
+                if (accountIdx === -1) return
+
+                const calendarIdx = draft[accountIdx].calendars.findIndex((c) => c.calendar_id === calendar.calendar_id)
+                if (calendarIdx === -1) {
+                    draft[accountIdx].calendars.push({ ...calendar })
+                } else {
+                    draft[accountIdx].calendars.splice(calendarIdx, 1)
+                }
+            })
+            setSelectedCalendars(newSelectedCalendars)
+        },
+        [selectedCalendars]
+    )
+
+    return { selectedCalendars, isCalendarSelected, toggleCalendarSelection }
+}
+
+// wrapper around useGetEvents that filters out events that are not in the selected calendars
+export const useEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
+    const { isPreviewMode } = usePreviewMode()
+    const { data: events, ...rest } = useGetEvents(params, calendarType)
+    const { selectedCalendars, isCalendarSelected } = useSelectedCalendars()
+    const filteredEvents = useMemo(() => {
+        if (!events || selectedCalendars.length === 0) return events
+        if (!isPreviewMode) {
+            return events.filter((event) => event.calendar_id === event.account_id || event.calendar_id === 'primary')
+        }
+        return events.filter((event) => isCalendarSelected(event.account_id, event.calendar_id))
+    }, [events, selectedCalendars, isPreviewMode, isCalendarSelected])
+    return { data: filteredEvents, ...rest }
 }

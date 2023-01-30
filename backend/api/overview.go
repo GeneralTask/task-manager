@@ -593,9 +593,39 @@ func reorderTaskResultsByDueDate(taskResults []*TaskResult) []*TaskResult {
 	return taskResults
 }
 
+type calendarKey struct {
+	accountID  string
+	calendarID string
+}
+
+func createCalendarToAccessRoleMap(calendarAccounts *[]database.CalendarAccount) map[calendarKey]string {
+	calendarToAccessRole := make(map[calendarKey]string)
+	for _, calendarAccount := range *calendarAccounts {
+		for _, calendar := range calendarAccount.Calendars {
+			calendarToAccessRole[calendarKey{calendarAccount.IDExternal, calendar.CalendarID}] = calendar.AccessRole
+		}
+		calendarToAccessRole[calendarKey{calendarAccount.IDExternal, "primary"}] = "owner"
+	}
+	return calendarToAccessRole
+}
+
 func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID, events *[]database.CalendarEvent) error {
+	calendarAccounts, err := database.GetCalendarAccounts(db, userID)
+	if err != nil {
+		return err
+	}
+	calendarToAccessRole := createCalendarToAccessRoleMap(calendarAccounts)
+
 	taskCollection := database.GetTaskCollection(db)
 	for _, event := range *events {
+		if accessRole, ok := calendarToAccessRole[calendarKey{event.SourceAccountID, event.CalendarID}]; ok {
+			if accessRole != "owner" {
+				continue // only create meeting prep tasks for "owned" calendars
+			}
+		} else {
+			continue // could not find the calendar in db
+		}
+
 		// Check if meeting prep task exists
 		var meetingTask *database.Task
 		err := taskCollection.FindOne(

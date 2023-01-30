@@ -19,6 +19,7 @@ export type NoteFilterPreference = `${string}note_filtering_preference${string}`
 
 export type TSettingsKey =
     | 'calendar_account_id_for_new_tasks'
+    | 'calendar_id_for_new_tasks'
     | GHFilterPreference
     | GHSortPreference
     | GHSortDirection
@@ -43,7 +44,18 @@ export const useGetSettings = () => {
 const getSettings = async ({ signal }: QueryFunctionContext) => {
     try {
         const res = await apiClient.get('/settings/', { signal })
-        return castImmutable(res.data)
+        const settings: TSetting[] = res.data
+        // temporarily mock this setting
+        return castImmutable([
+            ...settings,
+            {
+                field_key: 'calendar_id_for_new_tasks',
+                field_value:
+                    settings.find((s) => s.field_key === 'calendar_account_id_for_new_tasks')?.field_value || '',
+                field_name: '',
+                choices: [],
+            },
+        ]) as TSetting[]
     } catch {
         throw new Error('getSettings failed')
     }
@@ -108,6 +120,8 @@ export const useDeleteLinkedAccount = () => {
     return useMutation(deleteLinkedAccount, {
         onSettled: () => {
             queryClient.invalidateQueries('linked_accounts')
+            queryClient.invalidateQueries('calendars')
+            queryClient.invalidateQueries('events')
         },
     })
 }

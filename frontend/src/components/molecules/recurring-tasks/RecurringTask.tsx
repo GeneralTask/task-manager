@@ -5,7 +5,7 @@ import { TRecurringTaskTemplate } from '../../../utils/types'
 import Flex from '../../atoms/Flex'
 import { Icon } from '../../atoms/Icon'
 import TaskTemplate from '../../atoms/TaskTemplate'
-import { Truncated } from '../../atoms/typography/Typography'
+import { BodySmall, Truncated } from '../../atoms/typography/Typography'
 import ItemContainer from '../ItemContainer'
 
 interface RecurringTaskProps {
@@ -17,7 +17,9 @@ const RecurringTask = ({ recurringTask, isSelected, onSelect }: RecurringTaskPro
     return (
         <TaskTemplate>
             <ItemContainer isSelected={isSelected} onClick={() => onSelect(recurringTask)}>
-                <Truncated>{recurringTask.title}</Truncated>
+                <BodySmall>
+                    <Truncated>{recurringTask.title}</Truncated>
+                </BodySmall>
                 <Flex gap={Spacing._12}>
                     {recurringTask.priority_normalized !== undefined && recurringTask.priority_normalized !== 0 && (
                         <Icon

@@ -122,7 +122,7 @@ func (api *API) DeleteLinkedAccount(c *gin.Context) {
 		_, err := database.GetRepositoryCollection(api.DB).DeleteMany(
 			context.Background(),
 			bson.M{"$and": []bson.M{
-				bson.M{"$or": []bson.M{
+				{"$or": []bson.M{
 					{"account_id": accountToDelete.AccountID},
 					{"account_id": bson.M{"$exists": false}},
 					{"account_id": ""},

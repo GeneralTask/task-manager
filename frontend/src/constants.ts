@@ -27,6 +27,7 @@ export const SINGLE_SECOND_INTERVAL = 1000
 export const TASK_MARK_AS_DONE_TIMEOUT = 0.25 * 1000
 export const TASK_REFETCH_INTERVAL = 60 * 1000
 export const TIME_INDICATOR_INTERVAL = 6 * 1000
+export const DEFAULT_BACKGROUND_QUERY_STALE_TIME = 15 * 1000
 
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
@@ -79,6 +80,7 @@ export const TASK_PRIORITIES: TTaskPriority[] = [
 
 export const GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME = 'Google Calendar'
 export const GENERAL_TASK_SOURCE_NAME = 'General Task'
+export const SLACK_SOURCE_NAME = 'Slack'
 
 export const SYNC_MESSAGES = {
     SYNCING: 'Syncing...',
