@@ -171,14 +171,14 @@ export const EventFill = styled.div<{
     box-sizing: border-box;
     box-shadow: ${Shadows.light};
     /* add opacity to background color */
-    background-color: ${(props) => props.backgroundColorHex + '80'};
+    background-color: ${(props) => `${props.backgroundColorHex}80`};
     border-top-left-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
     border-top-right-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
     border-bottom-left-radius: ${(props) => (props.squareEnd ? '0' : Border.radius.mini)};
     border-bottom-right-radius: ${(props) => (props.squareEnd ? '0' : Border.radius.mini)};
     ::before {
         content: '';
-        background-color: white;
+        background-color: ${Colors.background.white};
         position: absolute;
         width: 100%;
         height: 100%;
