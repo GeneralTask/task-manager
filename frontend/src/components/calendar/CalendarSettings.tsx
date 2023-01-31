@@ -46,7 +46,9 @@ const CalendarSettings = () => {
         const authUrl = supportedTypes?.find(
             (supportedType) => supportedType.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME
         )?.authorization_url
-        openAuthWindow({ url: authUrl, isGoogleSignIn: true })
+        if (authUrl) {
+            openAuthWindow({ url: authUrl, isGoogleSignIn: true })
+        }
     }
     const handleDeleteAccount = (accountId: string) => {
         const linkedAccountId = linkedAccounts
