@@ -8,6 +8,7 @@ import { TPullRequest, TTask } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
+import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import TaskDetails from '../details/TaskDetails'
@@ -53,6 +54,7 @@ const DailyOverviewView = () => {
     const [isEditListsModalOpen, setIsEditListsModalOpen] = useState(false)
     const [editListTabIndex, setEditListTabIndex] = useState(0) // 0 - add, 1 - reorder
     const { overviewViewId, overviewItemId, subtaskId } = useParams()
+    const { calendarType } = useCalendarContext()
     const navigate = useNavigate()
 
     const [openListIds, setOpenListIds] = useState<string[]>([])
@@ -175,7 +177,7 @@ const DailyOverviewView = () => {
                     ))}
                 </ScrollableListTemplate>
             </Flex>
-            {detailsView}
+            {calendarType === 'day' && detailsView}
             <EditModal
                 isOpen={isEditListsModalOpen}
                 setisOpen={setIsEditListsModalOpen}

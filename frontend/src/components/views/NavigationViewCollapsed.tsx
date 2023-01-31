@@ -97,6 +97,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
     const { section: sectionId } = useParams()
     const { setCalendarType, setDate, dayViewDate } = useCalendarContext()
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+    const { isPreviewMode, toggle: togglePreviewMode } = usePreviewMode()
     const navigate = useNavigate()
 
     const DEFAULT_FOLDER = folders?.find((folder) => folder.id === DEFAULT_SECTION_ID)
@@ -110,15 +111,16 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
         filteredFolders?.map((folder) => ({
             label: `${folder.name} (${folder.tasks.length})`,
             onClick: () => {
-                setCalendarType('day')
-                setDate(dayViewDate)
+                if (!isPreviewMode) {
+                    setCalendarType('day')
+                    setDate(dayViewDate)
+                }
                 Log(`navigate__/tasks/${folder.id}`)
                 navigate(`/tasks/${folder.id}`)
             },
             icon: icons.folder,
         })) ?? []
     const { data: userInfo } = useGetUserInfo()
-    const { isPreviewMode, toggle: togglePreviewMode } = usePreviewMode()
 
     return (
         <CollapsedContainer>
