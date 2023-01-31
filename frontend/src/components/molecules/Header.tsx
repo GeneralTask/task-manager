@@ -11,9 +11,11 @@ import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
+import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import RefreshSpinner from '../atoms/buttons/RefreshSpinner'
+import { useCalendarContext } from '../calendar/CalendarContext'
 
 const SectionHeaderContainer = styled.div`
     display: flex;
@@ -61,6 +63,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     const navigate = useNavigate()
     const refetchStaleQueries = useRefetchStaleQueries()
     const isFetching = useIsFetching() !== 0
+    const { calendarType, setShowTaskToCalSidebar } = useCalendarContext()
 
     useLayoutEffect(() => {
         setSectionName(props.sectionName)
@@ -134,6 +137,15 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                         tooltipText="Save folder name"
                         onClick={() => setIsEditingTitle(false)}
                         icon={icons.check}
+                    />
+                )}
+                {calendarType === 'week' && (
+                    <GTButton
+                        styleType="secondary"
+                        size="small"
+                        value="Close task list"
+                        icon={icons.x}
+                        onClick={() => setShowTaskToCalSidebar(false)}
                     />
                 )}
             </MarginLeftAutoFlex>

@@ -1,11 +1,12 @@
 import { Fragment, useRef } from 'react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import styled from 'styled-components'
-import { Colors, Typography } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { emptyFunction, stopKeydownPropogation } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
+import { Label } from '../atoms/typography/Typography'
 import {
     FixedSizeIcon,
     GTMenuItem,
@@ -17,6 +18,7 @@ import {
 } from './RadixUIConstants'
 
 const DROPDOWN_MENU_ITEM_MAX_WIDTH = '240px'
+const DROPDOWN_MENU_ITEM_MAX_HEIGHT = '75vh'
 const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
     ${MenuTriggerShared};
 `
@@ -27,6 +29,8 @@ const DropdownMenuContent = styled(DropdownMenu.Content)<{
     $fontStyle?: 'body' | 'bodySmall' | 'label'
 }>`
     ${MenuContentShared};
+    max-height: ${DROPDOWN_MENU_ITEM_MAX_HEIGHT};
+    overflow: auto;
     ${({ $menuInModal }) => $menuInModal && `z-index: 1000;`}
     ${({ $width }) => $width && `width: ${$width}px;`}
     max-width: ${({ $width }) => ($width ? `${$width}px` : `${DROPDOWN_MENU_ITEM_MAX_WIDTH}`)};
@@ -48,6 +52,10 @@ const DropdownMenuSubTrigger = styled(DropdownMenu.SubTrigger)`
 const DropdownMenuSubContent = styled(DropdownMenu.SubContent)`
     ${MenuContentShared};
 `
+const Description = styled(Label)`
+    padding: ${Spacing._8} ${Spacing._12};
+    display: block;
+`
 
 const getItemKey = (item: GTMenuItem) => `${item.label}${item.icon}${item.iconColor}${item.iconColorHex}`
 
@@ -65,6 +73,7 @@ interface GTDropdownMenuProps {
     unstyledTrigger?: boolean
     keepOpenOnSelect?: boolean
     fontStyle?: 'body' | 'bodySmall' | 'label'
+    description?: string
 }
 
 const GTDropdownMenu = ({
@@ -81,6 +90,7 @@ const GTDropdownMenu = ({
     unstyledTrigger = false,
     keepOpenOnSelect = false,
     fontStyle = 'body',
+    description,
 }: GTDropdownMenuProps) => {
     const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTMenuItem[][]
 
@@ -223,6 +233,12 @@ const GTDropdownMenu = ({
                                 </DropdownMenu.Group>
                             </Fragment>
                         ))}
+                        {description && (
+                            <>
+                                <Divider color={Colors.background.medium} />
+                                <Description color="light">{description}</Description>
+                            </>
+                        )}
                     </DropdownMenuContent>
                 </DropdownMenu.Portal>
             </DropdownMenu.Root>
