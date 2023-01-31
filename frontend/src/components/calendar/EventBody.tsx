@@ -78,6 +78,8 @@ function EventBody(props: EventBodyProps): JSX.Element {
             : 'medium'
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
 
+    const { isPreviewMode } = usePreviewMode()
+
     const onClick = () => {
         if (disableSelectEvent) return
         setSelectedEvent(props.event)
@@ -126,7 +128,9 @@ function EventBody(props: EventBodyProps): JSX.Element {
                                 : Colors.background.white
                         }
                     />
-                    <EdgeHighlight color="blue" squareStart={startedBeforeToday} squareEnd={endedAfterToday} />
+                    {isPreviewMode && (
+                        <EdgeHighlight color="blue" squareStart={startedBeforeToday} squareEnd={endedAfterToday} />
+                    )}
                     <ResizeHandle event={props.event} />
                 </EventBodyStyle>
             </FocusModeContextMenuWrapper>

@@ -115,7 +115,8 @@ const BodyHeader = styled.div`
     ${Typography.eyebrow};
     margin-bottom: ${Spacing._16};
 `
-const Body = styled.div`
+const Body = styled.div<{ $isEmpty: boolean }>`
+    ${({ $isEmpty }) => $isEmpty && `color: ${Colors.text.light};`}
     ${Typography.body};
     overflow-wrap: break-word;
 `
@@ -353,7 +354,12 @@ const FocusModeScreen = () => {
                                         ) : (
                                             <>
                                                 <BodyHeader>EVENT DESCRIPTON</BodyHeader>
-                                                <Body dangerouslySetInnerHTML={{ __html: sanitizeHtml(body || '') }} />
+                                                <Body
+                                                    dangerouslySetInnerHTML={{
+                                                        __html: sanitizeHtml(body || 'No event description set'),
+                                                    }}
+                                                    $isEmpty={!body}
+                                                />
                                             </>
                                         )}
                                     </div>

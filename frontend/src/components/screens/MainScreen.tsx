@@ -3,12 +3,10 @@ import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
 import { DateTime } from 'luxon'
 import { useEventBanners, usePageFocus } from '../../hooks'
-import { useGetNotes } from '../../services/api/notes.hooks'
-import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
+import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { focusModeBackground, noteBackground } from '../../styles/images'
-import Loading from '../atoms/Loading'
 import { CalendarContextProvider } from '../calendar/CalendarContext'
 import DragLayer from '../molecules/DragLayer'
 import DefaultTemplate from '../templates/DefaultTemplate'
@@ -22,10 +20,8 @@ import TaskSection from '../views/TaskSectionView'
 
 const MainScreen = () => {
     const location = useLocation()
-    const { data: userInfo, isLoading: isUserInfoLoading } = useGetUserInfo()
+    const { data: userInfo } = useGetUserInfo()
     const { isLoading: isTaskSectionsLoading } = useGetTasks()
-    const { isLoading: isPullRequestsLoading } = useGetPullRequests()
-    const { isLoading: isNotesLoading } = useGetNotes()
     useFetchPullRequests()
     useFetchExternalTasks()
     useEventBanners(DateTime.now())
@@ -52,7 +48,6 @@ const MainScreen = () => {
         }
     }
 
-    if (isTaskSectionsLoading || isUserInfoLoading || isPullRequestsLoading || isNotesLoading) return <Loading />
     if (!isTaskSectionsLoading && !userInfo?.agreed_to_terms) return <Navigate to="/tos-summary" />
 
     return (
