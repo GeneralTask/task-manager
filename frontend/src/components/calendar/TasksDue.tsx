@@ -89,7 +89,7 @@ const TasksDue = ({ date }: TasksDueProps) => {
         <>
             {tasksDueToday.length > 0 && (
                 <TasksDueContainer hasTopBorder={!isOnFocusMode}>
-                    <TasksDueHeader type="day" dueType="due" numTasksDue={tasksDueToday.length} />
+                    <TasksDueHeader type="day" dueType="due" numTasksDue={tasksDueToday.length} date={date} />
                     {!isTasksDueViewCollapsed && (
                         <PaddedTasksScroll>
                             <TaskDueBody tasksDue={tasksDueToday} />
@@ -99,7 +99,7 @@ const TasksDue = ({ date }: TasksDueProps) => {
             )}
             {tasksOverdue.length > 0 && (
                 <TasksDueContainer>
-                    <TasksDueHeader type="day" dueType="overdue" numTasksDue={tasksOverdue.length} />
+                    <TasksDueHeader type="day" dueType="overdue" numTasksDue={tasksOverdue.length} date={date} />
                     {!isTasksOverdueViewCollapsed && (
                         <PaddedTasksScroll>
                             <TaskDueBody tasksDue={tasksOverdue} showDueDate />
