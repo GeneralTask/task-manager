@@ -44,8 +44,9 @@ const ServiceDetails = styled.div`
 interface SettingsModalProps {
     isOpen: boolean
     setIsOpen: (isOpen: boolean) => void
+    defaultTabIndex?: number
 }
-const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
+const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProps) => {
     const { isPreviewMode } = usePreviewMode()
     const { data: userInfo } = useGetUserInfo()
     const { data: supportedTypes } = useGetSupportedTypes()
@@ -118,6 +119,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
             setIsModalOpen={setIsOpen}
             title="Settings"
             size="lg"
+            defaultTabIndex={defaultTabIndex}
             tabs={[
                 {
                     title: 'Integrations',

@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { Colors, Spacing } from '../../styles'
+import SettingsModalButton from '../molecules/SettingsModalButton'
 import { icons } from '../../styles/images'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
@@ -48,7 +49,7 @@ const CalendarFooter = () => {
                     )}
                 />
             </TaskToCalContainer>
-            <GTIconButton icon={icons.gear} tooltipText="Calendar settings" />
+            <SettingsModalButton type="icon-button" label="Calendar settings" defaultTabIndex={1} />
         </Container>
     )
 }

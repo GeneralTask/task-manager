@@ -114,7 +114,7 @@ const NavigationView = ({ isCollapsed, setIsCollapsed }: NavigationViewProps) =>
                     </OverflowContainer>
                     <GapView>
                         <FeedbackModal />
-                        <SettingsModalButton />
+                        <SettingsModalButton type="nav-button" />
                     </GapView>
                     <CopyrightText>
                         {userInfo?.is_employee ? (
