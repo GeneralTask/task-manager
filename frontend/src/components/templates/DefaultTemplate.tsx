@@ -1,5 +1,4 @@
 import { useLayoutEffect } from 'react'
-import { useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGTLocalStorage, useWindowSize } from '../../hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
@@ -63,8 +62,6 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
         setIsCollapsed: setIsCalCollapsed,
     } = useCalendarContext()
     const [isNavCollapsed, setIsNavCollapsed] = useGTLocalStorage('navigationCollapsed', false)
-    const { pathname } = useLocation()
-    const showSidebar = showTaskToCalSidebar && pathname.startsWith('/tasks')
 
     useLayoutEffect(() => {
         if (!width) return
@@ -78,11 +75,9 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
     }, [width])
 
     return (
-        <DefaultTemplateContainer $calendarType={calendarType} $showSidebar={showSidebar}>
+        <DefaultTemplateContainer $calendarType={calendarType} $showSidebar={showTaskToCalSidebar}>
             <NavigationView isCollapsed={isNavCollapsed} setIsCollapsed={setIsNavCollapsed} />
-            {(calendarType === 'day' || (showTaskToCalSidebar && pathname.startsWith('/tasks'))) && (
-                <TasksandDetails>{children}</TasksandDetails>
-            )}
+            {(calendarType === 'day' || showTaskToCalSidebar) && <TasksandDetails>{children}</TasksandDetails>}
             <CalendarView initialType="day" />
         </DefaultTemplateContainer>
     )

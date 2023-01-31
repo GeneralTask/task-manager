@@ -13,6 +13,7 @@ import { TNote } from '../../utils/types'
 import { EMPTY_ARRAY } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import Spinner from '../atoms/Spinner'
+import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
 import { SectionHeader } from '../molecules/Header'
 import Note from '../notes/Note'
@@ -36,6 +37,7 @@ const NoteListView = () => {
     const { data: notes } = useGetNotes()
     const { noteId } = useParams()
     const navigate = useNavigate()
+    const { calendarType } = useCalendarContext()
 
     const sortAndFilterSettings = useSortAndFilterSettings<TNote>(NOTE_SORT_AND_FILTER_CONFIG)
     const { selectedSort, selectedSortDirection, selectedFilter, isLoading: areSettingsLoading } = sortAndFilterSettings
@@ -92,10 +94,14 @@ const NoteListView = () => {
                     )}
                 </ScrollableListTemplate>
             </Flex>
-            {selectedNote ? (
-                <NoteDetails note={selectedNote} link={`/notes/${selectedNote.id}`} />
-            ) : (
-                <EmptyDetails icon={icons.note} text="You have no notes" />
+            {calendarType === 'day' && (
+                <>
+                    {selectedNote ? (
+                        <NoteDetails note={selectedNote} link={`/notes/${selectedNote.id}`} />
+                    ) : (
+                        <EmptyDetails icon={icons.note} text="You have no notes" />
+                    )}
+                </>
             )}
         </>
     )

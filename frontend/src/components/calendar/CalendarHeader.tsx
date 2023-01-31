@@ -125,21 +125,18 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                 <>
                     <PaddedContainer>
                         <Flex gap={Spacing._16} alignItems="center">
-                            {isPreviewMode &&
-                                isCalendarExpanded &&
-                                !showTaskToCalSidebar &&
-                                pathname.startsWith('/tasks') && (
-                                    <GTButton
-                                        icon={icons.hamburger}
-                                        iconColor="black"
-                                        value="Open task list"
-                                        size="small"
-                                        styleType="secondary"
-                                        onClick={() => {
-                                            setShowTaskToCalSidebar(true)
-                                        }}
-                                    />
-                                )}
+                            {isPreviewMode && isCalendarExpanded && !showTaskToCalSidebar && (
+                                <GTButton
+                                    icon={icons.hamburger}
+                                    iconColor="black"
+                                    value="Open task list"
+                                    size="small"
+                                    styleType="secondary"
+                                    onClick={() => {
+                                        setShowTaskToCalSidebar(true)
+                                    }}
+                                />
+                            )}
                             {isCalendarExpanded && (
                                 <>
                                     {goToTodayButton}
