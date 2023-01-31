@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { DateTime } from 'luxon'
-import { TRASH_SECTION_ID } from '../../constants'
-import { useGetTasks, useMarkTaskDoneOrDeleted } from '../../services/api/tasks.hooks'
+import { v4 as uuidv4 } from 'uuid'
+import { DEFAULT_SECTION_ID, TRASH_SECTION_ID } from '../../constants'
+import { useCreateTask, useGetTasks, useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import { getSectionFromTask } from '../../utils/utils'
@@ -16,6 +17,8 @@ interface TaskActionsDropdownProps {
 const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const { data: taskSections } = useGetTasks(false)
+    const { mutate: createTask } = useCreateTask()
+    const { mutate: modifyTask } = useModifyTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
 
     const sectionId = getSectionFromTask(taskSections ?? [], task.id)?.id
@@ -31,7 +34,7 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
             items={[
                 [
                     {
-                        label: sectionId !== TRASH_SECTION_ID ? 'Delete Task' : 'Restore Task',
+                        label: sectionId !== TRASH_SECTION_ID ? 'Delete task' : 'Restore task',
                         icon: icons.trash,
                         iconColor: 'red',
                         textColor: 'red',
@@ -40,6 +43,27 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
                                 { id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID },
                                 task.optimisticId
                             ),
+                    },
+                    {
+                        label: 'Duplicate task',
+                        icon: icons.clone,
+                        onClick: () => {
+                            const optimisticId = uuidv4()
+                            createTask({
+                                title: `${task.title} (copy)`,
+                                body: task.body,
+                                taskSectionId: sectionId || DEFAULT_SECTION_ID,
+                                optimisticId,
+                            })
+                            modifyTask(
+                                {
+                                    id: optimisticId,
+                                    priorityNormalized: task.priority_normalized,
+                                    dueDate: task.due_date ?? '',
+                                },
+                                optimisticId
+                            )
+                        },
                     },
                 ],
                 [
