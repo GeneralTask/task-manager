@@ -496,7 +496,10 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 	}
 
 	// Sync existing Meeting prep tasks with their events
-	api.SyncMeetingTasksWithEvents(meetingTasks, userID)
+	err = api.SyncMeetingTasksWithEvents(meetingTasks, userID)
+	if err != nil {
+		return nil, err
+	}
 
 	meetingTasks, err = database.GetMeetingPreparationTasks(api.DB, userID)
 	if err != nil {
@@ -691,7 +694,7 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 	return nil
 }
 
-func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID primitive.ObjectID) {
+func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID primitive.ObjectID) (error) {
 	taskCollection := database.GetTaskCollection(api.DB)
 	for _, task := range *meetingTasks {
 		event, err := database.GetCalendarEventByExternalId(api.DB, task.MeetingPreparationParams.IDExternal, userID)
@@ -707,7 +710,7 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 		task.MeetingPreparationParams.DatetimeStart = event.DatetimeStart
 		task.MeetingPreparationParams.DatetimeEnd = event.DatetimeEnd
 
-		taskCollection.UpdateOne(
+		_, err = taskCollection.UpdateOne(
 			context.Background(),
 			bson.M{"_id": task.ID},
 			bson.M{"$set": bson.M{
@@ -716,7 +719,11 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 				"meeting_preparation_params.event_moved_or_deleted": eventMovedOrDeleted,
 			}},
 		)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // GetMeetingPrepTaskResult returns a result of meeting prep tasks for a user, and auto-completes tasks that have ended
