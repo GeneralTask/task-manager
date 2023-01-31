@@ -17,6 +17,7 @@ import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Body, BodySmall, Label } from '../atoms/typography/Typography'
+import CalendarSettings from '../calendar/CalendarSettings'
 import GTModal from '../mantine/GTModal'
 import SignOutButton from './SignOutButton'
 
@@ -221,6 +222,15 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                         </Flex>
                     ),
                 },
+                ...(isPreviewMode
+                    ? [
+                          {
+                              title: 'Calendar',
+                              icon: icons.calendar_blank,
+                              body: <CalendarSettings />,
+                          },
+                      ]
+                    : []),
                 {
                     title: 'Account details',
                     icon: icons.user,
