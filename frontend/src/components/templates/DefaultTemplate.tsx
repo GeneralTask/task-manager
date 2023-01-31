@@ -1,17 +1,23 @@
 import { useLayoutEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGTLocalStorage, useWindowSize } from '../../hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { MEDIA_MAX_WIDTH, TOOLTIP_MAX_WIDTH, WINDOW_MIN_WIDTH } from '../../styles/dimensions'
 import { useCalendarContext } from '../calendar/CalendarContext'
-import CalendarWithTaskSelection from '../calendar/CalendarWithTaskSelection'
+import CalendarView, { TCalendarType } from '../views/CalendarView'
 import NavigationView from '../views/NavigationView'
 
 const COLLAPSE_BREAKPOINT = 1500
 
-const DefaultTemplateContainer = styled.div`
+const DefaultTemplateContainer = styled.div<{ $calendarType: TCalendarType; $showSidebar: boolean }>`
     display: grid;
-    grid-template-columns: min-content minmax(300px, auto) max-content;
+    grid-template-columns: ${(props) =>
+        props.$calendarType === 'day'
+            ? `min-content minmax(300px, auto) max-content`
+            : props.$showSidebar
+            ? `min-content min-content auto`
+            : `min-content auto`};
     grid-auto-flow: column;
     grid-template-rows: 100%;
     height: 100vh;
@@ -50,8 +56,15 @@ interface DefaultTemplateProps {
 
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
     const { width } = useWindowSize(false)
-    const { calendarType, isCollapsed: isCalCollapsed, setIsCollapsed: setIsCalCollapsed } = useCalendarContext()
+    const {
+        calendarType,
+        showTaskToCalSidebar,
+        isCollapsed: isCalCollapsed,
+        setIsCollapsed: setIsCalCollapsed,
+    } = useCalendarContext()
     const [isNavCollapsed, setIsNavCollapsed] = useGTLocalStorage('navigationCollapsed', false)
+    const { pathname } = useLocation()
+    const showSidebar = showTaskToCalSidebar && pathname.startsWith('/tasks')
 
     useLayoutEffect(() => {
         if (!width) return
@@ -65,10 +78,12 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
     }, [width])
 
     return (
-        <DefaultTemplateContainer>
+        <DefaultTemplateContainer $calendarType={calendarType} $showSidebar={showSidebar}>
             <NavigationView isCollapsed={isNavCollapsed} setIsCollapsed={setIsNavCollapsed} />
-            {calendarType === 'day' && <TasksandDetails>{children}</TasksandDetails>}
-            <CalendarWithTaskSelection />
+            {(calendarType === 'day' || (showTaskToCalSidebar && pathname.startsWith('/tasks'))) && (
+                <TasksandDetails>{children}</TasksandDetails>
+            )}
+            <CalendarView initialType="day" />
         </DefaultTemplateContainer>
     )
 }

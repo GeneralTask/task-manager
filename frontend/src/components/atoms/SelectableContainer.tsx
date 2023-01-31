@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { Border, Colors, Shadows } from '../../styles'
-import { TItemEdgeColors } from '../../styles/colors'
+import { TItemEdgeColor } from '../../styles/colors'
 
 const SelectableContainer = styled.div<{ isSelected: boolean }>`
     background-color: ${Colors.background.white};
@@ -13,7 +13,8 @@ const SelectableContainer = styled.div<{ isSelected: boolean }>`
         outline: ${Border.stroke.medium} solid ${Colors.border.light};
     }
 `
-export const EdgeHighlight = styled.div<{ color: TItemEdgeColors; squareStart?: boolean; squareEnd?: boolean }>`
+
+export const EdgeHighlight = styled.div<{ color: TItemEdgeColor; squareStart?: boolean; squareEnd?: boolean }>`
     position: absolute;
     left: 0;
     height: 100%;

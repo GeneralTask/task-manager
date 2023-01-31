@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 import { useSetting } from '../../hooks'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
-import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
+import { useGetLinkedAccounts, useGetSettings } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -12,6 +12,7 @@ import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilter
 import { TPullRequest } from '../../utils/types'
 import { doesAccountNeedRelinking, isGithubLinked, isLinearLinked, isSlackLinked } from '../../utils/utils'
 import Flex from '../atoms/Flex'
+import Skeleton from '../atoms/Skeleton'
 import ServiceVisibilityDropdown from '../radix/ServiceVisibilityDropdown'
 import Tip from '../radix/Tip'
 import NavigationHeader from './NavigationHeader'
@@ -33,6 +34,8 @@ interface IntegrationLinksProps {
 }
 const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     const { data: pullRequestRepositories } = useGetPullRequests()
+    const { isLoading: isSettingsLoading } = useGetSettings()
+
     const { pathname } = useLocation()
     const { data: folders } = useGetTasks()
 
@@ -56,7 +59,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
         return tasks.filter((task) => task.source.name === 'Slack' && (!task.is_done || task.optimisticId)).length
     }, [folders])
 
-    const { data: linkedAccounts } = useGetLinkedAccounts()
+    const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
 
     const isGithubIntegrationLinked = isGithubLinked(linkedAccounts || [])
     const isLinearIntegrationLinked = isLinearLinked(linkedAccounts || [])
@@ -113,6 +116,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
             </Flex>
             {!isCollapsed && <NavigationHeader title="Services" rightContent={<ServiceVisibilityDropdown />} />}
             <ServicesContainer isCollapsed={!!isCollapsed}>
+                {(isLinkedAccountsLoading || isSettingsLoading) && !isCollapsed && <Skeleton />}
                 {showGithub && (
                     <Tip shortcutName="goToGithubPRsPage" side="right">
                         <NavigationLink
