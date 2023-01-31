@@ -118,9 +118,8 @@ export const useCreateEvent = () => {
             if (!events) return
 
             // temporarily select the first calendar of the primary account
-            const calendarId =
-                selectedCalendars.find((calendar) => calendar.account_id === createEventPayload.account_id)
-                    ?.calendars[0]?.calendar_id ?? ''
+            const calendar = selectedCalendars.find((calendar) => calendar.account_id === createEventPayload.account_id)
+                ?.calendars[0]
 
             const newEvent: TEvent = {
                 id: optimisticId,
@@ -128,7 +127,8 @@ export const useCreateEvent = () => {
                 title: createEventPayload.summary ?? '',
                 body: createEventPayload.description ?? '',
                 account_id: createEventPayload.account_id,
-                calendar_id: createEventPayload.calendar_id ?? calendarId,
+                calendar_id: createEventPayload.calendar_id ?? calendar?.calendar_id ?? '',
+                color_id: calendar?.color_id ?? '',
                 logo: linkedTask?.source.logo_v2 ?? 'gcal',
                 deeplink: '',
                 datetime_start: createEventPayload.datetime_start,

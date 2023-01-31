@@ -1,5 +1,8 @@
+import { useMemo } from 'react'
 import { DateTime } from 'luxon'
 import { usePreviewMode } from '../../hooks'
+import { useGetCalendars } from '../../services/api/events.hooks'
+import { Colors } from '../../styles'
 import { logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
 import { EdgeHighlight } from '../atoms/SelectableContainer'
@@ -18,6 +21,7 @@ import {
     EventTitle,
 } from './CalendarEvents-styles'
 import ResizeHandle from './ResizeHandle'
+import getCalendarColor from './utils/colors'
 
 const LONG_EVENT_THRESHOLD = 60 // minutes
 const SHORT_EVENT_THRESHOLD = 45 // minutes
@@ -31,9 +35,19 @@ interface EventBodyProps {
     isBeingDragged?: boolean
 }
 function EventBody(props: EventBodyProps): JSX.Element {
+    const { isPreviewMode } = usePreviewMode()
     const { selectedEvent, setSelectedEvent, isPopoverDisabled, disableSelectEvent } = useCalendarContext()
     const startTime = DateTime.fromISO(props.event.datetime_start)
     const endTime = DateTime.fromISO(props.event.datetime_end)
+    const { data: calendars } = useGetCalendars()
+    const calendar = useMemo(
+        () =>
+            calendars
+                ?.find((account) => account.account_id === props.event.account_id)
+                ?.calendars.find((calendar) => calendar.calendar_id === props.event.calendar_id),
+        [props.event, calendars]
+    )
+
     const timeDurationMillis = endTime.diff(startTime).toMillis()
     const timeDurationTodayMinutes =
         Math.min(
@@ -63,8 +77,6 @@ function EventBody(props: EventBodyProps): JSX.Element {
             ? 'short'
             : 'medium'
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
-
-    const { isPreviewMode } = usePreviewMode()
 
     const onClick = () => {
         if (disableSelectEvent) return
@@ -107,11 +119,16 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         squareStart={startedBeforeToday}
                         squareEnd={endedAfterToday}
                         isSelected={selectedEvent?.id === props.event.id}
-                    >
-                        {isPreviewMode && (
-                            <EdgeHighlight color="blue" squareStart={startedBeforeToday} squareEnd={endedAfterToday} />
-                        )}
-                    </EventFill>
+                        backgroundColorHex={
+                            // fall back to calendar color_id if the event doesn't have a color_id
+                            isPreviewMode
+                                ? getCalendarColor(props.event.color_id || calendar?.color_id || '')
+                                : Colors.background.white
+                        }
+                    />
+                    {isPreviewMode && (
+                        <EdgeHighlight color="blue" squareStart={startedBeforeToday} squareEnd={endedAfterToday} />
+                    )}
                     <ResizeHandle event={props.event} />
                 </EventBodyStyle>
             </FocusModeContextMenuWrapper>
