@@ -865,6 +865,26 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertResult.InsertedID.(primitive.ObjectID)}).Decode(&item)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 	})
+	t.Run("EventHasMovedToAnotherDay", func(t *testing.T) {
+		idExternal := primitive.NewObjectID().Hex()
+		insertResult, err := createTestEvent(calendarEventCollection, userID, "Event2", idExternal, timeTwoHoursLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
+		assert.NoError(t, err)
+
+		insertTaskResult, err := createTestMeetingPreparationTask(taskCollection, userID, "Event2", idExternal, false, timeTwoHoursLater, timeOneDayLater, insertResult.InsertedID.(primitive.ObjectID))
+		assert.NoError(t, err)
+
+		_, err = calendarEventCollection.UpdateOne(context.Background(), bson.M{"_id": insertResult.InsertedID.(primitive.ObjectID)}, bson.M{"$set": bson.M{"datetime_start": primitive.NewDateTimeFromTime(timeOneDayLater)}})
+		assert.NoError(t, err)
+
+		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+
+		var item database.Task
+		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertTaskResult.InsertedID.(primitive.ObjectID)}).Decode(&item)
+		assert.NoError(t, err)
+		assert.True(t, item.MeetingPreparationParams.EventMovedOrDeleted)
+	})
 }
 
 func createTestEvent(calendarEventCollection *mongo.Collection, userID primitive.ObjectID, title string, idExternal string, dateTimeStart time.Time, dateTimeEnd time.Time, linkedTaskID primitive.ObjectID, account_id string, calendar_id string) (*mongo.InsertOneResult, error) {
@@ -894,6 +914,7 @@ func createTestMeetingPreparationTask(taskCollection *mongo.Collection, userID p
 			IDExternal:      IDExternal,
 			DatetimeStart:   primitive.NewDateTimeFromTime(dateTimeStart),
 			DatetimeEnd:     primitive.NewDateTimeFromTime(dateTimeEnd),
+			EventMovedOrDeleted: false,
 		},
 	})
 }

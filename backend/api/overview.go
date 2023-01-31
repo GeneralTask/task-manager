@@ -477,7 +477,6 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
-
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
 	events, err := database.GetEventsUntilEndOfDay(api.DB, userID, timeNow)
 	if err != nil {
