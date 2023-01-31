@@ -17,6 +17,7 @@ interface TEventAttendee {
 
 interface TCreateEventPayload {
     account_id: string
+    calendar_id?: string
     datetime_start: string
     datetime_end: string
     summary?: string
@@ -126,7 +127,7 @@ export const useCreateEvent = () => {
                 title: createEventPayload.summary ?? '',
                 body: createEventPayload.description ?? '',
                 account_id: createEventPayload.account_id,
-                calendar_id: calendar?.calendar_id ?? '',
+                calendar_id: createEventPayload.calendar_id ?? calendar?.calendar_id ?? '',
                 color_id: calendar?.color_id ?? '',
                 logo: linkedTask?.source.logo_v2 ?? 'gcal',
                 deeplink: '',

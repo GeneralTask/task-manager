@@ -126,7 +126,9 @@ function EventBody(props: EventBodyProps): JSX.Element {
                                 : Colors.background.white
                         }
                     />
-                    <EdgeHighlight color="blue" squareStart={startedBeforeToday} squareEnd={endedAfterToday} />
+                    {isPreviewMode && (
+                        <EdgeHighlight color="blue" squareStart={startedBeforeToday} squareEnd={endedAfterToday} />
+                    )}
                     <ResizeHandle event={props.event} />
                 </EventBodyStyle>
             </FocusModeContextMenuWrapper>
