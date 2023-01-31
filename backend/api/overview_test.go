@@ -799,7 +799,12 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, "", res.ViewItems[0].Body)
 	})
 	t.Run("MeetingHasEnded", func(t *testing.T) {
-		insertResult, err := createTestMeetingPreparationTask(taskCollection, userID, "reticulate splines", primitive.NewObjectID().Hex(), false, timeZero, timeZero, primitive.NilObjectID)
+		idExternal := primitive.NewObjectID().Hex()
+
+		_, err := createTestEvent(calendarEventCollection, userID, "Event4", idExternal, timeOneHourAgo, timeOneHourAgo, primitive.NilObjectID, "acctid", "calid")
+		assert.NoError(t, err)
+
+		insertResult, err := createTestMeetingPreparationTask(taskCollection, userID, "reticulate splines", idExternal, false, timeZero, timeZero, primitive.NilObjectID)
 		assert.NoError(t, err)
 
 		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
@@ -833,7 +838,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, "Event1", res.ViewItems[0].Title)
 		assert.Equal(t, "Event2", res.ViewItems[1].Title)
 	})
-	t.Run("MarkTaskWithMissingEventDone", func(t *testing.T) {
+	t.Run("TaskWithMissingEvent", func(t *testing.T) {
 		idExternal := primitive.NewObjectID().Hex()
 		insertResult, err := createTestMeetingPreparationTask(taskCollection, userID, "Event3", idExternal, false, timeTwoHoursLater, timeOneDayLater, primitive.NewObjectID())
 		assert.NoError(t, err)
@@ -842,16 +847,18 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 		// Event3 shouldn't be included in the results
-		assert.Equal(t, 2, len(res.ViewItems))
+		assert.Equal(t, 3, len(res.ViewItems))
 		assert.Equal(t, "Event1", res.ViewItems[0].Title)
-		assert.Equal(t, "Event2", res.ViewItems[1].Title)
+		assert.Equal(t, "Event3", res.ViewItems[1].Title)
+		assert.Equal(t, "Event2", res.ViewItems[2].Title)
 
 		var item database.Task
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertResult.InsertedID.(primitive.ObjectID)}).Decode(&item)
 		assert.NoError(t, err)
-		assert.Equal(t, true, *item.IsCompleted)
-		assert.NotEqual(t, primitive.DateTime(0), item.CompletedAt)
-		assert.Equal(t, true, item.MeetingPreparationParams.HasBeenAutomaticallyCompleted)
+		assert.Equal(t, false, *item.IsCompleted)
+		assert.Equal(t, primitive.DateTime(0), item.CompletedAt)
+		assert.Equal(t, false, item.MeetingPreparationParams.HasBeenAutomaticallyCompleted)
+		assert.True(t, item.MeetingPreparationParams.EventMovedOrDeleted)
 	})
 	t.Run("EventIsNotOnOwnedCalendar", func(t *testing.T) {
 		idExternal := primitive.NewObjectID().Hex()
