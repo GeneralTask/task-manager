@@ -1,18 +1,18 @@
-import { useCallback, useMemo } from 'react'
+import { ReactNode, useCallback, useMemo } from 'react'
 import { useSetting } from '../../hooks'
 import { useGetCalendars, useSelectedCalendars } from '../../services/api/events.hooks'
 import { icons, logos } from '../../styles/images'
 import { TCalendar, TCalendarAccount } from '../../utils/types'
 import { EMPTY_ARRAY } from '../../utils/utils'
-import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { DEFAULT_CALENDAR_COLOR, calendarColors } from './utils/colors'
 
 interface CalendarSelectorProps {
     mode: 'task-to-cal' | 'cal-selection'
+    useTriggerWidth?: boolean
+    renderTrigger: (calendar?: TCalendar) => ReactNode
 }
-const CalendarSelector = ({ mode }: CalendarSelectorProps) => {
+const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSelectorProps) => {
     const { data: calendars } = useGetCalendars()
     const { isCalendarSelected, toggleCalendarSelection } = useSelectedCalendars()
     const { field_value: taskToCalAccount, updateSetting: setTaskToCalAccount } = useSetting(
@@ -74,7 +74,7 @@ const CalendarSelector = ({ mode }: CalendarSelectorProps) => {
                             DEFAULT_CALENDAR_COLOR,
                         selected: isCalendarChecked(account, calendar),
                         onClick: () => handleCalendarClick(account, calendar),
-                        keepOpenOnSelect: true,
+                        keepOpenOnSelect: mode === 'cal-selection',
                     })),
             ]) ?? EMPTY_ARRAY,
         [calendars, isCalendarChecked, handleCalendarClick]
@@ -83,28 +83,16 @@ const CalendarSelector = ({ mode }: CalendarSelectorProps) => {
     return (
         <GTDropdownMenu
             items={items}
-            trigger={
-                mode === 'cal-selection' ? (
-                    <GTIconButton icon={icons.eye} tooltipText="Show/hide calendars" asDiv />
-                ) : (
-                    <GTButton
-                        value={selectedTaskToCalCalendar?.title || 'Select a calendar'}
-                        icon={icons.square}
-                        iconColorHex={
-                            calendarColors[selectedTaskToCalCalendar?.color_id as keyof typeof calendarColors]
-                                ?.background ?? DEFAULT_CALENDAR_COLOR
-                        }
-                        asDiv
-                        isDropdown
-                        styleType="secondary"
-                        size="small"
-                        fitContent={false}
-                    />
-                )
-            }
+            trigger={renderTrigger(selectedTaskToCalCalendar)}
             align={mode === 'cal-selection' ? 'start' : 'center'}
             unstyledTrigger
             fontStyle="bodySmall"
+            description={
+                mode === 'cal-selection'
+                    ? 'Choose which calendars to show or hide'
+                    : 'Choose the default calendar for new events to appear in'
+            }
+            useTriggerWidth={useTriggerWidth}
         />
     )
 }

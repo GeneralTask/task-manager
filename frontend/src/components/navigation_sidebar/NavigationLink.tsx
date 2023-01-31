@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
 import { TASK_SECTION_DEFAULT_ID } from '../../constants'
+import { usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
 import { useMarkTaskDoneOrDeleted, useReorderTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
@@ -101,6 +102,7 @@ const NavigationLink = ({
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const { setCalendarType, setDate, dayViewDate } = useCalendarContext()
     const navigate = useNavigate()
+    const { isPreviewMode } = usePreviewMode()
 
     const onDrop = useCallback(
         (item: DropItem) => {
@@ -153,8 +155,10 @@ const NavigationLink = ({
 
     const onClickHandler = (e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>) => {
         if (taskSection?.id === TASK_SECTION_DEFAULT_ID) e.preventDefault()
-        setCalendarType('day')
-        setDate(dayViewDate)
+        if (!taskSection || !isPreviewMode) {
+            setCalendarType('day')
+            setDate(dayViewDate)
+        }
         Log(`navigate__${link}`)
         navigate(link)
     }

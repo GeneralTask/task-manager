@@ -105,4 +105,4 @@ export const itemEdge = {
     orange: ORANGE._1,
     blue: BLUE._3,
 }
-export type TItemEdgeColors = keyof typeof itemEdge
+export type TItemEdgeColor = keyof typeof itemEdge
