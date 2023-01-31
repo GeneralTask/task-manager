@@ -175,18 +175,6 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             }
                         />
                     )}
-                    {TRASH_FOLDER && (
-                        <NavigationLink
-                            link={`/tasks/${TRASH_SECTION_ID}`}
-                            title={TRASH_FOLDER_NAME}
-                            icon={icons.trash}
-                            isCurrentPage={sectionId === TRASH_SECTION_ID}
-                            taskSection={TRASH_FOLDER}
-                            count={TRASH_FOLDER.tasks.length}
-                            isCollapsed
-                            droppable
-                        />
-                    )}
                     {DONE_FOLDER && (
                         <NavigationLink
                             link={`/tasks/${DONE_SECTION_ID}`}
@@ -195,6 +183,18 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             isCurrentPage={sectionId === DONE_SECTION_ID}
                             taskSection={DONE_FOLDER}
                             count={DONE_FOLDER.tasks.length}
+                            isCollapsed
+                            droppable
+                        />
+                    )}
+                    {TRASH_FOLDER && (
+                        <NavigationLink
+                            link={`/tasks/${TRASH_SECTION_ID}`}
+                            title={TRASH_FOLDER_NAME}
+                            icon={icons.trash}
+                            isCurrentPage={sectionId === TRASH_SECTION_ID}
+                            taskSection={TRASH_FOLDER}
+                            count={TRASH_FOLDER.tasks.length}
                             isCollapsed
                             droppable
                         />
