@@ -23,12 +23,6 @@ export const EventHeaderIcons = styled.div`
     display: flex;
     align-items: center;
 `
-export const EventDateContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: ${Spacing._8};
-`
 export const IconButton = styled(NoStyleButton)`
     padding: ${Spacing._8};
     border-radius: 50vh;
@@ -43,10 +37,6 @@ export const EventTitle = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
-`
-export const EventDate = styled.span`
-    ${Typography.label}
-    color: ${Colors.text.light};
 `
 export const Description = styled.div`
     ${Typography.label};
