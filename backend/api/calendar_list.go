@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"golang.org/x/exp/slices"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ type CalendarResult struct {
 	CalendarID string `json:"calendar_id,omitempty"`
 	ColorID    string `json:"color_id,omitempty"`
 	Title      string `json:"title,omitempty"`
+	CanWrite   bool   `json:"can_write,omitempty"`
 }
 
 type CalendarAccountResult struct {
@@ -45,6 +47,7 @@ func (api *API) CalendarsList(c *gin.Context) {
 				CalendarID: calendar.CalendarID,
 				ColorID:    calendar.ColorID,
 				Title:      calendar.Title,
+				CanWrite:   slices.Contains([]string{"owner", "writer"}, calendar.AccessRole),
 			}
 			calendars = append(calendars, calendarResult)
 
