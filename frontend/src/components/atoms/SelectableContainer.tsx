@@ -13,6 +13,7 @@ const SelectableContainer = styled.div<{ isSelected: boolean }>`
         outline: ${Border.stroke.medium} solid ${Colors.border.light};
     }
 `
+
 export const EdgeHighlight = styled.div<{ color: TItemEdgeColor; squareStart?: boolean; squareEnd?: boolean }>`
     position: absolute;
     left: 0;
