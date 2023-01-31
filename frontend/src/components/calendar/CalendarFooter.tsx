@@ -1,7 +1,11 @@
 import styled from 'styled-components'
 import { Colors, Spacing } from '../../styles'
 import SettingsModalButton from '../molecules/SettingsModalButton'
+import { icons } from '../../styles/images'
+import GTButton from '../atoms/buttons/GTButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import CalendarSelector from './CalendarSelector'
+import { DEFAULT_CALENDAR_COLOR, calendarColors } from './utils/colors'
 
 const Container = styled.div`
     display: flex;
@@ -21,9 +25,29 @@ const TaskToCalContainer = styled.div`
 const CalendarFooter = () => {
     return (
         <Container>
-            <CalendarSelector mode="cal-selection" />
+            <CalendarSelector
+                mode="cal-selection"
+                renderTrigger={() => <GTIconButton icon={icons.eye} tooltipText="Show/hide calendars" asDiv />}
+            />
             <TaskToCalContainer>
-                <CalendarSelector mode="task-to-cal" />
+                <CalendarSelector
+                    mode="task-to-cal"
+                    renderTrigger={(calendar) => (
+                        <GTButton
+                            value={calendar?.title || 'Select a calendar'}
+                            icon={icons.square}
+                            iconColorHex={
+                                calendarColors[calendar?.color_id as keyof typeof calendarColors]?.background ??
+                                DEFAULT_CALENDAR_COLOR
+                            }
+                            asDiv
+                            isDropdown
+                            styleType="secondary"
+                            size="small"
+                            fitContent={false}
+                        />
+                    )}
+                />
             </TaskToCalContainer>
             <SettingsModalButton type="icon-button" label="Calendar settings" defaultTabIndex={1} />
         </Container>
