@@ -78,8 +78,6 @@ function EventBody(props: EventBodyProps): JSX.Element {
             : 'medium'
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
 
-    const { isPreviewMode } = usePreviewMode()
-
     const onClick = () => {
         if (disableSelectEvent) return
         setSelectedEvent(props.event)
