@@ -5,11 +5,13 @@ import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import { useGTLocalStorage, usePreviewMode, useSetting } from '../../hooks'
 import { useAuthWindow } from '../../hooks'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
+import { useGetCalendars } from '../../services/api/events.hooks'
 import Log from '../../services/api/log'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
+import { TLinkedAccount } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import GTCheckbox from '../atoms/GTCheckbox'
 import { Icon } from '../atoms/Icon'
@@ -53,6 +55,7 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const { openAuthWindow } = useAuthWindow()
+    const { data: calendars } = useGetCalendars()
 
     const refetchStaleQueries = useRefetchStaleQueries()
 
@@ -112,6 +115,23 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
             tooltipText={`${nameToSetting[accountName].show ? 'Hide' : 'Show'} ${accountName} in sidebar`}
         />
     )
+
+    const getEnableAllCalendarsButton = (account: TLinkedAccount) => {
+        if (account.name !== GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME || !calendars) return
+        const calendar = calendars.find((calendar) => calendar.account_id === account.display_id)
+        if (!calendar?.has_multical_scopes) return
+        const authUrl = supportedTypes?.find(
+            (supportedType) => supportedType.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME
+        )?.authorization_url
+        if (!authUrl) return
+        return (
+            <GTButton
+                onClick={() => openAuthWindow({ url: authUrl, isGoogleSignIn: true })}
+                value="Enable all calendars"
+                size="small"
+            />
+        )
+    }
 
     return (
         <GTModal
@@ -196,6 +216,7 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                                             {account.name in nameToSetting && (
                                                 <VisibilityButton accountName={account.name as TNameToSetting} />
                                             )}
+                                            {getEnableAllCalendarsButton(account)}
                                             {account.has_bad_token && (
                                                 <GTButton
                                                     onClick={() => onRelink(account.name)}
