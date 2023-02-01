@@ -673,7 +673,6 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 		_, err = taskCollection.InsertOne(context.Background(), database.Task{
 			Title:                    &event.Title,
 			UserID:                   userID,
-			IDExternal:               primitive.NewObjectID().Hex(),
 			IsCompleted:              &isCompleted,
 			IsDeleted:                &isDeleted,
 			SourceID:                 event.SourceID,
