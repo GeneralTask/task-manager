@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { useGTLocalStorage } from '../../hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
@@ -32,21 +31,6 @@ const RightActions = styled.div`
     display: flex;
 `
 
-export const useGetCorrectlyOrderedOverviewLists = () => {
-    const { lists, isLoading } = useOverviewLists()
-    const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
-    if (overviewAutomaticEmptySort) {
-        const listsCopy = [...lists]
-        listsCopy.sort((a, b) => {
-            if (a.view_items.length === 0 && b.view_items.length > 0) return 1
-            if (a.view_items.length > 0 && b.view_items.length === 0) return -1
-            return 0
-        })
-        return { lists: listsCopy, isLoading }
-    }
-    return { lists, isLoading }
-}
-
 const DailyOverviewView = () => {
     const [isEditListsModalOpen, setIsEditListsModalOpen] = useState(false)
     const [editListTabIndex, setEditListTabIndex] = useState(0) // 0 - add, 1 - reorder
@@ -58,7 +42,7 @@ const DailyOverviewView = () => {
     const expandAll = () => setOpenListIds(lists.map((list) => list.id))
     const collapseAll = () => setOpenListIds([])
 
-    const { lists, isLoading } = useGetCorrectlyOrderedOverviewLists()
+    const { lists, isLoading } = useOverviewLists()
     useLayoutEffect(() => {
         if (overviewViewId && overviewItemId) {
             setOpenListIds((ids) => {
