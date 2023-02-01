@@ -183,6 +183,7 @@ export const EventFill = styled.div<{
         width: 100%;
         height: 100%;
         z-index: -1;
+        border-radius: ${Border.radius.mini};
     }
 `
 export const CalendarDayHeader = styled.div`
