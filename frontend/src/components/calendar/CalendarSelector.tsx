@@ -60,6 +60,7 @@ const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSele
                     icon: logos.gcal,
                 },
                 ...account.calendars
+                    .filter((calendar) => mode === 'cal-selection' || calendar.can_write)
                     .sort((a, b) => {
                         // place the primary calendar at the top
                         if (a.calendar_id === 'primary' || a.calendar_id === account.account_id) return -1
@@ -77,7 +78,7 @@ const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSele
                         keepOpenOnSelect: mode === 'cal-selection',
                     })),
             ]) ?? EMPTY_ARRAY,
-        [calendars, isCalendarChecked, handleCalendarClick]
+        [calendars, isCalendarChecked, handleCalendarClick, mode]
     )
 
     return (

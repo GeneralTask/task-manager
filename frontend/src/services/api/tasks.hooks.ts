@@ -2,7 +2,7 @@ import { QueryFunctionContext, useQuery } from 'react-query'
 import { useNavigate } from 'react-router-dom'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
-import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL, TRASH_SECTION_ID } from '../../constants'
+import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TRASH_SECTION_ID } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
 import {
@@ -121,7 +121,7 @@ export const useFetchExternalTasks = () => {
             queryClient.invalidateQueries('tasks_v4')
             queryClient.invalidateQueries('overview')
         },
-        ...getBackgroundQueryOptions(TASK_REFETCH_INTERVAL),
+        ...getBackgroundQueryOptions(),
     })
 }
 const fetchExternalTasks = async ({ signal }: QueryFunctionContext) => {

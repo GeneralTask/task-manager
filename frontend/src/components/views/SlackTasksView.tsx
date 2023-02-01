@@ -10,6 +10,7 @@ import { icons } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import { doesAccountNeedRelinking, isSlackLinked } from '../../utils/utils'
 import Flex from '../atoms/Flex'
+import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
@@ -27,6 +28,7 @@ const SlackTasksView = () => {
     const { data: taskSections } = useGetTasks()
     const { slackTaskId } = useParams()
     const navigate = useNavigate()
+    const { calendarType } = useCalendarContext()
 
     const slackTasks = useMemo(() => {
         const tasks =
@@ -87,7 +89,15 @@ const SlackTasksView = () => {
                     )}
                 </ScrollableListTemplate>
             </Flex>
-            {task ? <TaskDetails task={task} /> : <EmptyDetails icon={icons.check} text="You have no Slack tasks" />}
+            {calendarType === 'day' && (
+                <>
+                    {task ? (
+                        <TaskDetails task={task} />
+                    ) : (
+                        <EmptyDetails icon={icons.check} text="You have no Slack tasks" />
+                    )}
+                </>
+            )}
         </>
     )
 }

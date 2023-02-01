@@ -17,6 +17,7 @@ import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Body, BodySmall, Label } from '../atoms/typography/Typography'
+import CalendarSettings from '../calendar/CalendarSettings'
 import GTModal from '../mantine/GTModal'
 import SignOutButton from './SignOutButton'
 
@@ -43,8 +44,9 @@ const ServiceDetails = styled.div`
 interface SettingsModalProps {
     isOpen: boolean
     setIsOpen: (isOpen: boolean) => void
+    defaultTabIndex?: number
 }
-const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
+const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProps) => {
     const { isPreviewMode } = usePreviewMode()
     const { data: userInfo } = useGetUserInfo()
     const { data: supportedTypes } = useGetSupportedTypes()
@@ -117,6 +119,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
             setIsModalOpen={setIsOpen}
             title="Settings"
             size="lg"
+            defaultTabIndex={defaultTabIndex}
             tabs={[
                 {
                     title: 'Integrations',
@@ -221,6 +224,15 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                         </Flex>
                     ),
                 },
+                ...(isPreviewMode
+                    ? [
+                          {
+                              title: 'Calendar',
+                              icon: icons.calendar_blank,
+                              body: <CalendarSettings />,
+                          },
+                      ]
+                    : []),
                 {
                     title: 'Account details',
                     icon: icons.user,

@@ -155,7 +155,7 @@ const NavigationLink = ({
 
     const onClickHandler = (e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>) => {
         if (taskSection?.id === TASK_SECTION_DEFAULT_ID) e.preventDefault()
-        if (!taskSection || !isPreviewMode) {
+        if (!isPreviewMode) {
             setCalendarType('day')
             setDate(dayViewDate)
         }

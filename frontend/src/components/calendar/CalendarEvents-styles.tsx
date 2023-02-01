@@ -159,17 +159,31 @@ export const EventTime = styled.div`
     white-space: nowrap;
     overflow: hidden;
 `
-export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean; isSelected: boolean }>`
+export const EventFill = styled.div<{
+    squareStart: boolean
+    squareEnd: boolean
+    isSelected: boolean
+    backgroundColorHex: string
+}>`
     width: 100%;
     height: 100%;
-    background: ${Colors.background.white};
     outline: ${Border.stroke.medium} solid ${(props) => (props.isSelected ? Colors.border.purple : 'transparent')};
     box-sizing: border-box;
     box-shadow: ${Shadows.light};
+    /* add opacity to background color */
+    background-color: ${(props) => `${props.backgroundColorHex}80`};
     border-top-left-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
     border-top-right-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
     border-bottom-left-radius: ${(props) => (props.squareEnd ? '0' : Border.radius.mini)};
     border-bottom-right-radius: ${(props) => (props.squareEnd ? '0' : Border.radius.mini)};
+    ::before {
+        content: '';
+        background-color: ${Colors.background.white};
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+    }
 `
 export const CalendarDayHeader = styled.div`
     display: flex;
@@ -182,11 +196,12 @@ export const CalendarDayHeader = styled.div`
     z-index: 2;
     margin: 0 auto;
 `
-export const DayHeaderText = styled.div<{ isToday: boolean }>`
+export const DayHeaderText = styled.div<{ isToday: boolean; isPreviewMode: boolean }>`
     border-radius: ${Border.radius.mini};
     padding: ${Spacing._4} ${Spacing._8};
     color: ${(props) => (props.isToday ? Colors.text.white : Colors.text.black)};
-    background-color: ${(props) => (props.isToday ? Colors.gtColor.blue : 'transparent')};
+    background-color: ${(props) =>
+        !props.isToday ? 'transparent' : props.isPreviewMode ? Colors.gtColor.blue : Colors.gtColor.primary};
     ${Typography.body};
 `
 export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: boolean; hasLeftBorder: boolean }>`

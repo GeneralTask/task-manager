@@ -8,6 +8,7 @@ import { TRecurringTaskTemplate } from '../../utils/types'
 import { EMPTY_ARRAY } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import Spinner from '../atoms/Spinner'
+import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
@@ -21,6 +22,7 @@ const RecurringTasksView = () => {
 
     const { recurringTaskId } = useParams()
     const navigate = useNavigate()
+    const { calendarType } = useCalendarContext()
 
     const selectedRecurringTask = useMemo(() => {
         if (recurringTaskTemplates == null || recurringTaskTemplates.length === 0) return null
@@ -61,10 +63,17 @@ const RecurringTasksView = () => {
                     )}
                 </ScrollableListTemplate>
             </Flex>
-            {selectedRecurringTask ? (
-                <TaskDetails task={selectedRecurringTask} isRecurringTaskTemplate />
-            ) : (
-                <EmptyDetails icon={icons.arrows_repeat} text="You have no recurring tasks" />
+            {calendarType === 'day' && (
+                <>
+                    {selectedRecurringTask ? (
+                        <TaskDetails
+                            task={selectedRecurringTask}
+                            isRecurringTaskTemplate
+                        />
+                    ) : (
+                        <EmptyDetails icon={icons.arrows_repeat} text="You have no recurring tasks" />
+                    )}
+                </>
             )}
         </>
     )
