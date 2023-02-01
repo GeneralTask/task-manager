@@ -3,11 +3,10 @@ import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
-import { useGetCalendars } from '../../services/api/events.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
-import { EMPTY_ARRAY, isGoogleCalendarLinked } from '../../utils/utils'
+import { isGoogleCalendarLinked } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
@@ -15,6 +14,7 @@ import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Subtitle } from '../atoms/typography/Typography'
 import ConnectIntegration from '../molecules/ConnectIntegration'
 import { useCalendarContext } from './CalendarContext'
+import EnableCalendarsBanner from './EnableCalendarsBanner'
 
 const RelativeDiv = styled.div`
     position: relative;
@@ -50,10 +50,8 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
     const isCalendarExpanded = calendarType === 'week' && !isCollapsed
     const { pathname } = useLocation()
     const { isPreviewMode } = usePreviewMode()
-    const { data: calendars } = useGetCalendars()
 
     const isFocusMode = pathname.startsWith('/focus-mode')
-    const calendarsNeedingReauth = calendars?.filter((calendar) => !calendar.has_multical_scopes) ?? EMPTY_ARRAY
 
     const toggleCalendar = () => {
         if (calendarType === 'week') {
@@ -169,19 +167,10 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                     )}
                 </>
             )}
-            {(showOauthPrompt || calendarsNeedingReauth.length > 0) && (
-                <ConnectContainer>
-                    {showOauthPrompt && <ConnectIntegration type="google_calendar" />}
-                    {isPreviewMode &&
-                        calendarsNeedingReauth.map((calendar) => (
-                            <ConnectIntegration
-                                key={calendar.account_id}
-                                type="google_calendar"
-                                reauthorizeAccountName={calendar.account_id}
-                            />
-                        ))}
-                </ConnectContainer>
-            )}
+            <ConnectContainer>
+                {showOauthPrompt && <ConnectIntegration type="google_calendar" />}
+                {isPreviewMode && <EnableCalendarsBanner />}
+            </ConnectContainer>
         </RelativeDiv>
     )
 }
