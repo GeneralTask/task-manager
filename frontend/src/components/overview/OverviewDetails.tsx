@@ -4,10 +4,10 @@ import { TPullRequest, TTask } from '../../utils/types'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import TaskDetails from '../details/TaskDetails'
-import { useGetCorrectlyOrderedOverviewLists } from '../views/DailyOverviewView'
+import useOverviewLists from './useOverviewLists'
 
 const OverviewDetails = () => {
-    const { lists, isLoading } = useGetCorrectlyOrderedOverviewLists()
+    const { lists, isLoading } = useOverviewLists()
     const { overviewViewId, overviewItemId, subtaskId } = useParams()
     const selectedList = lists?.find((list) => list.id === overviewViewId)
     const selectedItem = selectedList?.view_items.find((item) => item.id === overviewItemId)
