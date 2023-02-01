@@ -147,10 +147,7 @@ export const eventColors = {
     },
 }
 
-// gcal tends to use the event color, but we don't have a complete list of event colors so fall back to calendar colors
 const getCalendarColor = (colorId: string): string =>
-    eventColors[colorId as keyof typeof eventColors]?.background ??
-    calendarColors[colorId as keyof typeof calendarColors]?.background ??
-    DEFAULT_CALENDAR_COLOR
+    calendarColors[colorId as keyof typeof calendarColors]?.background ?? DEFAULT_CALENDAR_COLOR
 
 export default getCalendarColor
