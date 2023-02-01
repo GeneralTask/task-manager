@@ -1,4 +1,3 @@
-import { useLayoutEffect } from 'react'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
 import useGetViewItems from '../../hooks/useGetViewItems'
@@ -57,12 +56,12 @@ const AccordionItem = ({ list, openListIds, setOpenListIds }: AccordionItemProps
     const [visibleItemsCount, setVisibleItemsCount] = useGetVisibleItemCount(list, list.id)
     const nextPageLength = Math.min(list.view_items.length - visibleItemsCount, PAGE_SIZE)
 
-    useLayoutEffect(() => {
-        if (!openListIds.includes(list.id)) return
-        if (list.view_items.length === 0) {
-            setOpenListIds((ids) => ids.filter((id) => id !== list.id))
-        }
-    }, [list.view_items.length])
+    // useLayoutEffect(() => {
+    //     if (!openListIds.includes(list.id)) return
+    //     if (list.view_items.length === 0) {
+    //         setOpenListIds((ids) => ids.filter((id) => id !== list.id))
+    //     }
+    // }, [list.view_items.length])
 
     return (
         <AccordionContainer>

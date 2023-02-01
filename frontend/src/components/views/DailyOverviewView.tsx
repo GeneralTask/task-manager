@@ -1,5 +1,5 @@
-import { useEffect, useLayoutEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import React, { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
@@ -31,51 +31,43 @@ const RightActions = styled.div`
     display: flex;
 `
 
+const useSelectFirstItemOnFirstLoad = (setOpenListIds: React.Dispatch<React.SetStateAction<string[]>>) => {
+    const { lists, isSuccess } = useOverviewLists()
+    const isFirstSuccess = useRef(true)
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        if (lists?.length === 0) return
+        if (isSuccess && isFirstSuccess.current) {
+            isFirstSuccess.current = false
+            const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
+            if (firstNonEmptyView) {
+                setOpenListIds((ids) => {
+                    console.log(ids)
+                    if (!ids.includes(firstNonEmptyView.id)) {
+                        console.log('not includes')
+                        return [...ids, firstNonEmptyView.id]
+                    }
+                    return ids
+                })
+                navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
+            }
+        }
+    }, [lists, isSuccess])
+}
+
 const DailyOverviewView = () => {
     const [isEditListsModalOpen, setIsEditListsModalOpen] = useState(false)
     const [editListTabIndex, setEditListTabIndex] = useState(0) // 0 - add, 1 - reorder
-    const { overviewViewId, overviewItemId } = useParams()
+
     const { calendarType } = useCalendarContext()
-    const navigate = useNavigate()
 
     const [openListIds, setOpenListIds] = useState<string[]>([])
     const expandAll = () => setOpenListIds(lists.map((list) => list.id))
     const collapseAll = () => setOpenListIds([])
+    useSelectFirstItemOnFirstLoad(setOpenListIds)
 
     const { lists, isLoading } = useOverviewLists()
-    useLayoutEffect(() => {
-        if (overviewViewId && overviewItemId) {
-            setOpenListIds((ids) => {
-                if (!openListIds.includes(overviewViewId)) {
-                    return [...ids, overviewViewId]
-                }
-                return ids
-            })
-        }
-    }, [overviewItemId, JSON.stringify(lists)])
-
-    const selectFirstItem = () => {
-        const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
-        if (firstNonEmptyView) {
-            navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
-        }
-    }
-
-    useEffect(() => {
-        if (!isLoading && (!overviewViewId || !overviewItemId)) {
-            selectFirstItem()
-        }
-        for (const list of lists) {
-            if (list.id === overviewViewId) {
-                for (const item of list.view_items) {
-                    if (item.id === overviewItemId) {
-                        return
-                    }
-                }
-            }
-        }
-        selectFirstItem()
-    }, [isLoading, overviewViewId, overviewItemId, lists])
 
     if (isLoading) return <Spinner />
     return (
