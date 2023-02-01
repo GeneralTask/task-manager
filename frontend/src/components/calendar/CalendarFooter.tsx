@@ -1,9 +1,10 @@
 import styled from 'styled-components'
 import { Colors, Spacing } from '../../styles'
-import SettingsModalButton from '../molecules/SettingsModalButton'
 import { icons } from '../../styles/images'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
+import { Truncated } from '../atoms/typography/Typography'
+import SettingsModalButton from '../molecules/SettingsModalButton'
 import CalendarSelector from './CalendarSelector'
 import { DEFAULT_CALENDAR_COLOR, calendarColors } from './utils/colors'
 
@@ -34,7 +35,7 @@ const CalendarFooter = () => {
                     mode="task-to-cal"
                     renderTrigger={(calendar) => (
                         <GTButton
-                            value={calendar?.title || 'Select a calendar'}
+                            value={<Truncated>{calendar?.title || 'Select a calendar'}</Truncated>}
                             icon={icons.square}
                             iconColorHex={
                                 calendarColors[calendar?.color_id as keyof typeof calendarColors]?.background ??
