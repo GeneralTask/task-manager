@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_SECTION_ID, EMPTY_MONGO_OBJECT_ID, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
+import { usePreviewMode } from '../../hooks'
 import {
     useCreateTask,
     useGetTasks,
@@ -43,6 +44,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
     const { mutate: modifyTask } = useModifyTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const [isRecurringTaskTemplateModalOpen, setIsRecurringTaskTemplateModalOpen] = useState(false)
+    const { isPreviewMode } = usePreviewMode()
 
     const showRecurringTaskOption =
         task.source?.name === 'General Task' && // must be a native task
@@ -125,27 +127,31 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
                 },
             })),
         },
-        {
-            label: 'Duplicate task',
-            icon: icons.clone,
-            onClick: () => {
-                const optimisticId = uuidv4()
-                createTask({
-                    title: `${task.title} (copy)`,
-                    body: task.body,
-                    taskSectionId: sectionId || DEFAULT_SECTION_ID,
-                    optimisticId,
-                })
-                modifyTask(
-                    {
-                        id: optimisticId,
-                        priorityNormalized: task.priority_normalized,
-                        dueDate: task.due_date ?? '',
-                    },
-                    optimisticId
-                )
-            },
-        },
+        ...(isPreviewMode
+            ? [
+                  {
+                      label: 'Duplicate task',
+                      icon: icons.clone,
+                      onClick: () => {
+                          const optimisticId = uuidv4()
+                          createTask({
+                              title: `${task.title} (copy)`,
+                              body: task.body,
+                              taskSectionId: sectionId || DEFAULT_SECTION_ID,
+                              optimisticId,
+                          })
+                          modifyTask(
+                              {
+                                  id: optimisticId,
+                                  priorityNormalized: task.priority_normalized,
+                                  dueDate: task.due_date ?? '',
+                              },
+                              optimisticId
+                          )
+                      },
+                  },
+              ]
+            : []),
         ...(task.all_statuses && task.external_status
             ? [
                   {
