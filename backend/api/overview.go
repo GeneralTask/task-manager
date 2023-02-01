@@ -731,12 +731,12 @@ func (api *API) GetMeetingPrepTaskResult(userID primitive.ObjectID, expirationTi
 	taskCollection := database.GetTaskCollection(api.DB)
 	result := []*TaskResult{}
 	for _, task := range *tasks {
-		// if meeting has ended or linked event no longer exists, mark task as complete
 		count, err := eventCollection.CountDocuments(context.Background(), bson.M{"id_external": task.MeetingPreparationParams.IDExternal})
 		if err != nil {
 			return nil, err
 		}
 		if count == int64(0) {
+			// if event cannot be found, set event_moved_or_deleted to true
 			_, err := taskCollection.UpdateOne(
 				context.Background(),
 				bson.M{"$and": []bson.M{
@@ -750,6 +750,7 @@ func (api *API) GetMeetingPrepTaskResult(userID primitive.ObjectID, expirationTi
 				return nil, err
 			}
 		} else if task.MeetingPreparationParams.DatetimeEnd.Time().Before(expirationTime) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
+			// if meeting has ended, mark task as complete
 			_, err := taskCollection.UpdateOne(
 				context.Background(),
 				bson.M{"$and": []bson.M{

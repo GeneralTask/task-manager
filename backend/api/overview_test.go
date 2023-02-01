@@ -846,7 +846,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		// Event3 shouldn't be included in the results
+
 		assert.Equal(t, 3, len(res.ViewItems))
 		assert.Equal(t, "Event1", res.ViewItems[0].Title)
 		assert.Equal(t, "Event3", res.ViewItems[1].Title)
