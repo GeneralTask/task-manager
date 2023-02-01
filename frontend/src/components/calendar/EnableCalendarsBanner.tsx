@@ -38,7 +38,7 @@ const EnableCalendarsBanner = () => {
     const { show } = useToast()
 
     const calendarsNeedingReauth = useMemo(
-        () => !calendars?.filter((calendar) => calendar.has_multical_scopes) ?? [],
+        () => calendars?.filter((calendar) => !calendar.has_multical_scopes) ?? [],
         [calendars]
     )
 
