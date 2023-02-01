@@ -5,6 +5,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Truncated } from '../atoms/typography/Typography'
 import SettingsModalButton from '../molecules/SettingsModalButton'
+import Tip from '../radix/Tip'
 import { useCalendarContext } from './CalendarContext'
 import CalendarSelector from './CalendarSelector'
 import { DEFAULT_CALENDAR_COLOR, calendarColors } from './utils/colors'
@@ -36,19 +37,21 @@ const CalendarFooter = () => {
                 <CalendarSelector
                     mode="task-to-cal"
                     renderTrigger={(calendar) => (
-                        <GTButton
-                            value={<Truncated>{calendar?.title || 'Select a calendar'}</Truncated>}
-                            icon={icons.square}
-                            iconColorHex={
-                                calendarColors[calendar?.color_id as keyof typeof calendarColors]?.background ??
-                                DEFAULT_CALENDAR_COLOR
-                            }
-                            asDiv
-                            isDropdown
-                            styleType="secondary"
-                            size="small"
-                            fitContent={false}
-                        />
+                        <Tip content="Select which calendar to create new events in">
+                            <GTButton
+                                value={<Truncated>{calendar?.title || 'Select a calendar'}</Truncated>}
+                                icon={icons.square}
+                                iconColorHex={
+                                    calendarColors[calendar?.color_id as keyof typeof calendarColors]?.background ??
+                                    DEFAULT_CALENDAR_COLOR
+                                }
+                                asDiv
+                                isDropdown
+                                styleType="secondary"
+                                size="small"
+                                fitContent={false}
+                            />
+                        </Tip>
                     )}
                     useTriggerWidth={calendarType === 'week'}
                 />
