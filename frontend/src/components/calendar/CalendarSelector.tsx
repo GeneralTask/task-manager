@@ -18,8 +18,9 @@ const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSele
     const { field_value: taskToCalAccount, updateSetting: setTaskToCalAccount } = useSetting(
         'calendar_account_id_for_new_tasks'
     )
-    const { field_value: taskToCalCalendar, updateSetting: setTaskToCalCalendar } =
-        useSetting('calendar_id_for_new_tasks')
+    const { field_value: taskToCalCalendar, updateSetting: setTaskToCalCalendar } = useSetting(
+        'calendar_calendar_id_for_new_tasks'
+    )
 
     const isCalendarChecked = useCallback(
         (account: TCalendarAccount, calendar: TCalendar) => {
