@@ -15,6 +15,7 @@ import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
 import AccordionItem from '../overview/AccordionItem'
 import EditModal from '../overview/EditModal'
+import OverviewDetails from '../overview/OverviewDetails'
 import SmartPrioritizationBanner from '../overview/SmartPrioritizationBanner'
 import useOverviewLists from '../overview/useOverviewLists'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
@@ -80,23 +81,8 @@ const DailyOverviewView = () => {
         }
     }
 
-    const detailsView = useMemo(() => {
-        if (!lists?.length) return <EmptyDetails icon={icons.list} text="You have no views" />
-        for (const list of lists) {
-            if (list.id !== overviewViewId) continue
-            for (const item of list.view_items) {
-                if (item.id !== overviewItemId) continue
-                if (list.type === 'github') return <PullRequestDetails pullRequest={item as TPullRequest} />
-
-                const subtask = item?.sub_tasks?.find((subtask) => subtask.id === subtaskId)
-                return <TaskDetails task={item as TTask} subtask={subtask} />
-            }
-        }
-        return null
-    }, [lists, overviewItemId, overviewViewId, subtaskId])
-
     useEffect(() => {
-        if (!isLoading && (!overviewViewId || !overviewItemId || !detailsView)) {
+        if (!isLoading && (!overviewViewId || !overviewItemId)) {
             selectFirstItem()
         }
         for (const list of lists) {
@@ -109,7 +95,7 @@ const DailyOverviewView = () => {
             }
         }
         selectFirstItem()
-    }, [isLoading, overviewViewId, overviewItemId, lists, detailsView])
+    }, [isLoading, overviewViewId, overviewItemId, lists])
 
     if (isLoading) return <Spinner />
     return (
@@ -174,7 +160,7 @@ const DailyOverviewView = () => {
                     ))}
                 </ScrollableListTemplate>
             </Flex>
-            {calendarType === 'day' && detailsView}
+            {calendarType === 'day' && <OverviewDetails />}
             <EditModal
                 isOpen={isEditListsModalOpen}
                 setisOpen={setIsEditListsModalOpen}
