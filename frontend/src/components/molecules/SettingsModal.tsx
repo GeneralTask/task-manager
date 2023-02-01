@@ -119,7 +119,7 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
     const getEnableAllCalendarsButton = (account: TLinkedAccount) => {
         if (account.name !== GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME || !calendars) return
         const calendar = calendars.find((calendar) => calendar.account_id === account.display_id)
-        if (!calendar?.has_multical_scopes) return
+        if (!calendar || calendar?.has_multical_scopes) return
         const authUrl = supportedTypes?.find(
             (supportedType) => supportedType.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME
         )?.authorization_url
