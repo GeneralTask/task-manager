@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import styled from 'styled-components'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
-import { useAuthWindow } from '../../hooks'
+import { useAuthWindow, useSetting } from '../../hooks'
 import { useGetCalendars } from '../../services/api/events.hooks'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Border, Colors, Spacing } from '../../styles'
@@ -28,10 +28,18 @@ const EnableCalendarsBanner = () => {
     const { data: calendars } = useGetCalendars()
     const { data: supportedTypes } = useGetSupportedTypes()
     const { openAuthWindow } = useAuthWindow()
+    const { field_value: hasDismissedMulticalPrompt, updateSetting: setHasDismissedMulticalPrompt } = useSetting(
+        'has_dismissed_multical_prompt'
+    )
+    console.log({ hasDismissedMulticalPrompt })
+
     const calendarsNeedingReauth = useMemo(
         () => calendars?.filter((calendar) => calendar.has_multical_scopes) ?? [],
         [calendars]
     )
+
+    if (hasDismissedMulticalPrompt === 'true' || calendarsNeedingReauth.length === 0) return null
+
     const handleClick = () => {
         const authUrl = supportedTypes?.find(
             (supportedType) => supportedType.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME
@@ -41,13 +49,15 @@ const EnableCalendarsBanner = () => {
         }
     }
 
-    if (calendarsNeedingReauth.length === 0) return null
-
     return (
         <Container>
             <Flex justifyContent="space-between" alignItems="center">
                 <BodySmall>Enable all Google calendars.</BodySmall>
-                <GTIconButton icon={icons.x} tooltipText="Dismiss" />
+                <GTIconButton
+                    icon={icons.x}
+                    tooltipText="Dismiss"
+                    onClick={() => setHasDismissedMulticalPrompt('true')}
+                />
             </Flex>
             {calendarsNeedingReauth.map((calendar) => (
                 <Flex key={calendar.account_id} alignItems="center" gap={Spacing._12} justifyContent="space-between">
