@@ -5,7 +5,7 @@ import { icons, logos } from '../../styles/images'
 import { TCalendar, TCalendarAccount } from '../../utils/types'
 import { EMPTY_ARRAY } from '../../utils/utils'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
-import { DEFAULT_CALENDAR_COLOR, calendarColors } from './utils/colors'
+import getCalendarColor from './utils/colors'
 
 interface CalendarSelectorProps {
     mode: 'task-to-cal' | 'cal-selection'
@@ -71,9 +71,7 @@ const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSele
                     .map((calendar) => ({
                         label: calendar.title || account.account_id, // backend sends empty string for title if it is the primary calendar
                         icon: icons.square,
-                        iconColorHex:
-                            calendarColors[calendar.color_id as keyof typeof calendarColors]?.background ??
-                            DEFAULT_CALENDAR_COLOR,
+                        iconColorHex: getCalendarColor(calendar.color_id),
                         selected: isCalendarChecked(account, calendar),
                         onClick: () => handleCalendarClick(account, calendar),
                         keepOpenOnSelect: mode === 'cal-selection',
