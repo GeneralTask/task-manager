@@ -18,7 +18,7 @@ enableMapSet() // this allows immer to produce immutable maps and sets
 const AuthenticatedRoutes = () => {
     return (
         <>
-            {isDevelopmentMode && <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />}
+            {isDevelopmentMode && <ReactQueryDevtools initialIsOpen={false} position="top-left" />}
             <DndProvider backend={HTML5Backend}>
                 <AppContextProvider>
                     <Routes>
