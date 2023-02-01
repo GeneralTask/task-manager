@@ -113,9 +113,9 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                     <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
                         <Icon icon={icons.warning} color="red" />
                         <Label color="red">
-                            There was an error sorting your lists.{' '}
+                            There was an error sorting your lists.
                             {hasSuggestionsRemaining
-                                ? `Please try again (${suggestionsRemaining} uses remaining).`
+                                ? ` Please try again (${suggestionsRemaining} uses remaining).`
                                 : null}
                         </Label>
                         <GTButton
@@ -138,8 +138,8 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                     <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
                         <Icon icon={icons.warning} color="red" />
                         <Label color="red">
-                            Your lists are too long to be prioritized. Try removing items from your overview page.{' '}
-                            {hasSuggestionsRemaining ? `(${suggestionsRemaining} uses remaining).` : null}
+                            Your lists are too long to be prioritized. Try removing items from your overview page.
+                            {hasSuggestionsRemaining ? ` (${suggestionsRemaining} uses remaining).` : null}
                         </Label>
                         <GTButton
                             size="small"
