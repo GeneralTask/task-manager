@@ -6,6 +6,7 @@ import { useGetCalendars } from '../../services/api/events.hooks'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Border, Colors, Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
+import Typography from '../../styles/typography'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
@@ -19,6 +20,9 @@ const Container = styled.div`
     gap: ${Spacing._16};
     padding: ${Spacing._16};
     border-radius: ${Border.radius.small};
+`
+const AccountName = styled(Truncated)`
+    ${Typography.bodySmall};
 `
 const MarginLeftAuto = styled.div`
     margin-left: auto;
@@ -63,9 +67,7 @@ const EnableCalendarsBanner = () => {
             {calendarsNeedingReauth.map((calendar) => (
                 <Flex key={calendar.account_id} alignItems="center" gap={Spacing._12} justifyContent="space-between">
                     <Icon icon={logos.gcal} />
-                    <BodySmall>
-                        <Truncated>{calendar.account_id}</Truncated>
-                    </BodySmall>
+                    <AccountName>{calendar.account_id}</AccountName>
                     <MarginLeftAuto>
                         <GTButton value="Authorize" size="small" onClick={handleClick} />
                     </MarginLeftAuto>
