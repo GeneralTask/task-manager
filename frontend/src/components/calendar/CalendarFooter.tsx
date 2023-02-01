@@ -1,9 +1,10 @@
 import styled from 'styled-components'
 import { Colors, Spacing } from '../../styles'
-import SettingsModalButton from '../molecules/SettingsModalButton'
 import { icons } from '../../styles/images'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
+import SettingsModalButton from '../molecules/SettingsModalButton'
+import { useCalendarContext } from './CalendarContext'
 import CalendarSelector from './CalendarSelector'
 import { DEFAULT_CALENDAR_COLOR, calendarColors } from './utils/colors'
 
@@ -23,6 +24,7 @@ const TaskToCalContainer = styled.div`
 `
 
 const CalendarFooter = () => {
+    const { calendarType } = useCalendarContext()
     return (
         <Container>
             <CalendarSelector
@@ -47,6 +49,7 @@ const CalendarFooter = () => {
                             fitContent={false}
                         />
                     )}
+                    useTriggerWidth={calendarType === 'week'}
                 />
             </TaskToCalContainer>
             <SettingsModalButton type="icon-button" label="Calendar settings" defaultTabIndex={1} />
