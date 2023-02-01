@@ -19,7 +19,7 @@ export type NoteFilterPreference = `${string}note_filtering_preference${string}`
 
 export type TSettingsKey =
     | 'calendar_account_id_for_new_tasks'
-    | 'calendar_id_for_new_tasks'
+    | 'calendar_calendar_id_for_new_tasks'
     | GHFilterPreference
     | GHSortPreference
     | GHSortDirection
@@ -49,7 +49,7 @@ const getSettings = async ({ signal }: QueryFunctionContext) => {
         return castImmutable([
             ...settings,
             {
-                field_key: 'calendar_id_for_new_tasks',
+                field_key: 'calendar_calendar_id_for_new_tasks',
                 field_value:
                     settings.find((s) => s.field_key === 'calendar_account_id_for_new_tasks')?.field_value || '',
                 field_name: '',
