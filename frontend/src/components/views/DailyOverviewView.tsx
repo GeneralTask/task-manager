@@ -50,7 +50,7 @@ export const useGetCorrectlyOrderedOverviewLists = () => {
 const DailyOverviewView = () => {
     const [isEditListsModalOpen, setIsEditListsModalOpen] = useState(false)
     const [editListTabIndex, setEditListTabIndex] = useState(0) // 0 - add, 1 - reorder
-    const { overviewViewId, overviewItemId, subtaskId } = useParams()
+    const { overviewViewId, overviewItemId } = useParams()
     const { calendarType } = useCalendarContext()
     const navigate = useNavigate()
 
