@@ -38,7 +38,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
     const { openAuthWindow } = useAuthWindow()
     const { isPreviewMode } = usePreviewMode()
     const { field_value: taskToCalAccount } = useSetting('calendar_account_id_for_new_tasks')
-    const { field_value: taskToCalCalendar } = useSetting('calendar_id_for_new_tasks')
+    const { field_value: taskToCalCalendar } = useSetting('calendar_calendar_id_for_new_tasks')
 
     const getTimeFromDropPosition = useCallback(
         (dropPosition: number) =>

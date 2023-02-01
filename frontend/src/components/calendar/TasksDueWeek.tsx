@@ -66,6 +66,7 @@ const TasksDueWeek = ({ date }: TasksDueWeekProps) => {
                                 dueType="due"
                                 numTasksDue={tasksDueWeek[index].length}
                                 hideCollapseButton
+                                date={date.plus({ days: index })}
                             />
                             {!isTasksDueViewCollapsed && (
                                 <PaddedTasksScroll>

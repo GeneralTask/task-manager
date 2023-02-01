@@ -1,7 +1,15 @@
 import { useState } from 'react'
 import { DateTime } from 'luxon'
+import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_SECTION_ID, EMPTY_MONGO_OBJECT_ID, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
-import { useGetTasks, useMarkTaskDoneOrDeleted, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
+import { usePreviewMode } from '../../hooks'
+import {
+    useCreateTask,
+    useGetTasks,
+    useMarkTaskDoneOrDeleted,
+    useModifyTask,
+    useReorderTask,
+} from '../../services/api/tasks.hooks'
 import { icons, linearStatus } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import GTDatePicker from '../molecules/GTDatePicker'
@@ -31,10 +39,12 @@ interface TaskContextMenuProps {
 }
 const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenChange }: TaskContextMenuProps) => {
     const { data: taskSections } = useGetTasks(false)
+    const { mutate: createTask } = useCreateTask()
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask } = useModifyTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const [isRecurringTaskTemplateModalOpen, setIsRecurringTaskTemplateModalOpen] = useState(false)
+    const { isPreviewMode } = usePreviewMode()
 
     const showRecurringTaskOption =
         task.source?.name === 'General Task' && // must be a native task
@@ -117,6 +127,32 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
                 },
             })),
         },
+        ...(isPreviewMode
+            ? [
+                  {
+                      label: 'Duplicate task',
+                      icon: icons.clone,
+                      onClick: () => {
+                          const optimisticId = uuidv4()
+                          createTask({
+                              title: `${task.title} (copy)`,
+                              body: task.body,
+                              taskSectionId: sectionId || DEFAULT_SECTION_ID,
+                              optimisticId,
+                          })
+                          modifyTask(
+                              {
+                                  id: optimisticId,
+                                  priorityNormalized: task.priority_normalized,
+                                  dueDate: task.due_date,
+                                  recurringTaskTemplateId: task.recurring_task_template_id,
+                              },
+                              optimisticId
+                          )
+                      },
+                  },
+              ]
+            : []),
         ...(task.all_statuses && task.external_status
             ? [
                   {

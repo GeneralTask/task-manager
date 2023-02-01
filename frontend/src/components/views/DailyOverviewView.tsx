@@ -89,10 +89,7 @@ const DailyOverviewView = () => {
                 if (list.type === 'github') return <PullRequestDetails pullRequest={item as TPullRequest} />
 
                 const subtask = item?.sub_tasks?.find((subtask) => subtask.id === subtaskId)
-                const detailsLink = subtask
-                    ? `/overview/${list.id}/${item.id}/${subtask.id}`
-                    : `/overview/${list.id}/${item.id}`
-                return <TaskDetails task={item as TTask} subtask={subtask} link={detailsLink} />
+                return <TaskDetails task={item as TTask} subtask={subtask} />
             }
         }
         return null

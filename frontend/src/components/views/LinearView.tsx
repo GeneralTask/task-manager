@@ -77,7 +77,7 @@ const LinearView = () => {
             {calendarType === 'day' && (
                 <>
                     {task ? (
-                        <TaskDetails task={task} link={`/linear/${task.id}`} />
+                        <TaskDetails task={task} />
                     ) : (
                         <EmptyDetails icon={icons.check} text="You have no Linear tasks" />
                     )}

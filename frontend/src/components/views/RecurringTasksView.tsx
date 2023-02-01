@@ -68,7 +68,6 @@ const RecurringTasksView = () => {
                     {selectedRecurringTask ? (
                         <TaskDetails
                             task={selectedRecurringTask}
-                            link={`/recurring-tasks/${selectedRecurringTask.id}`}
                             isRecurringTaskTemplate
                         />
                     ) : (

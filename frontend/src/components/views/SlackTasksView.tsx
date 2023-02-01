@@ -92,7 +92,7 @@ const SlackTasksView = () => {
             {calendarType === 'day' && (
                 <>
                     {task ? (
-                        <TaskDetails task={task} link={`/slack/${task.id}`} />
+                        <TaskDetails task={task} />
                     ) : (
                         <EmptyDetails icon={icons.check} text="You have no Slack tasks" />
                     )}

@@ -31,8 +31,9 @@ const CalendarSettings = () => {
     const { field_value: taskToCalAccount, updateSetting: setTaskToCalAccount } = useSetting(
         'calendar_account_id_for_new_tasks'
     )
-    const { field_value: taskToCalCalendar, updateSetting: setTaskToCalCalendar } =
-        useSetting('calendar_id_for_new_tasks')
+    const { field_value: taskToCalCalendar, updateSetting: setTaskToCalCalendar } = useSetting(
+        'calendar_calendar_id_for_new_tasks'
+    )
     const { openAuthWindow } = useAuthWindow()
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
