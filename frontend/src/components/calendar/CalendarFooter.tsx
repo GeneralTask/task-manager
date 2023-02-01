@@ -8,7 +8,7 @@ import SettingsModalButton from '../molecules/SettingsModalButton'
 import Tip from '../radix/Tip'
 import { useCalendarContext } from './CalendarContext'
 import CalendarSelector from './CalendarSelector'
-import { DEFAULT_CALENDAR_COLOR, calendarColors } from './utils/colors'
+import getCalendarColor from './utils/colors'
 
 const Container = styled.div`
     display: flex;
@@ -41,10 +41,7 @@ const CalendarFooter = () => {
                             <GTButton
                                 value={<Truncated>{calendar?.title || 'Select a calendar'}</Truncated>}
                                 icon={icons.square}
-                                iconColorHex={
-                                    calendarColors[calendar?.color_id as keyof typeof calendarColors]?.background ??
-                                    DEFAULT_CALENDAR_COLOR
-                                }
+                                iconColorHex={getCalendarColor(calendar?.color_id || '')}
                                 asDiv
                                 isDropdown
                                 styleType="secondary"
