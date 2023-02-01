@@ -103,12 +103,6 @@ const Button = styled(NoStyleButton)<{
     ${(props) => props.textColor && `color: ${Colors.text[props.textColor]};`}
     ${(props) => props.disabled && `cursor: default;`}
 `
-const ButtonText = styled.span`
-    flex-shrink: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-`
 const MarginLeftAuto = styled.div`
     margin-left: auto;
 `
@@ -142,7 +136,6 @@ const GTButton = ({
     asDiv = false,
     ...rest
 }: GTButtonProps) => {
-    const formattedValue = typeof value === 'string' ? <ButtonText>{value}</ButtonText> : value
     return (
         <Button
             styleType={styleType}
@@ -155,7 +148,7 @@ const GTButton = ({
             {...rest}
         >
             {icon && <Icon icon={icon} color={iconColor} colorHex={iconColorHex} />}
-            {formattedValue}
+            {value}
             {isDropdown && (
                 <MarginLeftAuto>
                     <Icon icon={icons.caret_down_solid} color="gray" />
