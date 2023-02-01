@@ -378,6 +378,7 @@ export interface TCalendar {
     calendar_id: string
     color_id: string
     title: string
+    can_write: boolean
 }
 
 export interface TCalendarAccount {
