@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import styled from 'styled-components'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
-import { useAuthWindow, useSetting } from '../../hooks'
+import { useAuthWindow, useSetting, useToast } from '../../hooks'
 import { useGetCalendars } from '../../services/api/events.hooks'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Border, Colors, Spacing } from '../../styles'
@@ -31,7 +31,7 @@ const EnableCalendarsBanner = () => {
     const { field_value: hasDismissedMulticalPrompt, updateSetting: setHasDismissedMulticalPrompt } = useSetting(
         'has_dismissed_multical_prompt'
     )
-    console.log({ hasDismissedMulticalPrompt })
+    const { show } = useToast()
 
     const calendarsNeedingReauth = useMemo(
         () => calendars?.filter((calendar) => calendar.has_multical_scopes) ?? [],
@@ -49,15 +49,16 @@ const EnableCalendarsBanner = () => {
         }
     }
 
+    const handleDismiss = () => {
+        setHasDismissedMulticalPrompt('true')
+        show({ message: 'You can enable all calendars for your Google account(s) in settings' })
+    }
+
     return (
         <Container>
             <Flex justifyContent="space-between" alignItems="center">
                 <BodySmall>Enable all Google calendars.</BodySmall>
-                <GTIconButton
-                    icon={icons.x}
-                    tooltipText="Dismiss"
-                    onClick={() => setHasDismissedMulticalPrompt('true')}
-                />
+                <GTIconButton icon={icons.x} tooltipText="Dismiss" onClick={handleDismiss} />
             </Flex>
             {calendarsNeedingReauth.map((calendar) => (
                 <Flex key={calendar.account_id} alignItems="center" gap={Spacing._12} justifyContent="space-between">
