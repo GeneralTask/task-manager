@@ -130,7 +130,7 @@ export const getTaskIndexFromSections = (
 }
 
 export const getTaskFromSections = (
-    sections: TTaskSection[],
+    sections: { id?: string; tasks: TTask[] }[],
     taskId: string,
     sectionId?: string,
     subtaskId?: string
