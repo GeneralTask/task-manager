@@ -12,7 +12,8 @@ import MeetingPreparationViewItems from './viewItems/MeetingPreparationViewItems
 import PullRequestViewItems from './viewItems/PullRequestViewItems'
 import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
 
-export const PAGE_SIZE = 10
+export const INITIAL_PAGE_SIZE = 10
+export const PAGE_SIZE = 5
 
 interface OverviewViewProps {
     view: TOverviewView
@@ -54,7 +55,7 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
                 // Ensure that visibleItemsCount <= view.view_items.length, and that we do not decrease the number of visible items when selecting a new item
                 Math.min(visibleItemsCount, view.view_items.length),
                 // If view.view_items.length drops below PAGE_SIZE, set visibleItemsCount to view.view_items.length
-                Math.min(view.view_items.length, PAGE_SIZE),
+                Math.min(view.view_items.length, INITIAL_PAGE_SIZE),
                 // if the selected item is in this view, ensure it is visible
                 view.id === overviewViewId ? view.view_items.findIndex((item) => item.id === overviewItemId) + 1 : 0
             )
