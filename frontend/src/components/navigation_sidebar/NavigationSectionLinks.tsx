@@ -16,6 +16,7 @@ import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import Skeleton from '../atoms/Skeleton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import NavigationContextMenuWrapper from '../radix/NavigationContextMenuWrapper'
+import Tip from '../radix/Tip'
 import IntegrationLinks from './IntegrationLinks'
 import NavigationHeader from './NavigationHeader'
 import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
@@ -149,15 +150,17 @@ const NavigationSectionLinks = () => {
             />
             {isFoldersLoading && <Skeleton />}
             {defaultFolder && (
-                <NavigationLink
-                    link={`/tasks/${defaultFolder.id}`}
-                    title={defaultFolder.name}
-                    icon={icons.inbox}
-                    isCurrentPage={sectionId === defaultFolder.id}
-                    taskSection={defaultFolder}
-                    count={defaultFolder.tasks.length}
-                    droppable
-                />
+                <Tip shortcutName="goToTaskInbox" side="right">
+                    <NavigationLink
+                        link={`/tasks/${defaultFolder.id}`}
+                        title={defaultFolder.name}
+                        icon={icons.inbox}
+                        isCurrentPage={sectionId === defaultFolder.id}
+                        taskSection={defaultFolder}
+                        count={defaultFolder.tasks.length}
+                        droppable
+                    />
+                </Tip>
             )}
             {folders
                 ?.filter((section) => section.id !== DEFAULT_SECTION_ID && !section.is_done && !section.is_trash)

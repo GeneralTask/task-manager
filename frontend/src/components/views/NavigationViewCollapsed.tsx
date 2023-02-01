@@ -151,16 +151,18 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                 <IntegrationLinks isCollapsed />
                 <FoldersContainer isCollapsed>
                     {DEFAULT_FOLDER && (
-                        <NavigationLink
-                            link={`/tasks/${DEFAULT_SECTION_ID}`}
-                            title={TASK_INBOX_NAME}
-                            icon={icons.inbox}
-                            isCurrentPage={sectionId === DEFAULT_SECTION_ID}
-                            taskSection={DEFAULT_FOLDER}
-                            count={DEFAULT_FOLDER.tasks.length}
-                            isCollapsed
-                            droppable
-                        />
+                        <Tip shortcutName="goToTaskInbox" side="right">
+                            <NavigationLink
+                                link={`/tasks/${DEFAULT_SECTION_ID}`}
+                                title={TASK_INBOX_NAME}
+                                icon={icons.inbox}
+                                isCurrentPage={sectionId === DEFAULT_SECTION_ID}
+                                taskSection={DEFAULT_FOLDER}
+                                count={DEFAULT_FOLDER.tasks.length}
+                                isCollapsed
+                                droppable
+                            />
+                        </Tip>
                     )}
                     {items.length > 0 && (
                         <GTDropdownMenu
