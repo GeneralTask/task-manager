@@ -40,6 +40,7 @@ export enum SmartPrioritizeState {
     MANUAL,
     LOADING,
     ERROR,
+    ERROR_TOO_LONG,
     LOADED,
 }
 
@@ -63,7 +64,13 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
             setState(SmartPrioritizeState.LOADED)
         } catch (e) {
             await queryClient.invalidateQueries('overview-suggestions-remaining')
-            setState(SmartPrioritizeState.ERROR)
+            if (e instanceof Error && e.message === 'too long') {
+                setState(SmartPrioritizeState.ERROR_TOO_LONG)
+            } else {
+                setState(SmartPrioritizeState.ERROR)
+            }
+            // console.log(e)
+            // console.log(state)
         }
     }
 
@@ -112,6 +119,29 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                             {hasSuggestionsRemaining
                                 ? `Please try again (${suggestionsRemaining} uses remaining).`
                                 : null}
+                        </Label>
+                        <GTButton
+                            size="small"
+                            value="Cancel"
+                            styleType="secondary"
+                            onClick={() => setState(SmartPrioritizeState.MANUAL)}
+                        />
+                        {hasSuggestionsRemaining || isPreviewMode ? (
+                            <GTButton size="small" value="Retry" onClick={getSuggestion} />
+                        ) : (
+                            <Tip content="You have no uses remaining">
+                                <GTButton size="small" value="Retry" onClick={getSuggestion} disabled />
+                            </Tip>
+                        )}
+                    </Flex>
+                )
+            case SmartPrioritizeState.ERROR_TOO_LONG:
+                return (
+                    <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
+                        <Icon icon={icons.warning} color="red" />
+                        <Label color="red">
+                            Your lists are too long to be prioritized. Try removing items from your overview page.{' '}
+                            {hasSuggestionsRemaining ? `(${suggestionsRemaining} uses remaining).` : null}
                         </Label>
                         <GTButton
                             size="small"
