@@ -69,8 +69,6 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
             } else {
                 setState(SmartPrioritizeState.ERROR)
             }
-            // console.log(e)
-            // console.log(state)
         }
     }
 
