@@ -14,7 +14,7 @@ const SlackSelectableContainer = styled(SelectableContainer)`
     display: flex;
     align-items: center;
     gap: ${Spacing._8};
-    padding: ${Spacing._16} ${Spacing._24};
+    padding: ${Spacing._8};
     margin-bottom: ${Spacing._4};
     ${Typography.bodySmall};
 `
