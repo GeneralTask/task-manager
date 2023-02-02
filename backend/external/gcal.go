@@ -117,7 +117,8 @@ func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar
 
 func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, scopes []string, result chan<- CalendarResult) {
 	if !database.HasUserGrantedCalendarScope(scopes) {
-		result <- CalendarResult{CalendarEvents: []*database.CalendarEvent{}, Error: nil}
+		result <- emptyCalendarResult(nil)
+		return
 	}
 	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background(), db)
 	if err != nil {
