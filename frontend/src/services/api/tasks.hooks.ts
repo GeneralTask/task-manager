@@ -534,6 +534,9 @@ export const useMarkTaskDoneOrDeleted = () => {
 
                 queryClient.setQueryData('overview', newLists)
 
+                const location = window.location.pathname.split('/')
+                if (location[1] !== 'overview') return
+
                 const listWithDeletedTask = lists.find((list) => {
                     return list.view_items.find((item) => item.id === data.id)
                 })
