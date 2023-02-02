@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import useOverviewContext from '../../../context/OverviewContextProvider'
 import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
 import Log from '../../../services/api/log'
-import { useGetOverviewViews } from '../../../services/api/overview.hooks'
 import { useMarkTaskDoneOrDeleted } from '../../../services/api/tasks.hooks'
 import { TOverviewView } from '../../../utils/types'
 import GTCheckbox from '../GTCheckbox'
@@ -32,9 +31,11 @@ export const useNavigateToNextOverviewItem = () => {
                 navigate(`/overview/${firstNonEmptyList.id}/${firstNonEmptyList.view_items[0].id}`)
                 //open this list item
                 setOpenListIds((ids) => {
-                    if (!ids.includes(firstNonEmptyList.id)) {
-                        return [...ids, firstNonEmptyList.id]
+                    const idsCopy = [...ids]
+                    if (!idsCopy.includes(firstNonEmptyList.id)) {
+                        idsCopy.push(firstNonEmptyList.id)
                     }
+                    idsCopy.filter((id) => id !== listWithTask?.id)
                     return ids
                 })
             } else {
