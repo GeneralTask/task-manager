@@ -39,7 +39,11 @@ const CalendarFooter = () => {
                     renderTrigger={(calendar, accountId) => (
                         <Tip content="Select which calendar to create new events in">
                             <GTButton
-                                value={<Truncated>{getCalendarName(accountId, calendar?.title)}</Truncated>}
+                                value={
+                                    <Truncated>
+                                        {getCalendarName(accountId, calendar?.title) || 'Select a calendar'}
+                                    </Truncated>
+                                }
                                 icon={icons.square}
                                 iconColorHex={getCalendarColor(calendar?.color_id || '')}
                                 asDiv
