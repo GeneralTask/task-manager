@@ -344,7 +344,7 @@ export const useModifyTask = () => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (sections) {
                 const newSections = produce(sections, (draft) => {
-                    const task = getTaskFromSections(draft, data.id, data.subtaskId)
+                    const task = getTaskFromSections(draft, data.id, undefined, data.subtaskId)
                     if (!task) return
                     modifyTaskOptimisticUpdate(task, data)
                 })
