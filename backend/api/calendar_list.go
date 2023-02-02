@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+
 	"golang.org/x/exp/slices"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -17,9 +18,10 @@ type CalendarResult struct {
 }
 
 type CalendarAccountResult struct {
-	AccountID        string           `json:"account_id"`
-	Calendars        []CalendarResult `json:"calendars"`
-	HasMulticalScope bool             `json:"has_multical_scopes"`
+	AccountID           string           `json:"account_id"`
+	Calendars           []CalendarResult `json:"calendars"`
+	HasMulticalScope    bool             `json:"has_multical_scopes"`
+	HasAnyCalendarScope bool             `json:"has_any_calendar_scope"`
 }
 
 func (api *API) CalendarsList(c *gin.Context) {
@@ -53,9 +55,10 @@ func (api *API) CalendarsList(c *gin.Context) {
 
 		}
 		result := CalendarAccountResult{
-			AccountID:        account.IDExternal,
-			Calendars:        calendars,
-			HasMulticalScope: database.HasUserGrantedMultiCalendarScope(account.Scopes),
+			AccountID:           account.IDExternal,
+			Calendars:           calendars,
+			HasMulticalScope:    database.HasUserGrantedMultiCalendarScope(account.Scopes),
+			HasAnyCalendarScope: database.HasUserGrantedCalendarScope(account.Scopes),
 		}
 		results = append(results, &result)
 	}
