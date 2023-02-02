@@ -21,7 +21,7 @@ import {
     EventTitle,
 } from './CalendarEvents-styles'
 import ResizeHandle from './ResizeHandle'
-import getCalendarColor from './utils/colors'
+import { getCalendarColor } from './utils/utils'
 
 const LONG_EVENT_THRESHOLD = 60 // minutes
 const SHORT_EVENT_THRESHOLD = 45 // minutes

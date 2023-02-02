@@ -5,12 +5,12 @@ import { icons, logos } from '../../styles/images'
 import { TCalendar, TCalendarAccount } from '../../utils/types'
 import { EMPTY_ARRAY } from '../../utils/utils'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
-import getCalendarColor from './utils/colors'
+import { getCalendarColor, getCalendarName } from './utils/utils'
 
 interface CalendarSelectorProps {
     mode: 'task-to-cal' | 'cal-selection'
     useTriggerWidth?: boolean
-    renderTrigger: (calendar?: TCalendar) => ReactNode
+    renderTrigger: (calendar: TCalendar | undefined, accountId: string) => ReactNode
 }
 const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSelectorProps) => {
     const { data: calendars } = useGetCalendars()
@@ -69,7 +69,7 @@ const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSele
                         return 0
                     })
                     .map((calendar) => ({
-                        label: calendar.title || account.account_id, // backend sends empty string for title if it is the primary calendar
+                        label: getCalendarName(account.account_id, calendar.title),
                         icon: icons.square,
                         iconColorHex: getCalendarColor(calendar.color_id),
                         selected: isCalendarChecked(account, calendar),
@@ -83,7 +83,7 @@ const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSele
     return (
         <GTDropdownMenu
             items={items}
-            trigger={renderTrigger(selectedTaskToCalCalendar)}
+            trigger={renderTrigger(selectedTaskToCalCalendar, taskToCalAccount)}
             align={mode === 'cal-selection' ? 'start' : 'center'}
             unstyledTrigger
             fontStyle="bodySmall"
