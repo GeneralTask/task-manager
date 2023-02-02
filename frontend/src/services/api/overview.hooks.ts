@@ -1,6 +1,4 @@
-import { useRef } from 'react'
 import { QueryFunctionContext, useQuery } from 'react-query'
-import { useNavigate } from 'react-router-dom'
 import produce, { castImmutable } from 'immer'
 import useQueryContext from '../../context/QueryContext'
 import { useGTLocalStorage } from '../../hooks'
@@ -9,13 +7,8 @@ import { TOverviewView, TOverviewViewType, TSupportedView, TSupportedViewItem } 
 import { arrayMoveInPlace } from '../../utils/utils'
 import { useGTQueryClient, useQueuedMutation } from '../queryUtils'
 
-export const useGetOverviewViews = (onSuccess?: (data: TOverviewView[]) => void) => {
-    const isFirstSuccess = useRef(true)
-    const navigate = useNavigate()
-
-    return useQuery<TOverviewView[], void>('overview', getOverviewViews, {
-        onSuccess: onSuccess,
-    })
+export const useGetOverviewViews = () => {
+    return useQuery<TOverviewView[], void>('overview', getOverviewViews)
 }
 const getOverviewViews = async ({ signal }: QueryFunctionContext) => {
     try {

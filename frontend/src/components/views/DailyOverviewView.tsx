@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
@@ -33,19 +32,20 @@ const RightActions = styled.div`
 `
 
 const useSelectFirstItemOnFirstLoad = (setOpenListIds: React.Dispatch<React.SetStateAction<string[]>>) => {
+    const { lists, isSuccess } = useOverviewLists()
     const isFirstSuccess = useRef(true)
     const navigate = useNavigate()
 
-    useGetOverviewViews((data) => {
-        console.log('this was called')
-        if (isFirstSuccess.current) {
+    useEffect(() => {
+        if (lists?.length === 0) return
+        if (isSuccess && isFirstSuccess.current) {
             isFirstSuccess.current = false
-            const firstNonEmptyView = data?.find((list) => list.view_items.length > 0)
-
+            const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
             if (firstNonEmptyView) {
                 setOpenListIds((ids) => {
                     console.log(ids)
                     if (!ids.includes(firstNonEmptyView.id)) {
+                        console.log('not includes')
                         return [...ids, firstNonEmptyView.id]
                     }
                     return ids
@@ -53,7 +53,7 @@ const useSelectFirstItemOnFirstLoad = (setOpenListIds: React.Dispatch<React.SetS
                 navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
             }
         }
-    })
+    }, [lists, isSuccess])
 }
 
 const DailyOverviewView = () => {
