@@ -37,23 +37,20 @@ const useSelectFirstItemOnFirstLoad = (setOpenListIds: React.Dispatch<React.SetS
     const navigate = useNavigate()
 
     useLayoutEffect(() => {
-        if (lists?.length === 0) return
-        if (isSuccess && isFirstSuccess.current) {
-            isFirstSuccess.current = false
-            const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
-            if (firstNonEmptyView) {
-                setOpenListIds((ids) => {
-                    console.log(ids)
-                    if (!ids.includes(firstNonEmptyView.id)) {
-                        console.log('not includes')
-                        return [...ids, firstNonEmptyView.id]
-                    }
-                    return ids
-                })
-                navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
-            } else {
-                navigate(`/overview`, { replace: true })
-            }
+        if (lists?.length === 0 || !isFirstSuccess.current) return
+
+        isFirstSuccess.current = false
+        const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
+        if (firstNonEmptyView) {
+            setOpenListIds((ids) => {
+                if (!ids.includes(firstNonEmptyView.id)) {
+                    return [...ids, firstNonEmptyView.id]
+                }
+                return ids
+            })
+            navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
+        } else {
+            navigate(`/overview`, { replace: true })
         }
     }, [lists, isSuccess])
 }
