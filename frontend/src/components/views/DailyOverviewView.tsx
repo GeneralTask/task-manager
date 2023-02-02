@@ -51,6 +51,8 @@ const useSelectFirstItemOnFirstLoad = (setOpenListIds: React.Dispatch<React.SetS
                     return ids
                 })
                 navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
+            } else {
+                navigate(`/overview`, { replace: true })
             }
         }
     }, [lists, isSuccess])
