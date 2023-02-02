@@ -47,20 +47,20 @@ const TaskSectionViewItems = forwardRef(
             [view.task_section_id]
         )
 
-        const selectTaskAfterCompletion = useCallback(
-            (taskId: string) => {
-                if (!taskSections) return
-                if (overviewItemId !== taskId) return
-                const { taskIndex, sectionIndex } = getTaskIndexFromSections(taskSections, taskId)
-                if (sectionIndex == null || taskIndex == null) return
+        // const selectTaskAfterCompletion = useCallback(
+        //     (taskId: string) => {
+        //         if (!taskSections) return
+        //         if (overviewItemId !== taskId) return
+        //         const { taskIndex, sectionIndex } = getTaskIndexFromSections(taskSections, taskId)
+        //         if (sectionIndex == null || taskIndex == null) return
 
-                if (taskSections.length === 0 || taskSections[sectionIndex].tasks.length === 0) return
-                const previousTask = taskSections[sectionIndex].tasks[taskIndex - 1]
-                if (!previousTask) return
-                navigateToTask(previousTask.id)
-            },
-            [taskSections, overviewItemId]
-        )
+        //         if (taskSections.length === 0 || taskSections[sectionIndex].tasks.length === 0) return
+        //         const previousTask = taskSections[sectionIndex].tasks[taskIndex - 1]
+        //         if (!previousTask) return
+        //         navigateToTask(previousTask.id)
+        //     },
+        //     [taskSections, overviewItemId]
+        // )
 
         return (
             <>
@@ -99,7 +99,6 @@ const TaskSectionViewItems = forwardRef(
                                 sectionScrollingRef={scrollRef}
                                 isSelected={overviewViewId === view.id && overviewItemId === item.id}
                                 link={`/overview/${view.id}/${item.id}`}
-                                onMarkTaskDone={selectTaskAfterCompletion}
                             />
                         </ReorderDropContainer>
                     ))
