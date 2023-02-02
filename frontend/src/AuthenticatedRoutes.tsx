@@ -1,7 +1,6 @@
 import { lazy } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { ReactQueryDevtools } from 'react-query/devtools'
 import { Outlet, Route, Routes } from 'react-router-dom'
 import { enableMapSet } from 'immer'
 import StyledToastContainer from './components/atoms/toast/StyledToastContainer'
@@ -10,7 +9,6 @@ import FocusModeScreen from './components/screens/FocusModeScreen'
 import MainScreen from './components/screens/MainScreen'
 import { FOCUS_MODE_ROUTE } from './constants'
 import AppContextProvider from './context/AppContextProvider'
-import { isDevelopmentMode } from './environment'
 
 const TermsOfServiceSummaryScreen = lazy(() => import('./components/screens/TermsOfServiceSummaryScreen'))
 enableMapSet() // this allows immer to produce immutable maps and sets
@@ -18,7 +16,7 @@ enableMapSet() // this allows immer to produce immutable maps and sets
 const AuthenticatedRoutes = () => {
     return (
         <>
-            {isDevelopmentMode && <ReactQueryDevtools initialIsOpen={false} position="top-left" />}
+            {/* {isDevelopmentMode && <ReactQueryDevtools initialIsOpen={false} position="top-left" />} */}
             <DndProvider backend={HTML5Backend}>
                 <AppContextProvider>
                     <Routes>
