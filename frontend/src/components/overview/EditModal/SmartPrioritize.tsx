@@ -64,7 +64,7 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
             setState(SmartPrioritizeState.LOADED)
         } catch (e) {
             await queryClient.invalidateQueries('overview-suggestions-remaining')
-            if (e instanceof Error && e.message === 'too long') {
+            if (e instanceof Error && e.message === 'prompt is too long for suggestion') {
                 setState(SmartPrioritizeState.ERROR_TOO_LONG)
             } else {
                 setState(SmartPrioritizeState.ERROR)

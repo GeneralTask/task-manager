@@ -298,7 +298,7 @@ export const getOverviewSmartSuggestion = async () => {
             return status < 500 // Resolve only if the status code is less than 500
         },
     })
-    if (res.status === 400) throw new Error('too long')
+    if (res.data.error) throw new Error(res.data.error)
     if (res.status !== 200) throw new Error('getOverviewSmartSuggestion failed')
     return res.data
 }
