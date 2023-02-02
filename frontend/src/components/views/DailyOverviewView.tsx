@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../styles'
@@ -36,7 +36,7 @@ const useSelectFirstItemOnFirstLoad = (setOpenListIds: React.Dispatch<React.SetS
     const isFirstSuccess = useRef(true)
     const navigate = useNavigate()
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (lists?.length === 0) return
         if (isSuccess && isFirstSuccess.current) {
             isFirstSuccess.current = false
