@@ -541,6 +541,7 @@ export const useMarkTaskDoneOrDeleted = () => {
                     return list.view_items.find((item) => item.id === data.id)
                 })
                 if (listWithDeletedTask && listWithDeletedTask.view_items.length !== 1) {
+                    if (location[3] !== data.id) return
                     const taskIndex = listWithDeletedTask.view_items.findIndex((item) => item.id === data.id)
                     const nextTask = listWithDeletedTask.view_items[taskIndex + 1]
                     if (nextTask) {
