@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import useOverviewContext from '../../context/OverviewContextProvider'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
@@ -31,7 +32,8 @@ const RightActions = styled.div`
     display: flex;
 `
 
-const useSelectFirstItemOnFirstLoad = (setOpenListIds: React.Dispatch<React.SetStateAction<string[]>>) => {
+const useSelectFirstItemOnFirstLoad = () => {
+    const { setOpenListIds } = useOverviewContext()
     const { lists, isSuccess } = useOverviewLists()
     const isFirstSuccess = useRef(true)
     const navigate = useNavigate()
@@ -65,11 +67,8 @@ const DailyOverviewView = () => {
     const [editListTabIndex, setEditListTabIndex] = useState(0) // 0 - add, 1 - reorder
 
     const { calendarType } = useCalendarContext()
-
-    const [openListIds, setOpenListIds] = useState<string[]>([])
-    const expandAll = () => setOpenListIds(lists.map((list) => list.id))
-    const collapseAll = () => setOpenListIds([])
-    useSelectFirstItemOnFirstLoad(setOpenListIds)
+    useSelectFirstItemOnFirstLoad()
+    const { expandAll, collapseAll } = useOverviewContext()
 
     const { lists, isLoading } = useOverviewLists()
 
@@ -127,12 +126,7 @@ const DailyOverviewView = () => {
                     </ActionsContainer>
                     <SmartPrioritizationBanner />
                     {lists.map((list) => (
-                        <AccordionItem
-                            key={list.id}
-                            list={list}
-                            openListIds={openListIds}
-                            setOpenListIds={setOpenListIds}
-                        />
+                        <AccordionItem key={list.id} list={list} />
                     ))}
                 </ScrollableListTemplate>
             </Flex>

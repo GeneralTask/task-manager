@@ -1,9 +1,12 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
 import { useNavigate } from 'react-router-dom'
+import { convertProsemirrorTableNodeToArrayOfRows } from '@atlaskit/editor-common/dist/types/utils'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TRASH_SECTION_ID } from '../../constants'
+import useOverviewContext from '../../context/OverviewContextProvider'
 import useQueryContext from '../../context/QueryContext'
+import { useGTLocalStorage } from '../../hooks'
 import apiClient from '../../utils/api'
 import {
     TExternalStatus,
@@ -419,6 +422,10 @@ const modifyTask = async (data: TModifyTaskData) => {
 
 export const useMarkTaskDoneOrDeleted = () => {
     const queryClient = useGTQueryClient()
+    const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
+    const navigate = useNavigate()
+    const { setOpenListIds } = useOverviewContext()
+
     return useQueuedMutation((data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
@@ -514,11 +521,45 @@ export const useMarkTaskDoneOrDeleted = () => {
                     if (draft[sectionIndex].view_items.length === 0) {
                         draft[sectionIndex].has_tasks_completed_today = true
                     }
+                    if (overviewAutomaticEmptySort) {
+                        draft.sort((a, b) => {
+                            if (a.view_items.length === 0 && b.view_items.length > 0) return 1
+                            if (a.view_items.length > 0 && b.view_items.length === 0) return -1
+                            return 0
+                        })
+                    }
                 })
                 if (data.waitForAnimation) {
                     await sleep(TASK_MARK_AS_DONE_TIMEOUT)
                 }
+
                 queryClient.setQueryData('overview', newLists)
+
+                const listWithDeletedTask = lists.find((list) => {
+                    return list.view_items.find((item) => item.id === data.id)
+                })
+                if (listWithDeletedTask && listWithDeletedTask.view_items.length !== 1) {
+                    const taskIndex = listWithDeletedTask.view_items.findIndex((item) => item.id === data.id)
+                    const nextTask = listWithDeletedTask.view_items[taskIndex + 1]
+                    if (nextTask) {
+                        navigate(`/overview/${listWithDeletedTask.id}/${nextTask.id}`)
+                    }
+                } else {
+                    const firstNonEmptyList = newLists.find((list) => list.view_items.length > 0)
+                    if (firstNonEmptyList) {
+                        setOpenListIds((openListIds) => {
+                            if (!openListIds.includes(firstNonEmptyList.id)) {
+                                return [...openListIds, firstNonEmptyList.id]
+                            }
+                            return openListIds
+                        })
+                        //close empty list too
+
+                        navigate(`/overview/${firstNonEmptyList.id}/${firstNonEmptyList.view_items[0].id}`)
+                    } else {
+                        navigate(`/overview/`)
+                    }
+                }
             }
             // execute in parallel if waiting for animation delay
             updateSections()

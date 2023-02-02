@@ -1,23 +1,17 @@
-import { useCallback, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useGTLocalStorage, useItemSelectionController } from '../../hooks'
-import Log from '../../services/api/log'
+import { useMemo } from 'react'
+import { useGTLocalStorage } from '../../hooks'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { useGetSettings } from '../../services/api/settings.hooks'
 import getSortAndFilterSettings from '../../utils/sortAndFilter/getSortAndFilterSettings'
 import { PR_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/pull-requests.config'
 import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
 import { TASK_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/tasks.config'
-import { TOverviewItem } from '../../utils/types'
-
-type TOverviewItemWithListId = TOverviewItem & { listId: string }
 
 // returns overview lists with view items sorted and filtered
 const useOverviewLists = () => {
     const { data: lists, isLoading: areListsLoading, isSuccess } = useGetOverviewViews()
     const { data: settings, isLoading: areSettingsLoading } = useGetSettings()
     const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
-    const navigate = useNavigate()
 
     const sortedAndFilteredLists = useMemo(() => {
         if (areListsLoading || areSettingsLoading || !lists || !settings) return []
@@ -55,17 +49,6 @@ const useOverviewLists = () => {
             return list
         })
     }, [lists, areListsLoading, settings, areSettingsLoading])
-
-    // adds listId to the item so we know which list to navigate to
-    const flattenedLists: TOverviewItemWithListId[] = useMemo(
-        () => sortedAndFilteredLists.flatMap((list) => list.view_items.map((item) => ({ ...item, listId: list.id }))),
-        [sortedAndFilteredLists]
-    )
-    const selectItem = useCallback((item: TOverviewItemWithListId) => {
-        navigate(`/overview/${item.listId}/${item.id}`)
-        Log(`overview_select__/overview/${item.listId}/${item.id}`)
-    }, [])
-    useItemSelectionController(flattenedLists, selectItem)
 
     if (overviewAutomaticEmptySort) {
         const copy = [...sortedAndFilteredLists]

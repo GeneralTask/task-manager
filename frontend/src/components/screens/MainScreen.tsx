@@ -2,6 +2,7 @@ import { Navigate, useLocation } from 'react-router-dom'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
 import { DateTime } from 'luxon'
+import { OverviewContextProvider } from '../../context/OverviewContextProvider'
 import { useEventBanners, usePageFocus } from '../../hooks'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
@@ -30,7 +31,12 @@ const MainScreen = () => {
     const currentPage = () => {
         switch (location.pathname.split('/')[1]) {
             case 'overview':
-                return <DailyOverviewView />
+                return (
+                    <OverviewContextProvider>
+                        {' '}
+                        <DailyOverviewView />
+                    </OverviewContextProvider>
+                )
             case 'recurring-tasks':
                 return <RecurringTasksView />
             case 'notes':
@@ -44,7 +50,12 @@ const MainScreen = () => {
             case 'slack':
                 return <SlackTasksView />
             default:
-                return <DailyOverviewView />
+                return (
+                    <OverviewContextProvider>
+                        {' '}
+                        <DailyOverviewView />
+                    </OverviewContextProvider>
+                )
         }
     }
 

@@ -1,37 +1,42 @@
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import useOverviewContext from '../../../context/OverviewContextProvider'
 import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
 import Log from '../../../services/api/log'
 import { useGetOverviewViews } from '../../../services/api/overview.hooks'
 import { useMarkTaskDoneOrDeleted } from '../../../services/api/tasks.hooks'
+import { TOverviewView } from '../../../utils/types'
 import GTCheckbox from '../GTCheckbox'
 
-const useNavigateToNextOverviewItem = () => {
-    const { data: lists } = useGetOverviewViews()
+export const useNavigateToNextOverviewItem = () => {
     const navigate = useNavigate()
-    return (completedTaskId: string) => {
-        console.log(completedTaskId)
-        console.log(lists)
-
+    const { setOpenListIds } = useOverviewContext()
+    return (completedTaskId: string, lists: TOverviewView[]) => {
         const listWithTask = lists?.find((list) => {
             return list.view_items.find((item) => item.id === completedTaskId)
         })
 
         // Check if current list is not empty, and select next item if it is not
         if (listWithTask && listWithTask.view_items.length !== 1) {
-            console.log(listWithTask)
             const taskIndex = listWithTask.view_items.findIndex((item) => item.id === completedTaskId)
             const nextTask = listWithTask.view_items[taskIndex + 1]
             if (nextTask) {
                 navigate(`/overview/${listWithTask.id}/${nextTask.id}`)
             }
         } else {
-            console.log('in else statement')
             // Select first item in first non-empty list
             const firstNonEmptyList = lists?.find((list) => list.view_items.length > 0 && list.id !== listWithTask?.id)
             console.log('first non empty list', firstNonEmptyList)
             if (firstNonEmptyList) {
+                //open this list
                 navigate(`/overview/${firstNonEmptyList.id}/${firstNonEmptyList.view_items[0].id}`)
+                //open this list item
+                setOpenListIds((ids) => {
+                    if (!ids.includes(firstNonEmptyList.id)) {
+                        return [...ids, firstNonEmptyList.id]
+                    }
+                    return ids
+                })
             } else {
                 navigate(`/overview/`)
             }
@@ -60,7 +65,6 @@ const MarkTaskDoneButton = ({
     optimsticId,
 }: MarkTaskDoneButtonProps) => {
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
-    const navigateToNextItem = useNavigateToNextOverviewItem()
     const onMarkTaskDone = useCallback(() => {
         if (onMarkComplete) onMarkComplete()
         markTaskDoneOrDeleted(
@@ -73,7 +77,7 @@ const MarkTaskDoneButton = ({
             },
             optimsticId
         )
-        navigateToNextItem(taskId)
+
         Log({
             taskId: taskId,
             sectionId: sectionId,

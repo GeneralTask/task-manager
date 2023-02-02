@@ -1,4 +1,4 @@
-import { Ref, forwardRef, useCallback } from 'react'
+import { Ref, forwardRef, useCallback, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 import { useNavigateToTask, usePreviewMode } from '../../../hooks'
@@ -46,21 +46,6 @@ const TaskSectionViewItems = forwardRef(
             },
             [view.task_section_id]
         )
-
-        // const selectTaskAfterCompletion = useCallback(
-        //     (taskId: string) => {
-        //         if (!taskSections) return
-        //         if (overviewItemId !== taskId) return
-        //         const { taskIndex, sectionIndex } = getTaskIndexFromSections(taskSections, taskId)
-        //         if (sectionIndex == null || taskIndex == null) return
-
-        //         if (taskSections.length === 0 || taskSections[sectionIndex].tasks.length === 0) return
-        //         const previousTask = taskSections[sectionIndex].tasks[taskIndex - 1]
-        //         if (!previousTask) return
-        //         navigateToTask(previousTask.id)
-        //     },
-        //     [taskSections, overviewItemId]
-        // )
 
         return (
             <>
