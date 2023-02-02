@@ -111,11 +111,11 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
             case SmartPrioritizeState.ERROR:
                 return (
                     <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
-                        <Icon icon={icons.warning} color="red" />
+                        <Icon icon={icons.warningTriangle} color="red" />
                         <Label color="red">
                             There was an error sorting your lists.
                             {hasSuggestionsRemaining
-                                ? ` Please try again (${suggestionsRemaining} uses remaining).`
+                                ? ` Please try again. (${suggestionsRemaining} uses remaining)`
                                 : null}
                         </Label>
                         <GTButton
@@ -136,10 +136,11 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
             case SmartPrioritizeState.ERROR_TOO_LONG:
                 return (
                     <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
-                        <Icon icon={icons.warning} color="red" />
+                        <Icon icon={icons.warningTriangle} color="red" />
                         <Label color="red">
-                            Your lists are too long to be prioritized. Try removing items from your overview page.
-                            {hasSuggestionsRemaining ? ` (${suggestionsRemaining} uses remaining).` : null}
+                            Some of your lists are too long to be prioritized. Try removing items from your Daily
+                            Overview.
+                            {hasSuggestionsRemaining ? ` (${suggestionsRemaining} uses remaining)` : null}
                         </Label>
                         <GTButton
                             size="small"
