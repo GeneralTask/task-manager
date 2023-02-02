@@ -70,8 +70,12 @@ const GTDatePicker = ({
         } else {
             setCurrentDate(DateTime.fromJSDate(date))
             if (isLinearTask) {
-                const dateTimeUTCMidnight = DateTime.fromJSDate(date).setZone('utc').startOf('day')
-                setDate(dateTimeUTCMidnight.toISO())
+                const datetimeUTCMidnight = DateTime.utc(
+                    date.getFullYear(),
+                    date.getMonth() + 1,
+                    date.getDate()
+                ).startOf('day')
+                setDate(datetimeUTCMidnight.toISO())
             } else {
                 setDate(DateTime.fromJSDate(date).toISO())
             }
