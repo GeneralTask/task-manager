@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
 import useOverviewContext from '../../context/OverviewContextProvider'

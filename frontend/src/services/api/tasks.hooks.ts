@@ -1,6 +1,5 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
 import { useNavigate } from 'react-router-dom'
-import { convertProsemirrorTableNodeToArrayOfRows } from '@atlaskit/editor-common/dist/types/utils'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TRASH_SECTION_ID } from '../../constants'
