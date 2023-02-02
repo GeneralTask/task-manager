@@ -137,24 +137,30 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                 return (
                     <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
                         <Icon icon={icons.warningTriangle} color="red" />
-                        <Label color="red">
-                            Some of your lists are too long to be prioritized. Try removing items from your Daily
-                            Overview.
-                            {hasSuggestionsRemaining ? ` (${suggestionsRemaining} uses remaining)` : null}
-                        </Label>
-                        <GTButton
-                            size="small"
-                            value="Cancel"
-                            styleType="secondary"
-                            onClick={() => setState(SmartPrioritizeState.MANUAL)}
-                        />
-                        {hasSuggestionsRemaining || isPreviewMode ? (
-                            <GTButton size="small" value="Retry" onClick={getSuggestion} />
-                        ) : (
-                            <Tip content="You have no uses remaining">
-                                <GTButton size="small" value="Retry" onClick={getSuggestion} disabled />
-                            </Tip>
-                        )}
+                        <Flex column justifyContent="center">
+                            <Label color="red">
+                                Some of your lists are too long to be prioritized. Try removing items from your Daily
+                                Overview.
+                            </Label>
+                            <Label color="red">
+                                {hasSuggestionsRemaining ? ` (${suggestionsRemaining} uses remaining)` : null}
+                            </Label>
+                        </Flex>
+                        <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
+                            <GTButton
+                                size="small"
+                                value="Cancel"
+                                styleType="secondary"
+                                onClick={() => setState(SmartPrioritizeState.MANUAL)}
+                            />
+                            {hasSuggestionsRemaining || isPreviewMode ? (
+                                <GTButton size="small" value="Retry" onClick={getSuggestion} />
+                            ) : (
+                                <Tip content="You have no uses remaining">
+                                    <GTButton size="small" value="Retry" onClick={getSuggestion} disabled />
+                                </Tip>
+                            )}
+                        </Flex>
                     </Flex>
                 )
             case SmartPrioritizeState.LOADED:
