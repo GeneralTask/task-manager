@@ -38,6 +38,7 @@ import {
     faDiagramSubtask,
     faEllipsisVertical,
     faEmptySet,
+    faExclamationTriangle,
     faEye,
     faEyeSlash,
     faFlask,
@@ -206,6 +207,7 @@ export const icons = Object.freeze({
     user: faUser,
     video: faVideo,
     warning: faCircleExclamation,
+    warningTriangle: faExclamationTriangle,
     x: faXmark,
 })
 

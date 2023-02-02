@@ -293,7 +293,12 @@ export interface TOverviewSuggestion {
 }
 
 export const getOverviewSmartSuggestion = async () => {
-    const res = await apiClient.get('/overview/views/suggestion/')
+    const res = await apiClient.get('/overview/views/suggestion/', {
+        validateStatus: function (status) {
+            return status < 500 // Resolve only if the status code is less than 500
+        },
+    })
+    if (res.data.error) throw new Error(res.data.error)
     if (res.status !== 200) throw new Error('getOverviewSmartSuggestion failed')
     return res.data
 }
