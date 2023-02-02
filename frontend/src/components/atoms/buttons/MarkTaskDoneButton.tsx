@@ -25,11 +25,10 @@ export const useNavigateToNextOverviewItem = () => {
         } else {
             // Select first item in first non-empty list
             const firstNonEmptyList = lists?.find((list) => list.view_items.length > 0 && list.id !== listWithTask?.id)
-            console.log('first non empty list', firstNonEmptyList)
             if (firstNonEmptyList) {
-                //open this list
+                //navigate to this list item
                 navigate(`/overview/${firstNonEmptyList.id}/${firstNonEmptyList.view_items[0].id}`)
-                //open this list item
+                //open this list and close the previous one
                 setOpenListIds((ids) => {
                     const idsCopy = [...ids]
                     if (!idsCopy.includes(firstNonEmptyList.id)) {
@@ -39,6 +38,7 @@ export const useNavigateToNextOverviewItem = () => {
                     return ids
                 })
             } else {
+                //navigate to overview if there are no more items
                 navigate(`/overview/`)
             }
         }
@@ -78,7 +78,6 @@ const MarkTaskDoneButton = ({
             },
             optimsticId
         )
-
         Log({
             taskId: taskId,
             sectionId: sectionId,
