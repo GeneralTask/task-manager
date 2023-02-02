@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DETAILS_SYNC_TIMEOUT, NO_TITLE, SYNC_MESSAGES } from '../../constants'
-import { TModifyNoteData, useModifyNote } from '../../services/api/notes.hooks'
+import { NOTE_SYNC_TIMEOUT } from '../../constants'
+import { useDebouncedEdit } from '../../hooks'
+import { useModifyNote } from '../../services/api/notes.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { TNote } from '../../utils/types'
@@ -45,53 +45,9 @@ interface NoteDetailsProps {
     link: string
 }
 const NoteDetails = ({ note }: NoteDetailsProps) => {
-    const [isEditing, setIsEditing] = useState(false)
-    const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
+    const { mutate: onSave, isError, isLoading } = useModifyNote()
+    const { onEdit, syncIndicatorText } = useDebouncedEdit({ onSave, isError, isLoading }, NOTE_SYNC_TIMEOUT)
 
-    const { mutate: modifyNote, isError, isLoading } = useModifyNote()
-    const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
-
-    useEffect(() => {
-        if (isEditing || isLoading) {
-            setSyncIndicatorText(SYNC_MESSAGES.SYNCING)
-        } else if (isError) {
-            setSyncIndicatorText(SYNC_MESSAGES.ERROR)
-        } else {
-            setSyncIndicatorText(SYNC_MESSAGES.COMPLETE)
-        }
-    }, [isError, isLoading, isEditing])
-
-    useEffect(() => {
-        return () => {
-            for (const timer of Object.values(timers.current)) {
-                timer.callback()
-                clearTimeout(timer.timeout)
-            }
-        }
-    }, [])
-
-    const syncNote = useCallback(
-        ({ id, title, body }: TModifyNoteData) => {
-            setIsEditing(false)
-            const timerId = id + (title === undefined ? 'body' : 'title')
-            if (title === '') title = NO_TITLE
-            if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
-            modifyNote({ id, title, body })
-        },
-        [note.id]
-    )
-
-    const onEdit = ({ id, title, body }: TModifyNoteData) => {
-        setIsEditing(true)
-        const timerId = id + (title === undefined ? 'body' : 'title')
-        if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
-        timers.current[timerId] = {
-            timeout: setTimeout(() => syncNote({ id, title, body }), DETAILS_SYNC_TIMEOUT),
-            callback: () => syncNote({ id, title, body }),
-        }
-    }
-
-    const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
     const sharedUntil =
         note.shared_until === SHARED_NOTE_INDEFINITE_DATE
             ? 'Shared indefinitely'
@@ -99,6 +55,8 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                   month: 'long',
                   day: 'numeric',
               })}`
+    const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
+
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
