@@ -37,7 +37,7 @@ const CalendarFooter = () => {
                 <CalendarSelector
                     mode="task-to-cal"
                     renderTrigger={(calendar, accountId) => (
-                        <Tip content="Select which calendar to create new events in">
+                        <Tip content="Choose the default calendar to create new events in">
                             <GTButton
                                 value={
                                     <Truncated>
