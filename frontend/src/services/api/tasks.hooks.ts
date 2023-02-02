@@ -1,5 +1,6 @@
+import { Dispatch, SetStateAction } from 'react'
 import { QueryFunctionContext, useQuery } from 'react-query'
-import { useNavigate } from 'react-router-dom'
+import { NavigateFunction, useNavigate } from 'react-router-dom'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TRASH_SECTION_ID } from '../../constants'
@@ -419,6 +420,45 @@ const modifyTask = async (data: TModifyTaskData) => {
     }
 }
 
+const navigateToNextItemAfterOverviewCommpletion = (
+    oldLists: TOverviewView[],
+    newLists: TOverviewView[],
+    deletedTaskId: string,
+    navigate: NavigateFunction,
+    setOpenListIds: Dispatch<SetStateAction<string[]>>
+) => {
+    const location = window.location.pathname.split('/')
+
+    // Get list with deleted task
+    const listWithDeletedTask = oldLists.find((list) => {
+        return list.view_items.find((item) => item.id === deletedTaskId)
+    })
+
+    // If list has more than one task, navigate to next task
+    if (listWithDeletedTask && listWithDeletedTask.view_items.length !== 1) {
+        if (location[3] !== deletedTaskId) return
+        const taskIndex = listWithDeletedTask.view_items.findIndex((item) => item.id === deletedTaskId)
+        const nextTask = listWithDeletedTask.view_items[taskIndex + 1]
+        if (nextTask) {
+            navigate(`/overview/${listWithDeletedTask.id}/${nextTask.id}`)
+        }
+    } else {
+        // If list has only one task, navigate to first non-empty list
+        const firstNonEmptyList = newLists.find((list) => list.view_items.length > 0)
+        if (firstNonEmptyList) {
+            setOpenListIds((openListIds) => {
+                if (!openListIds.includes(firstNonEmptyList.id)) {
+                    return [...openListIds, firstNonEmptyList.id]
+                }
+                return openListIds
+            })
+            navigate(`/overview/${firstNonEmptyList.id}/${firstNonEmptyList.view_items[0].id}`)
+        } else {
+            navigate(`/overview/`)
+        }
+    }
+}
+
 export const useMarkTaskDoneOrDeleted = () => {
     const queryClient = useGTQueryClient()
     const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
@@ -534,35 +574,14 @@ export const useMarkTaskDoneOrDeleted = () => {
 
                 queryClient.setQueryData('overview', newLists)
 
-                const location = window.location.pathname.split('/')
-                if (location[1] !== 'overview') return
-
-                const listWithDeletedTask = lists.find((list) => {
-                    return list.view_items.find((item) => item.id === data.id)
-                })
-                if (listWithDeletedTask && listWithDeletedTask.view_items.length !== 1) {
-                    if (location[3] !== data.id) return
-                    const taskIndex = listWithDeletedTask.view_items.findIndex((item) => item.id === data.id)
-                    const nextTask = listWithDeletedTask.view_items[taskIndex + 1]
-                    if (nextTask) {
-                        navigate(`/overview/${listWithDeletedTask.id}/${nextTask.id}`)
-                    }
-                } else {
-                    const firstNonEmptyList = newLists.find((list) => list.view_items.length > 0)
-                    if (firstNonEmptyList) {
-                        setOpenListIds((openListIds) => {
-                            if (!openListIds.includes(firstNonEmptyList.id)) {
-                                return [...openListIds, firstNonEmptyList.id]
-                            }
-                            return openListIds
-                        })
-                        //close empty list too
-
-                        navigate(`/overview/${firstNonEmptyList.id}/${firstNonEmptyList.view_items[0].id}`)
-                    } else {
-                        navigate(`/overview/`)
-                    }
-                }
+                if (window.location.pathname.split('/')[1] !== 'overview') return
+                navigateToNextItemAfterOverviewCommpletion(
+                    lists as TOverviewView[],
+                    newLists as TOverviewView[],
+                    data.id,
+                    navigate,
+                    setOpenListIds
+                )
             }
             // execute in parallel if waiting for animation delay
             updateSections()
