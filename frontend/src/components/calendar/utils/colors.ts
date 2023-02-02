@@ -146,8 +146,3 @@ export const eventColors = {
         foreground: '#1d1d1d',
     },
 }
-
-const getCalendarColor = (colorId: string): string =>
-    calendarColors[colorId as keyof typeof calendarColors]?.background ?? DEFAULT_CALENDAR_COLOR
-
-export default getCalendarColor

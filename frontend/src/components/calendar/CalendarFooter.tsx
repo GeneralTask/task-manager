@@ -8,7 +8,7 @@ import SettingsModalButton from '../molecules/SettingsModalButton'
 import Tip from '../radix/Tip'
 import { useCalendarContext } from './CalendarContext'
 import CalendarSelector from './CalendarSelector'
-import getCalendarColor from './utils/colors'
+import { getCalendarColor, getCalendarName } from './utils/utils'
 
 const Container = styled.div`
     display: flex;
@@ -36,10 +36,10 @@ const CalendarFooter = () => {
             <TaskToCalContainer>
                 <CalendarSelector
                     mode="task-to-cal"
-                    renderTrigger={(calendar) => (
+                    renderTrigger={(calendar, accountId) => (
                         <Tip content="Select which calendar to create new events in">
                             <GTButton
-                                value={<Truncated>{calendar?.title || 'Select a calendar'}</Truncated>}
+                                value={<Truncated>{getCalendarName(accountId, calendar?.title)}</Truncated>}
                                 icon={icons.square}
                                 iconColorHex={getCalendarColor(calendar?.color_id || '')}
                                 asDiv

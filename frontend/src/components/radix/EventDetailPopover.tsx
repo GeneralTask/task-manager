@@ -12,7 +12,7 @@ import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
 import { Label } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
-import getCalendarColor from '../calendar/utils/colors'
+import { getCalendarColor } from '../calendar/utils/utils'
 import {
     CopyButton,
     Description,
@@ -124,7 +124,9 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                 <Flex gap={Spacing._8}>
                     <Icon icon={icons.square} colorHex={getCalendarColor(event.color_id || calendar.color_id)} />
                     <Label>
-                        {calendar.title} ({calendarAccount.account_id})
+                        {calendar.title
+                            ? `${calendar.title} (${calendarAccount.account_id})`
+                            : calendarAccount.account_id}
                     </Label>
                 </Flex>
             )}
