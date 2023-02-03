@@ -2,11 +2,12 @@ package api
 
 import (
 	"encoding/json"
+	"net/http"
+	"testing"
+
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"net/http"
-	"testing"
 )
 
 func TestCalendarList(t *testing.T) {
@@ -23,7 +24,7 @@ func TestCalendarList(t *testing.T) {
 		"foobar_source",
 		&database.CalendarAccount{
 			UserID:     userID,
-			IDExternal: "account1",
+			IDExternal: "360-no-scope",
 			Calendars: []database.Calendar{
 				{
 					CalendarID: "cal1",
@@ -82,6 +83,27 @@ func TestCalendarList(t *testing.T) {
 		nil,
 	)
 	assert.NoError(t, err)
+	_, err = database.UpdateOrCreateCalendarAccount(
+		db,
+		userID,
+		"123def",
+		"foobar_source",
+		&database.CalendarAccount{
+			UserID:     userID,
+			IDExternal: "single-cal",
+			Calendars: []database.Calendar{
+				{
+					CalendarID: "cal2",
+					ColorID:    "col2",
+					Title:      "title2",
+					AccessRole: "reader",
+				},
+			},
+			Scopes: []string{"https://www.googleapis.com/auth/calendar.events"},
+		},
+		nil,
+	)
+	assert.NoError(t, err)
 
 	UnauthorizedTest(t, "GET", "/calendars/", nil)
 	t.Run("Success", func(t *testing.T) {
@@ -93,11 +115,12 @@ func TestCalendarList(t *testing.T) {
 		err = json.Unmarshal(response, &result)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 2, len(result))
+		assert.Equal(t, 3, len(result))
 
 		assert.Equal(t, []CalendarAccountResult{
-			{AccountID: "account1", Calendars: []CalendarResult{{CalendarID: "cal1", ColorID: "col1", Title: "title1", CanWrite: true}}, HasMulticalScope: false},
-			{AccountID: "account2", Calendars: []CalendarResult{{CalendarID: "cal2", ColorID: "col2", Title: "title2", CanWrite: false}, {CalendarID: "cal3", ColorID: "col3", Title: "title3", CanWrite: true}}, HasMulticalScope: true},
+			{AccountID: "360-no-scope", Calendars: []CalendarResult{{CalendarID: "cal1", ColorID: "col1", Title: "title1", CanWrite: true}}, HasMulticalScope: false, HasPrimaryCalendarScope: false},
+			{AccountID: "account2", Calendars: []CalendarResult{{CalendarID: "cal2", ColorID: "col2", Title: "title2", CanWrite: false}, {CalendarID: "cal3", ColorID: "col3", Title: "title3", CanWrite: true}}, HasMulticalScope: true, HasPrimaryCalendarScope: false},
+			{AccountID: "single-cal", Calendars: []CalendarResult{{CalendarID: "cal2", ColorID: "col2", Title: "title2", CanWrite: false}}, HasMulticalScope: false, HasPrimaryCalendarScope: true},
 		},
 			result)
 	})
