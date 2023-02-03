@@ -358,6 +358,10 @@ export interface TRecurringTaskTemplate {
     day_to_create_task?: number
     month_to_create_task?: number
     last_backfill_datetime: string
+    created_at: string
+    updated_at: string
+    is_deleted: boolean
+    is_enabled: boolean
 }
 
 export type TLinkedAccountName = 'Atlassian' | 'GitHub' | 'Google Calendar' | 'Slack' | 'Linear'
