@@ -32,9 +32,11 @@ const EnableCalendarsBanner = () => {
     const { data: calendars } = useGetCalendars()
     const { data: supportedTypes } = useGetSupportedTypes()
     const { openAuthWindow } = useAuthWindow()
-    const { field_value: hasDismissedMulticalPrompt, updateSetting: setHasDismissedMulticalPrompt } = useSetting(
-        'has_dismissed_multical_prompt'
-    )
+    const {
+        field_value: hasDismissedMulticalPrompt,
+        updateSetting: setHasDismissedMulticalPrompt,
+        isLoading,
+    } = useSetting('has_dismissed_multical_prompt')
     const { show } = useToast()
 
     const calendarsNeedingReauth = useMemo(
@@ -42,7 +44,7 @@ const EnableCalendarsBanner = () => {
         [calendars]
     )
 
-    if (hasDismissedMulticalPrompt === 'true' || calendarsNeedingReauth.length === 0) return null
+    if (isLoading || hasDismissedMulticalPrompt === 'true' || calendarsNeedingReauth.length === 0) return null
 
     const handleClick = () => {
         const authUrl = supportedTypes?.find(
