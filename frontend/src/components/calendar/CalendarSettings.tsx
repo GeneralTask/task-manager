@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
-import { useAuthWindow, useSetting } from '../../hooks'
+import { useAuthWindow, usePreviewMode, useSetting } from '../../hooks'
 import { useGetCalendars } from '../../services/api/events.hooks'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Border, Colors, Spacing } from '../../styles'
@@ -27,6 +27,8 @@ const Calendar = styled(Flex)`
 `
 
 const CalendarSettings = () => {
+    const { isPreviewMode } = usePreviewMode()
+    const { updateSetting: setHasDismissedMulticalPrompt } = useSetting('has_dismissed_multical_prompt')
     const { data: calendars } = useGetCalendars()
     const { field_value: taskToCalAccount, updateSetting: setTaskToCalAccount } = useSetting(
         'calendar_account_id_for_new_tasks'
@@ -123,6 +125,20 @@ const CalendarSettings = () => {
                     </div>
                 </Flex>
             ))}
+            {isPreviewMode && (
+                <Flex justifyContent="space-between" alignItems="center">
+                    <BodySmall>
+                        Secret button to un-dismiss calendar auth banner (if you have calendars that need multi-cal
+                        enabled)
+                    </BodySmall>
+                    <GTButton
+                        value="Un-dismiss"
+                        size="small"
+                        styleType="secondary"
+                        onClick={() => setHasDismissedMulticalPrompt('false')}
+                    />
+                </Flex>
+            )}
         </Flex>
     )
 }
