@@ -76,7 +76,11 @@ const CalendarSettings = () => {
                         </Flex>
                         <Flex gap={Spacing._8}>
                             {!account.has_multical_scopes && (
-                                <GTButton value="Enable all calendars" size="small" onClick={handleReauthorization} />
+                                <GTButton
+                                    value="Authorize all calendars"
+                                    size="small"
+                                    onClick={handleReauthorization}
+                                />
                             )}
                             <GTDropdownMenu
                                 hideCheckmark

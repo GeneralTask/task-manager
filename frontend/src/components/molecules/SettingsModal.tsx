@@ -127,7 +127,7 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
         return (
             <GTButton
                 onClick={() => openAuthWindow({ url: authUrl, isGoogleSignIn: true })}
-                value="Enable all calendars"
+                value="Authorize all calendars"
                 size="small"
             />
         )
