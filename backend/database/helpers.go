@@ -1007,6 +1007,6 @@ func HasUserGrantedMultiCalendarScope(scopes []string) bool {
 	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar")
 }
 
-func HasUserGrantedCalendarScope(scopes []string) bool {
-	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar.events") || slices.Contains(scopes, "https://www.googleapis.com/auth/calendar")
+func HasUserGrantedPrimaryCalendarScope(scopes []string) bool {
+	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar.events")
 }

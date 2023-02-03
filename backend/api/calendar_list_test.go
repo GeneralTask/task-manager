@@ -118,9 +118,9 @@ func TestCalendarList(t *testing.T) {
 		assert.Equal(t, 3, len(result))
 
 		assert.Equal(t, []CalendarAccountResult{
-			{AccountID: "360-no-scope", Calendars: []CalendarResult{{CalendarID: "cal1", ColorID: "col1", Title: "title1", CanWrite: true}}, HasMulticalScope: false, HasAnyCalendarScope: false},
-			{AccountID: "account2", Calendars: []CalendarResult{{CalendarID: "cal2", ColorID: "col2", Title: "title2", CanWrite: false}, {CalendarID: "cal3", ColorID: "col3", Title: "title3", CanWrite: true}}, HasMulticalScope: true, HasAnyCalendarScope: true},
-			{AccountID: "single-cal", Calendars: []CalendarResult{{CalendarID: "cal2", ColorID: "col2", Title: "title2", CanWrite: false}}, HasMulticalScope: false, HasAnyCalendarScope: true},
+			{AccountID: "360-no-scope", Calendars: []CalendarResult{{CalendarID: "cal1", ColorID: "col1", Title: "title1", CanWrite: true}}, HasMulticalScope: false, HasPrimaryCalendarScope: false},
+			{AccountID: "account2", Calendars: []CalendarResult{{CalendarID: "cal2", ColorID: "col2", Title: "title2", CanWrite: false}, {CalendarID: "cal3", ColorID: "col3", Title: "title3", CanWrite: true}}, HasMulticalScope: true, HasPrimaryCalendarScope: false},
+			{AccountID: "single-cal", Calendars: []CalendarResult{{CalendarID: "cal2", ColorID: "col2", Title: "title2", CanWrite: false}}, HasMulticalScope: false, HasPrimaryCalendarScope: true},
 		},
 			result)
 	})
