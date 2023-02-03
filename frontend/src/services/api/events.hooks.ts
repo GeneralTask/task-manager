@@ -76,10 +76,17 @@ interface TDeleteEventData {
 }
 
 export const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
+    const queryClient = useGTQueryClient()
     return useQuery<TEvent[]>(
         ['events', calendarType, params.startISO],
         (queryFunctionContext) => getEvents(params, queryFunctionContext),
-        getBackgroundQueryOptions(EVENTS_REFETCH_INTERVAL)
+        {
+            ...getBackgroundQueryOptions(EVENTS_REFETCH_INTERVAL),
+            onSettled: () => {
+                // because apparently we only refetch calendars when we refetch events
+                queryClient.invalidateQueries('calendars')
+            },
+        }
     )
 }
 const getEvents = async (params: { startISO: string; endISO: string }, { signal }: QueryFunctionContext) => {

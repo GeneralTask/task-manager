@@ -12,7 +12,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Body, BodySmall, Label } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
-import { getCalendarColor, getCalendarName } from './utils/utils'
+import { getCalendarAuthButton, getCalendarColor, getCalendarName } from './utils/utils'
 
 const Calendar = styled(Flex)`
     cursor: pointer;
@@ -77,13 +77,7 @@ const CalendarSettings = () => {
                             <BodySmall>{account.account_id}</BodySmall>
                         </Flex>
                         <Flex gap={Spacing._8}>
-                            {!account.has_multical_scopes && (
-                                <GTButton
-                                    value="Authorize all calendars"
-                                    size="small"
-                                    onClick={handleReauthorization}
-                                />
-                            )}
+                            {getCalendarAuthButton(account, handleReauthorization)}
                             <GTDropdownMenu
                                 hideCheckmark
                                 items={[
