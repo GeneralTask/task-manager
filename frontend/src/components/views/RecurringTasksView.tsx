@@ -42,6 +42,19 @@ const RecurringTasksView = () => {
         })
     }, [recurringTaskTemplates, selectedFilter, areSettingsLoading])
 
+    const sortAndFilterSettings = useSortAndFilterSettings<TRecurringTaskTemplate>(
+        RECURRING_TASK_SORT_AND_FILTER_CONFIG
+    )
+    const { selectedFilter, isLoading: areSettingsLoading } = sortAndFilterSettings
+    const filteredRecurringTasks = useMemo(() => {
+        if (!recurringTaskTemplates || areSettingsLoading) return EMPTY_ARRAY
+        return sortAndFilterItems({
+            items: recurringTaskTemplates,
+            filter: selectedFilter,
+            tieBreakerField: RECURRING_TASK_SORT_AND_FILTER_CONFIG.tieBreakerField,
+        })
+    }, [recurringTaskTemplates, selectedFilter, areSettingsLoading])
+
     const selectedRecurringTask = useMemo(() => {
         if (filteredRecurringTasks == null || filteredRecurringTasks.length === 0) return null
         return filteredRecurringTasks.find((pr) => pr.id === recurringTaskId) ?? filteredRecurringTasks[0]

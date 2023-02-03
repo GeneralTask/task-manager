@@ -20,6 +20,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Body, BodySmall, Label } from '../atoms/typography/Typography'
 import CalendarSettings from '../calendar/CalendarSettings'
+import { getCalendarAuthButton } from '../calendar/utils/utils'
 import GTModal from '../mantine/GTModal'
 import SignOutButton from './SignOutButton'
 
@@ -124,13 +125,8 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
             (supportedType) => supportedType.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME
         )?.authorization_url
         if (!authUrl) return
-        return (
-            <GTButton
-                onClick={() => openAuthWindow({ url: authUrl, isGoogleSignIn: true })}
-                value="Enable all calendars"
-                size="small"
-            />
-        )
+
+        return getCalendarAuthButton(calendar, () => openAuthWindow({ url: authUrl, isGoogleSignIn: true }))
     }
 
     return (
@@ -216,8 +212,7 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                                             {account.name in nameToSetting && (
                                                 <VisibilityButton accountName={account.name as TNameToSetting} />
                                             )}
-                                            {getEnableAllCalendarsButton(account)}
-                                            {account.has_bad_token && (
+                                            {account.has_bad_token ? (
                                                 <GTButton
                                                     onClick={() => onRelink(account.name)}
                                                     value="Re-link account"
@@ -225,6 +220,8 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                                                     size="small"
                                                     textColor="red"
                                                 />
+                                            ) : (
+                                                getEnableAllCalendarsButton(account)
                                             )}
                                             {account.is_unlinkable && (
                                                 <GTButton

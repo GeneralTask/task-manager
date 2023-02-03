@@ -21,7 +21,7 @@ const DominoIconContainer = styled.div`
 `
 const LinearSelectableContainer = styled(SelectableContainer)`
     display: flex;
-    padding: ${Spacing._8};
+    padding: ${Spacing._8} ${Spacing._8} ${Spacing._8} ${Spacing._16};
     margin-bottom: ${Spacing._4};
     align-items: center;
     ${Typography.bodySmall};
