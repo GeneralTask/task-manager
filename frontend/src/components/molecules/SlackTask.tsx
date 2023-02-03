@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { useDrag } from 'react-dnd'
 import styled from 'styled-components'
 import { Spacing, Typography } from '../../styles'
 import { DropType, TTask } from '../../utils/types'
+import Domino from '../atoms/Domino'
 import SelectableContainer, { EdgeHighlight } from '../atoms/SelectableContainer'
 import TaskTemplate from '../atoms/TaskTemplate'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
@@ -14,7 +16,7 @@ const SlackSelectableContainer = styled(SelectableContainer)`
     display: flex;
     align-items: center;
     gap: ${Spacing._8};
-    padding: ${Spacing._8} ${Spacing._8} ${Spacing._8} ${Spacing._16};
+    padding: ${Spacing._8};
     margin-bottom: ${Spacing._4};
     ${Typography.bodySmall};
 `
@@ -33,6 +35,7 @@ interface SlackTaskProps {
     onClick: (id: string) => void
 }
 const SlackTask = ({ task, isSelected, onClick }: SlackTaskProps) => {
+    const [isHovered, setIsHovered] = useState(false)
     const [, drag] = useDrag(
         () => ({
             type: DropType.NON_REORDERABLE_TASK,
@@ -42,8 +45,15 @@ const SlackTask = ({ task, isSelected, onClick }: SlackTaskProps) => {
     )
     return (
         <Container key={task.id}>
-            <SlackSelectableContainer ref={drag} isSelected={isSelected} onClick={() => onClick(task.id)}>
+            <SlackSelectableContainer
+                ref={drag}
+                isSelected={isSelected}
+                onClick={() => onClick(task.id)}
+                onMouseLeave={() => setIsHovered(false)}
+                onMouseEnter={() => setIsHovered(true)}
+            >
                 {isSelected && <EdgeHighlight color="orange" />}
+                <Domino isVisible={isHovered} />
                 <MarkTaskDoneButton
                     isDone={task.is_done}
                     taskId={task.id}
