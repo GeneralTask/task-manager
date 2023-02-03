@@ -242,15 +242,11 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                         </Flex>
                     ),
                 },
-                ...(isPreviewMode
-                    ? [
-                          {
-                              title: 'Calendar',
-                              icon: icons.calendar_blank,
-                              body: <CalendarSettings />,
-                          },
-                      ]
-                    : []),
+                {
+                    title: 'Calendar',
+                    icon: icons.calendar_blank,
+                    body: <CalendarSettings />,
+                },
                 {
                     title: 'Account details',
                     icon: icons.user,
