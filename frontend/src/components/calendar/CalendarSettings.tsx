@@ -64,7 +64,7 @@ const CalendarSettings = () => {
         <Flex gap={Spacing._24} column>
             <Flex column gap={Spacing._4}>
                 <Body>Choose default calendar</Body>
-                <Label>Choose the default calendar for new events to appear.</Label>
+                <Label>Choose the default calendar to create new events in</Label>
             </Flex>
 
             {calendars?.map((account) => (
