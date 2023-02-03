@@ -39,16 +39,11 @@ const useSelectFirstItemOnFirstLoad = () => {
     const navigate = useNavigate()
 
     useEffect(() => {
-        if (!isSuccess) return
-        isFirstSuccess.current = true
-    }, [])
-
-    useLayoutEffect(() => {
         if (lists?.length === 0 || !isFirstSuccess.current) return
-
-        isFirstSuccess.current = false
         const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
         if (firstNonEmptyView) {
+            isFirstSuccess.current = false
+
             setOpenListIds((ids) => {
                 if (!ids.includes(firstNonEmptyView.id)) {
                     return [...ids, firstNonEmptyView.id]
