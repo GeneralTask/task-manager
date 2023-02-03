@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDrag } from 'react-dnd'
+import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import Log from '../../services/api/log'
@@ -55,7 +56,7 @@ const LinearTask = ({ task }: LinearTaskProps) => {
     const [isHovered, setIsHovered] = useState(false)
     const { mutate: modifyTask } = useModifyTask()
 
-    const [, drag] = useDrag(
+    const [, drag, dragPreview] = useDrag(
         () => ({
             type: DropType.NON_REORDERABLE_TASK,
             item: { id: task.id, task },
@@ -66,6 +67,9 @@ const LinearTask = ({ task }: LinearTaskProps) => {
         }),
         [task]
     )
+    useEffect(() => {
+        dragPreview(getEmptyImage())
+    }, [])
 
     const onClick = (id: string) => {
         navigate(`/linear/${id}`)
