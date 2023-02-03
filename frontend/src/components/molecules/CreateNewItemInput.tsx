@@ -23,7 +23,7 @@ export const CreateNewItemInputContainer = styled.div`
     :focus-within {
         border: ${Border.stroke.medium} solid ${Colors.border.purple};
     }
-    margin-bottom: ${Spacing._8};
+    margin-bottom: ${Spacing._16};
 `
 export const TaskInput = styled.input`
     border: none;

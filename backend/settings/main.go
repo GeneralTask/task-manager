@@ -65,6 +65,8 @@ const (
 	SettingFieldNoteFilteringPreference = "note_filtering_preference"
 	ChoiceKeyNoDeleted                  = "no_deleted"
 	ChoiceKeyShowDeleted                = "show_deleted"
+	// Recurring task filtering
+	SettingFieldRecurringTaskFilteringPreference = "recurring_task_filtering_preference"
 	// Calendar choice
 	SettingFieldCalendarForNewTasks   = "calendar_account_id_for_new_tasks"
 	SettingFieldCalendarIDForNewTasks = "calendar_calendar_id_for_new_tasks"
@@ -191,6 +193,15 @@ var NoteFilteringSetting = SettingDefinition{
 	},
 }
 
+var RecurringTaskFilteringSetting = SettingDefinition{
+	FieldKey:      SettingFieldRecurringTaskFilteringPreference,
+	DefaultChoice: ChoiceKeyNoDeleted,
+	Choices: []SettingChoice{
+		{Key: ChoiceKeyNoDeleted},
+		{Key: ChoiceKeyShowDeleted},
+	},
+}
+
 var OverviewCollapseEmptyListsSetting = SettingDefinition{
 	FieldKey:      SettingCollapseEmptyLists,
 	DefaultChoice: "true",
@@ -230,22 +241,27 @@ var HasDismissedMulticalPromptSetting = SettingDefinition{
 var TaskSectionSettingTypes = []string{"main", "overview"}
 
 var hardcodedSettings = []SettingDefinition{
-	// these settings are for the Github PR page
+	// Github PR page settings
 	GithubFilteringSetting,
 	GithubSortingPreferenceSetting,
 	GithubSortingDirectionSetting,
-	// these settings are for the sidebar
+	// sidebar settings
 	SidebarLinearSetting,
 	SidebarJiraSetting,
 	SidebarGithubSetting,
 	SidebarSlackSetting,
-	// these settings are for the notes page
+	// notes page settings
 	NoteSortingPreferenceSetting,
 	NoteSortingDirectionSetting,
 	NoteFilteringSetting,
+	// recurring tasks page settings
+	RecurringTaskFilteringSetting,
+	// overview settings
 	OverviewCollapseEmptyListsSetting,
 	OverviewMoveEmptyListsToBottomSetting,
+	// smart prioritize settings
 	LabSmartPrioritizeEnabledSetting,
+	// multical settings
 	HasDismissedMulticalPromptSetting,
 }
 

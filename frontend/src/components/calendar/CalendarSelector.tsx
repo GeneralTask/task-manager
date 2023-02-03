@@ -90,7 +90,7 @@ const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSele
             description={
                 mode === 'cal-selection'
                     ? 'Choose which calendars to show or hide'
-                    : 'Choose the default calendar for new events to appear in'
+                    : 'Choose the default calendar to create new events in'
             }
             useTriggerWidth={useTriggerWidth}
         />

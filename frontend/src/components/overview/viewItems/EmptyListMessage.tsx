@@ -12,7 +12,6 @@ const EmptyListMessageContainer = styled.div`
     align-items: center;
     gap: ${Spacing._12};
     justify-content: center;
-    margin: ${Spacing._24} 0 ${Spacing._32};
 `
 
 const emptyListMessage = (list: TOverviewView) => {
