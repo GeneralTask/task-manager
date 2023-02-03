@@ -14,7 +14,7 @@ const useSortAndFilterSettings = <T>(
     const filterPreference = useSetting(`${settingPrefix}${config.filterPreferenceId}`)
 
     // all settings come from one endpoint so if any are finished loading, they all are
-    if (!sortingPreference.isLoading && !sortDirection.isLoading && !filterPreference.isLoading) {
+    if (sortingPreference.isLoading && sortDirection.isLoading && filterPreference.isLoading) {
         return config.defaultSortsAndFilters
     }
 
