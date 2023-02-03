@@ -64,7 +64,7 @@ const EnableCalendarsBanner = () => {
 
     return (
         <Container>
-            <Flex justifyContent="space-between">
+            <Flex justifyContent="space-between" alignItems="center">
                 <Label color="light">Authorize our app to see all the calendars in your accounts.</Label>
                 <GTIconButton icon={icons.x} tooltipText="Dismiss" onClick={handleDismiss} />
             </Flex>
