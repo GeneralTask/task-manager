@@ -1,5 +1,6 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
+import { DateTime } from 'luxon'
 import { BACKFILL_RECURRING_TASKS_INTERVAL } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
@@ -78,6 +79,10 @@ export const useCreateRecurringTask = () => {
                     ...payload,
                     id: payload.optimisticId,
                     last_backfill_datetime: '',
+                    created_at: DateTime.utc().toISO(),
+                    updated_at: DateTime.utc().toISO(),
+                    is_deleted: false,
+                    is_enabled: true,
                 }
                 draft.unshift(newRecurringTask)
             })
