@@ -148,7 +148,7 @@ const CalendarView = ({
             </CalendarWeekDateHeaderContainer>
             {calendarType === 'week' && <TasksDueWeek date={date} />}
             <CalendarEvents date={date} primaryAccountID={primaryAccountID} />
-            {isPreviewMode && <CalendarFooter />}
+            <CalendarFooter />
         </CalendarContainer>
     )
 }
