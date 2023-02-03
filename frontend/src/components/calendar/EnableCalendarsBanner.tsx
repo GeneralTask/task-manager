@@ -11,7 +11,7 @@ import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
-import { BodySmall, Truncated } from '../atoms/typography/Typography'
+import { Label, Truncated } from '../atoms/typography/Typography'
 
 const Container = styled.div`
     background-color: ${Colors.background.white};
@@ -57,13 +57,13 @@ const EnableCalendarsBanner = () => {
 
     const handleDismiss = () => {
         setHasDismissedMulticalPrompt('true')
-        show({ message: 'You can enable all calendars for your Google account(s) in settings' })
+        show({ message: 'You can always enable multiple calendars from the settings page.' })
     }
 
     return (
         <Container>
-            <Flex justifyContent="space-between" alignItems="center">
-                <BodySmall>Enable all Google calendars.</BodySmall>
+            <Flex justifyContent="space-between">
+                <Label color="light">Authorize our app to see all the calendars in your accounts.</Label>
                 <GTIconButton icon={icons.x} tooltipText="Dismiss" onClick={handleDismiss} />
             </Flex>
             {calendarsNeedingReauth.map((calendar) => (
