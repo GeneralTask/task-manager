@@ -13,8 +13,8 @@ const useSortAndFilterSettings = <T>(
     const sortDirection = useSetting(`${settingPrefix}${config.sortDirectionId}${settingSuffix}`)
     const filterPreference = useSetting(`${settingPrefix}${config.filterPreferenceId}`)
 
-    // all settings come from one endpoint so we can just check if one is loading
-    if (sortingPreference.isLoading) {
+    // all settings come from one endpoint so if any are finished loading, they all are
+    if (!sortingPreference.isLoading && !sortDirection.isLoading && !filterPreference.isLoading) {
         return config.defaultSortsAndFilters
     }
 
