@@ -160,6 +160,7 @@ const NavigationLink = ({
             setDate(dayViewDate)
         }
         Log(`navigate__${link}`)
+        if (isCurrentPage) return
         navigate(link)
     }
 
