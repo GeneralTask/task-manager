@@ -4,6 +4,7 @@ import (
 	"html"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -32,6 +33,7 @@ func (api *API) NotePreview(c *gin.Context) {
 	if note.Title != nil {
 		previewTitle = html.EscapeString(*note.Title)
 	}
-	body := "<html><head><title>" + previewTitle + "</title></head><body></body></html>"
+	noteURL := config.GetConfigValue("HOME_URL") + "note/" + note.ID.Hex()
+	body := `<html><head><title>` + previewTitle + `</title><meta http-equiv="Refresh" content="0; url='` + noteURL + `'" /></head><body></body></html>`
 	c.String(200, body)
 }
