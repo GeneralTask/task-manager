@@ -294,7 +294,9 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                                 {currentTask.deeplink && <ExternalLinkButton link={currentTask.deeplink} />}
                                 {!isRecurringTaskTemplate && <TaskActionsDropdown task={currentTask as TTask} />}
                                 {isRecurringTaskTemplate && (
-                                    <DeleteRecurringTaskTemplateButton task={currentTask as TRecurringTaskTemplate} />
+                                    <DeleteRecurringTaskTemplateButton
+                                        template={currentTask as TRecurringTaskTemplate}
+                                    />
                                 )}
                             </MarginLeftAuto>
                         )}
