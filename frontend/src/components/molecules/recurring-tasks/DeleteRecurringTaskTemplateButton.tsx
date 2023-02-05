@@ -5,17 +5,17 @@ import GTButton from '../../atoms/buttons/GTButton'
 import GTIconButton from '../../atoms/buttons/GTIconButton'
 
 interface DeleteRecurringTaskTemplateButtonProps {
-    task: TRecurringTaskTemplate
+    template: TRecurringTaskTemplate
 }
-const DeleteRecurringTaskTemplateButton = ({ task }: DeleteRecurringTaskTemplateButtonProps) => {
+const DeleteRecurringTaskTemplateButton = ({ template }: DeleteRecurringTaskTemplateButtonProps) => {
     const { mutate: modifyRecurringTask } = useModifyRecurringTask()
     const deleteOrRestoreTemplate = (is_deleted: boolean) => {
         modifyRecurringTask({
-            id: task.id,
+            id: template.id,
             is_deleted: is_deleted,
         })
     }
-    if (task.is_deleted) {
+    if (template.is_deleted) {
         return (
             <GTButton
                 styleType="secondary"
