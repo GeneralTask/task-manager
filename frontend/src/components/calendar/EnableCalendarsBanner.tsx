@@ -9,6 +9,7 @@ import { Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
+import { Divider } from '../atoms/SectionDivider'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Label, Truncated } from '../atoms/typography/Typography'
 import { getCalendarAuthButton } from './utils/utils'
@@ -39,14 +40,25 @@ const EnableCalendarsBanner = () => {
     } = useSetting('has_dismissed_multical_prompt')
     const { show } = useToast()
 
-    const calendarsNeedingReauth = useMemo(
+    const calendarsWithBadTokens = useMemo(
         () =>
-            calendars?.filter((calendar) => !calendar.has_multical_scopes || !calendar.has_primary_calendar_scopes) ??
+            calendars?.filter((calendar) => !calendar.has_primary_calendar_scopes && !calendar.has_multical_scopes) ??
+            [],
+        [calendars]
+    )
+    const calendarsNeedingMultical = useMemo(
+        () =>
+            calendars?.filter((calendar) => !calendar.has_multical_scopes && calendar.has_primary_calendar_scopes) ??
             [],
         [calendars]
     )
 
-    if (isLoading || hasDismissedMulticalPrompt === 'true' || calendarsNeedingReauth.length === 0) return null
+    if (
+        isLoading ||
+        hasDismissedMulticalPrompt === 'true' ||
+        (calendarsWithBadTokens.length === 0 && calendarsNeedingMultical.length === 0)
+    )
+        return null
 
     const handleClick = () => {
         const authUrl = supportedTypes?.find(
@@ -64,17 +76,55 @@ const EnableCalendarsBanner = () => {
 
     return (
         <Container>
-            <Flex justifyContent="space-between">
-                <Label color="light">Authorize our app to see all the calendars in your accounts.</Label>
-                <GTIconButton icon={icons.x} tooltipText="Dismiss" onClick={handleDismiss} />
-            </Flex>
-            {calendarsNeedingReauth.map((calendar) => (
-                <Flex key={calendar.account_id} alignItems="center" gap={Spacing._12} justifyContent="space-between">
-                    <Icon icon={logos.gcal} />
-                    <AccountName>{calendar.account_id}</AccountName>
-                    <MarginLeftAuto>{getCalendarAuthButton(calendar, handleClick, true)}</MarginLeftAuto>
-                </Flex>
-            ))}
+            {calendarsWithBadTokens.length > 0 && (
+                <>
+                    <Flex justifyContent="space-between">
+                        <Label color="light">
+                            Something went wrong authorizing your account. Re-link to display and create events for this
+                            account
+                        </Label>
+                        <GTIconButton icon={icons.x} tooltipText="Dismiss" onClick={handleDismiss} />
+                    </Flex>
+                    {calendarsWithBadTokens.map((calendar) => (
+                        <Flex
+                            key={calendar.account_id}
+                            alignItems="center"
+                            gap={Spacing._12}
+                            justifyContent="space-between"
+                        >
+                            <Icon icon={logos.gcal} />
+                            <AccountName>{calendar.account_id}</AccountName>
+                            <MarginLeftAuto>{getCalendarAuthButton(calendar, handleClick, true)}</MarginLeftAuto>
+                        </Flex>
+                    ))}
+                </>
+            )}
+            {calendarsNeedingMultical.length > 0 && (
+                <>
+                    {calendarsNeedingMultical.length > 0 && calendarsWithBadTokens.length > 0 && (
+                        <Divider color={Colors.border.light} />
+                    )}
+                    <Flex justifyContent="space-between">
+                        <Label color="light">Authorize our app to see all the calendars in your accounts.</Label>
+                        {/* only show dismiss button if these are the only calendars being displayed */}
+                        {calendarsWithBadTokens.length === 0 && (
+                            <GTIconButton icon={icons.x} tooltipText="Dismiss" onClick={handleDismiss} />
+                        )}
+                    </Flex>
+                    {calendarsNeedingMultical.map((calendar) => (
+                        <Flex
+                            key={calendar.account_id}
+                            alignItems="center"
+                            gap={Spacing._12}
+                            justifyContent="space-between"
+                        >
+                            <Icon icon={logos.gcal} />
+                            <AccountName>{calendar.account_id}</AccountName>
+                            <MarginLeftAuto>{getCalendarAuthButton(calendar, handleClick, true)}</MarginLeftAuto>
+                        </Flex>
+                    ))}
+                </>
+            )}
         </Container>
     )
 }
