@@ -1091,6 +1091,24 @@ func TestAdjustOrderingIDs(t *testing.T) {
 	})
 }
 
+func TestUpdateUserSetting(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+
+	t.Run("Success", func(t *testing.T) {
+		err := UpdateUserSetting(db, userID, "key", "value")
+		assert.NoError(t, err)
+		var userSetting UserSetting
+		err = GetUserSettingsCollection(db).FindOne(context.Background(), bson.M{"user_id": userID}, nil).Decode(&userSetting)
+		assert.NoError(t, err)
+		assert.Equal(t, "key", userSetting.FieldKey)
+		assert.Equal(t, "value", userSetting.FieldValue)
+
+	})
+}
+
 func TestLogRequestInfo(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)

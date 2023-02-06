@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/GeneralTask/task-manager/backend/settings"
 	"net/http"
 	"strings"
 	"time"
@@ -150,7 +149,7 @@ func (Google GoogleService) HandleLinkCallback(db *mongo.Database, params Callba
 		return err
 	}
 
-	err = settings.UpdateUserSetting(db, userID, settings.HasDismissedMulticalPrompt, "false")
+	err = database.UpdateUserSetting(db, userID, constants.HasDismissedMulticalPrompt, "false")
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to set HasDismissedMulticalPrompt as false")
 		return err

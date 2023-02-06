@@ -915,6 +915,27 @@ func LogRequestInfo(db *mongo.Database, timestamp time.Time, userID primitive.Ob
 	}
 }
 
+func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string, fieldValue string) error {
+	settingCollection := GetUserSettingsCollection(db)
+	_, err := settingCollection.UpdateOne(
+		context.Background(),
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"field_key": fieldKey},
+		}},
+		bson.M{"$set": UserSetting{
+			FieldKey:   fieldKey,
+			FieldValue: fieldValue,
+			UserID:     userID,
+		}},
+		options.Update().SetUpsert(true),
+	)
+	if err != nil {
+		return errors.New("failed to update user setting")
+	}
+	return nil
+}
+
 func GetServerRequestCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("server_requests")
 }
