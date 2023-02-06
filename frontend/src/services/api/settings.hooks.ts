@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/browser'
 import produce, { castImmutable } from 'immer'
 import apiClient from '../../utils/api'
 import { TLinkedAccount, TSetting, TSupportedType } from '../../utils/types'
-import { useGTQueryClient } from '../queryUtils'
+import { useGTQueryClient, useQueuedMutation } from '../queryUtils'
 
 export type GHSortPreference = `${string}github_sorting_preference${string}`
 export type GHSortDirection = `${string}github_sorting_direction${string}`
@@ -118,7 +118,9 @@ const getSupportedTypes = async ({ signal }: QueryFunctionContext) => {
 
 export const useDeleteLinkedAccount = () => {
     const queryClient = useGTQueryClient()
-    return useMutation(deleteLinkedAccount, {
+    return useQueuedMutation(deleteLinkedAccount, {
+        tag: 'linked_accounts',
+        invalidateTagsOnSettled: ['linked_accounts'],
         onMutate: ({ id }: { id: string }) => {
             const linkedAccounts = queryClient.getQueryData<TLinkedAccount[]>('linked_accounts')
             if (!linkedAccounts) return
