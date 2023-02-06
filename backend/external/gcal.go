@@ -300,7 +300,7 @@ func CheckAndHandleBadToken(err error, db *mongo.Database, userID primitive.Obje
 		logger.Error().Str("tokenID", token.ID.Hex()).Err(err).Msg("unable to update external token")
 	}
 
-	err = database.UpdateUserSetting(db, userID, constants.HasDismissedMulticalPrompt, "true")
+	err = database.UpdateUserSetting(db, userID, constants.HasDismissedMulticalPrompt, constants.SettingFalse)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to set HasDismissedMulticalPrompt as false")
 	}

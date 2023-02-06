@@ -45,3 +45,7 @@ const (
 	// Misc settings
 	HasDismissedMulticalPrompt = "has_dismissed_multical_prompt"
 )
+
+const (
+	SettingFalse = "false"
+)
