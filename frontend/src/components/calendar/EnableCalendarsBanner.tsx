@@ -80,8 +80,9 @@ const EnableCalendarsBanner = () => {
                 <>
                     <Flex justifyContent="space-between">
                         <Label color="light">
-                            Something went wrong authorizing your account. Re-link to display and create events for this
-                            account
+                            {calendarsWithBadTokens.length > 1
+                                ? 'There was a problem authorizing your accounts. Re-link to display and create events for these accounts'
+                                : 'There was a problem authorizing your account. Re-link to display and create events for this account'}
                         </Label>
                         <GTIconButton icon={icons.x} tooltipText="Dismiss" onClick={handleDismiss} />
                     </Flex>
@@ -105,7 +106,10 @@ const EnableCalendarsBanner = () => {
                         <Divider color={Colors.border.light} />
                     )}
                     <Flex justifyContent="space-between">
-                        <Label color="light">Authorize our app to see all the calendars in your accounts.</Label>
+                        <Label color="light">
+                            Authorize our app to see all the calendars in your account
+                            {calendarsNeedingMultical.length > 1 && 's'}.
+                        </Label>
                         {/* only show dismiss button if these are the only calendars being displayed */}
                         {calendarsWithBadTokens.length === 0 && (
                             <GTIconButton icon={icons.x} tooltipText="Dismiss" onClick={handleDismiss} />
