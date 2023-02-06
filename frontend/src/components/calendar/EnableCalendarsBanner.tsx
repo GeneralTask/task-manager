@@ -71,7 +71,9 @@ const EnableCalendarsBanner = () => {
 
     const handleDismiss = () => {
         setHasDismissedMulticalPrompt('true')
-        show({ message: 'You can always enable multiple calendars from the settings page.' })
+        show({
+            message: 'You can always authorize your calendars from the settings page.',
+        })
     }
 
     return (
