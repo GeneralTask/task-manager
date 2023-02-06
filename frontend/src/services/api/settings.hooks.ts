@@ -119,6 +119,16 @@ const getSupportedTypes = async ({ signal }: QueryFunctionContext) => {
 export const useDeleteLinkedAccount = () => {
     const queryClient = useGTQueryClient()
     return useMutation(deleteLinkedAccount, {
+        onMutate: ({ id }: { id: string }) => {
+            const linkedAccounts = queryClient.getQueryData<TLinkedAccount[]>('linked_accounts')
+            if (!linkedAccounts) return
+            const newLinkedAccounts = produce(linkedAccounts, (draft) => {
+                const idx = draft.findIndex((linkedAccount) => linkedAccount.id === id)
+                if (idx === -1) return
+                draft.splice(idx, 1)
+            })
+            queryClient.setQueriesData('linked_accounts', newLinkedAccounts)
+        },
         onSettled: () => {
             queryClient.invalidateQueries('linked_accounts')
             queryClient.invalidateQueries('calendars')
