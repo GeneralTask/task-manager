@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useItemSelectionController } from '../../hooks'
+import { useItemSelectionController, usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
 import { useBackfillRecurringTasks, useRecurringTaskTemplates } from '../../services/api/recurring-tasks.hooks'
 import { icons } from '../../styles/images'
+import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
 import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
 import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
 import { TRecurringTaskTemplate } from '../../utils/types'
@@ -26,6 +27,7 @@ const RecurringTasksView = () => {
     const { recurringTaskId } = useParams()
     const navigate = useNavigate()
     const { calendarType } = useCalendarContext()
+    const { isPreviewMode } = usePreviewMode()
 
     const sortAndFilterSettings = useSortAndFilterSettings<TRecurringTaskTemplate>(
         RECURRING_TASK_SORT_AND_FILTER_CONFIG
@@ -66,6 +68,7 @@ const RecurringTasksView = () => {
                         <Spinner />
                     ) : (
                         <>
+                            {isPreviewMode && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
                             <AddRecurringTask />
                             {filteredRecurringTasks.map((recurringTask) => (
                                 <RecurringTask
