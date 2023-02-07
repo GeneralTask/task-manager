@@ -111,9 +111,11 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
             <EventHeader>
                 <Icon icon={logos[event.logo]} />
                 <EventHeaderIcons>
-                    <IconButton onClick={onDelete}>
-                        <Icon icon={icons.trash} />
-                    </IconButton>
+                    {event.can_modify && (
+                        <IconButton onClick={onDelete}>
+                            <Icon icon={icons.trash} />
+                        </IconButton>
+                    )}
                     <IconButton onClick={() => setIsOpen(false)}>
                         <Icon icon={icons.x} />
                     </IconButton>
