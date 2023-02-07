@@ -695,7 +695,6 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 
 func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID primitive.ObjectID, timezoneOffset time.Duration) (error) {
 	taskCollection := database.GetTaskCollection(api.DB)
-	eventCollection := database.GetCalendarEventCollection(api.DB)
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
 
 	for _, task := range *meetingTasks {
@@ -719,11 +718,7 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 			task.MeetingPreparationParams.EventMovedOrDeleted = eventMovedOrDeleted
 		}
 
-		count, err := eventCollection.CountDocuments(context.Background(), bson.M{"id_external": task.MeetingPreparationParams.IDExternal})
-		if err != nil && err != mongo.ErrNoDocuments {
-			return err
-		}
-		if count == int64(0) {
+		if event == nil {
 			task.MeetingPreparationParams.EventMovedOrDeleted = true
 		} else if task.MeetingPreparationParams.DatetimeEnd.Time().Before(timeNow) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
 			isCompleted := true
