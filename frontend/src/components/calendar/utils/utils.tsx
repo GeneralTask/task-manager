@@ -8,22 +8,46 @@ export const getCalendarName = (accountId: string, calendarTitle?: string): stri
 export const getCalendarColor = (colorId: string): string =>
     calendarColors[colorId as keyof typeof calendarColors]?.background ?? DEFAULT_CALENDAR_COLOR
 
-export const getCalendarAuthButton = (account: TCalendarAccount, onClick: () => void, shortenLabels?: boolean) => {
+export const getCalendarAuthButton = (
+    account: TCalendarAccount,
+    onClick: () => void,
+    shortenLabels?: boolean,
+    isAuthorizing?: boolean
+) => {
+    const getValue = () => {
+        if (!account.has_primary_calendar_scopes && !account.has_multical_scopes) {
+            if (isAuthorizing) {
+                return 'Re-linking...'
+            } else if (shortenLabels) {
+                return 'Re-link'
+            } else {
+                return 'Re-link account'
+            }
+        }
+        if (account.has_primary_calendar_scopes && !account.has_multical_scopes) {
+            if (isAuthorizing) {
+                return 'Authorizing...'
+            } else if (shortenLabels) {
+                return 'Authorize'
+            } else {
+                return 'Authorize all calendars'
+            }
+        }
+    }
     if (!account.has_primary_calendar_scopes && !account.has_multical_scopes) {
         return (
             <GTButton
                 onClick={onClick}
-                value={shortenLabels ? 'Re-link' : 'Re-link account'}
+                value={getValue()}
                 styleType="secondary"
                 size="small"
                 textColor="red"
+                disabled={isAuthorizing}
             />
         )
     }
     if (account.has_primary_calendar_scopes && !account.has_multical_scopes) {
-        return (
-            <GTButton value={shortenLabels ? 'Authorize' : 'Authorize all calendars'} size="small" onClick={onClick} />
-        )
+        return <GTButton value={getValue()} size="small" onClick={onClick} disabled={isAuthorizing} />
     }
     return null
 }
