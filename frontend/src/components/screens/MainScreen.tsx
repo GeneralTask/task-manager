@@ -56,9 +56,7 @@ const MainScreen = () => {
             <OverviewContextProvider>
                 <link rel="preload" as="image" href={focusModeBackground} />
                 <link rel="preload" as="image" href={noteBackground} />
-                <DefaultTemplate>
-                    <>{currentPage()}</>
-                </DefaultTemplate>
+                <DefaultTemplate>{currentPage()}</DefaultTemplate>
                 <DragLayer />
             </OverviewContextProvider>
         </CalendarContextProvider>
