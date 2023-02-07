@@ -700,6 +700,12 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 		if err != nil || event == nil {
 			continue
 		}
+
+		// Do nothing if event time has not changed
+		if task.MeetingPreparationParams.DatetimeStart.Time().Equal(event.DatetimeStart.Time()) && task.MeetingPreparationParams.DatetimeEnd.Time().Equal(event.DatetimeEnd.Time()) {
+			continue
+		}
+
 		eventMovedOrDeleted := task.MeetingPreparationParams.EventMovedOrDeleted
 		// if event has been moved to different day, update event_moved_or_deleted
 		if event.DatetimeStart.Time().Day() != task.MeetingPreparationParams.DatetimeStart.Time().Day() {
@@ -708,6 +714,7 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 
 		task.MeetingPreparationParams.DatetimeStart = event.DatetimeStart
 		task.MeetingPreparationParams.DatetimeEnd = event.DatetimeEnd
+
 
 		_, err = taskCollection.UpdateOne(
 			context.Background(),
