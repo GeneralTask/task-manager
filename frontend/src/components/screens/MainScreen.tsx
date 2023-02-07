@@ -2,6 +2,7 @@ import { Navigate, useLocation } from 'react-router-dom'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
 import { DateTime } from 'luxon'
+import { OverviewContextProvider } from '../../context/OverviewContextProvider'
 import { useEventBanners, usePageFocus } from '../../hooks'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
@@ -52,12 +53,12 @@ const MainScreen = () => {
 
     return (
         <CalendarContextProvider>
-            <link rel="preload" as="image" href={focusModeBackground} />
-            <link rel="preload" as="image" href={noteBackground} />
-            <DefaultTemplate>
-                <>{currentPage()}</>
-            </DefaultTemplate>
-            <DragLayer />
+            <OverviewContextProvider>
+                <link rel="preload" as="image" href={focusModeBackground} />
+                <link rel="preload" as="image" href={noteBackground} />
+                <DefaultTemplate>{currentPage()}</DefaultTemplate>
+                <DragLayer />
+            </OverviewContextProvider>
         </CalendarContextProvider>
     )
 }

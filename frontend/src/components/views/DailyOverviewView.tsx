@@ -1,6 +1,7 @@
-import { useEffect, useLayoutEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import useOverviewContext from '../../context/OverviewContextProvider'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
@@ -31,51 +32,40 @@ const RightActions = styled.div`
     display: flex;
 `
 
-const DailyOverviewView = () => {
-    const [isEditListsModalOpen, setIsEditListsModalOpen] = useState(false)
-    const [editListTabIndex, setEditListTabIndex] = useState(0) // 0 - add, 1 - reorder
-    const { overviewViewId, overviewItemId } = useParams()
-    const { calendarType } = useCalendarContext()
+const useSelectFirstItemOnFirstLoad = () => {
+    const { setOpenListIds } = useOverviewContext()
+    const { lists, isSuccess } = useOverviewLists()
+    const isFirstSuccess = useRef(true)
     const navigate = useNavigate()
 
-    const [openListIds, setOpenListIds] = useState<string[]>([])
-    const expandAll = () => setOpenListIds(lists.map((list) => list.id))
-    const collapseAll = () => setOpenListIds([])
+    useEffect(() => {
+        if (!isFirstSuccess.current || lists?.length === 0) return
+        const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
+        if (firstNonEmptyView) {
+            isFirstSuccess.current = false
 
-    const { lists, isLoading } = useOverviewLists()
-    useLayoutEffect(() => {
-        if (overviewViewId && overviewItemId) {
             setOpenListIds((ids) => {
-                if (!openListIds.includes(overviewViewId)) {
-                    return [...ids, overviewViewId]
+                if (!ids.includes(firstNonEmptyView.id)) {
+                    return [...ids, firstNonEmptyView.id]
                 }
                 return ids
             })
-        }
-    }, [overviewItemId, JSON.stringify(lists)])
-
-    const selectFirstItem = () => {
-        const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
-        if (firstNonEmptyView) {
             navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
+        } else {
+            navigate(`/overview`, { replace: true })
         }
-    }
+    }, [lists, isSuccess])
+}
 
-    useEffect(() => {
-        if (!isLoading && (!overviewViewId || !overviewItemId)) {
-            selectFirstItem()
-        }
-        for (const list of lists) {
-            if (list.id === overviewViewId) {
-                for (const item of list.view_items) {
-                    if (item.id === overviewItemId) {
-                        return
-                    }
-                }
-            }
-        }
-        selectFirstItem()
-    }, [isLoading, overviewViewId, overviewItemId, lists])
+const DailyOverviewView = () => {
+    const [isEditListsModalOpen, setIsEditListsModalOpen] = useState(false)
+    const [editListTabIndex, setEditListTabIndex] = useState(0) // 0 - add, 1 - reorder
+
+    const { calendarType } = useCalendarContext()
+    useSelectFirstItemOnFirstLoad()
+    const { expandAll, collapseAll } = useOverviewContext()
+
+    const { lists, isLoading } = useOverviewLists()
 
     if (isLoading) return <Spinner />
     return (
@@ -131,12 +121,7 @@ const DailyOverviewView = () => {
                     </ActionsContainer>
                     <SmartPrioritizationBanner />
                     {lists.map((list) => (
-                        <AccordionItem
-                            key={list.id}
-                            list={list}
-                            openListIds={openListIds}
-                            setOpenListIds={setOpenListIds}
-                        />
+                        <AccordionItem key={list.id} list={list} />
                     ))}
                 </ScrollableListTemplate>
             </Flex>

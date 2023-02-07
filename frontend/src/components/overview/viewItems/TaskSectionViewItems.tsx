@@ -1,13 +1,11 @@
 import { Ref, forwardRef, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
-import { useNavigateToTask } from '../../../hooks'
-import { useCreateTask, useGetTasks, useReorderTask } from '../../../services/api/tasks.hooks'
+import { useCreateTask, useReorderTask } from '../../../services/api/tasks.hooks'
 import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSelectors'
 import { TASK_SORT_AND_FILTER_CONFIG } from '../../../utils/sortAndFilter/tasks.config'
 import useSortAndFilterSettings from '../../../utils/sortAndFilter/useSortAndFilterSettings'
 import { DropItem, DropType, TTask } from '../../../utils/types'
-import { getTaskIndexFromSections } from '../../../utils/utils'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import CreateNewItemInput from '../../molecules/CreateNewItemInput'
 import Task from '../../molecules/Task'
@@ -17,12 +15,10 @@ import { ViewItemsProps } from './viewItems.types'
 
 const TaskSectionViewItems = forwardRef(
     ({ view, visibleItemsCount, scrollRef, hideHeader }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
-        const { data: taskSections } = useGetTasks()
         const { task_section_id: sectionId } = view
         const { overviewViewId, overviewItemId } = useParams()
         const { mutate: createTask } = useCreateTask()
         const { mutate: reorderTask } = useReorderTask()
-        const navigateToTask = useNavigateToTask()
 
         const sortAndFilterSettings = useSortAndFilterSettings<TTask>(
             TASK_SORT_AND_FILTER_CONFIG,
@@ -43,21 +39,6 @@ const TaskSectionViewItems = forwardRef(
                 )
             },
             [view.task_section_id]
-        )
-
-        const selectTaskAfterCompletion = useCallback(
-            (taskId: string) => {
-                if (!taskSections) return
-                if (overviewItemId !== taskId) return
-                const { taskIndex, sectionIndex } = getTaskIndexFromSections(taskSections, taskId)
-                if (sectionIndex == null || taskIndex == null) return
-
-                if (taskSections.length === 0 || taskSections[sectionIndex].tasks.length === 0) return
-                const previousTask = taskSections[sectionIndex].tasks[taskIndex - 1]
-                if (!previousTask) return
-                navigateToTask(previousTask.id)
-            },
-            [taskSections, overviewItemId]
         )
 
         return (
@@ -97,7 +78,6 @@ const TaskSectionViewItems = forwardRef(
                                 sectionScrollingRef={scrollRef}
                                 isSelected={overviewViewId === view.id && overviewItemId === item.id}
                                 link={`/overview/${view.id}/${item.id}`}
-                                onMarkTaskDone={selectTaskAfterCompletion}
                             />
                         </ReorderDropContainer>
                     ))

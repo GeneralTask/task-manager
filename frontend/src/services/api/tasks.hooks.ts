@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TRASH_SECTION_ID } from '../../constants'
+import useOverviewContext from '../../context/OverviewContextProvider'
 import useQueryContext from '../../context/QueryContext'
+import { useGTLocalStorage } from '../../hooks'
 import apiClient from '../../utils/api'
+import navigateToNextItemAfterOverviewCommpletion from '../../utils/navigateToNextItemAfterOverviewCommpletion'
 import {
     TExternalStatus,
     TOverviewItem,
@@ -419,6 +422,10 @@ const modifyTask = async (data: TModifyTaskData) => {
 
 export const useMarkTaskDoneOrDeleted = () => {
     const queryClient = useGTQueryClient()
+    const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
+    const navigate = useNavigate()
+    const { setOpenListIds } = useOverviewContext()
+
     return useQueuedMutation((data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
@@ -514,11 +521,28 @@ export const useMarkTaskDoneOrDeleted = () => {
                     if (draft[sectionIndex].view_items.length === 0) {
                         draft[sectionIndex].has_tasks_completed_today = true
                     }
+                    if (overviewAutomaticEmptySort) {
+                        draft.sort((a, b) => {
+                            if (a.view_items.length === 0 && b.view_items.length > 0) return 1
+                            if (a.view_items.length > 0 && b.view_items.length === 0) return -1
+                            return 0
+                        })
+                    }
                 })
                 if (data.waitForAnimation) {
                     await sleep(TASK_MARK_AS_DONE_TIMEOUT)
                 }
+
                 queryClient.setQueryData('overview', newLists)
+
+                if (window.location.pathname.split('/')[1] !== 'overview') return
+                navigateToNextItemAfterOverviewCommpletion(
+                    lists as TOverviewView[],
+                    newLists as TOverviewView[],
+                    data.id,
+                    navigate,
+                    setOpenListIds
+                )
             }
             // execute in parallel if waiting for animation delay
             updateSections()

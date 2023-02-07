@@ -14,7 +14,7 @@ type TOverviewItemWithListId = TOverviewItem & { listId: string }
 
 // returns overview lists with view items sorted and filtered
 const useOverviewLists = () => {
-    const { data: lists, isLoading: areListsLoading } = useGetOverviewViews()
+    const { data: lists, isLoading: areListsLoading, isSuccess } = useGetOverviewViews()
     const { data: settings, isLoading: areSettingsLoading } = useGetSettings()
     const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
     const navigate = useNavigate()
@@ -74,9 +74,9 @@ const useOverviewLists = () => {
             if (a.view_items.length > 0 && b.view_items.length === 0) return -1
             return 0
         })
-        return { lists: copy, isLoading: areListsLoading }
+        return { lists: copy, isLoading: areListsLoading, isSuccess }
     }
-    return { lists: sortedAndFilteredLists, isLoading: areListsLoading }
+    return { lists: sortedAndFilteredLists, isLoading: areListsLoading, isSuccess: isSuccess }
 }
 
 export default useOverviewLists
