@@ -1,8 +1,9 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import { useAuthWindow, useSetting, useToast } from '../../hooks'
-import { useGetCalendars } from '../../services/api/events.hooks'
+import { getEvents, useGetCalendars } from '../../services/api/events.hooks'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Border, Colors, Spacing } from '../../styles'
 import { Typography } from '../../styles'
@@ -30,7 +31,6 @@ const MarginLeftAuto = styled.div`
 `
 
 const EnableCalendarsBanner = () => {
-    const { data: calendars } = useGetCalendars()
     const { data: supportedTypes } = useGetSupportedTypes()
     const { openAuthWindow } = useAuthWindow()
     const {
@@ -39,6 +39,17 @@ const EnableCalendarsBanner = () => {
         isLoading,
     } = useSetting('has_dismissed_multical_prompt')
     const { show } = useToast()
+
+    const [accountBeingAuthorized, setAccountBeingAuthorized] = useState<string | null>(null)
+    // wait for calendars to be refetched before resetting the "Authorizing..." state
+    const [shouldResetAuthorizingAccount, setShouldResetAuthorizingAccount] = useState(false)
+    const { data: calendars, isFetching } = useGetCalendars()
+    useEffect(() => {
+        if (shouldResetAuthorizingAccount) {
+            setShouldResetAuthorizingAccount(false)
+            setAccountBeingAuthorized(null)
+        }
+    }, [isFetching])
 
     const calendarsWithBadTokens = useMemo(
         () =>
@@ -60,12 +71,24 @@ const EnableCalendarsBanner = () => {
     )
         return null
 
-    const handleClick = () => {
+    const handleClick = (accountId: string) => {
         const authUrl = supportedTypes?.find(
             (supportedType) => supportedType.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME
         )?.authorization_url
         if (authUrl) {
-            openAuthWindow({ url: authUrl, isGoogleSignIn: true })
+            setAccountBeingAuthorized(accountId)
+            openAuthWindow({
+                url: authUrl,
+                isGoogleSignIn: true,
+                onWindowClose: async () => {
+                    // backend needs to fetch events from an account in order to populate its calendars
+                    await getEvents({
+                        startISO: DateTime.now().minus({ second: 1 }).toISO(),
+                        endISO: DateTime.now().plus({ second: 1 }).toISO(),
+                    })
+                    setShouldResetAuthorizingAccount(true)
+                },
+            })
         }
     }
 
@@ -97,7 +120,14 @@ const EnableCalendarsBanner = () => {
                         >
                             <Icon icon={logos.gcal} />
                             <AccountName>{calendar.account_id}</AccountName>
-                            <MarginLeftAuto>{getCalendarAuthButton(calendar, handleClick, true)}</MarginLeftAuto>
+                            <MarginLeftAuto>
+                                {getCalendarAuthButton(
+                                    calendar,
+                                    () => handleClick(calendar.account_id),
+                                    true,
+                                    accountBeingAuthorized === calendar.account_id
+                                )}
+                            </MarginLeftAuto>
                         </Flex>
                     ))}
                 </>
@@ -126,7 +156,14 @@ const EnableCalendarsBanner = () => {
                         >
                             <Icon icon={logos.gcal} />
                             <AccountName>{calendar.account_id}</AccountName>
-                            <MarginLeftAuto>{getCalendarAuthButton(calendar, handleClick, true)}</MarginLeftAuto>
+                            <MarginLeftAuto>
+                                {getCalendarAuthButton(
+                                    calendar,
+                                    () => handleClick(calendar.account_id),
+                                    true,
+                                    accountBeingAuthorized === calendar.account_id
+                                )}
+                            </MarginLeftAuto>
                         </Flex>
                     ))}
                 </>
