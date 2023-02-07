@@ -383,7 +383,7 @@ func populateLinearTask(userID primitive.ObjectID, accountID string, webhookPayl
 	}
 
 	if issuePayload.DueDate != "" {
-		dueDate, _ := time.Parse("2006-01-02", string(issuePayload.DueDate))
+		dueDate, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, string(issuePayload.DueDate))
 		primitiveDueDate := primitive.NewDateTimeFromTime(dueDate)
 		task.DueDate = &primitiveDueDate
 	} else {
