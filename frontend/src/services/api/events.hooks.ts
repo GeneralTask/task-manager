@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { QueryFunctionContext, useQuery } from 'react-query'
+import { useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { useCalendarContext } from '../../components/calendar/CalendarContext'
@@ -75,7 +75,7 @@ interface TDeleteEventData {
     datetime_end: string
 }
 
-export const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
+const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
     const queryClient = useGTQueryClient()
     return useQuery<TEvent[]>(
         ['events', calendarType, params.startISO],
@@ -90,7 +90,10 @@ export const useGetEvents = (params: { startISO: string; endISO: string }, calen
     )
 }
 
-const getEvents = async (params: { startISO: string; endISO: string }, { signal }: QueryFunctionContext) => {
+export const getEvents = async (
+    params: { startISO: string; endISO: string },
+    { signal }: { signal?: AbortSignal } = {}
+) => {
     try {
         const res = await apiClient.get('/events/', {
             params: { datetime_start: params.startISO, datetime_end: params.endISO },
