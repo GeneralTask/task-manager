@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"context"
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -24,8 +25,8 @@ func TestSettingsGet(t *testing.T) {
 		// Random userID; should be ignored
 		_, err := settingCollection.InsertOne(context.Background(), &database.UserSetting{
 			UserID:     primitive.NewObjectID(),
-			FieldKey:   settings.SettingFieldGithubFilteringPreference,
-			FieldValue: settings.ChoiceKeyActionableOnly,
+			FieldKey:   constants.SettingFieldGithubFilteringPreference,
+			FieldValue: constants.ChoiceKeyActionableOnly,
 		})
 		assert.NoError(t, err)
 
@@ -48,8 +49,8 @@ func TestSettingsGet(t *testing.T) {
 
 		_, err := settingCollection.InsertOne(context.Background(), &database.UserSetting{
 			UserID:     userID,
-			FieldKey:   settings.SettingFieldGithubFilteringPreference,
-			FieldValue: settings.ChoiceKeyActionableOnly,
+			FieldKey:   constants.SettingFieldGithubFilteringPreference,
+			FieldValue: constants.ChoiceKeyActionableOnly,
 		})
 		assert.NoError(t, err)
 
@@ -178,7 +179,7 @@ func TestSettingsModify(t *testing.T) {
 	t.Run("SuccessAlreadyExists", func(t *testing.T) {
 		authToken := login("approved2@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
-		settings.UpdateUserSetting(db, userID, settings.SettingFieldGithubFilteringPreference, settings.ChoiceKeyActionableOnly)
+		settings.UpdateUserSetting(db, userID, constants.SettingFieldGithubFilteringPreference, constants.ChoiceKeyActionableOnly)
 
 		api, dbCleanup := GetAPIWithDBCleanup()
 		defer dbCleanup()
