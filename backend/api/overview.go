@@ -496,7 +496,7 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 	}
 
 	// Sync existing Meeting prep tasks with their events
-	err = api.SyncMeetingTasksWithEvents(meetingTasks, userID)
+	err = api.SyncMeetingTasksWithEvents(meetingTasks, userID, timezoneOffset)
 	if err != nil {
 		return nil, err
 	}
@@ -693,7 +693,7 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 	return nil
 }
 
-func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID primitive.ObjectID) (error) {
+func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID primitive.ObjectID, timezoneOffset time.Duration) (error) {
 	taskCollection := database.GetTaskCollection(api.DB)
 	for _, task := range *meetingTasks {
 		event, err := database.GetCalendarEventByExternalId(api.DB, task.MeetingPreparationParams.IDExternal, userID)
@@ -708,7 +708,8 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 
 		eventMovedOrDeleted := task.MeetingPreparationParams.EventMovedOrDeleted
 		// if event has been moved to different day, update event_moved_or_deleted
-		if event.DatetimeStart.Time().Day() != task.MeetingPreparationParams.DatetimeStart.Time().Day() {
+		localZone := time.FixedZone("", int(-1 * timezoneOffset.Seconds()))
+		if event.DatetimeStart.Time().In(localZone).Day() != task.MeetingPreparationParams.DatetimeStart.Time().In(localZone).Day() {
 			eventMovedOrDeleted = true
 		}
 
