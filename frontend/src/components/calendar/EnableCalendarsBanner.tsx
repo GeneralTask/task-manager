@@ -44,12 +44,6 @@ const EnableCalendarsBanner = () => {
     // wait for calendars to be refetched before resetting the "Authorizing..." state
     const [shouldResetAuthorizingAccount, setShouldResetAuthorizingAccount] = useState(false)
     const { data: calendars, isFetching } = useGetCalendars()
-    useEffect(() => {
-        if (shouldResetAuthorizingAccount) {
-            setShouldResetAuthorizingAccount(false)
-            setAccountBeingAuthorized(null)
-        }
-    }, [isFetching])
 
     const calendarsWithBadTokens = useMemo(
         () =>
@@ -91,6 +85,13 @@ const EnableCalendarsBanner = () => {
             })
         }
     }
+
+    useEffect(() => {
+        if (shouldResetAuthorizingAccount) {
+            setShouldResetAuthorizingAccount(false)
+            setAccountBeingAuthorized(null)
+        }
+    }, [isFetching])
 
     const handleDismiss = () => {
         setHasDismissedMulticalPrompt('true')
