@@ -35,17 +35,6 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
             hideCheckmark
             items={[
                 [
-                    {
-                        label: sectionId !== TRASH_SECTION_ID ? 'Delete task' : 'Restore task',
-                        icon: icons.trash,
-                        iconColor: 'red',
-                        textColor: 'red',
-                        onClick: () =>
-                            markTaskDoneOrDeleted(
-                                { id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID },
-                                task.optimisticId
-                            ),
-                    },
                     ...(isPreviewMode
                         ? [
                               {
@@ -72,6 +61,17 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
                               },
                           ]
                         : []),
+                    {
+                        label: sectionId !== TRASH_SECTION_ID ? 'Delete task' : 'Restore task',
+                        icon: icons.trash,
+                        iconColor: 'red',
+                        textColor: 'red',
+                        onClick: () =>
+                            markTaskDoneOrDeleted(
+                                { id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID },
+                                task.optimisticId
+                            ),
+                    },
                 ],
                 [
                     {
