@@ -58,13 +58,6 @@ const EnableCalendarsBanner = () => {
         [calendars]
     )
 
-    if (
-        isLoading ||
-        hasDismissedMulticalPrompt === 'true' ||
-        (calendarsWithBadTokens.length === 0 && calendarsNeedingMultical.length === 0)
-    )
-        return null
-
     const handleClick = (accountId: string) => {
         const authUrl = supportedTypes?.find(
             (supportedType) => supportedType.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME
@@ -98,6 +91,14 @@ const EnableCalendarsBanner = () => {
         show({
             message: 'You can always authorize your calendars from the settings page.',
         })
+    }
+
+    if (
+        isLoading ||
+        hasDismissedMulticalPrompt === 'true' ||
+        (calendarsWithBadTokens.length === 0 && calendarsNeedingMultical.length === 0)
+    ) {
+        return null
     }
 
     return (
