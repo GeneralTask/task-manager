@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/logging"
@@ -366,7 +365,6 @@ func populateLinearTask(userID primitive.ObjectID, accountID string, webhookPayl
 		UserID:             userID,
 		IDExternal:         issuePayload.ID,
 		Deeplink:           webhookPayload.Url,
-		IDTaskSection:      constants.IDTaskSectionDefault,
 		SourceID:           external.TASK_SOURCE_ID_LINEAR,
 		Title:              &issuePayload.Title,
 		Body:               &issuePayload.Description,
@@ -383,7 +381,7 @@ func populateLinearTask(userID primitive.ObjectID, accountID string, webhookPayl
 	}
 
 	if issuePayload.DueDate != "" {
-		dueDate, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, string(issuePayload.DueDate))
+		dueDate, _ := time.Parse("2006-01-02", string(issuePayload.DueDate))
 		primitiveDueDate := primitive.NewDateTimeFromTime(dueDate)
 		task.DueDate = &primitiveDueDate
 	} else {

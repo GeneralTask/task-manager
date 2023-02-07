@@ -137,7 +137,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		}
 
 		if linearIssue.DueDate != "" {
-			dueDate, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, string(linearIssue.DueDate))
+			dueDate, _ := time.Parse("2006-01-02", string(linearIssue.DueDate))
 			primitiveDueDate := primitive.NewDateTimeFromTime(dueDate)
 			updateFields.DueDate = &primitiveDueDate
 		} else {

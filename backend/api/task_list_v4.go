@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -136,7 +135,7 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 		if t.DueDate.Time().Unix() == int64(0) {
 			dueDate = ""
 		} else {
-			dueDate = t.DueDate.Time().UTC().Format(constants.YEAR_MONTH_DAY_FORMAT)
+			dueDate = t.DueDate.Time().UTC().Format("2006-01-02")
 		}
 	}
 

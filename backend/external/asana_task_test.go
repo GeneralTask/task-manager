@@ -106,9 +106,9 @@ func TestLoadAsanaTasks(t *testing.T) {
 		}}}
 		userID := primitive.NewObjectID()
 
-		dueDate, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, "2021-04-20")
+		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		dueDatePrim := primitive.NewDateTimeFromTime(dueDate)
-		createdAt, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, "2019-04-20")
+		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
 		title := "Task!"
 		body := "hmm"
 		expectedTask := database.Task{
@@ -150,9 +150,9 @@ func TestLoadAsanaTasks(t *testing.T) {
 		}}}
 		userID := primitive.NewObjectID()
 
-		dueDate, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, "2021-04-21")
+		dueDate, _ := time.Parse("2006-01-02", "2021-04-21")
 		dueDatePrim := primitive.NewDateTimeFromTime(dueDate)
-		createdAt, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, "2019-04-20")
+		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
 		title := "Task wrong!"
 		body := "different body"
 		allocation := time.Hour.Nanoseconds()
@@ -180,7 +180,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 			&expectedTask,
 		)
 		// switch a few fields from their existing db value to their expected output value
-		dueDateCorrect, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, "2021-04-20")
+		dueDateCorrect, _ := time.Parse("2006-01-02", "2021-04-20")
 		dueDateCorrectPrim := primitive.NewDateTimeFromTime(dueDateCorrect)
 		expectedTask.DueDate = &dueDateCorrectPrim
 

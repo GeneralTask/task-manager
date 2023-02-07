@@ -213,7 +213,7 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 			task.JIRATaskParams = &fieldsOutput.JIRATaskParams
 		}
 
-		dueDate, err := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, jiraTask.Fields.DueDate)
+		dueDate, err := time.Parse("2006-01-02", jiraTask.Fields.DueDate)
 		if err == nil {
 			primDueDate := primitive.NewDateTimeFromTime(dueDate)
 			task.DueDate = &primDueDate
@@ -644,7 +644,7 @@ func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.Atlassi
 			Priority:    updateRequest.Fields.Priority,
 		}
 		if updateFields.DueDate != nil && updateFields.DueDate.Time().Unix() != 0 {
-			dueDateString := updateFields.DueDate.Time().Format(constants.YEAR_MONTH_DAY_FORMAT)
+			dueDateString := updateFields.DueDate.Time().Format("2006-01-02")
 			dueDateUpdateRequest.Fields.DueDate = &dueDateString
 		}
 

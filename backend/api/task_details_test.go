@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
@@ -26,8 +25,8 @@ func TestTaskDetail(t *testing.T) {
 	userID := getUserIDFromAuthToken(t, db, authToken)
 	notUserID := primitive.NewObjectID()
 
-	createdAt, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, "2019-04-20")
-	updatedAt, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, "2019-04-29")
+	createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
+	updatedAt, _ := time.Parse("2006-01-02", "2019-04-29")
 	completed := true
 	linearTaskIDHex := insertTestTask(t, userID, database.Task{
 		UserID:            userID,
