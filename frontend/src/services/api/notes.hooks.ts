@@ -122,7 +122,7 @@ export const useModifyNote = () => {
                 note.title = data.title || note.title
                 note.body = data.body ?? note.body
                 note.shared_until = data.shared_until ?? note.shared_until
-                note.updated_at = DateTime.now().toISO()
+                note.updated_at = DateTime.utc().toISO()
                 note.is_deleted = data.is_deleted ?? note.is_deleted
             })
             queryClient.setQueryData('notes', updatedNotes)
@@ -147,8 +147,8 @@ export const createNewNoteHelper = (
         title: data.title,
         body: data.body ?? '',
         author: data.author,
-        created_at: data.created_at ?? DateTime.local().toISO(),
-        updated_at: data.updated_at ?? DateTime.local().toISO(),
+        created_at: data.created_at ?? DateTime.utc().toISO(),
+        updated_at: data.updated_at ?? DateTime.utc().toISO(),
         is_deleted: data.is_deleted ?? false,
         shared_until: data.shared_until,
     }
