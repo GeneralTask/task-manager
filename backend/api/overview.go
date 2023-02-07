@@ -730,6 +730,7 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 			task.IsCompleted = &isCompleted
 			task.CompletedAt = primitive.NewDateTimeFromTime(time.Now())
 			task.MeetingPreparationParams.HasBeenAutomaticallyCompleted = true
+			task.MeetingPreparationParams.EventMovedOrDeleted = true
 		}
 
 		_, err = taskCollection.UpdateOne(
