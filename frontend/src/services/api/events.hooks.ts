@@ -138,7 +138,7 @@ export const useCreateEvent = () => {
                 body: createEventPayload.description ?? '',
                 account_id: createEventPayload.account_id,
                 calendar_id: createEventPayload.calendar_id ?? calendar?.calendar_id ?? '',
-                color_id: calendar?.color_id ?? '',
+                color_id: '',
                 logo: linkedTask?.source.logo_v2 ?? 'gcal',
                 deeplink: '',
                 datetime_start: createEventPayload.datetime_start,
