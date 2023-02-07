@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/logging"
@@ -365,6 +366,7 @@ func populateLinearTask(userID primitive.ObjectID, accountID string, webhookPayl
 		UserID:             userID,
 		IDExternal:         issuePayload.ID,
 		Deeplink:           webhookPayload.Url,
+		IDTaskSection:      constants.IDTaskSectionDefault,
 		SourceID:           external.TASK_SOURCE_ID_LINEAR,
 		Title:              &issuePayload.Title,
 		Body:               &issuePayload.Description,
