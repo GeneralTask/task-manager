@@ -159,8 +159,8 @@ const NavigationLink = ({
             setCalendarType('day')
             setDate(dayViewDate)
         }
-        Log(`navigate__${link}`)
         if (isCurrentPage) return
+        Log(`navigate__${link}`)
         navigate(link)
     }
 
