@@ -12,7 +12,6 @@ const Container = styled.div`
 `
 const Link = styled.a`
     width: 200px;
-    max-width: 30vw;
 `
 
 const GoogleAuthScreen = () => {
