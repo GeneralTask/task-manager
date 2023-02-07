@@ -24,13 +24,26 @@ export const PaddedTasksScroll = styled.div`
     overflow-y: auto;
 `
 
+const useHasTopBorder = () => {
+    const location = useLocation()
+    const isOnFocusMode = location.pathname.includes('focus-mode')
+
+    const { data: calendars } = useGetCalendars()
+    const { field_value: hasDismissedMulticalPrompt } = useSetting('has_dismissed_multical_prompt')
+    const isCalendarAuthBannerVisible = useMemo(() => {
+        return (
+            hasDismissedMulticalPrompt === 'false' &&
+            calendars?.some((calendar) => !calendar.has_multical_scopes || !calendar.has_primary_calendar_scopes)
+        )
+    }, [hasDismissedMulticalPrompt, calendars])
+    return !isOnFocusMode && !isCalendarAuthBannerVisible
+}
+
 interface TasksDueProps {
     date: DateTime
 }
 const TasksDue = ({ date }: TasksDueProps) => {
     const { isTasksDueViewCollapsed, isTasksOverdueViewCollapsed, setDate } = useCalendarContext()
-    const location = useLocation()
-    const isOnFocusMode = location.pathname.includes('focus-mode')
     const { data: taskFolders } = useGetTasks()
     const [currentTime, setCurrentTime] = useState(DateTime.local())
 
@@ -85,19 +98,12 @@ const TasksDue = ({ date }: TasksDueProps) => {
         [incompleteTasks, date]
     )
 
-    const { data: calendars } = useGetCalendars()
-    const { field_value: hasDismissedMulticalPrompt } = useSetting('has_dismissed_multical_prompt')
-    const isCalendarAuthBannerVisible = useMemo(() => {
-        return (
-            hasDismissedMulticalPrompt === 'false' &&
-            calendars?.some((calendar) => !calendar.has_multical_scopes || !calendar.has_primary_calendar_scopes)
-        )
-    }, [hasDismissedMulticalPrompt, calendars])
+    const hasTopBorder = useHasTopBorder()
 
     return (
         <>
             {tasksDueToday.length > 0 && (
-                <TasksDueContainer hasTopBorder={!isOnFocusMode && !isCalendarAuthBannerVisible}>
+                <TasksDueContainer hasTopBorder={hasTopBorder}>
                     <TasksDueHeader type="day" dueType="due" numTasksDue={tasksDueToday.length} date={date} />
                     {!isTasksDueViewCollapsed && (
                         <PaddedTasksScroll>
