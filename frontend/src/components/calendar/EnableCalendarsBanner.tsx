@@ -105,7 +105,7 @@ const EnableCalendarsBanner = () => {
         <Container>
             {calendarsWithBadTokens.length > 0 && (
                 <>
-                    <Flex justifyContent="space-between">
+                    <Flex justifyContent="space-between" alignItems="center">
                         <Label color="light">
                             {calendarsWithBadTokens.length > 1
                                 ? 'There was a problem authorizing your accounts. Re-link to display and create events for these accounts'
@@ -139,7 +139,7 @@ const EnableCalendarsBanner = () => {
                     {calendarsNeedingMultical.length > 0 && calendarsWithBadTokens.length > 0 && (
                         <Divider color={Colors.border.light} />
                     )}
-                    <Flex justifyContent="space-between">
+                    <Flex justifyContent="space-between" alignItems="center">
                         <Label color="light">
                             Authorize our app to see all the calendars in your account
                             {calendarsNeedingMultical.length > 1 && 's'}.
