@@ -142,8 +142,8 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                     }
                     createEvent({
                         createEventPayload: {
-                            account_id: isPreviewMode ? taskToCalAccount : primaryAccountID,
-                            calendar_id: isPreviewMode ? taskToCalCalendar : undefined,
+                            account_id: taskToCalAccount,
+                            calendar_id: taskToCalCalendar,
                             datetime_start: dropTime.toISO(),
                             datetime_end: end.toISO(),
                             summary: item.task.title,

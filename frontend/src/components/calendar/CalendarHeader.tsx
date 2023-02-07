@@ -169,7 +169,7 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
             )}
             <ConnectContainer>
                 {showOauthPrompt && <ConnectIntegration type="google_calendar" />}
-                {isPreviewMode && <EnableCalendarsBanner />}
+                <EnableCalendarsBanner />
             </ConnectContainer>
         </RelativeDiv>
     )

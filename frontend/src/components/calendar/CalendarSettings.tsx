@@ -94,6 +94,7 @@ const CalendarSettings = () => {
                     </Flex>
                     <div>
                         {account.calendars
+                            .filter((calendar) => calendar.can_write)
                             .sort((a, b) => {
                                 // place the primary calendar at the top
                                 if (a.calendar_id === 'primary' || a.calendar_id === account.account_id) return -1

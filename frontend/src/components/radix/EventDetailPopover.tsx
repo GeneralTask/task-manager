@@ -2,7 +2,7 @@ import { ReactNode, useCallback, useEffect, useState } from 'react'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
-import { useKeyboardShortcut, useNavigateToTask, usePreviewMode, useToast } from '../../hooks'
+import { useKeyboardShortcut, useNavigateToTask, useToast } from '../../hooks'
 import { useDeleteEvent, useGetCalendars } from '../../services/api/events.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -32,7 +32,6 @@ interface EventDetailPopoverProps {
     children: ReactNode
 }
 const EventDetailPopover = ({ event, date, hidePopover = false, children }: EventDetailPopoverProps) => {
-    const { isPreviewMode } = usePreviewMode()
     const toast = useToast()
     const [isOpen, setIsOpen] = useState(false)
     const { selectedEvent, setSelectedEvent } = useCalendarContext()
@@ -111,16 +110,18 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
             <EventHeader>
                 <Icon icon={logos[event.logo]} />
                 <EventHeaderIcons>
-                    <IconButton onClick={onDelete}>
-                        <Icon icon={icons.trash} />
-                    </IconButton>
+                    {event.can_modify && (
+                        <IconButton onClick={onDelete}>
+                            <Icon icon={icons.trash} />
+                        </IconButton>
+                    )}
                     <IconButton onClick={() => setIsOpen(false)}>
                         <Icon icon={icons.x} />
                     </IconButton>
                 </EventHeaderIcons>
             </EventHeader>
             <EventTitle>{event.title}</EventTitle>
-            {isPreviewMode && calendarAccount && calendar && (
+            {calendarAccount && calendar && (
                 <Flex gap={Spacing._8}>
                     <Icon icon={icons.square} colorHex={getCalendarColor(event.color_id || calendar.color_id)} />
                     <Label>
