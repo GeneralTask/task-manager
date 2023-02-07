@@ -39,7 +39,7 @@ const useSelectFirstItemOnFirstLoad = () => {
     const navigate = useNavigate()
 
     useEffect(() => {
-        if (lists?.length === 0 || !isFirstSuccess.current) return
+        if (!isFirstSuccess.current || lists?.length === 0) return
         const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
         if (firstNonEmptyView) {
             isFirstSuccess.current = false
