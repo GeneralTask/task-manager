@@ -11,7 +11,7 @@ const Container = styled.div`
     height: 100vh;
 `
 const Link = styled.a`
-    min-width: 300px;
+    width: 200px;
     max-width: 30vw;
 `
 
