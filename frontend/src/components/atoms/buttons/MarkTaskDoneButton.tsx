@@ -1,49 +1,8 @@
 import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import useOverviewContext from '../../../context/OverviewContextProvider'
 import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
 import Log from '../../../services/api/log'
 import { useMarkTaskDoneOrDeleted } from '../../../services/api/tasks.hooks'
-import { TOverviewView } from '../../../utils/types'
 import GTCheckbox from '../GTCheckbox'
-
-export const useNavigateToNextOverviewItem = () => {
-    const navigate = useNavigate()
-    const { setOpenListIds } = useOverviewContext()
-    return (completedTaskId: string, lists: TOverviewView[]) => {
-        const listWithTask = lists?.find((list) => {
-            return list.view_items.find((item) => item.id === completedTaskId)
-        })
-
-        // Check if current list is not empty, and select next item if it is not
-        if (listWithTask && listWithTask.view_items.length !== 1) {
-            const taskIndex = listWithTask.view_items.findIndex((item) => item.id === completedTaskId)
-            const nextTask = listWithTask.view_items[taskIndex + 1]
-            if (nextTask) {
-                navigate(`/overview/${listWithTask.id}/${nextTask.id}`)
-            }
-        } else {
-            // Select first item in first non-empty list
-            const firstNonEmptyList = lists?.find((list) => list.view_items.length > 0 && list.id !== listWithTask?.id)
-            if (firstNonEmptyList) {
-                //navigate to this list item
-                navigate(`/overview/${firstNonEmptyList.id}/${firstNonEmptyList.view_items[0].id}`)
-                //open this list and close the previous one
-                setOpenListIds((ids) => {
-                    const idsCopy = [...ids]
-                    if (!idsCopy.includes(firstNonEmptyList.id)) {
-                        idsCopy.push(firstNonEmptyList.id)
-                    }
-                    idsCopy.filter((id) => id !== listWithTask?.id)
-                    return ids
-                })
-            } else {
-                //navigate to overview if there are no more items
-                navigate(`/overview/`)
-            }
-        }
-    }
-}
 
 interface MarkTaskDoneButtonProps {
     isDone: boolean
