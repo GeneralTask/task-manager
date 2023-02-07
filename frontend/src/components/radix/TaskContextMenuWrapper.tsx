@@ -102,7 +102,6 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
                                 }
                             }}
                             onlyCalendar
-                            isLinearTask={task.source?.name === 'Linear'}
                         />
                     ),
                 },
