@@ -14,7 +14,7 @@ const OverviewDetails = () => {
 
     if (isLoading) return null
     else if (lists.length > 0 && flattenedLists.length === 0)
-        return <EmptyDetails icon={icons.bolt} text="yay you completed everything" />
+        return <EmptyDetails icon={icons.check} text="Your lists are all empty" />
     else if (lists.length === 0) return <EmptyDetails icon={icons.list} text="You have no lists" />
     else if (!selectedList || !selectedItem) {
         return null
