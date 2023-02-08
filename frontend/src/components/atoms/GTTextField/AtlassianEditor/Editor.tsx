@@ -9,6 +9,7 @@ import { icons } from '../../../../styles/images'
 import { TOOLBAR_HEIGHT } from '../toolbar/styles'
 import { RichTextEditorProps } from '../types'
 
+const TRASH_BUTTON_CLASS_NAME = 'css-6gzodm-ButtonBase'
 const serializer = new JSONTransformer()
 
 const EditorContainer = styled.div<{ isMarkdown: boolean }>`
@@ -57,14 +58,13 @@ const Editor = ({
     onChange,
     editorActions,
 }: EditorProps) => {
+    useReplaceEditorButtonIcon(icons.trash, TRASH_BUTTON_CLASS_NAME)
+
     const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
         if (e.key === 'Escape' || (enterBehavior === 'blur' && e.key === 'Enter')) {
             editorActions.blur()
         }
     }
-
-    useReplaceEditorButtonIcon(icons.trash, 'css-6gzodm-ButtonBase')
-
     const isMarkdown = type === 'markdown'
 
     return (
