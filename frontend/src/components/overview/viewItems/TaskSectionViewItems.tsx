@@ -45,6 +45,20 @@ const TaskSectionViewItems = forwardRef(
             [view.task_section_id]
         )
 
+        const onCreateNewTaskSubmit = (title: string) => {
+            if (!sectionId) return
+            const optimisticId = uuidv4()
+            createTask({
+                title: title,
+                taskSectionId: sectionId,
+                optimisticId: optimisticId,
+            })
+            const allListsEmpty = lists?.every((list) => list.view_items.length === 0)
+            if (allListsEmpty && location.pathname.includes('overview')) {
+                navigate(`/overview/${view.id}/${optimisticId}/`)
+            }
+        }
+
         return (
             <>
                 {!hideHeader && (
@@ -53,24 +67,7 @@ const TaskSectionViewItems = forwardRef(
                     </ViewHeader>
                 )}
                 {view.total_view_items !== 0 && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
-                {sectionId && (
-                    <CreateNewItemInput
-                        placeholder="Create new task"
-                        onSubmit={(title) => {
-                            const optimisticId = uuidv4()
-                            createTask({
-                                title: title,
-                                taskSectionId: sectionId,
-                                optimisticId: optimisticId,
-                            })
-                            const allListsEmpty = lists?.every((list) => list.view_items.length === 0)
-                            //check if on overview page
-                            if (allListsEmpty && location.pathname.includes('overview')) {
-                                navigate(`/overview/${view.id}/${optimisticId}/`)
-                            }
-                        }}
-                    />
-                )}
+                {sectionId && <CreateNewItemInput placeholder="Create new task" onSubmit={onCreateNewTaskSubmit} />}
                 {view.view_items.length > 0 ? (
                     view.view_items.slice(0, visibleItemsCount).map((item, index) => (
                         <ReorderDropContainer
