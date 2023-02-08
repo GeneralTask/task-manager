@@ -42,8 +42,6 @@ const useSelectFirstItemOnFirstLoad = () => {
         if (!isFirstSuccess.current || lists?.length === 0) return
         const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
         if (firstNonEmptyView) {
-            isFirstSuccess.current = false
-
             setOpenListIds((ids) => {
                 if (!ids.includes(firstNonEmptyView.id)) {
                     return [...ids, firstNonEmptyView.id]
@@ -54,6 +52,7 @@ const useSelectFirstItemOnFirstLoad = () => {
         } else {
             navigate(`/overview`, { replace: true })
         }
+        isFirstSuccess.current = false
     }, [lists, isSuccess])
 }
 
