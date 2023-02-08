@@ -249,12 +249,13 @@ export const useCreateTask = () => {
                 queryClient.setQueryData('tasks', updatedSections)
                 if (
                     createData.parent_task_id &&
-                    window.location.pathname ===
+                    window.location.pathname.startsWith(
                         `/tasks/${createData.taskSectionId}/${createData.parent_task_id}/${createData.optimisticId}`
+                    )
                 ) {
                     navigate(`/tasks/${createData.taskSectionId}/${createData.parent_task_id}/${response.task_id}`)
                 } else if (
-                    window.location.pathname === `/tasks/${createData.taskSectionId}/${createData.optimisticId}`
+                    window.location.pathname.startsWith(`/tasks/${createData.taskSectionId}/${createData.optimisticId}`)
                 ) {
                     navigate(`/tasks/${createData.taskSectionId}/${response.task_id}`)
                 }
@@ -291,12 +292,15 @@ export const useCreateTask = () => {
                     queryClient.setQueryData('overview', updatedViews)
                     if (
                         createData.parent_task_id &&
-                        window.location.pathname ===
+                        window.location.pathname.startsWith(
                             `/overview/${views[sectionIdx].id}/${createData.parent_task_id}/${createData.optimisticId}`
+                        )
                     ) {
                         navigate(`/overview/${views[sectionIdx].id}/${createData.parent_task_id}/${response.task_id}`)
                     } else if (
-                        window.location.pathname === `/overview/${views[sectionIdx].id}/${createData.optimisticId}`
+                        window.location.pathname.startsWith(
+                            `/overview/${views[sectionIdx].id}/${createData.optimisticId}`
+                        )
                     ) {
                         navigate(`/overview/${views[sectionIdx].id}/${response.task_id}`)
                     }
