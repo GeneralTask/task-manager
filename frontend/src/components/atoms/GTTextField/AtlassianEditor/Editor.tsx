@@ -1,11 +1,11 @@
 import { Editor as AtlaskitEditor, EditorActions } from '@atlaskit/editor-core'
 import { JSONTransformer } from '@atlaskit/editor-json-transformer'
 import { MarkdownTransformer } from '@atlaskit/editor-markdown-transformer'
-import adf2md from 'adf-to-md'
 import styled from 'styled-components'
 import { Spacing } from '../../../../styles'
 import { TOOLBAR_HEIGHT } from '../toolbar/styles'
 import { RichTextEditorProps } from '../types'
+import adf2md from './adfToMd'
 
 const serializer = new JSONTransformer()
 
