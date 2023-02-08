@@ -106,18 +106,6 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         }
     }
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        const keyCode = getKeyCode(e)
-        if (
-            keyCode === KEYBOARD_SHORTCUTS.close.key ||
-            keyCode === KEYBOARD_SHORTCUTS.submit.key ||
-            KEYBOARD_SHORTCUTS.newNote.key.split('|').some((key) => key === keyCode)
-        ) {
-            setIsOpen(false)
-        }
-        stopKeydownPropogation(e, undefined, true)
-    }
-
     const onClose = () => {
         // If this is the user's first note, we navigate to the notes page the modal is closed (learnability)
         if ((isEditing && notes?.length === 0) || (optimisticId.current && notes?.length === 1)) {
@@ -127,6 +115,19 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         setNoteBody('')
         console.log('calling onClose')
         optimisticId.current = undefined
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        const keyCode = getKeyCode(e)
+        if (
+            keyCode === KEYBOARD_SHORTCUTS.close.key ||
+            keyCode === KEYBOARD_SHORTCUTS.submit.key ||
+            KEYBOARD_SHORTCUTS.newNote.key.split('|').some((key) => key === keyCode)
+        ) {
+            setIsOpen(false)
+            onClose()
+        }
+        stopKeydownPropogation(e, undefined, true)
     }
 
     return (
