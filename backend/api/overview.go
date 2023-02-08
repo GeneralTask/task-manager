@@ -726,7 +726,7 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 			task.MeetingPreparationParams.EventMovedOrDeleted = true
 		}
 
-		taskCollection.UpdateOne(context.Background(),
+		_, err = taskCollection.UpdateOne(context.Background(),
 			bson.M{"$and": []bson.M{
 				{"_id": task.ID},
 				{"user_id": userID},
@@ -740,6 +740,9 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 				"meeting_preparation_params.has_been_automatically_completed": task.MeetingPreparationParams.HasBeenAutomaticallyCompleted,
 			}},
 		)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
