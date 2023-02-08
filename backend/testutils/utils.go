@@ -7,12 +7,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func CreateTimestamp(dt string) *time.Time {
-	createdAt, _ := time.Parse("2006-01-02", dt)
+	createdAt, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, dt)
 	return &createdAt
 }
 
