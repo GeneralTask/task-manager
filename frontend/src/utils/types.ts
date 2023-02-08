@@ -308,7 +308,7 @@ export interface TOverviewView {
     total_view_items?: number // the total number of items in the view without filters applied
     sources: TSourcesResult[]
     is_linked: boolean
-    has_tasks_completed_today?: boolean
+    has_tasks_completed_today: boolean
 }
 
 export interface TSupportedViewItem {
