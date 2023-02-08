@@ -7,16 +7,17 @@ import TaskDetails from '../details/TaskDetails'
 import useOverviewLists from './useOverviewLists'
 
 const OverviewDetails = () => {
-    const { lists, isLoading } = useOverviewLists()
+    const { lists, isLoading, flattenedLists } = useOverviewLists()
     const { overviewViewId, overviewItemId, subtaskId } = useParams()
     const selectedList = lists?.find((list) => list.id === overviewViewId)
     const selectedItem = selectedList?.view_items.find((item) => item.id === overviewItemId)
 
     if (isLoading) return null
+    else if (flattenedLists?.length === 0) return <EmptyDetails icon={icons.bolt} text="yay you completed everything" />
+    else if (lists.length === 0) return <EmptyDetails icon={icons.list} text="You have no lists" />
     else if (!selectedList || !selectedItem) {
         return null
-    } else if (!lists?.length) return <EmptyDetails icon={icons.list} text="You have no views" />
-    else if (selectedList.type === 'github') return <PullRequestDetails pullRequest={selectedItem as TPullRequest} />
+    } else if (selectedList.type === 'github') return <PullRequestDetails pullRequest={selectedItem as TPullRequest} />
     else {
         const subtask = selectedItem?.sub_tasks?.find((subtask) => subtask.id === subtaskId)
         return <TaskDetails task={selectedItem as TTask} subtask={subtask} />

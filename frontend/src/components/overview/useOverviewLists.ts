@@ -74,9 +74,9 @@ const useOverviewLists = () => {
             if (a.view_items.length > 0 && b.view_items.length === 0) return -1
             return 0
         })
-        return { lists: copy, isLoading: areListsLoading, isSuccess }
+        return { lists: copy, isLoading: areListsLoading, isSuccess, flattenedLists }
     }
-    return { lists: sortedAndFilteredLists, isLoading: areListsLoading, isSuccess: isSuccess }
+    return { lists: sortedAndFilteredLists, isLoading: areListsLoading, isSuccess: isSuccess, flattenedLists }
 }
 
 export default useOverviewLists
