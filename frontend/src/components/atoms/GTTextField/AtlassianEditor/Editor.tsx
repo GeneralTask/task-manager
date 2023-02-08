@@ -3,7 +3,9 @@ import { JSONTransformer } from '@atlaskit/editor-json-transformer'
 import { MarkdownTransformer } from '@atlaskit/editor-markdown-transformer'
 import adf2md from 'adf-to-md'
 import styled from 'styled-components'
+import useReplaceEditorButtonIcon from '../../../../hooks/useReplaceEditorIcon'
 import { Spacing } from '../../../../styles'
+import { icons } from '../../../../styles/images'
 import { TOOLBAR_HEIGHT } from '../toolbar/styles'
 import { RichTextEditorProps } from '../types'
 
@@ -41,7 +43,6 @@ const EditorContainer = styled.div<{ isMarkdown: boolean }>`
     }
     ${({ isMarkdown }) => isMarkdown && `u { text-decoration: none; } `}/* remove underline if in markdown mode */
 `
-
 interface EditorProps extends RichTextEditorProps {
     editorActions: EditorActions
 }
@@ -56,6 +57,8 @@ const Editor = ({
     onChange,
     editorActions,
 }: EditorProps) => {
+    useReplaceEditorButtonIcon(icons.trash, 'button[aria-label="Remove"]')
+
     const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
         if (e.key === 'Escape' || (enterBehavior === 'blur' && e.key === 'Enter')) {
             editorActions.blur()
