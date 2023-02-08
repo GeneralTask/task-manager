@@ -694,9 +694,8 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 }
 
 func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID primitive.ObjectID, timezoneOffset time.Duration) (error) {
-	taskCollection := database.GetTaskCollection(api.DB)
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
-
+	taskCollection := database.GetTaskCollection(api.DB)
 	for _, task := range *meetingTasks {
 		event, err := database.GetCalendarEventByExternalId(api.DB, task.MeetingPreparationParams.IDExternal, userID)
 		eventMovedOrDeleted := task.MeetingPreparationParams.EventMovedOrDeleted
@@ -712,7 +711,6 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 			if event.DatetimeStart.Time().In(localZone).Day() != task.MeetingPreparationParams.DatetimeStart.Time().In(localZone).Day() {
 				eventMovedOrDeleted = true
 			}
-
 			task.MeetingPreparationParams.DatetimeStart = event.DatetimeStart
 			task.MeetingPreparationParams.DatetimeEnd = event.DatetimeEnd
 			task.MeetingPreparationParams.EventMovedOrDeleted = eventMovedOrDeleted
@@ -728,14 +726,20 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 			task.MeetingPreparationParams.EventMovedOrDeleted = true
 		}
 
-		_, err = taskCollection.UpdateOne(
-			context.Background(),
-			bson.M{"_id": task.ID, "user_id": userID},
-			bson.M{"$set": &task},
+		taskCollection.UpdateOne(context.Background(),
+			bson.M{"$and": []bson.M{
+				{"_id": task.ID},
+				{"user_id": userID},
+			}},
+			bson.M{"$set": bson.M{
+				"is_completed": task.IsCompleted,
+				"completed_at": task.CompletedAt,
+				"meeting_preparation_params.datetime_start": task.MeetingPreparationParams.DatetimeStart,
+				"meeting_preparation_params.datetime_end": task.MeetingPreparationParams.DatetimeEnd,
+				"meeting_preparation_params.event_moved_or_deleted": task.MeetingPreparationParams.EventMovedOrDeleted,
+				"meeting_preparation_params.has_been_automatically_completed": task.MeetingPreparationParams.HasBeenAutomaticallyCompleted,
+			}},
 		)
-		if err != nil {
-			return err
-		}
 	}
 
 	return nil
