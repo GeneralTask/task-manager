@@ -71,7 +71,7 @@ const AccordionHeader = ({ list, isOpen }: AccordionHeaderProps) => {
                 {list.view_items.length > 0 && (
                     <ItemsRemainingText>{list.view_items.length} remaining</ItemsRemainingText>
                 )}
-                {list.view_items.length === 0 && list.is_linked && list.optimisticId == undefined && (
+                {list.view_items.length === 0 && list.is_linked && list.has_tasks_completed_today !== undefined && (
                     <StatusLabel
                         status={list.has_tasks_completed_today ? 'List complete' : 'Empty'}
                         color={list.has_tasks_completed_today ? 'green' : 'gray'}
