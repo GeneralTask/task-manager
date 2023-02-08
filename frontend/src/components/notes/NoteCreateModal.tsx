@@ -174,10 +174,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                             />
                         </Flex>
                         <Flex justifyContent="space-between" alignItems="center">
-                            <Flex column>
-                                <Label color="light">{syncIndicatorText}</Label>
-                                <Label color="light">{optimisticId.current ?? 'no optimisticId'}</Label>
-                            </Flex>
+                            <Label color="light">{syncIndicatorText}</Label>
                             <Flex gap={Spacing._8}>
                                 <GTButton
                                     value="Share note"
@@ -198,16 +195,6 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                             ? getIdFromOptimisticId(optimisticId.current)
                                             : undefined
                                         if (realId) copyNoteLink(realId)
-                                    }}
-                                />
-                                <GTButton
-                                    value="Save note"
-                                    styleType="secondary"
-                                    size="small"
-                                    icon={icons.save}
-                                    disabled={!(noteBody || noteTitle)}
-                                    onClick={() => {
-                                        setIsOpen(false)
                                     }}
                                 />
                             </Flex>
