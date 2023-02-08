@@ -93,8 +93,8 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
         return isToday || (calendarType === 'week' && isThisWeek)
     }, [date, calendarType])
     useKeyboardShortcut('jumpToToday', selectToday, isFocusMode)
-    useKeyboardShortcut('nextDate', selectNext, isFocusMode)
-    useKeyboardShortcut('previousDate', selectPrevious, isFocusMode)
+    useKeyboardShortcut(isCalendarExpanded ? 'nextWeek' : 'nextDay', selectNext, isFocusMode)
+    useKeyboardShortcut(isCalendarExpanded ? 'previousWeek' : 'previousDay', selectPrevious, isFocusMode)
 
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const showOauthPrompt = linkedAccounts !== undefined && !isGoogleCalendarLinked(linkedAccounts)
@@ -110,8 +110,16 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
     )
     const nextPreviousButtons = (
         <Flex gap={Spacing._8} alignItems="center">
-            <GTIconButton shortcutName="previousDate" onClick={selectPrevious} icon={icons.caret_left} />
-            <GTIconButton shortcutName="nextDate" onClick={selectNext} icon={icons.caret_right} />
+            <GTIconButton
+                shortcutName={isCalendarExpanded ? 'previousWeek' : 'previousDay'}
+                onClick={selectPrevious}
+                icon={icons.caret_left}
+            />
+            <GTIconButton
+                shortcutName={isCalendarExpanded ? 'nextWeek' : 'nextDay'}
+                onClick={selectNext}
+                icon={icons.caret_right}
+            />
             {additionalHeaderContent}
         </Flex>
     )
