@@ -94,7 +94,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		assert.NotEqual(t, "sample-access-token", newToken.AccessToken)
 		assert.NotEqual(t, "sample-refresh-token", newToken.RefreshToken)
 
-		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
+		dueDate, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, "2021-04-20")
 		primDueDate := primitive.NewDateTimeFromTime(dueDate)
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.999-0700", "2022-04-20T07:05:06.416-0800")
 		primCreatedAt := primitive.NewDateTimeFromTime(createdAt)
@@ -189,7 +189,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 		statusServer := getStatusServerForJIRA(t, http.StatusOK, false)
 
-		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
+		dueDate, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, "2021-04-20")
 		title := "Sample Taskeroni"
 		body := ""
 		dueDatePrim := primitive.NewDateTimeFromTime(dueDate)
@@ -257,7 +257,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		server := getJIRAPriorityServer(t, 200, []byte(`[{"id": "9","iconUrl":"https://example.com"},{"id": "5","iconUrl":"https://example2.com"}]`))
 		defer server.Close()
 
-		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
+		dueDate, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, "2021-04-20")
 		title := "Sample Taskeroni"
 		body := ""
 		dueDatePrim := primitive.NewDateTimeFromTime(dueDate)
@@ -330,7 +330,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 		statusServer := getStatusServerForJIRA(t, http.StatusOK, false)
 
-		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
+		dueDate, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, "2021-04-20")
 		title := "Sample Taskeroni"
 		body := ""
 		dueDatePrim := primitive.NewDateTimeFromTime(dueDate)
@@ -724,7 +724,7 @@ func TestModifyJIRATask(t *testing.T) {
 	AtlassianSiteCollection := database.GetJiraSitesCollection(db)
 
 	userID, account_id := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
-	createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
+	createdAt, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, "2019-04-20")
 	completed := false
 	testTitle := "test title"
 	testDescription := "test description"

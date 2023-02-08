@@ -110,7 +110,7 @@ func (asanaTask AsanaTaskSource) GetTasks(db *mongo.Database, userID primitive.O
 			SourceAccountID:   accountID,
 			CreatedAtExternal: asanaTaskData.CreatedAt,
 		}
-		dueDate, err := time.Parse("2006-01-02", asanaTaskData.DueOn)
+		dueDate, err := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, asanaTaskData.DueOn)
 		if err == nil {
 			dueDatePrim := primitive.NewDateTimeFromTime(dueDate)
 			task.DueDate = &dueDatePrim

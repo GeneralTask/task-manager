@@ -7,7 +7,7 @@ import useOverviewContext from '../../context/OverviewContextProvider'
 import useQueryContext from '../../context/QueryContext'
 import { useGTLocalStorage } from '../../hooks'
 import apiClient from '../../utils/api'
-import navigateToNextItemAfterOverviewCommpletion from '../../utils/navigateToNextItemAfterOverviewCommpletion'
+import navigateToNextItemAfterOverviewCommpletion from '../../utils/navigateToNextItemAfterOverviewCompletion'
 import {
     TExternalStatus,
     TOverviewItem,
@@ -540,6 +540,7 @@ export const useMarkTaskDoneOrDeleted = () => {
                 queryClient.setQueryData('overview', newLists)
 
                 if (window.location.pathname.split('/')[1] !== 'overview') return
+                if (data.subtaskId) return
                 navigateToNextItemAfterOverviewCommpletion(
                     lists as TOverviewView[],
                     newLists as TOverviewView[],
