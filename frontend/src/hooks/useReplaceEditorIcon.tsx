@@ -23,7 +23,6 @@ const useReplaceEditorButtonIcon = (icon: TIconType, selector: string) => {
         const callback: MutationCallback = (mutationList) => {
             for (const mutation of mutationList) {
                 if (mutation.type === 'childList') {
-                    //get buttons whose aria-label is "Remove"
                     const buttons = (mutation.target as Element).querySelectorAll(selector)
                     for (const button of buttons) {
                         button.innerHTML = RENDERED_ICON
