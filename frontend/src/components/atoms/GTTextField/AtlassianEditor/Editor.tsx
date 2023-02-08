@@ -82,6 +82,7 @@ const Editor = ({
                 }}
                 media={{
                     allowMediaSingle: true,
+                    allowResizing: true,
                 }}
                 contentTransformerProvider={isMarkdown ? (schema) => new MarkdownTransformer(schema) : undefined}
             />
