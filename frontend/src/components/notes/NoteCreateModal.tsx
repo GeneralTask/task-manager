@@ -113,9 +113,16 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         }
         setNoteTitle('')
         setNoteBody('')
-        console.log('calling onClose')
         optimisticId.current = undefined
+        timer.current?.callback()
+        timer.current = undefined
     }
+
+    useEffect(() => {
+        if (!isOpen) {
+            optimisticId.current = undefined
+        }
+    }, [isOpen])
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         const keyCode = getKeyCode(e)
@@ -171,27 +178,39 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                 <Label color="light">{syncIndicatorText}</Label>
                                 <Label color="light">{optimisticId.current ?? 'no optimisticId'}</Label>
                             </Flex>
-                            <GTButton
-                                value="Share note"
-                                styleType="secondary"
-                                size="small"
-                                icon={icons.share}
-                                disabled={!optimisticId.current || !getIdFromOptimisticId(optimisticId.current)}
-                                onClick={() => {
-                                    onEdit(
-                                        {
-                                            title: noteTitle,
-                                            body: noteBody,
-                                            shared_until: DateTime.local().plus({ months: 3 }).toISO(),
-                                        },
-                                        0
-                                    )
-                                    const realId = optimisticId.current
-                                        ? getIdFromOptimisticId(optimisticId.current)
-                                        : undefined
-                                    if (realId) copyNoteLink(realId)
-                                }}
-                            />
+                            <Flex gap={Spacing._8}>
+                                <GTButton
+                                    value="Share note"
+                                    styleType="secondary"
+                                    size="small"
+                                    icon={icons.share}
+                                    disabled={!optimisticId.current || !getIdFromOptimisticId(optimisticId.current)}
+                                    onClick={() => {
+                                        onEdit(
+                                            {
+                                                title: noteTitle,
+                                                body: noteBody,
+                                                shared_until: DateTime.local().plus({ months: 3 }).toISO(),
+                                            },
+                                            0
+                                        )
+                                        const realId = optimisticId.current
+                                            ? getIdFromOptimisticId(optimisticId.current)
+                                            : undefined
+                                        if (realId) copyNoteLink(realId)
+                                    }}
+                                />
+                                <GTButton
+                                    value="Save note"
+                                    styleType="secondary"
+                                    size="small"
+                                    icon={icons.save}
+                                    disabled={!(noteBody || noteTitle)}
+                                    onClick={() => {
+                                        setIsOpen(false)
+                                    }}
+                                />
+                            </Flex>
                         </Flex>
                     </Flex>
                 ),
