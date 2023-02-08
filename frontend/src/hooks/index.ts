@@ -1,5 +1,6 @@
 import useAuthWindow from './useAuthWindow'
 import useClickOutside from './useClickOutside'
+import useDebouncedEdit from './useDebouncedEdit'
 import useEventBanners from './useEventBanners'
 import useGTLocalStorage from './useGTLocalStorage'
 import useGlobalKeyboardShortcuts from './useGlobalKeyboardShortcuts'
@@ -32,4 +33,5 @@ export {
     useToast,
     usePageFocus,
     useWindowSize,
+    useDebouncedEdit,
 }
