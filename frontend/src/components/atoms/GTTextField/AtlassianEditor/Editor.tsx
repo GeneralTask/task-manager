@@ -58,7 +58,7 @@ const Editor = ({
     editorActions,
 }: EditorProps) => {
     useReplaceEditorButtonIcon(icons.trash, 'button[aria-label="Remove"]')
-    useReplaceEditorButtonIcon(icons.link, 'span[aria-label="Open link in a new tab"]')
+    useReplaceEditorButtonIcon(icons.external_link, 'span[aria-label="Open link in a new tab"]')
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
         if (e.key === 'Escape' || (enterBehavior === 'blur' && e.key === 'Enter')) {
