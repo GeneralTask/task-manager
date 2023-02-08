@@ -1,13 +1,13 @@
 import { Editor as AtlaskitEditor, EditorActions } from '@atlaskit/editor-core'
 import { JSONTransformer } from '@atlaskit/editor-json-transformer'
 import { MarkdownTransformer } from '@atlaskit/editor-markdown-transformer'
-import adf2md from 'adf-to-md'
 import styled from 'styled-components'
 import useReplaceEditorButtonIcon from '../../../../hooks/useReplaceEditorIcon'
 import { Spacing } from '../../../../styles'
 import { icons } from '../../../../styles/images'
 import { TOOLBAR_HEIGHT } from '../toolbar/styles'
 import { RichTextEditorProps } from '../types'
+import adf2md from './adfToMd'
 
 const serializer = new JSONTransformer()
 
@@ -59,6 +59,7 @@ const Editor = ({
 }: EditorProps) => {
     useReplaceEditorButtonIcon(icons.trash, 'button[aria-label="Remove"]')
     useReplaceEditorButtonIcon(icons.external_link, 'span[aria-label="Open link in a new tab"]')
+    useReplaceEditorButtonIcon(icons.link_slashed, 'button[aria-label="Unlink"]')
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
         if (e.key === 'Escape' || (enterBehavior === 'blur' && e.key === 'Enter')) {
@@ -82,6 +83,10 @@ const Editor = ({
                     } else {
                         onChange(JSON.stringify(json))
                     }
+                }}
+                media={{
+                    allowMediaSingle: true,
+                    allowResizing: true,
                 }}
                 contentTransformerProvider={isMarkdown ? (schema) => new MarkdownTransformer(schema) : undefined}
             />
