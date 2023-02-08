@@ -13,7 +13,8 @@ const OverviewDetails = () => {
     const selectedItem = selectedList?.view_items.find((item) => item.id === overviewItemId)
 
     if (isLoading) return null
-    else if (flattenedLists?.length === 0) return <EmptyDetails icon={icons.bolt} text="yay you completed everything" />
+    else if (lists.length > 0 && flattenedLists?.length === 0)
+        return <EmptyDetails icon={icons.bolt} text="yay you completed everything" />
     else if (lists.length === 0) return <EmptyDetails icon={icons.list} text="You have no lists" />
     else if (!selectedList || !selectedItem) {
         return null
