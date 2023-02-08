@@ -36,11 +36,16 @@ export interface BaseModalProps {
     children?: React.ReactNode
     size?: TModalSize
     open: boolean
+    onClose?: () => void
     setIsModalOpen: (isModalOpen: boolean) => void
 }
-const BaseModal = ({ children, size = 'sm', open, setIsModalOpen }: BaseModalProps) => {
+const BaseModal = ({ children, size = 'sm', open, onClose, setIsModalOpen }: BaseModalProps) => {
+    const onModalClose = () => {
+        setIsModalOpen(false)
+        onClose?.()
+    }
     return (
-        <Modal opened={open} onClose={() => setIsModalOpen(false)} size={MODAL_WIDTH[size]} {...modalProps}>
+        <Modal opened={open} onClose={() => onModalClose()} size={MODAL_WIDTH[size]} {...modalProps}>
             <ModalContentContainer>{children}</ModalContentContainer>
         </Modal>
     )
