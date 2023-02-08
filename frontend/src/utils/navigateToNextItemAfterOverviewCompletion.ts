@@ -23,6 +23,9 @@ const navigateToNextItemAfterOverviewCompletion = (
         const nextTask = listWithDeletedTask.view_items[taskIndex + 1]
         if (nextTask) {
             navigate(`/overview/${listWithDeletedTask.id}/${nextTask.id}`)
+        } else {
+            const previousTask = listWithDeletedTask.view_items[taskIndex - 1]
+            navigate(`/overview/${listWithDeletedTask.id}/${previousTask.id}`)
         }
     } else {
         // If list has only one task, navigate to first non-empty list
