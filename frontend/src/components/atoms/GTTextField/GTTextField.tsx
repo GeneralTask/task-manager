@@ -7,7 +7,6 @@ import PlainTextEditor from './PlainTextEditor'
 import { GTTextFieldProps } from './types'
 
 const AtlassianEditor = lazy(() => import('./AtlassianEditor'))
-const MarkdownEditor = lazy(() => import('./MarkdownEditor'))
 
 const PlainTextContainer = styled.div<{ hideUnfocusedOutline?: boolean; disabled?: boolean }>`
     border: ${Border.stroke.medium} solid
@@ -60,7 +59,7 @@ const GTTextField = forwardRef((props: GTTextFieldProps, ref) => {
         if (props.type === 'plaintext') {
             return <PlainTextEditor ref={ref} {...props} />
         } else if (props.type === 'markdown') {
-            return <MarkdownEditor {...props} />
+            return <AtlassianEditor {...props} />
         } else if (props.type === 'atlassian') {
             return <AtlassianEditor {...props} />
         } else return null

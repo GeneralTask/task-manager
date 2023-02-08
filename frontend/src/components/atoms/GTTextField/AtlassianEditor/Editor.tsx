@@ -1,9 +1,14 @@
+import { useEffect } from 'react'
+import ReactDOMServer from 'react-dom/server'
 import { Editor as AtlaskitEditor, EditorActions } from '@atlaskit/editor-core'
 import { JSONTransformer } from '@atlaskit/editor-json-transformer'
 import { MarkdownTransformer } from '@atlaskit/editor-markdown-transformer'
 import adf2md from 'adf-to-md'
 import styled from 'styled-components'
 import { Spacing } from '../../../../styles'
+import { icons } from '../../../../styles/images'
+import Flex from '../../Flex'
+import { Icon } from '../../Icon'
 import { TOOLBAR_HEIGHT } from '../toolbar/styles'
 import { RichTextEditorProps } from '../types'
 
@@ -42,6 +47,10 @@ const EditorContainer = styled.div<{ isMarkdown: boolean }>`
     ${({ isMarkdown }) => isMarkdown && `u { text-decoration: none; } `}/* remove underline if in markdown mode */
 `
 
+const IconContainer = styled(Flex)`
+    height: 100%;
+`
+
 interface EditorProps extends RichTextEditorProps {
     editorActions: EditorActions
 }
@@ -61,6 +70,39 @@ const Editor = ({
             editorActions.blur()
         }
     }
+
+    useEffect(() => {
+        const RENDERED_TRASH_ICON = ReactDOMServer.renderToStaticMarkup(
+            <IconContainer column alignItems="center" justifyContent="center">
+                <Icon icon={icons.trash} color="gray" />
+            </IconContainer>
+        )
+        const editorClassName = 'ak-editor-content-area'
+
+        const editorContentAreaElements = document.getElementsByClassName(editorClassName)
+        const targetNode = editorContentAreaElements[0]
+
+        const callback: MutationCallback = (mutationList) => {
+            for (const mutation of mutationList) {
+                if (mutation.type === 'childList') {
+                    const editorTrashButtons = (mutation.target as Element).getElementsByClassName(
+                        'css-6gzodm-ButtonBase'
+                    )
+                    for (const trashButton of editorTrashButtons) {
+                        trashButton.innerHTML = RENDERED_TRASH_ICON
+                    }
+                }
+            }
+        }
+
+        const observer = new MutationObserver(callback)
+        observer.observe(targetNode, { subtree: true, childList: true })
+
+        return () => {
+            observer.disconnect()
+        }
+    }, [])
+
     const isMarkdown = type === 'markdown'
 
     return (
