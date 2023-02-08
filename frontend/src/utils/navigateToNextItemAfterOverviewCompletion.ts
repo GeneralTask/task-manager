@@ -1,8 +1,8 @@
 import { Dispatch, SetStateAction } from 'react'
 import { NavigateFunction } from 'react-router-dom'
-import { TOverviewView } from '../utils/types'
+import { TOverviewView } from './types'
 
-const navigateToNextItemAfterOverviewCommpletion = (
+const navigateToNextItemAfterOverviewCompletion = (
     oldLists: TOverviewView[],
     newLists: TOverviewView[],
     deletedTaskId: string,
@@ -40,4 +40,4 @@ const navigateToNextItemAfterOverviewCommpletion = (
         }
     }
 }
-export default navigateToNextItemAfterOverviewCommpletion
+export default navigateToNextItemAfterOverviewCompletion
