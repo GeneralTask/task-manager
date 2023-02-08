@@ -31,7 +31,11 @@ const MainScreen = () => {
     const currentPage = () => {
         switch (location.pathname.split('/')[1]) {
             case 'overview':
-                return <DailyOverviewView />
+                return (
+                    <OverviewContextProvider>
+                        <DailyOverviewView />
+                    </OverviewContextProvider>
+                )
             case 'recurring-tasks':
                 return <RecurringTasksView />
             case 'notes':
@@ -45,7 +49,11 @@ const MainScreen = () => {
             case 'slack':
                 return <SlackTasksView />
             default:
-                return <DailyOverviewView />
+                return (
+                    <OverviewContextProvider>
+                        <DailyOverviewView />
+                    </OverviewContextProvider>
+                )
         }
     }
 
@@ -53,12 +61,10 @@ const MainScreen = () => {
 
     return (
         <CalendarContextProvider>
-            <OverviewContextProvider>
-                <link rel="preload" as="image" href={focusModeBackground} />
-                <link rel="preload" as="image" href={noteBackground} />
-                <DefaultTemplate>{currentPage()}</DefaultTemplate>
-                <DragLayer />
-            </OverviewContextProvider>
+            <link rel="preload" as="image" href={focusModeBackground} />
+            <link rel="preload" as="image" href={noteBackground} />
+            <DefaultTemplate>{currentPage()}</DefaultTemplate>
+            <DragLayer />
         </CalendarContextProvider>
     )
 }
