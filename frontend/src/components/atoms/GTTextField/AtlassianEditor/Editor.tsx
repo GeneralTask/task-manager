@@ -30,8 +30,7 @@ const EditorContainer = styled.div<{ isMarkdown: boolean }>`
         padding: ${Spacing._8};
         box-sizing: border-box;
         > * {
-            padding-bottom: ${Spacing._8};
-            margin: 0;
+            margin-bottom: ${Spacing._8};
         }
         > .code-block {
             margin: 0;
