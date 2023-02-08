@@ -540,6 +540,7 @@ export const useMarkTaskDoneOrDeleted = () => {
                 queryClient.setQueryData('overview', newLists)
 
                 if (window.location.pathname.split('/')[1] !== 'overview') return
+                if (data.subtaskId) return
                 navigateToNextItemAfterOverviewCommpletion(
                     lists as TOverviewView[],
                     newLists as TOverviewView[],
