@@ -10,7 +10,7 @@ const IconContainer = styled(Flex)`
     height: 100%;
 `
 
-const useReplaceEditorButtonIcon = (icon: TIconType, buttonClassName: string) => {
+const useReplaceEditorButtonIcon = (icon: TIconType, selector: string) => {
     useEffect(() => {
         const RENDERED_ICON = ReactDOMServer.renderToStaticMarkup(
             <IconContainer column alignItems="center" justifyContent="center">
@@ -23,7 +23,8 @@ const useReplaceEditorButtonIcon = (icon: TIconType, buttonClassName: string) =>
         const callback: MutationCallback = (mutationList) => {
             for (const mutation of mutationList) {
                 if (mutation.type === 'childList') {
-                    const buttons = (mutation.target as Element).getElementsByClassName(buttonClassName)
+                    //get buttons whose aria-label is "Remove"
+                    const buttons = (mutation.target as Element).querySelectorAll(selector)
                     for (const button of buttons) {
                         button.innerHTML = RENDERED_ICON
                     }
