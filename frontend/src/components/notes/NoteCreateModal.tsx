@@ -113,9 +113,9 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         }
         setNoteTitle('')
         setNoteBody('')
-        optimisticId.current = undefined
         timer.current?.callback()
         timer.current = undefined
+        optimisticId.current = undefined
     }
 
     useEffect(() => {
