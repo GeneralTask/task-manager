@@ -80,6 +80,9 @@ const Editor = ({
                         onChange(JSON.stringify(json))
                     }
                 }}
+                media={{
+                    allowMediaSingle: true,
+                }}
                 contentTransformerProvider={isMarkdown ? (schema) => new MarkdownTransformer(schema) : undefined}
             />
         </EditorContainer>
