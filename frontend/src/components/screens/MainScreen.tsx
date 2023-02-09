@@ -8,6 +8,7 @@ import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { focusModeBackground, noteBackground } from '../../styles/images'
+import Spinner from '../atoms/Spinner'
 import { CalendarContextProvider } from '../calendar/CalendarContext'
 import DragLayer from '../molecules/DragLayer'
 import DefaultTemplate from '../templates/DefaultTemplate'
@@ -57,7 +58,8 @@ const MainScreen = () => {
         }
     }
 
-    if (!isTaskSectionsLoading && !userInfo?.agreed_to_terms) return <Navigate to="/tos-summary" />
+    if (userInfo?.agreed_to_terms === undefined) return <Spinner />
+    if (userInfo.agreed_to_terms === false) return <Navigate to="/tos-summary" />
 
     return (
         <CalendarContextProvider>
