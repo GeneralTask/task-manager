@@ -28,7 +28,7 @@ const SlackTasksView = () => {
     const { data: taskSections } = useGetTasks()
     const { slackTaskId } = useParams()
     const navigate = useNavigate()
-    const { calendarType } = useCalendarContext()
+    const { calendarType, setCalendarType, setDate, dayViewDate } = useCalendarContext()
 
     const slackTasks = useMemo(() => {
         const tasks =
@@ -56,6 +56,10 @@ const SlackTasksView = () => {
     }, [])
 
     const onClick = (id: string) => {
+        if (calendarType === 'week' && slackTaskId === id) {
+            setCalendarType('day')
+            setDate(dayViewDate)
+        }
         navigate(`/slack/${id}`)
         Log(`slack_task_select__/slack/${id}`)
     }
