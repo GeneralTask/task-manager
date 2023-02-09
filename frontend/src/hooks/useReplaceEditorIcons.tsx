@@ -11,6 +11,7 @@ const selectorToIcon = [
     ['button[aria-label="Unlink"]', icons.link_slashed],
     ['span[aria-label="open"]', icons.caret_down],
     ['span[aria-label="Open link in a new tab"]', icons.external_link],
+    ['span[aria-label="Link address"]', icons.link],
 ] as const
 
 const IconContainer = styled(Flex)`
