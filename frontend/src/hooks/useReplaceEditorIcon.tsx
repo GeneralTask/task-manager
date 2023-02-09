@@ -6,11 +6,11 @@ import { Icon } from '../components/atoms/Icon'
 import { icons } from '../styles/images'
 
 const EDITOR_ROOT_CLASS_NAME = 'ak-editor-content-area'
-const selectorToIcon = {
-    'button[aria-label="Remove"]': icons.trash,
-    'button[aria-label="Unlink"]': icons.link_slashed,
-    'span[aria-label="open"]': icons.caret_down,
-}
+const selectorToIcon = [
+    ['button[aria-label="Remove"]', icons.trash],
+    ['button[aria-label="Unlink"]', icons.link_slashed],
+    ['span[aria-label="open"]', icons.caret_down],
+] as const
 
 const IconContainer = styled(Flex)`
     height: 100%;
@@ -24,7 +24,7 @@ const useReplaceEditorButtonIcon = () => {
         const callback: MutationCallback = (mutationList) => {
             for (const mutation of mutationList) {
                 if (mutation.type === 'childList') {
-                    for (const [selector, icon] of Object.entries(selectorToIcon)) {
+                    for (const [selector, icon] of selectorToIcon) {
                         const buttons = (mutation.target as Element).querySelectorAll(selector)
                         for (const button of buttons) {
                             button.innerHTML = ReactDOMServer.renderToStaticMarkup(
