@@ -130,7 +130,7 @@ func (api *API) LinearWebhook(c *gin.Context) {
 }
 
 func (api *API) processLinearIssueWebhook(c *gin.Context, webhookPayload LinearWebhookPayload, issuePayload LinearIssuePayload) error {
-	token, err := database.GetExternalTokenByExternalID(api.DB, issuePayload.AssigneeID, external.TASK_SERVICE_ID_LINEAR)
+	token, err := database.GetExternalTokenByExternalID(api.DB, issuePayload.AssigneeID, external.TASK_SERVICE_ID_LINEAR, false)
 	if err != nil {
 		// if the owner of the task is not found, we must check if the task exists
 		// if the task does exist, we must delete as we do not want it to show on the user's list
@@ -172,7 +172,7 @@ func (api *API) createOrModifyIssueFromPayload(userID primitive.ObjectID, accoun
 		task.IsCompleted = &isCompleted
 	}
 
-	dbTask, err := database.GetTaskByExternalIDWithoutUser(api.DB, issuePayload.ID)
+	dbTask, err := database.GetTaskByExternalIDWithoutUser(api.DB, issuePayload.ID, false)
 	if err != nil && err != mongo.ErrNoDocuments {
 		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("could not find matching linear issue")
@@ -199,7 +199,7 @@ func (api *API) createOrModifyIssueFromPayload(userID primitive.ObjectID, accoun
 }
 
 func (api *API) removeIssueFromPayload(userID primitive.ObjectID, issuePayload LinearIssuePayload) error {
-	task, err := database.GetTaskByExternalIDWithoutUser(api.DB, issuePayload.ID)
+	task, err := database.GetTaskByExternalIDWithoutUser(api.DB, issuePayload.ID, false)
 	if err != nil {
 		return err
 	}
@@ -216,7 +216,7 @@ func (api *API) removeIssueFromPayload(userID primitive.ObjectID, issuePayload L
 func (api *API) processLinearCommentWebhook(c *gin.Context, webhookPayload LinearWebhookPayload, commentPayload LinearCommentPayload) error {
 	var err error
 	logger := logging.GetSentryLogger()
-	task, err := database.GetTaskByExternalIDWithoutUser(api.DB, commentPayload.IssueID)
+	task, err := database.GetTaskByExternalIDWithoutUser(api.DB, commentPayload.IssueID, false)
 	if err != nil {
 		return err
 	}
@@ -405,7 +405,7 @@ func getCompletedLinearStatus(teamStatuses []*database.ExternalTaskStatus) *data
 }
 
 func (api *API) removeTaskOwnerIfExists(issuePayload LinearIssuePayload) {
-	task, err := database.GetTaskByExternalIDWithoutUser(api.DB, issuePayload.ID)
+	task, err := database.GetTaskByExternalIDWithoutUser(api.DB, issuePayload.ID, false)
 	if err != nil {
 		// don't log this error because could be a task that shouldn't exist in GT
 		return

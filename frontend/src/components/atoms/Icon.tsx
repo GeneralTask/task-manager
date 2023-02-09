@@ -41,5 +41,12 @@ export const Icon = ({ icon, size = 'default', color, colorHex, className, hidde
                 <ImageContainer src={icon} />
             </IconContainer>
         )
-    return <FontAwesomeIcon icon={icon} color={iconColor} className={className} width={dimension} height={dimension} />
+    return (
+        <FontAwesomeIcon
+            icon={icon}
+            color={iconColor}
+            className={className}
+            style={{ height: dimension, aspectRatio: 1 }}
+        />
+    )
 }
