@@ -78,5 +78,6 @@ func TestFeedbackAdd(t *testing.T) {
 		).Decode(&entry)
 		assert.NoError(t, err)
 		assert.Equal(t, "I don't like it one bit!", entry.Feedback)
+		assert.Equal(t, "approved@generaltask.com", entry.Email)
 	})
 }

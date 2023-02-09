@@ -26,12 +26,20 @@ func (api *API) FeedbackAdd(c *gin.Context) {
 	feedbackCollection := database.GetFeedbackItemCollection(api.DB)
 
 	userID, _ := c.Get("user")
+	user, err := database.GetUser(api.DB, userID.(primitive.ObjectID))
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to find user")
+		Handle500(c)
+		return
+	}
 
 	_, err = feedbackCollection.InsertOne(
 		context.Background(),
 		&database.FeedbackItem{
 			UserID:    userID.(primitive.ObjectID),
 			Feedback:  params.Feedback,
+			Email:     user.Email,
+			Name:      user.Name,
 			CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
 		},
 	)
