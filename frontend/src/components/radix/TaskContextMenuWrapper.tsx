@@ -127,7 +127,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
                 },
             })),
         },
-        ...(isPreviewMode
+        ...(isPreviewMode && !task.is_deleted && !task.is_done
             ? [
                   {
                       label: 'Duplicate task',
