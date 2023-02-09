@@ -6,18 +6,18 @@ import { Icon } from '../components/atoms/Icon'
 import { icons } from '../styles/images'
 
 const EDITOR_ROOT_CLASS_NAME = 'ak-editor-content-area'
-const selectorToIcon = [
-    ['button[aria-label="Remove"]', icons.trash],
-    ['button[aria-label="Unlink"]', icons.link_slashed],
-    ['span[aria-label="open"]', icons.caret_down],
-    ['span[aria-label="Open link in a new tab"]', icons.external_link],
-] as const
+const selectorToIcon = {
+    'button[aria-label="Remove"]': icons.trash,
+    'button[aria-label="Unlink"]': icons.link_slashed,
+    'span[aria-label="open"]': icons.caret_down,
+    'span[aria-label="Open link in a new tab"]': icons.external_link,
+}
 
 const IconContainer = styled(Flex)`
     height: 100%;
 `
 
-const useReplaceEditorButtonIcons = () => {
+const useReplaceEditorButtonIcon = () => {
     useEffect(() => {
         const editorContentAreaElements = document.getElementsByClassName(EDITOR_ROOT_CLASS_NAME)
         const targetNode = editorContentAreaElements[0]
@@ -25,7 +25,7 @@ const useReplaceEditorButtonIcons = () => {
         const callback: MutationCallback = (mutationList) => {
             for (const mutation of mutationList) {
                 if (mutation.type === 'childList') {
-                    for (const [selector, icon] of selectorToIcon) {
+                    for (const [selector, icon] of Object.entries(selectorToIcon)) {
                         const buttons = (mutation.target as Element).querySelectorAll(selector)
                         for (const button of buttons) {
                             button.innerHTML = ReactDOMServer.renderToStaticMarkup(
@@ -46,4 +46,4 @@ const useReplaceEditorButtonIcons = () => {
     }, [])
 }
 
-export default useReplaceEditorButtonIcons
+export default useReplaceEditorButtonIcon
