@@ -3,26 +3,19 @@ import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
-import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
-import { isGoogleCalendarLinked } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Subtitle } from '../atoms/typography/Typography'
-import ConnectIntegration from '../molecules/ConnectIntegration'
 import { useCalendarContext } from './CalendarContext'
-import EnableCalendarsBanner from './EnableCalendarsBanner'
 
 const RelativeDiv = styled.div`
     position: relative;
 `
-const ConnectContainer = styled.div`
-    width: 100%;
-    z-index: 100;
-`
+
 const PaddedContainer = styled.div`
     display: flex;
     justify-content: space-between;
@@ -95,9 +88,6 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
     useKeyboardShortcut('jumpToToday', selectToday, isFocusMode)
     useKeyboardShortcut(isCalendarExpanded ? 'nextWeek' : 'nextDay', selectNext, isFocusMode)
     useKeyboardShortcut(isCalendarExpanded ? 'previousWeek' : 'previousDay', selectPrevious, isFocusMode)
-
-    const { data: linkedAccounts } = useGetLinkedAccounts()
-    const showOauthPrompt = linkedAccounts !== undefined && !isGoogleCalendarLinked(linkedAccounts)
 
     const goToTodayButton = (
         <GTButton
@@ -175,10 +165,6 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                     )}
                 </>
             )}
-            <ConnectContainer>
-                {showOauthPrompt && <ConnectIntegration type="google_calendar" />}
-                <EnableCalendarsBanner />
-            </ConnectContainer>
         </RelativeDiv>
     )
 }

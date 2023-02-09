@@ -541,7 +541,7 @@ export const useMarkTaskDoneOrDeleted = () => {
 
                 if (window.location.pathname.split('/')[1] !== 'overview') return
                 if (data.subtaskId) return
-                navigateToNextItemAfterOverviewCommpletion(
+                navigateToNextItemAfterOverviewCompletion(
                     lists as TOverviewView[],
                     newLists as TOverviewView[],
                     data.id,
