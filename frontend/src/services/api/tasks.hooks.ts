@@ -7,7 +7,7 @@ import useOverviewContext from '../../context/OverviewContextProvider'
 import useQueryContext from '../../context/QueryContext'
 import { useGTLocalStorage } from '../../hooks'
 import apiClient from '../../utils/api'
-import navigateToNextItemAfterOverviewCommpletion from '../../utils/navigateToNextItemAfterOverviewCompletion'
+import navigateToNextItemAfterOverviewCompletion from '../../utils/navigateToNextItemAfterOverviewCompletion'
 import {
     TExternalStatus,
     TOverviewItem,
