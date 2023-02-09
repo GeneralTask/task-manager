@@ -84,7 +84,7 @@
     "react-ga4": "^1.4.1",
     "react-helmet": "^6.1.0",
     "react-hook-form": "^7.27.0",
-    "react-idle-timer": "^4.6.4",
+    "react-idle-timer": "^5.5.2",
     "react-intl-next": "npm:react-intl@^5.18.1",
     "react-is": ">= 16.8.0",
     "react-loading-skeleton": "^3.1.0",

@@ -14,7 +14,7 @@ import (
 )
 
 func TestFeedbackAdd(t *testing.T) {
-	authToken := login("approved@generaltask.com", "")
+	authToken := login("approved@generaltask.com", "Snoop Dogg")
 	UnauthorizedTest(t, "POST", "/feedback/", nil)
 	t.Run("EmptyPayload", func(t *testing.T) {
 		api, dbCleanup := GetAPIWithDBCleanup()
@@ -78,5 +78,7 @@ func TestFeedbackAdd(t *testing.T) {
 		).Decode(&entry)
 		assert.NoError(t, err)
 		assert.Equal(t, "I don't like it one bit!", entry.Feedback)
+		assert.Equal(t, "approved@generaltask.com", entry.Email)
+		assert.Equal(t, "Snoop Dogg", entry.Name)
 	})
 }

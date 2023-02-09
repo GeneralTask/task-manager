@@ -2,7 +2,7 @@ import { Editor as AtlaskitEditor, EditorActions } from '@atlaskit/editor-core'
 import { JSONTransformer } from '@atlaskit/editor-json-transformer'
 import { MarkdownTransformer } from '@atlaskit/editor-markdown-transformer'
 import styled from 'styled-components'
-import useReplaceEditorButtonIcon from '../../../../hooks/useReplaceEditorIcon'
+import useReplaceEditorButtonIcons from '../../../../hooks/useReplaceEditorIcons'
 import { Spacing } from '../../../../styles'
 import { TOOLBAR_HEIGHT } from '../toolbar/styles'
 import { RichTextEditorProps } from '../types'
@@ -56,7 +56,7 @@ const Editor = ({
     onChange,
     editorActions,
 }: EditorProps) => {
-    useReplaceEditorButtonIcon()
+    useReplaceEditorButtonIcons()
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
         if (e.key === 'Escape' || (enterBehavior === 'blur' && e.key === 'Enter')) {
