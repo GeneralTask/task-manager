@@ -34,6 +34,6 @@ func (api *API) NotePreview(c *gin.Context) {
 		previewTitle = html.EscapeString(*note.Title)
 	}
 	noteURL := config.GetConfigValue("HOME_URL") + "note/" + note.ID.Hex()
-	body := `<html><head><title>` + previewTitle + `</title><meta http-equiv="Refresh" content="0; url='` + noteURL + `'" /></head><body></body></html>`
-	c.String(200, body)
+	body := []byte(`<!DOCTYPE html><html><head><title>` + previewTitle + `</title><meta http-equiv="Refresh" content="0; url='` + noteURL + `'" /></head><body></body></html>`)
+	c.Data(200, "text/html; charset=utf-8", body)
 }
