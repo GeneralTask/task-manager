@@ -6,6 +6,7 @@ import { TPullRequest } from '../../utils/types'
 import CommentCount from '../atoms/CommentCount'
 import { EdgeHighlight } from '../atoms/SelectableContainer'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
+import { useCalendarContext } from '../calendar/CalendarContext'
 import Status from './Status'
 import { Column, LinkButtonContainer, PullRequestRow, TitleContainer } from './styles'
 
@@ -17,12 +18,17 @@ interface PullRequestProps {
 const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
     const params = useParams()
     const navigate = useNavigate()
+    const { calendarType, setCalendarType, setDate, dayViewDate } = useCalendarContext()
 
     const { title, status, num_comments, deeplink } = pullRequest
 
     const onClickHandler = useCallback(() => {
         Log(`pr_select___${link}`)
         navigate(link)
+        if (calendarType === 'week' && isSelected) {
+            setCalendarType('day')
+            setDate(dayViewDate)
+        }
     }, [params, pullRequest])
 
     const statusDescription = PULL_REQUEST_ACTIONS.find((action) => action.text === status.text)?.description

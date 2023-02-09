@@ -9,6 +9,7 @@ import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { Label, Truncated } from '../atoms/typography/Typography'
+import { useCalendarContext } from '../calendar/CalendarContext'
 import ItemContainer from '../molecules/ItemContainer'
 import NoteContextMenuWrapper from './NoteContextMenuWrapper'
 
@@ -32,10 +33,18 @@ interface NoteProps {
 const Note = ({ note, isSelected, onSelect }: NoteProps) => {
     const [contextMenuOpen, setContextMenuOpen] = useState(false)
     const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
+    const { calendarType, setCalendarType, setDate, dayViewDate } = useCalendarContext()
+    const onClick = () => {
+        onSelect(note)
+        if (calendarType === 'week' && isSelected) {
+            setCalendarType('day')
+            setDate(dayViewDate)
+        }
+    }
     return (
         <NoteContextMenuWrapper note={note} onOpenChange={setContextMenuOpen}>
             <TaskTemplate>
-                <ItemContainer isSelected={isSelected} onClick={() => onSelect(note)} forceHoverStyle={contextMenuOpen}>
+                <ItemContainer isSelected={isSelected} onClick={onClick} forceHoverStyle={contextMenuOpen}>
                     <TitleContainer deleted={note.is_deleted}>
                         <Icon icon={icons.note} />
                         <NoteTitle>{note.title}</NoteTitle>
