@@ -10,6 +10,7 @@ const selectorToIcon = {
     'button[aria-label="Remove"]': icons.trash,
     'button[aria-label="Unlink"]': icons.link_slashed,
     'span[aria-label="open"]': icons.caret_down,
+    'span[aria-label="Open link in a new tab"]': icons.external_link,
 }
 
 const IconContainer = styled(Flex)`
