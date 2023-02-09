@@ -88,7 +88,7 @@ func TestNotePreview(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t,
-			`<html><head><title>title1</title><meta http-equiv="Refresh" content="0; url='http://localhost:3000/note/`+note1.ID.Hex()+`'" /></head><body></body></html>`,
+			`<!DOCTYPE html><html><head><title>title1</title><meta http-equiv="Refresh" content="0; url='http://localhost:3000/note/`+note1.ID.Hex()+`'" /></head><body></body></html>`,
 			string(body))
 	})
 }
