@@ -51,9 +51,9 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
                                       modifyTask(
                                           {
                                               id: optimisticId,
-                                              priorityNormalized: task.priority_normalized,
-                                              dueDate: task.due_date,
-                                              recurringTaskTemplateId: task.recurring_task_template_id,
+                                              priorityNormalized: task.priority_normalized || undefined,
+                                              dueDate: task.due_date || undefined,
+                                              recurringTaskTemplateId: task.recurring_task_template_id || undefined,
                                           },
                                           optimisticId
                                       )
