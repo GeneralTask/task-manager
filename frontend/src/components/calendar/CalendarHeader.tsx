@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
+import { useKeyboardShortcut } from '../../hooks'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
@@ -42,7 +42,6 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
     } = useCalendarContext()
     const isCalendarExpanded = calendarType === 'week' && !isCollapsed
     const { pathname } = useLocation()
-    const { isPreviewMode } = usePreviewMode()
 
     const isFocusMode = pathname.startsWith('/focus-mode')
 
@@ -121,7 +120,7 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                 <>
                     <PaddedContainer>
                         <Flex gap={Spacing._16} alignItems="center">
-                            {isPreviewMode && isCalendarExpanded && !showTaskToCalSidebar && (
+                            {isCalendarExpanded && !showTaskToCalSidebar && (
                                 <GTButton
                                     icon={icons.hamburger}
                                     iconColor="black"

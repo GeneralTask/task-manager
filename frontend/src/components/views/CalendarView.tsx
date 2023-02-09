@@ -129,7 +129,7 @@ const CalendarView = ({
             setCalendarType('week')
             setShowTaskToCalSidebar(true)
         }, [calendarType, setCalendarType, setIsCollapsed, setShowTaskToCalSidebar]),
-        isFocusMode || !isPreviewMode
+        isFocusMode
     )
 
     const showOauthPrompt = linkedAccounts !== undefined && !isGoogleCalendarLinked(linkedAccounts)

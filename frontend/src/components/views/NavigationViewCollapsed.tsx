@@ -95,7 +95,7 @@ interface NavigationViewCollapsedProps {
 const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProps) => {
     const { data: folders } = useGetTasks()
     const { section: sectionId } = useParams()
-    const { setCalendarType, setDate, dayViewDate, showTaskToCalSidebar, setShowTaskToCalSidebar, calendarType } =
+    const { showTaskToCalSidebar, setShowTaskToCalSidebar, calendarType } =
         useCalendarContext()
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const { isPreviewMode, toggle: togglePreviewMode } = usePreviewMode()
@@ -112,11 +112,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
         filteredFolders?.map((folder) => ({
             label: `${folder.name} (${folder.tasks.length})`,
             onClick: () => {
-                if (!isPreviewMode) {
-                    setCalendarType('day')
-                    setDate(dayViewDate)
-                }
-                if (isPreviewMode && !showTaskToCalSidebar && calendarType === 'week') {
+                if (!showTaskToCalSidebar && calendarType === 'week') {
                     setShowTaskToCalSidebar(true)
                 }
                 Log(`navigate__/tasks/${folder.id}`)
