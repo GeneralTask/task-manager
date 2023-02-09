@@ -12,6 +12,8 @@ const selectorToIcon = [
     ['span[aria-label="open"]', icons.caret_down],
     ['span[aria-label="Open link in a new tab"]', icons.external_link],
     ['span[aria-label="Link address"]', icons.link],
+    ['div[role="presentation"] > button', icons.x],
+    ['span[aria-label="Text to display"]', icons.sort],
 ] as const
 
 const IconContainer = styled(Flex)`
