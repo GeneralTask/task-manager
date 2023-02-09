@@ -193,6 +193,26 @@ func TestLoginCallback(t *testing.T) {
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "noice420", false, true)
 	})
+	t.Run("CorrectRedirectNewAccount", func(t *testing.T) {
+		stateToken, err := newStateToken(api.DB, "", false)
+		assert.NoError(t, err)
+		recorder := makeLoginCallbackRequest("noice420", "newAccount@generaltask.com", "", *stateToken, *stateToken, false, true)
+		assert.Equal(t, http.StatusFound, recorder.Code)
+		assert.Equal(t, "http://localhost:3000/tos-summary", recorder.Header().Get("Location"))
+	})
+	t.Run("CorrectRedirectExistingAccount", func(t *testing.T) {
+		userCollection := database.GetUserCollection(api.DB)
+		userCollection.InsertOne(context.Background(), database.User{
+			GoogleID: "goog12345_existingAccount@generaltask.com",
+		})
+		_, err := database.GetExternalTokenCollection(api.DB).DeleteOne(context.Background(), bson.M{"$and": []bson.M{{"account_id": "approved@generaltask.com"}, {"service_id": external.TASK_SERVICE_ID_GOOGLE}}})
+		assert.NoError(t, err)
+		stateToken, err := newStateToken(api.DB, "", false)
+		assert.NoError(t, err)
+		recorder := makeLoginCallbackRequest("noice420", "existingAccount@generaltask.com", "", *stateToken, *stateToken, false, true)
+		assert.Equal(t, http.StatusFound, recorder.Code)
+		assert.Equal(t, "http://localhost:3000/", recorder.Header().Get("Location"))
+	})
 	t.Run("SuccessDeeplink", func(t *testing.T) {
 		stateToken, err := newStateToken(api.DB, "", true)
 		assert.NoError(t, err)
