@@ -13,6 +13,7 @@ const serializer = new JSONTransformer()
 const EditorTypographyOverride = css`
     button[aria-label='Edit link'] {
         ${Typography.body};
+        display: inline;
     }
 `
 const EditorContainer = styled.div<{ isMarkdown: boolean }>`
