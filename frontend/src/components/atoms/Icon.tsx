@@ -33,15 +33,13 @@ export const Icon = ({ icon, size = 'default', color, colorHex, className, hidde
     const dimension = Dimensions.iconSize[size]
     // priority is color -> colorHex -> black
     const iconColor = color ? Colors.icon[color] : colorHex ?? Colors.icon.black
-    const getIcon = () => {
-        if (hidden) return null
-        if (typeof icon === 'string') return <ImageContainer src={icon} />
-        return <FontAwesomeIcon icon={icon} color={iconColor} />
-    }
 
-    return (
-        <IconContainer size={dimension} className={className}>
-            {getIcon()}
-        </IconContainer>
-    )
+    if (hidden) return null
+    if (typeof icon === 'string')
+        return (
+            <IconContainer size={dimension} className={className}>
+                <ImageContainer src={icon} />
+            </IconContainer>
+        )
+    return <FontAwesomeIcon icon={icon} color={iconColor} className={className} width={dimension} height={dimension} />
 }
