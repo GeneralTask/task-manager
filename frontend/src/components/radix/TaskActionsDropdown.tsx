@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_SECTION_ID, TRASH_SECTION_ID } from '../../constants'
-import { usePreviewMode } from '../../hooks'
 import { useCreateTask, useGetTasks, useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
 import { TTask } from '../../utils/types'
@@ -21,7 +20,6 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
     const { mutate: createTask } = useCreateTask()
     const { mutate: modifyTask } = useModifyTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
-    const { isPreviewMode } = usePreviewMode()
 
     const sectionId = getSectionFromTask(taskSections ?? [], task.id)?.id
 
@@ -35,32 +33,28 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
             hideCheckmark
             items={[
                 [
-                    ...(isPreviewMode
-                        ? [
-                              {
-                                  label: 'Duplicate task',
-                                  icon: icons.clone,
-                                  onClick: () => {
-                                      const optimisticId = uuidv4()
-                                      createTask({
-                                          title: `${task.title} (copy)`,
-                                          body: task.body,
-                                          taskSectionId: sectionId || DEFAULT_SECTION_ID,
-                                          optimisticId,
-                                      })
-                                      modifyTask(
-                                          {
-                                              id: optimisticId,
-                                              priorityNormalized: task.priority_normalized || undefined,
-                                              dueDate: task.due_date || undefined,
-                                              recurringTaskTemplateId: task.recurring_task_template_id || undefined,
-                                          },
-                                          optimisticId
-                                      )
-                                  },
-                              },
-                          ]
-                        : []),
+                    {
+                        label: 'Duplicate task',
+                        icon: icons.clone,
+                        onClick: () => {
+                            const optimisticId = uuidv4()
+                            createTask({
+                                title: `${task.title} (copy)`,
+                                body: task.body,
+                                taskSectionId: sectionId || DEFAULT_SECTION_ID,
+                                optimisticId,
+                            })
+                            modifyTask(
+                                {
+                                    id: optimisticId,
+                                    priorityNormalized: task.priority_normalized || undefined,
+                                    dueDate: task.due_date || undefined,
+                                    recurringTaskTemplateId: task.recurring_task_template_id || undefined,
+                                },
+                                optimisticId
+                            )
+                        },
+                    },
                     {
                         label: sectionId !== TRASH_SECTION_ID ? 'Delete task' : 'Restore task',
                         icon: icons.trash,
