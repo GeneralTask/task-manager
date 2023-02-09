@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import styled from 'styled-components'
-import { useGTLocalStorage, usePreviewMode } from '../../../hooks'
+import { useGTLocalStorage } from '../../../hooks'
 import { useGetOverviewViews, useReorderViews } from '../../../services/api/overview.hooks'
 import { Colors, Spacing, Typography } from '../../../styles'
 import { DropItem, DropType } from '../../../utils/types'
