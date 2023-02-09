@@ -2,12 +2,14 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useIdleTimer } from 'react-idle-timer'
 import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
+import styled from 'styled-components'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME, SINGLE_SECOND_INTERVAL } from '../../constants'
 import { useInterval, usePreviewMode } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { useEvents } from '../../services/api/events.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { getMonthsAroundDate, isDateToday } from '../../utils/time'
+import { isGoogleCalendarLinked } from '../../utils/utils'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import CalendarEvents from '../calendar/CalendarEvents'
 import {
@@ -19,10 +21,17 @@ import {
 import CalendarFooter from '../calendar/CalendarFooter'
 import CalendarHeader from '../calendar/CalendarHeader'
 import CollapsedCalendarSidebar from '../calendar/CollapsedCalendarSidebar'
+import EnableCalendarsBanner from '../calendar/EnableCalendarsBanner'
 import TasksDue from '../calendar/TasksDue'
 import TasksDueWeek from '../calendar/TasksDueWeek'
+import ConnectIntegration from '../molecules/ConnectIntegration'
 
 export type TCalendarType = 'day' | 'week'
+
+const ConnectContainer = styled.div`
+    width: 100%;
+    z-index: 100;
+`
 
 interface CalendarViewProps {
     initialType: TCalendarType
@@ -123,6 +132,8 @@ const CalendarView = ({
         isFocusMode || !isPreviewMode
     )
 
+    const showOauthPrompt = linkedAccounts !== undefined && !isGoogleCalendarLinked(linkedAccounts)
+
     return isCollapsed ? (
         <CollapsedCalendarSidebar onClick={() => setIsCollapsed(false)} />
     ) : (
@@ -132,6 +143,10 @@ const CalendarView = ({
             hasLeftBorder={hasLeftBorder}
         >
             <CalendarHeader showHeader={showHeader} additionalHeaderContent={additonalHeaderContent} />
+            <ConnectContainer>
+                {showOauthPrompt && <ConnectIntegration type="google_calendar" />}
+                <EnableCalendarsBanner />
+            </ConnectContainer>
             {calendarType === 'day' && <TasksDue date={date} />}
             <CalendarWeekDateHeaderContainer>
                 {calendarType === 'week' &&
