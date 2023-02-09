@@ -145,7 +145,7 @@ func TestProcessComments(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		task, err := database.GetTaskByExternalIDWithoutUser(db, "externalID")
+		task, err := database.GetTaskByExternalIDWithoutUser(db, "externalID", false)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*task.Comments))
 	})
@@ -160,7 +160,7 @@ func TestProcessComments(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		task, err := database.GetTaskByExternalIDWithoutUser(db, "externalID")
+		task, err := database.GetTaskByExternalIDWithoutUser(db, "externalID", false)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*task.Comments))
 	})
@@ -175,7 +175,7 @@ func TestProcessComments(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		task, err := database.GetTaskByExternalIDWithoutUser(db, "externalID")
+		task, err := database.GetTaskByExternalIDWithoutUser(db, "externalID", false)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(*task.Comments))
 	})
@@ -190,7 +190,7 @@ func TestProcessComments(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		task, err := database.GetTaskByExternalIDWithoutUser(db, "externalID")
+		task, err := database.GetTaskByExternalIDWithoutUser(db, "externalID", false)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(*task.Comments))
 		assert.Equal(t, "modified text", (*task.Comments)[0].Body)
@@ -206,7 +206,7 @@ func TestProcessComments(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		task, err := database.GetTaskByExternalIDWithoutUser(db, "externalID")
+		task, err := database.GetTaskByExternalIDWithoutUser(db, "externalID", false)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*task.Comments))
 	})
@@ -305,7 +305,7 @@ func TestProcessIssue(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		task, err := database.GetTaskByExternalIDWithoutUser(db, "aaad850c-8df6-482f-90b0-82725bd54155")
+		task, err := database.GetTaskByExternalIDWithoutUser(db, "aaad850c-8df6-482f-90b0-82725bd54155", false)
 		assert.NoError(t, err)
 		assert.Equal(t, "Hello there!", *task.Title)
 		assert.Equal(t, "6942069422", task.CompletedStatus.ExternalID)
@@ -322,7 +322,7 @@ func TestProcessIssue(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 
-		_, err := database.GetTaskByExternalIDWithoutUser(db, "aaad850c-8df6-482f-90b0-82725bd54155")
+		_, err := database.GetTaskByExternalIDWithoutUser(db, "aaad850c-8df6-482f-90b0-82725bd54155", false)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 
 		body, err := io.ReadAll(recorder.Body)
@@ -340,12 +340,12 @@ func TestProcessIssue(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		task, err := database.GetTaskByExternalIDWithoutUser(db, "aaad850c-8df6-482f-90b0-82725bd54155")
+		task, err := database.GetTaskByExternalIDWithoutUser(db, "aaad850c-8df6-482f-90b0-82725bd54155", false)
 		assert.NoError(t, err)
 		assert.Equal(t, "Hello there!", *task.Title)
 		assert.Equal(t, "6942069422", task.CompletedStatus.ExternalID)
 
-		task, err = database.GetTaskByExternalIDWithoutUser(db, "aaad850c-8df6-482f-90b0-82725bd54155")
+		task, err = database.GetTaskByExternalIDWithoutUser(db, "aaad850c-8df6-482f-90b0-82725bd54155", false)
 		assert.NoError(t, err)
 		taskCollection := database.GetTaskCollection(db)
 		newSectionID := primitive.NewObjectID()
@@ -362,7 +362,7 @@ func TestProcessIssue(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		task, err = database.GetTaskByExternalIDWithoutUser(db, "aaad850c-8df6-482f-90b0-82725bd54155")
+		task, err = database.GetTaskByExternalIDWithoutUser(db, "aaad850c-8df6-482f-90b0-82725bd54155", false)
 		assert.NoError(t, err)
 		assert.Equal(t, "Hello there 2.0!", *task.Title)
 		assert.Equal(t, "6942069422", task.CompletedStatus.ExternalID)
@@ -379,7 +379,7 @@ func TestProcessIssue(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		task, err := database.GetTaskByExternalIDWithoutUser(db, "aaad850c-8df6-482f-90b0-82725bd54155")
+		task, err := database.GetTaskByExternalIDWithoutUser(db, "aaad850c-8df6-482f-90b0-82725bd54155", false)
 		assert.NoError(t, err)
 		assert.Equal(t, "Hello there 2.0!", *task.Title)
 		assert.Equal(t, "6942069422", task.CompletedStatus.ExternalID)
@@ -412,7 +412,7 @@ func TestProcessIssue(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		task, err := database.GetTaskByExternalIDWithoutUser(db, "aaad850c-8df6-482f-90b0-82725bd54155")
+		task, err := database.GetTaskByExternalIDWithoutUser(db, "aaad850c-8df6-482f-90b0-82725bd54155", false)
 		assert.NoError(t, err)
 		assert.Equal(t, true, *task.IsDeleted)
 	})
