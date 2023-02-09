@@ -16,7 +16,7 @@ const IconContainer = styled(Flex)`
     height: 100%;
 `
 
-const useReplaceEditorButtonIcon = () => {
+const useReplaceEditorButtonIcons = () => {
     useEffect(() => {
         const editorContentAreaElements = document.getElementsByClassName(EDITOR_ROOT_CLASS_NAME)
         const targetNode = editorContentAreaElements[0]
@@ -45,4 +45,4 @@ const useReplaceEditorButtonIcon = () => {
     }, [])
 }
 
-export default useReplaceEditorButtonIcon
+export default useReplaceEditorButtonIcons
