@@ -149,6 +149,14 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
                               },
                               optimisticId
                           )
+                          reorderTask(
+                              {
+                                  id: optimisticId,
+                                  dropSectionId: sectionId || DEFAULT_SECTION_ID,
+                                  orderingId: task.id_ordering + 2,
+                              },
+                              optimisticId
+                          )
                       },
                   },
               ]
