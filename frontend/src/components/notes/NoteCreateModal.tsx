@@ -197,6 +197,17 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                         if (realId) copyNoteLink(realId)
                                     }}
                                 />
+                                <GTButton
+                                    value="Save note"
+                                    styleType="secondary"
+                                    size="small"
+                                    icon={icons.save}
+                                    disabled={!(noteBody || noteTitle)}
+                                    onClick={() => {
+                                        onClose()
+                                        setIsOpen(false)
+                                    }}
+                                />
                             </Flex>
                         </Flex>
                     </Flex>
