@@ -5,12 +5,9 @@ import { renderToString } from 'react-dom/server'
 import { DateTime } from 'luxon'
 import showdown from 'showdown'
 import { v4 as uuidv4 } from 'uuid'
-import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../../constants'
-import { useSetting, useToast } from '../../../hooks'
-import { useAuthWindow } from '../../../hooks'
+import { usePreviewMode, useSetting } from '../../../hooks'
 import { useCreateEvent, useModifyEvent } from '../../../services/api/events.hooks'
 import { useGetSupportedTypes } from '../../../services/api/settings.hooks'
-import { logos } from '../../../styles/images'
 import { getDiffBetweenISOTimes } from '../../../utils/time'
 import { DropItem, DropType, TEvent } from '../../../utils/types'
 import { NuxTaskBodyStatic } from '../../details/NUXTaskBody'
@@ -20,6 +17,7 @@ import {
     EVENT_CREATION_INTERVAL_IN_MINUTES,
     EVENT_CREATION_INTERVAL_PER_HOUR,
 } from '../CalendarEvents-styles'
+import useConnectGoogleAccountToast from './useConnectGoogleAccountToast'
 
 interface CalendarDropArgs {
     primaryAccountID: string | undefined
@@ -32,12 +30,9 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
     const { mutate: modifyEvent } = useModifyEvent()
     const [dropPreviewPosition, setDropPreviewPosition] = useState(0)
     const [eventPreview, setEventPreview] = useState<TEvent>()
-    const toast = useToast()
-    const { data: supportedTypes } = useGetSupportedTypes()
-    const googleSupportedType = supportedTypes?.find((type) => type.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)
-    const { openAuthWindow } = useAuthWindow()
     const { field_value: taskToCalAccount } = useSetting('calendar_account_id_for_new_tasks')
     const { field_value: taskToCalCalendar } = useSetting('calendar_calendar_id_for_new_tasks')
+    const showConnectToast = useConnectGoogleAccountToast()
 
     const getTimeFromDropPosition = useCallback(
         (dropPosition: number) =>
@@ -96,21 +91,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
         (item: DropItem, monitor: DropTargetMonitor) => {
             const itemType = monitor.getItemType()
             if (!primaryAccountID) {
-                const toastProps = {
-                    title: '',
-                    message: 'Connect your Google account to create events from tasks.',
-                    rightAction: {
-                        icon: logos.gcal,
-                        label: 'Connect',
-                        onClick: () => {
-                            openAuthWindow({ url: googleSupportedType?.authorization_url, isGoogleSignIn: true })
-                        },
-                    },
-                }
-                toast.show(toastProps, {
-                    autoClose: 2000,
-                    pauseOnFocusLoss: false,
-                })
+                showConnectToast()
                 return
             }
             const dropPosition = getDropPosition(monitor)
