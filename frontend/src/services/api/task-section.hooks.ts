@@ -31,7 +31,7 @@ export const useAddTaskSection = () => {
 
     return useQueuedMutation((data: TAddTaskSectionData) => addTaskSection(data), {
         tag: 'tasks',
-        invalidateTagsOnSettled: ['tasks', 'settings'],
+        invalidateTagsOnSettled: ['tasks', 'settings', 'overview-supported-views'],
         onMutate: async (data) => {
             await queryClient.cancelQueries('tasks')
 
