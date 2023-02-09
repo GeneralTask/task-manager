@@ -320,38 +320,48 @@ export const useSelectedCalendars = () => {
     useEffect(() => {
         if (!calendars) return
 
+        let hasChanged = true
         const newSelectedCalendars = produce(selectedCalendars, (draft) => {
-            const newAccounts = calendars.filter(
-                (calendar) =>
-                    !selectedCalendars.find((selectedCalendar) => selectedCalendar.account_id === calendar.account_id)
-            )
-
-            const removedAccounts = selectedCalendars.filter(
-                (selectedCalendar) => !calendars.find((calendar) => calendar.account_id === selectedCalendar.account_id)
-            )
-            if (!newAccounts.length && !removedAccounts.length) return
-
-            // when a new account is added, select the primary calendar
-            newAccounts.forEach((account) => {
-                const primaryCalendar = account.calendars.find(
-                    (calendar) => calendar.calendar_id === account.account_id || calendar.calendar_id === 'primary'
+            // if account scopes change, consider the account both added and removed so we remove all existing selected accounts and re-add them
+            const newAccounts = calendars.filter((calendar) => {
+                const selectedAccount = selectedCalendars.find(
+                    (selectedCalendar) => selectedCalendar.account_id === calendar.account_id
                 )
-                if (primaryCalendar)
-                    draft.push({
-                        ...account,
-                        calendars: [{ ...primaryCalendar }],
-                    })
+                return (
+                    !selectedAccount ||
+                    selectedAccount.has_primary_calendar_scopes !== calendar.has_primary_calendar_scopes ||
+                    selectedAccount.has_multical_scopes !== calendar.has_multical_scopes
+                )
             })
+
+            const removedAccounts = selectedCalendars.filter((selectedCalendar) => {
+                const calendar = calendars.find((calendar) => selectedCalendar.account_id === calendar.account_id)
+                return (
+                    !calendar ||
+                    calendar.has_primary_calendar_scopes !== selectedCalendar.has_primary_calendar_scopes ||
+                    calendar.has_multical_scopes !== selectedCalendar.has_multical_scopes
+                )
+            })
+            if (!newAccounts.length && !removedAccounts.length) {
+                hasChanged = false
+                return
+            }
+
             removedAccounts.forEach((removedAccount) => {
                 const index = draft.findIndex(
                     (newSelectedCalendar) => newSelectedCalendar.account_id === removedAccount.account_id
                 )
                 draft.splice(index, 1)
             })
+            // when a new account is added, select all calendars
+            newAccounts.forEach((account) => {
+                draft.push(account)
+            })
         })
-
-        setSelectedCalendars(newSelectedCalendars)
-    }, [calendars])
+        if (hasChanged) {
+            setSelectedCalendars(newSelectedCalendars)
+        }
+    }, [calendars, selectedCalendars])
 
     const lookupTable: Map<string, Set<string>> = useMemo(() => {
         return new Map(
