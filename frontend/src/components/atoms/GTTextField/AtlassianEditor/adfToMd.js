@@ -5,7 +5,7 @@ import * as Sentry from '@sentry/browser'
 
 // copied from https://github.com/julianlam/adf-to-md, modified to add support for more node types
 
-function _convert(node, warnings) {
+function _convert(node, warnings, depth = 0) {
     switch (node.type) {
         case 'doc':
             return node.content.map((node) => _convert(node, warnings)).join('\n\n')
@@ -29,7 +29,7 @@ function _convert(node, warnings) {
         case 'orderedList':
             return `${node.content
                 .map((subNode) => {
-                    const converted = _convert.call(node, subNode, warnings)
+                    const converted = _convert.call(node, subNode, warnings, depth + 1)
                     if (node.type === 'orderedList') {
                         if (!node.attrs) {
                             node.attrs = {
@@ -45,7 +45,9 @@ function _convert(node, warnings) {
         case 'listItem': {
             const order = this.attrs ? this.attrs.order || 1 : 1
             const symbol = this.type === 'bulletList' ? '*' : `${order}.`
-            return `  ${symbol} ${node.content.map((node) => _convert(node, warnings).trimEnd()).join(` `)}`
+            return `${'    '.repeat(depth - 1)}${symbol} ${node.content
+                .map((node) => _convert(node, warnings, depth).trimEnd())
+                .join(`\n`)}`
         }
 
         case 'codeBlock': {
