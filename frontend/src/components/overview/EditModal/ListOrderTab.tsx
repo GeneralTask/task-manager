@@ -26,7 +26,6 @@ const PreferencesTitle = styled(Body)`
 const ListOrderTab = () => {
     const [smartPrioritizeState, setSmartPrioritizeState] = useState<SmartPrioritizeState>(SmartPrioritizeState.MANUAL)
     const { data: lists } = useGetOverviewViews()
-    const { isPreviewMode } = usePreviewMode()
     const [automaticSortEmpty, setAutomaticSortEmpty] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
     const { mutate: reorderViews } = useReorderViews()
 
@@ -49,20 +48,16 @@ const ListOrderTab = () => {
                 onReorder={handleReorder}
                 indicatorType="TOP_ONLY"
             />
-            {isPreviewMode && (
-                <>
-                    <PositionedDivider color={Colors.border.light} />
-                    <PreferencesContainer>
-                        <PreferencesTitle>Preferences</PreferencesTitle>
-                        <ListModalPreference
-                            text="Move empty or completed lists to the bottom of Daily Overview"
-                            subtext={preferenceSubtext}
-                            onClick={() => setAutomaticSortEmpty(!automaticSortEmpty)}
-                            isChecked={automaticSortEmpty}
-                        />
-                    </PreferencesContainer>
-                </>
-            )}
+            <PositionedDivider color={Colors.border.light} />
+            <PreferencesContainer>
+                <PreferencesTitle>Preferences</PreferencesTitle>
+                <ListModalPreference
+                    text="Move empty or completed lists to the bottom of Daily Overview"
+                    subtext={preferenceSubtext}
+                    onClick={() => setAutomaticSortEmpty(!automaticSortEmpty)}
+                    isChecked={automaticSortEmpty}
+                />
+            </PreferencesContainer>
         </Flex>
     )
 }
