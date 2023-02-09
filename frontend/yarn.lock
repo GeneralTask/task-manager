@@ -12383,10 +12383,10 @@ react-hook-form@^7.27.0:
   resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.39.4.tgz#7d9edf4e778a0cec4383f0119cd0699e3826a14a"
   integrity sha512-B0e78r9kR9L2M4A4AXGbHoA/vyv34sB/n8QWJAw33TFz8f5t9helBbYAeqnbvcQf1EYzJxKX/bGQQh9K+evCyQ==
 
-react-idle-timer@^4.6.4:
-  version "4.6.4"
-  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.6.4.tgz#71ba954ba6f464df24d46a94e63c5ef19f7319dc"
-  integrity sha512-iq61dPud8fgj7l1KOJEY5pyiD532fW0KcIe/5XUe/0lB/4Vytoy4tZBlLGSiYodPzKxTL6HyKoOmG6tyzjD7OQ==
+react-idle-timer@^5.5.2:
+  version "5.5.2"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-5.5.2.tgz#4062c4decfee082cc9c9ca1ea9dc4b44425edce6"
+  integrity sha512-BQsqL8tJAMQ3+EnlXTfTrXgWKrQC8UpAaZFjujaXyxQECBnJXxYHFYjXMDyo4Dd28YIOC4UUI3XbSyft0jSwhQ==
 
 react-intersection-observer@^8.26.2:
   version "8.34.0"
