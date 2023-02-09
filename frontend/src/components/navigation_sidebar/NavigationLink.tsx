@@ -100,7 +100,7 @@ const NavigationLink = ({
 }: NavigationLinkProps) => {
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
-    const { setCalendarType, setDate, dayViewDate } = useCalendarContext()
+    const { setCalendarType, setDate, dayViewDate, showTaskToCalSidebar } = useCalendarContext()
     const navigate = useNavigate()
     const { isPreviewMode } = usePreviewMode()
 
@@ -155,7 +155,7 @@ const NavigationLink = ({
 
     const onClickHandler = (e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>) => {
         if (taskSection?.id === TASK_SECTION_DEFAULT_ID) e.preventDefault()
-        if (!isPreviewMode) {
+        if (!isPreviewMode || !showTaskToCalSidebar) {
             setCalendarType('day')
             setDate(dayViewDate)
         }
