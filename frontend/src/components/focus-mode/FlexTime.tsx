@@ -17,6 +17,7 @@ import GTHeader from '../atoms/GTHeader'
 import GTTitle from '../atoms/GTTitle'
 import { Icon } from '../atoms/Icon'
 import { Body, Eyebrow, Subtitle } from '../atoms/typography/Typography'
+import useConnectGoogleAccountToast from '../calendar/utils/useConnectGoogleAccountToast'
 import ItemContainer from '../molecules/ItemContainer'
 
 const FlexTimeContainer = styled.div`
@@ -121,6 +122,7 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
     const { mutate: createEvent } = useCreateEvent()
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const { data: views } = useGetOverviewViews()
+    const showConnectToast = useConnectGoogleAccountToast()
 
     const [recommendedTasks, setRecommendedTasks] = useState<[TTask?, TTask?]>([])
 
@@ -160,7 +162,10 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
     )
 
     const onClickHandler = (task: TTask) => {
-        if (!primaryAccountID) return
+        if (!primaryAccountID) {
+            showConnectToast()
+            return
+        }
         let description = task.body
         if (description !== '') {
             description += '\n'
