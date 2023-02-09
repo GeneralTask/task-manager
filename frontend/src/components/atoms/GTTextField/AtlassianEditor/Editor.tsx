@@ -14,6 +14,10 @@ const EditorTypographyOverride = css`
     div[aria-label='Floating Toolbar'] {
         ${Typography.body};
     }
+    button[aria-label='Edit link'] {
+        ${Typography.body};
+        display: inline;
+    }
 `
 const EditorContainer = styled.div<{ isMarkdown: boolean }>`
     ${EditorTypographyOverride}

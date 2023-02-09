@@ -3,7 +3,13 @@ import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_SECTION_ID, TRASH_SECTION_ID } from '../../constants'
 import { usePreviewMode } from '../../hooks'
-import { useCreateTask, useGetTasks, useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
+import {
+    useCreateTask,
+    useGetTasks,
+    useMarkTaskDoneOrDeleted,
+    useModifyTask,
+    useReorderTask,
+} from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import { getSectionFromTask } from '../../utils/utils'
@@ -20,6 +26,7 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
     const { data: taskSections } = useGetTasks(false)
     const { mutate: createTask } = useCreateTask()
     const { mutate: modifyTask } = useModifyTask()
+    const { mutate: reorderTask } = useReorderTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const { isPreviewMode } = usePreviewMode()
 
@@ -35,7 +42,7 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
             hideCheckmark
             items={[
                 [
-                    ...(isPreviewMode
+                    ...(isPreviewMode && !task.is_deleted && !task.is_done
                         ? [
                               {
                                   label: 'Duplicate task',
@@ -54,6 +61,14 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
                                               priorityNormalized: task.priority_normalized || undefined,
                                               dueDate: task.due_date || undefined,
                                               recurringTaskTemplateId: task.recurring_task_template_id || undefined,
+                                          },
+                                          optimisticId
+                                      )
+                                      reorderTask(
+                                          {
+                                              id: optimisticId,
+                                              dropSectionId: sectionId || DEFAULT_SECTION_ID,
+                                              orderingId: task.id_ordering + 2,
                                           },
                                           optimisticId
                                       )

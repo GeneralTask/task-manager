@@ -127,7 +127,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
                 },
             })),
         },
-        ...(isPreviewMode
+        ...(isPreviewMode && !task.is_deleted && !task.is_done
             ? [
                   {
                       label: 'Duplicate task',
@@ -146,6 +146,14 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
                                   priorityNormalized: task.priority_normalized || undefined,
                                   dueDate: task.due_date || undefined,
                                   recurringTaskTemplateId: task.recurring_task_template_id || undefined,
+                              },
+                              optimisticId
+                          )
+                          reorderTask(
+                              {
+                                  id: optimisticId,
+                                  dropSectionId: sectionId || DEFAULT_SECTION_ID,
+                                  orderingId: task.id_ordering + 2,
                               },
                               optimisticId
                           )
