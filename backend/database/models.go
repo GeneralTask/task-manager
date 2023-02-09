@@ -325,6 +325,8 @@ type FeedbackItem struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
 	UserID    primitive.ObjectID `bson:"user_id"`
 	Feedback  string             `bson:"feedback"`
+	Email     string             `bson:"email"`
+	Name      string             `bson:"name"`
 	CreatedAt primitive.DateTime `bson:"created_at"`
 }
 
