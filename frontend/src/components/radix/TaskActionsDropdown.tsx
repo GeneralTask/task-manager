@@ -35,7 +35,7 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
             hideCheckmark
             items={[
                 [
-                    ...(isPreviewMode
+                    ...(isPreviewMode && !task.is_deleted && !task.is_done
                         ? [
                               {
                                   label: 'Duplicate task',
