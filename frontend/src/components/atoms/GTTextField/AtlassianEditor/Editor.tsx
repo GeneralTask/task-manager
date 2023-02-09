@@ -4,7 +4,6 @@ import { MarkdownTransformer } from '@atlaskit/editor-markdown-transformer'
 import styled from 'styled-components'
 import useReplaceEditorButtonIcon from '../../../../hooks/useReplaceEditorIcon'
 import { Spacing } from '../../../../styles'
-import { icons } from '../../../../styles/images'
 import { TOOLBAR_HEIGHT } from '../toolbar/styles'
 import { RichTextEditorProps } from '../types'
 import adf2md from './adfToMd'
@@ -57,9 +56,7 @@ const Editor = ({
     onChange,
     editorActions,
 }: EditorProps) => {
-    useReplaceEditorButtonIcon(icons.trash, 'button[aria-label="Remove"]')
-    useReplaceEditorButtonIcon(icons.link_slashed, 'button[aria-label="Unlink"]')
-    useReplaceEditorButtonIcon(icons.caret_down, 'span[aria-label="open"]')
+    useReplaceEditorButtonIcon()
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
         if (e.key === 'Escape' || (enterBehavior === 'blur' && e.key === 'Enter')) {
