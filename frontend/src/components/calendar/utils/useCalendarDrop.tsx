@@ -6,7 +6,7 @@ import { DateTime } from 'luxon'
 import showdown from 'showdown'
 import { v4 as uuidv4 } from 'uuid'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../../constants'
-import { usePreviewMode, useSetting, useToast } from '../../../hooks'
+import { useSetting, useToast } from '../../../hooks'
 import { useAuthWindow } from '../../../hooks'
 import { useCreateEvent, useModifyEvent } from '../../../services/api/events.hooks'
 import { useGetSupportedTypes } from '../../../services/api/settings.hooks'
@@ -36,7 +36,6 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
     const { data: supportedTypes } = useGetSupportedTypes()
     const googleSupportedType = supportedTypes?.find((type) => type.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)
     const { openAuthWindow } = useAuthWindow()
-    const { isPreviewMode } = usePreviewMode()
     const { field_value: taskToCalAccount } = useSetting('calendar_account_id_for_new_tasks')
     const { field_value: taskToCalCalendar } = useSetting('calendar_calendar_id_for_new_tasks')
 
@@ -204,8 +203,8 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                     createEvent({
                         createEventPayload: {
                             summary: item.view.name,
-                            account_id: isPreviewMode ? taskToCalAccount : primaryAccountID,
-                            calendar_id: isPreviewMode ? taskToCalCalendar : undefined,
+                            account_id: taskToCalAccount,
+                            calendar_id: taskToCalCalendar,
                             datetime_start: dropTime.toISO(),
                             datetime_end: end.toISO(),
                             view_id: item.view.id,
