@@ -1,16 +1,23 @@
 import { Editor as AtlaskitEditor, EditorActions } from '@atlaskit/editor-core'
 import { JSONTransformer } from '@atlaskit/editor-json-transformer'
 import { MarkdownTransformer } from '@atlaskit/editor-markdown-transformer'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import useReplaceEditorButtonIcons from '../../../../hooks/useReplaceEditorIcons'
-import { Spacing } from '../../../../styles'
+import { Spacing, Typography } from '../../../../styles'
 import { TOOLBAR_HEIGHT } from '../toolbar/styles'
 import { RichTextEditorProps } from '../types'
 import adf2md from './adfToMd'
 
 const serializer = new JSONTransformer()
 
+const EditorTypographyOverride = css`
+    button[aria-label='Edit link'] {
+        ${Typography.body};
+        display: inline;
+    }
+`
 const EditorContainer = styled.div<{ isMarkdown: boolean }>`
+    ${EditorTypographyOverride}
     height: 100%;
     :focus-within {
         height: calc(100% - ${TOOLBAR_HEIGHT});
