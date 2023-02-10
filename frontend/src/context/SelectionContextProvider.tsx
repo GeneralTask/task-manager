@@ -1,9 +1,10 @@
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useGetTasks } from '../services/api/tasks.hooks'
 import { emptyFunction } from '../utils/utils'
 
 interface TSelectionContext {
-    onClickHandler: (e: React.MouseEvent<HTMLDivElement, MouseEvent>, itemId: string) => void
+    onClickHandler: (e: React.MouseEvent<HTMLDivElement, MouseEvent>, itemId: string, sectionId: string) => void
     isTaskSelected: (taskId: string) => boolean
     isInMultiSelectMode: boolean
     selectedTaskIds: string[]
@@ -24,6 +25,7 @@ interface SelectionContextProps {
 export const SelectionContextProvider = ({ children }: SelectionContextProps) => {
     const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([])
     const clearSelectedTaskIds = () => setSelectedTaskIds([])
+    const { data: sections } = useGetTasks()
 
     // clear selected task ids when the location changes
     const { pathname, key } = useLocation()
@@ -31,11 +33,31 @@ export const SelectionContextProvider = ({ children }: SelectionContextProps) =>
         clearSelectedTaskIds()
     }, [pathname, key])
 
-    const onClickHandler = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, itemId: string) => {
+    const onClickHandler = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, itemId: string, sectionId: string) => {
         e.stopPropagation()
         e.preventDefault()
         if (e.metaKey) {
             toggleTaskId(itemId)
+        } else if (e.shiftKey && sections) {
+            const lastSelectedTaskId = selectedTaskIds[selectedTaskIds.length - 1]
+            const section = sections.find((s) => s.id === sectionId)
+            console.log('sectionId:', sectionId)
+            console.log(lastSelectedTaskId)
+            console.log(section)
+            if (!section) return
+
+            if (lastSelectedTaskId) {
+                const clickedTaskIndex = section.tasks.findIndex((s) => s.id === itemId)
+                const lastSelectedTaskIndex = section.tasks.findIndex((s) => s.id === lastSelectedTaskId)
+
+                const start = Math.min(clickedTaskIndex, lastSelectedTaskIndex)
+                const end = Math.max(clickedTaskIndex, lastSelectedTaskIndex)
+                const newSelectedTaskIds = section.tasks.slice(start, end + 1).map((t) => t.id)
+                setSelectedTaskIds([
+                    ...selectedTaskIds,
+                    ...newSelectedTaskIds.filter((id) => !selectedTaskIds.includes(id)),
+                ])
+            }
         }
     }
 

@@ -157,7 +157,7 @@ const Task = ({
 
     const onClick = useCallback<React.MouseEventHandler>(
         (e) => {
-            if (e.metaKey) return
+            if (e.metaKey || e.shiftKey) return
             navigate(link)
             Log(`task_select__${link}`)
             if (calendarType === 'week' && isSelected) {
@@ -206,7 +206,7 @@ const Task = ({
                 isVisible={isVisible}
                 onMouseLeave={() => setIsHovered(false)}
                 onMouseEnter={() => setIsHovered(true)}
-                onClick={(e) => onClickHandler(e, task.id)}
+                onClick={(e) => onClickHandler(e, task.id, sectionId ?? '')}
             >
                 <ItemContainer
                     isSelected={isSelected}
