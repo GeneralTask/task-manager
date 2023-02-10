@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import Log from '../../services/api/log'
+import { Colors } from '../../styles'
 import { PULL_REQUEST_ACTIONS } from '../../utils/sortAndFilter/pull-requests.config'
 import { TPullRequest } from '../../utils/types'
 import CommentCount from '../atoms/CommentCount'
@@ -35,7 +36,7 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
 
     return (
         <PullRequestRow onClick={onClickHandler} isSelected={isSelected}>
-            {isSelected && <EdgeHighlight color="orange" />}
+            {isSelected && <EdgeHighlight color={Colors.gtColor.orange} />}
             <TitleContainer>{title}</TitleContainer>
             <Column>
                 <Status description={statusDescription} status={status.text} color={status.color} />
