@@ -195,6 +195,35 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                     })
                     break
                 }
+                case DropType.PULL_REQUEST: {
+                    if (!item.pullRequest) return
+                    const end = dropTime.plus({ minutes: 30 })
+                    const converter = new showdown.Converter()
+
+                    let description
+                    description = converter.makeHtml(item.pullRequest.body)
+                    if (description !== '') {
+                        description += '\n'
+                    }
+                    description = description.replaceAll('\n', '<br>')
+                    description += '<a href="https://generaltask.com/" __is_owner="true">created by General Task</a>'
+
+                    createEvent({
+                        createEventPayload: {
+                            account_id: taskToCalAccount,
+                            calendar_id: taskToCalCalendar,
+                            datetime_start: dropTime.toISO(),
+                            datetime_end: end.toISO(),
+                            summary: item.pullRequest.title,
+                            description: description,
+                            pr_id: item.pullRequest.id,
+                        },
+                        date,
+                        linkedPR: item.pullRequest,
+                        optimisticId: uuidv4(),
+                    })
+                    break
+                }
             }
         },
         [date, primaryAccountID]
@@ -211,6 +240,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                 DropType.EVENT_RESIZE_HANDLE,
                 DropType.OVERVIEW_VIEW_HEADER,
                 DropType.WEEK_TASK_TO_CALENDAR_TASK,
+                DropType.PULL_REQUEST,
             ],
             collect: (monitor) => primaryAccountID && monitor.isOver(),
             drop: onDrop,
@@ -258,6 +288,11 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                     case DropType.OVERVIEW_VIEW_HEADER: {
                         setDropPreviewPosition(dropPosition)
                         setEventPreview(item.event)
+                        break
+                    }
+                    case DropType.PULL_REQUEST: {
+                        setEventPreview(undefined)
+                        setDropPreviewPosition(dropPosition)
                         break
                     }
                 }

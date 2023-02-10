@@ -2,7 +2,7 @@ import { ReactNode, useCallback, useEffect, useState } from 'react'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
-import { useKeyboardShortcut, useNavigateToTask, useToast } from '../../hooks'
+import { useKeyboardShortcut, useNavigateToPullRequest, useNavigateToTask, useToast } from '../../hooks'
 import { useDeleteEvent, useGetCalendars } from '../../services/api/events.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -39,6 +39,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
     const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
     const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
     const navigateToTask = useNavigateToTask()
+    const navigateToPullRequest = useNavigateToPullRequest()
     const { data: calendars } = useGetCalendars()
 
     useEffect(() => {
@@ -148,6 +149,18 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                         onClick={() => {
                             setIsOpen(false)
                             navigateToTask(event.linked_task_id)
+                        }}
+                    />
+                )}
+                {event.linked_pr_id && (
+                    <GTButton
+                        styleType="secondary"
+                        size="small"
+                        value="View PR details"
+                        fitContent={false}
+                        onClick={() => {
+                            setIsOpen(false)
+                            navigateToPullRequest(event.linked_pr_id)
                         }}
                     />
                 )}

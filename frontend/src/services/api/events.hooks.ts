@@ -6,8 +6,9 @@ import { useCalendarContext } from '../../components/calendar/CalendarContext'
 import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
 import { useGTLocalStorage } from '../../hooks'
+import { TLogoImage } from '../../styles/images'
 import apiClient from '../../utils/api'
-import { TCalendar, TCalendarAccount, TEvent, TOverviewView, TTask } from '../../utils/types'
+import { TCalendar, TCalendarAccount, TEvent, TOverviewView, TPullRequest, TTask } from '../../utils/types'
 import { getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
 
 interface TEventAttendee {
@@ -28,6 +29,7 @@ interface TCreateEventPayload {
     add_conference_call?: boolean
     task_id?: string
     view_id?: string
+    pr_id?: string
 }
 interface TModifyEventPayload {
     account_id: string
@@ -45,6 +47,7 @@ interface TCreateEventParams {
     date: DateTime
     linkedTask?: TTask
     linkedView?: TOverviewView
+    linkedPR?: TPullRequest
     optimisticId: string
 }
 interface TCreateEventResponse {
@@ -120,7 +123,14 @@ export const useCreateEvent = () => {
     return useQueuedMutation(({ createEventPayload }: TCreateEventParams) => createEvent(createEventPayload), {
         tag: 'events',
         invalidateTagsOnSettled: ['events'],
-        onMutate: ({ createEventPayload, date, linkedTask, linkedView, optimisticId }: TCreateEventParams) => {
+        onMutate: ({
+            createEventPayload,
+            date,
+            linkedTask,
+            linkedView,
+            linkedPR,
+            optimisticId,
+        }: TCreateEventParams) => {
             const { events, blockStartTime } = queryClient.getCurrentEvents(
                 date,
                 createEventPayload.datetime_start,
@@ -132,6 +142,15 @@ export const useCreateEvent = () => {
             const calendar = selectedCalendars.find((calendar) => calendar.account_id === createEventPayload.account_id)
                 ?.calendars[0]
 
+            let logo: TLogoImage
+            if (linkedTask?.source.logo_v2) {
+                logo = linkedTask?.source.logo_v2
+            } else if (linkedPR) {
+                logo = 'github'
+            } else {
+                logo = 'gcal'
+            }
+
             const newEvent: TEvent = {
                 id: optimisticId,
                 optimisticId: optimisticId,
@@ -140,7 +159,7 @@ export const useCreateEvent = () => {
                 account_id: createEventPayload.account_id,
                 calendar_id: createEventPayload.calendar_id ?? calendar?.calendar_id ?? '',
                 color_id: '',
-                logo: linkedTask?.source.logo_v2 ?? 'gcal',
+                logo: logo,
                 deeplink: '',
                 datetime_start: createEventPayload.datetime_start,
                 datetime_end: createEventPayload.datetime_end,
@@ -152,6 +171,7 @@ export const useCreateEvent = () => {
                 },
                 linked_task_id: linkedTask?.id ?? '',
                 linked_view_id: linkedView?.id ?? '',
+                linked_pr_id: linkedPR?.id ?? '',
             }
 
             const newEvents = produce(events, (draft) => {

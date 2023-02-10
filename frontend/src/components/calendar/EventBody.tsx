@@ -104,6 +104,12 @@ function EventBody(props: EventBodyProps): JSX.Element {
                                             isShort={timeDurationTodayMinutes <= MINIMUM_BODY_HEIGHT}
                                         />
                                     )}
+                                    {props.event.linked_pr_id && (
+                                        <EventIcon
+                                            icon={logos[props.event.logo]}
+                                            isShort={timeDurationTodayMinutes <= MINIMUM_BODY_HEIGHT}
+                                        />
+                                    )}
                                     <EventTitle>{props.event.title || '(no title)'}</EventTitle>
                                 </EventIconAndTitle>
                                 <EventTime>
