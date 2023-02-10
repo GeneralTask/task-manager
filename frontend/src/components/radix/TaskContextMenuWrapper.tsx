@@ -142,7 +142,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
                               {
                                   id: optimisticId,
                                   priorityNormalized: task.priority_normalized || undefined,
-                                  dueDate: DateTime.fromISO(task.due_date, { zone: 'utc' }).toISO() || undefined,
+                                  dueDate: DateTime.fromISO(task.due_date).toISO() || undefined,
                                   recurringTaskTemplateId: task.recurring_task_template_id || undefined,
                               },
                               optimisticId
