@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_SECTION_ID, EMPTY_MONGO_OBJECT_ID, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
+import useSelectionContext from '../../context/SelectionContextProvider'
 import {
     useCreateTask,
     useGetTasks,
@@ -43,6 +44,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
     const { mutate: modifyTask } = useModifyTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const [isRecurringTaskTemplateModalOpen, setIsRecurringTaskTemplateModalOpen] = useState(false)
+    const { isInMultiSelectMode, selectedTaskIds, clearSelectedTaskIds } = useSelectionContext()
 
     const showRecurringTaskOption =
         task.source?.name === 'General Task' && // must be a native task
@@ -199,9 +201,31 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
             },
         },
     ]
+    const multiSelectContextMenuItems: GTMenuItem[] = [
+        {
+            label: 'Delete tasks',
+            icon: icons.trash,
+            iconColor: 'red',
+            textColor: 'red',
+            onClick: () => {
+                const sectionTasks = taskSections?.find((s) => s.id === sectionId)?.tasks
+                if (!sectionTasks) return
+                selectedTaskIds.forEach((id) => {
+                    const task = sectionTasks.find((t) => t.id === id)
+                    if (!task) return
+                    markTaskDoneOrDeleted({ id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }, task.optimisticId)
+                })
+                clearSelectedTaskIds()
+            },
+        },
+    ]
     return (
         <>
-            <GTContextMenu items={contextMenuItems} trigger={children} onOpenChange={onOpenChange} />
+            <GTContextMenu
+                items={isInMultiSelectMode ? multiSelectContextMenuItems : contextMenuItems}
+                trigger={children}
+                onOpenChange={onOpenChange}
+            />
             {isRecurringTaskTemplateModalOpen && (
                 <RecurringTaskTemplateModal
                     initialTask={task}

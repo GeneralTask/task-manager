@@ -3,7 +3,12 @@ import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { EdgeHighlight } from '../atoms/SelectableContainer'
 
-const ItemContainerDiv = styled.div<{ isSelected?: boolean; isCompact?: boolean; forceHoverStyle?: boolean }>`
+const ItemContainerDiv = styled.div<{
+    isSelected?: boolean
+    isMultiSelect?: boolean
+    isCompact?: boolean
+    forceHoverStyle?: boolean
+}>`
     position: relative;
     display: flex;
     flex-direction: row;
@@ -15,7 +20,11 @@ const ItemContainerDiv = styled.div<{ isSelected?: boolean; isCompact?: boolean;
     border-radius: ${Border.radius.mini};
     :hover {
         outline: ${Border.stroke.medium} solid ${Colors.border.light};
+        ${({ isMultiSelect }) =>
+            !isMultiSelect &&
+            `
         background-color: ${Colors.background.medium};
+        `})}
     }
     ${({ forceHoverStyle }) =>
         forceHoverStyle &&
@@ -27,20 +36,30 @@ const ItemContainerDiv = styled.div<{ isSelected?: boolean; isCompact?: boolean;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    border: ${Border.stroke.medium} solid transparent;
+    ${({ isMultiSelect }) =>
+        isMultiSelect &&
+        `
+        background-color: ${Colors.gtColor.blue}60;
+        border: ${Border.stroke.medium} solid ${Colors.border.gray};
+        `}
+
 `
 
 interface ItemContainerProps {
     isSelected?: boolean
+    isMultiSelect?: boolean
     isCompact?: boolean
-    onClick?: () => void
+    onClick?: React.MouseEventHandler
     children: React.ReactNode
     forceHoverStyle?: boolean
     className?: string
 }
 const ItemContainer = forwardRef<HTMLDivElement, ItemContainerProps>(
-    ({ isSelected, isCompact = false, onClick, children, forceHoverStyle, className }, ref) => (
+    ({ isSelected, isCompact = false, onClick, children, forceHoverStyle, className, isMultiSelect }, ref) => (
         <ItemContainerDiv
             isSelected={isSelected}
+            isMultiSelect={isMultiSelect}
             isCompact={isCompact}
             onClick={onClick}
             ref={ref}

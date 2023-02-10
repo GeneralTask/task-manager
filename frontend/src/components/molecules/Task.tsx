@@ -1,10 +1,11 @@
-import { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react'
+import React, { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
+import useSelectionContext from '../../context/SelectionContextProvider'
 import { useInterval, useKeyboardShortcut } from '../../hooks'
 import Log from '../../services/api/log'
 import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
@@ -152,14 +153,21 @@ const Task = ({
         [isSelected, isScrolling.current, shouldScrollToTask]
     )
 
-    const onClick = useCallback(() => {
-        navigate(link)
-        Log(`task_select__${link}`)
-        if (calendarType === 'week' && isSelected) {
-            setCalendarType('day')
-            setDate(dayViewDate)
-        }
-    }, [link, isSelected, dayViewDate])
+    const { onClickHandler, isTaskSelected, isInMultiSelectMode } = useSelectionContext()
+
+    const onClick = useCallback<React.MouseEventHandler>(
+        (e) => {
+            if (e.metaKey) return
+            if (isInMultiSelectMode) return
+            navigate(link)
+            Log(`task_select__${link}`)
+            if (calendarType === 'week' && isSelected) {
+                setCalendarType('day')
+                setDate(dayViewDate)
+            }
+        },
+        [link, isSelected, dayViewDate, isInMultiSelectMode]
+    )
 
     const [, drag, dragPreview] = useDrag(
         () => ({
@@ -199,8 +207,15 @@ const Task = ({
                 isVisible={isVisible}
                 onMouseLeave={() => setIsHovered(false)}
                 onMouseEnter={() => setIsHovered(true)}
+                onClick={(e) => onClickHandler(e, task.id)}
             >
-                <ItemContainer isSelected={isSelected} onClick={onClick} ref={drag} forceHoverStyle={contextMenuOpen}>
+                <ItemContainer
+                    isSelected={isSelected}
+                    isMultiSelect={isTaskSelected(task.id)}
+                    onClick={onClick}
+                    ref={drag}
+                    forceHoverStyle={contextMenuOpen}
+                >
                     <PositionedDomino isVisible={isHovered && !dragDisabled} />
                     {task.source?.name !== 'Jira' &&
                         (task.external_status && task.all_statuses ? (
