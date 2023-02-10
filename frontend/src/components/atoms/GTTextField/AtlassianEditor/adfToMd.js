@@ -51,6 +51,7 @@ function _convert(node, warnings, depth = 0) {
         }
 
         case 'codeBlock': {
+            if (!node.content) return '\n'
             const language = node.attrs ? ` ${node.attrs.language}` : ''
             return `\`\`\`${language}\n${node.content.map((node) => _convert(node, warnings)).join('\n')}\n\`\`\``
         }
