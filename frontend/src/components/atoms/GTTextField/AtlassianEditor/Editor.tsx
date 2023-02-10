@@ -3,7 +3,7 @@ import { JSONTransformer } from '@atlaskit/editor-json-transformer'
 import { MarkdownTransformer } from '@atlaskit/editor-markdown-transformer'
 import styled, { css } from 'styled-components'
 import useReplaceEditorButtonIcons from '../../../../hooks/useReplaceEditorIcons'
-import { Spacing, Typography } from '../../../../styles'
+import { Colors, Spacing, Typography } from '../../../../styles'
 import { TOOLBAR_HEIGHT } from '../toolbar/styles'
 import { RichTextEditorProps } from '../types'
 import adf2md from './adfToMd'
@@ -11,9 +11,14 @@ import adf2md from './adfToMd'
 const serializer = new JSONTransformer()
 
 const EditorTypographyOverride = css`
+    div[aria-label='Floating Toolbar'] {
+        ${Typography.body};
+        color: ${Colors.text.light} !important;
+    }
     button[aria-label='Edit link'] {
         ${Typography.body};
         display: inline;
+        color: ${Colors.text.light} !important;
     }
 `
 const EditorContainer = styled.div<{ isMarkdown: boolean }>`
