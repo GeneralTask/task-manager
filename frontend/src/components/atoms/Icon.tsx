@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { Colors, Dimensions } from '../../styles'
 import { TIconColor } from '../../styles/colors'
 import { TIconSize } from '../../styles/dimensions'
+import Flex from './Flex'
 
 export type TIconType = IconProp | string
 
@@ -42,11 +43,13 @@ export const Icon = ({ icon, size = 'default', color, colorHex, className, hidde
             </IconContainer>
         )
     return (
-        <FontAwesomeIcon
-            icon={icon}
-            color={iconColor}
-            className={className}
-            style={{ height: dimension, aspectRatio: 1 }}
-        />
+        <Flex>
+            <FontAwesomeIcon
+                icon={icon}
+                color={iconColor}
+                className={className}
+                style={{ height: dimension, aspectRatio: 1 }}
+            />
+        </Flex>
     )
 }
