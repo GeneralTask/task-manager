@@ -158,7 +158,6 @@ const Task = ({
     const onClick = useCallback<React.MouseEventHandler>(
         (e) => {
             if (e.metaKey) return
-            if (isInMultiSelectMode) return
             navigate(link)
             Log(`task_select__${link}`)
             if (calendarType === 'week' && isSelected) {
