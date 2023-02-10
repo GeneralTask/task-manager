@@ -40,8 +40,8 @@ const ItemContainerDiv = styled.div<{
     ${({ isMultiSelect }) =>
         isMultiSelect &&
         `
-        background-color: ${Colors.gtColor.blue}60;
-        border: ${Border.stroke.medium} solid ${Colors.border.gray};
+        background-color: ${Colors.gtColor.blue}25;
+        outline: ${Border.stroke.medium} solid ${Colors.border.light};
         `}
 
 `
