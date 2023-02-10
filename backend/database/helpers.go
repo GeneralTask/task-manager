@@ -162,6 +162,21 @@ func GetTask(db *mongo.Database, itemID primitive.ObjectID, userID primitive.Obj
 	return &task, nil
 }
 
+func GetPullRequest(db *mongo.Database, itemID primitive.ObjectID, userID primitive.ObjectID) (*PullRequest, error) {
+	logger := logging.GetSentryLogger()
+	pullRequestCollection := GetPullRequestCollection(db)
+	mongoResult := FindOneWithCollection(pullRequestCollection, userID, itemID)
+
+	var pullRequest PullRequest
+	err := mongoResult.Decode(&pullRequest)
+
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to get task: %+v", itemID)
+		return nil, err
+	}
+	return &pullRequest, nil
+}
+
 func GetNote(db *mongo.Database, itemID primitive.ObjectID, userID primitive.ObjectID) (*Note, error) {
 	logger := logging.GetSentryLogger()
 	mongoResult := GetNoteCollection(db).FindOne(

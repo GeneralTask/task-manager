@@ -2,9 +2,10 @@ package api
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 	"sort"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
@@ -34,6 +35,7 @@ type EventResult struct {
 	DatetimeStart  primitive.DateTime   `json:"datetime_start,omitempty"`
 	LinkedTaskID   string               `json:"linked_task_id"`
 	LinkedViewID   string               `json:"linked_view_id"`
+	LinkedPRID     string               `json:"linked_pr_id"`
 	Logo           string               `json:"logo"`
 }
 
@@ -115,8 +117,8 @@ func (api *API) EventsList(c *gin.Context) {
 			var linkedTaskID string
 			if event.LinkedTaskID != primitive.NilObjectID {
 				linkedTaskID = event.LinkedTaskID.Hex()
-				if event.LinkedTaskSourceID != "" {
-					taskSourceResult, _ = api.ExternalConfig.GetSourceResult(event.LinkedTaskSourceID)
+				if event.LinkedSourceID != "" {
+					taskSourceResult, _ = api.ExternalConfig.GetSourceResult(event.LinkedSourceID)
 					logo = taskSourceResult.Details.LogoV2
 				} else {
 					api.Logger.Error().Err(err).Msg("linked task source ID is empty")
@@ -125,6 +127,16 @@ func (api *API) EventsList(c *gin.Context) {
 			var linkedViewID string
 			if event.LinkedViewID != primitive.NilObjectID {
 				linkedViewID = event.LinkedViewID.Hex()
+			}
+			var linkedPRID string
+			if event.LinkedPRID != primitive.NilObjectID {
+				linkedPRID = event.LinkedPRID.Hex()
+				if event.LinkedSourceID != "" {
+					taskSourceResult, _ = api.ExternalConfig.GetSourceResult(event.LinkedSourceID)
+					logo = taskSourceResult.Details.LogoV2
+				} else {
+					api.Logger.Error().Err(err).Msg("linked task source ID is empty")
+				}
 			}
 			calendarEvents = append(calendarEvents, EventResult{
 				ID:            event.ID,
@@ -146,6 +158,7 @@ func (api *API) EventsList(c *gin.Context) {
 				Logo:         logo,
 				LinkedTaskID: linkedTaskID,
 				LinkedViewID: linkedViewID,
+				LinkedPRID:   linkedPRID,
 			})
 		}
 		err := api.adjustForCompletedEvents(userID, &calendarEvents, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd)

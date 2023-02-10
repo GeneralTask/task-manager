@@ -97,6 +97,24 @@ func TestEventCreate(t *testing.T) {
 		assert.Equal(t, eventID, dbEvent.ID)
 		checkEventMatchesCreateObject(t, *dbEvent, eventCreateObject)
 	})
+	t.Run("SuccessLinkedPR", func(t *testing.T) {
+		prCollection := database.GetPullRequestCollection(db)
+		title := "task title"
+		mongoResult, err := prCollection.InsertOne(context.Background(), database.PullRequest{
+			Title:  title,
+			UserID: userID,
+		})
+		assert.NoError(t, err)
+		prID := mongoResult.InsertedID.(primitive.ObjectID)
+		eventCreateObject := defaultEventCreateObject
+		eventCreateObject.LinkedPRID = prID
+
+		eventID := makeCreateRequest(t, &eventCreateObject, http.StatusCreated, "", url, authToken, api)
+		dbEvent, err := database.GetCalendarEvent(api.DB, eventID, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, eventID, dbEvent.ID)
+		checkEventMatchesCreateObject(t, *dbEvent, eventCreateObject)
+	})
 	t.Run("NonExistentLinkedView", func(t *testing.T) {
 		eventCreateObject := defaultEventCreateObject
 		nonExistentLinkedViewID := primitive.NewObjectID()
@@ -135,6 +153,25 @@ func TestEventCreate(t *testing.T) {
 		eventCreateObject.LinkedTaskID = taskID
 		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, fmt.Sprintf(`{"detail":"linked task not found: %s"}`, taskID.Hex()), url, authToken, api)
 	})
+	t.Run("NonExistentLinkedPR", func(t *testing.T) {
+		eventCreateObject := defaultEventCreateObject
+		nonExistentLinkedPRID := primitive.NewObjectID()
+		eventCreateObject.LinkedPRID = nonExistentLinkedPRID
+		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, fmt.Sprintf(`{"detail":"linked PR not found: %s"}`, nonExistentLinkedPRID.Hex()), url, authToken, api)
+	})
+	t.Run("LinkedPRFromWrongUser", func(t *testing.T) {
+		prCollection := database.GetPullRequestCollection(db)
+		title := "task title"
+		mongoResult, err := prCollection.InsertOne(context.Background(), database.PullRequest{
+			Title:  title,
+			UserID: primitive.NewObjectID(),
+		})
+		assert.NoError(t, err)
+		prID := mongoResult.InsertedID.(primitive.ObjectID)
+		eventCreateObject := defaultEventCreateObject
+		eventCreateObject.LinkedPRID = prID
+		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, fmt.Sprintf(`{"detail":"linked PR not found: %s"}`, prID.Hex()), url, authToken, api)
+	})
 	t.Run("UnsupportedService", func(t *testing.T) {
 		body, err := json.Marshal(defaultEventCreateObject)
 		assert.NoError(t, err)
@@ -165,6 +202,8 @@ func checkEventMatchesCreateObject(t *testing.T, event database.CalendarEvent, c
 	assert.Equal(t, primitive.NewDateTimeFromTime(*createObject.DatetimeStart), event.DatetimeStart)
 	assert.Equal(t, primitive.NewDateTimeFromTime(*createObject.DatetimeEnd), event.DatetimeEnd)
 	assert.Equal(t, createObject.LinkedTaskID, event.LinkedTaskID)
+	assert.Equal(t, createObject.LinkedViewID, event.LinkedViewID)
+	assert.Equal(t, createObject.LinkedPRID, event.LinkedPRID)
 }
 
 func makeCreateRequest(t *testing.T, eventCreateObject *external.EventCreateObject, expectedStatus int, expectedErrorResponse string, url string, authToken string, api *API) primitive.ObjectID {

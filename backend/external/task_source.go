@@ -50,6 +50,7 @@ type EventCreateObject struct {
 	AddConferenceCall bool               `json:"add_conference_call,omitempty"`
 	LinkedTaskID      primitive.ObjectID `json:"task_id,omitempty"`
 	LinkedViewID      primitive.ObjectID `json:"view_id,omitempty"`
+	LinkedPRID        primitive.ObjectID `json:"pr_id,omitempty"`
 }
 
 type EventModifyObject struct {
