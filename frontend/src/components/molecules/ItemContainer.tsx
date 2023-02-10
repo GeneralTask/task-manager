@@ -18,13 +18,17 @@ const ItemContainerDiv = styled.div<{
     background-color: ${Colors.background.white};
     box-shadow: ${Shadows.button.default};
     border-radius: ${Border.radius.mini};
+    ${({ isMultiSelect }) =>
+        isMultiSelect &&
+        `
+        background-color: ${Colors.gtColor.blue}25;
+
+        outline: ${Border.stroke.medium} solid ${Colors.border.light};
+    `}
     :hover {
         outline: ${Border.stroke.medium} solid ${Colors.border.light};
-        ${({ isMultiSelect }) =>
-            !isMultiSelect &&
-            `
-        background-color: ${Colors.background.medium};
-        `})}
+        background-color: ${({ isMultiSelect }) =>
+            !isMultiSelect ? `${Colors.background.medium};` : `${Colors.gtColor.blue}50;`}}
     }
     ${({ forceHoverStyle }) =>
         forceHoverStyle &&
@@ -37,12 +41,7 @@ const ItemContainerDiv = styled.div<{
     overflow: hidden;
     text-overflow: ellipsis;
     border: ${Border.stroke.medium} solid transparent;
-    ${({ isMultiSelect }) =>
-        isMultiSelect &&
-        `
-        background-color: ${Colors.gtColor.blue}25;
-        outline: ${Border.stroke.medium} solid ${Colors.border.light};
-        `}
+    
 
 `
 
