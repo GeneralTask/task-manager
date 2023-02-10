@@ -52,9 +52,6 @@ export const SelectionContextProvider = ({ children }: SelectionContextProps) =>
             const lastSelectedTaskId =
                 selectedTaskIds.length !== 0 ? selectedTaskIds[selectedTaskIds.length - 1] : currentlySelectedTaskId
             const section = sections.find((s) => s.id === sectionId)
-            console.log('sectionId:', sectionId)
-            console.log(lastSelectedTaskId)
-            console.log(section)
             if (!section) return
 
             if (lastSelectedTaskId) {
