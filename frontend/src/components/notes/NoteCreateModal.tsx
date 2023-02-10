@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { NOTE_SYNC_TIMEOUT, NO_TITLE, REACT_APP_FRONTEND_BASE_URL, SYNC_MESSAGES } from '../../constants'
+import { NOTE_SYNC_TIMEOUT, NO_TITLE, REACT_APP_NOTES_BASE_URL, SYNC_MESSAGES } from '../../constants'
 import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
 import { useToast } from '../../hooks'
 import { useCreateNote, useGetNotes, useModifyNote } from '../../services/api/notes.hooks'
@@ -48,7 +48,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
     }, [isOpen, isError, isLoading, isEditing])
 
     const copyNoteLink = () => {
-        navigator.clipboard.writeText(`${REACT_APP_FRONTEND_BASE_URL}/note/${realId}`)
+        navigator.clipboard.writeText(`${REACT_APP_NOTES_BASE_URL}/note/${realId}`)
         toast.show(
             {
                 message: `Note URL copied to clipboard`,

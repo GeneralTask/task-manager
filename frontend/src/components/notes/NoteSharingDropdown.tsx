@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { REACT_APP_FRONTEND_BASE_URL } from '../../constants'
+import { REACT_APP_NOTES_BASE_URL } from '../../constants'
 import { useToast } from '../../hooks'
 import { useModifyNote } from '../../services/api/notes.hooks'
 import { icons } from '../../styles/images'
@@ -32,7 +32,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
         modifyNote({ id: note.id, shared_until: DateTime.fromMillis(1).toISO() })
     }
     const copyNoteLink = () => {
-        navigator.clipboard.writeText(`${REACT_APP_FRONTEND_BASE_URL}/note/${note.id}`)
+        navigator.clipboard.writeText(`${REACT_APP_NOTES_BASE_URL}/note/${note.id}`)
         toast.show(
             {
                 message: `Note URL copied to clipboard`,
@@ -45,7 +45,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
         )
     }
     const goToSharedLink = () => {
-        window.open(`${REACT_APP_FRONTEND_BASE_URL}/note/${note.id}`, '_blank')
+        window.open(`${REACT_APP_NOTES_BASE_URL}/note/${note.id}`, '_blank')
     }
 
     const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
