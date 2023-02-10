@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_SECTION_ID, TRASH_SECTION_ID } from '../../constants'
-import { usePreviewMode } from '../../hooks'
 import {
     useCreateTask,
     useGetTasks,
@@ -28,7 +27,6 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
     const { mutate: modifyTask } = useModifyTask()
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
-    const { isPreviewMode } = usePreviewMode()
 
     const sectionId = getSectionFromTask(taskSections ?? [], task.id)?.id
 
@@ -42,7 +40,7 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
             hideCheckmark
             items={[
                 [
-                    ...(isPreviewMode && !task.is_deleted && !task.is_done
+                    ...(!task.is_deleted && !task.is_done
                         ? [
                               {
                                   label: 'Duplicate task',
@@ -59,7 +57,7 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
                                           {
                                               id: optimisticId,
                                               priorityNormalized: task.priority_normalized || undefined,
-                                              dueDate: task.due_date || undefined,
+                                              dueDate: DateTime.fromISO(task.due_date).toISO() || undefined,
                                               recurringTaskTemplateId: task.recurring_task_template_id || undefined,
                                           },
                                           optimisticId
