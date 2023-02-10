@@ -68,7 +68,7 @@ export const useGTMutation = <TData = unknown, TError = unknown, TVariables = vo
     const queryClient = useGTQueryClient()
     const { getQueryQueue, getLastSentQuery, setLastSentQuery, getIdFromOptimisticId } = useQueryContext()
 
-    const { ...rest } = useMutation(mutationFn, mutationOptions)
+    const useMutationResult = useMutation(mutationFn, mutationOptions)
 
     const { mutate } = useMutation(mutationFn, {
         ...mutationOptions,
@@ -127,7 +127,7 @@ export const useGTMutation = <TData = unknown, TError = unknown, TVariables = vo
         }
     }
     return {
-        ...rest,
+        ...useMutationResult,
         mutate: newMutate,
     }
 }
