@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * This file is used to suppress console.error messages that are not relevant to the application.
  * This is a temporary solution until the issue is resolved in the library.
