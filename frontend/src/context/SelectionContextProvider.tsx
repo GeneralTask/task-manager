@@ -26,10 +26,10 @@ export const SelectionContextProvider = ({ children }: SelectionContextProps) =>
     const clearSelectedTaskIds = () => setSelectedTaskIds([])
 
     // clear selected task ids when the location changes
-    const { pathname } = useLocation()
+    const { pathname, key } = useLocation()
     useEffect(() => {
         clearSelectedTaskIds()
-    }, [pathname])
+    }, [pathname, key])
 
     const onClickHandler = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, itemId: string) => {
         e.stopPropagation()
