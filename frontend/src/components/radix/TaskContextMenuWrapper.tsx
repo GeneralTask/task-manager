@@ -42,7 +42,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask } = useModifyTask()
-    const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
+    const { mutate: markTaskDoneOrDeleted, mutateAsync } = useMarkTaskDoneOrDeleted()
     const [isRecurringTaskTemplateModalOpen, setIsRecurringTaskTemplateModalOpen] = useState(false)
     const { isInMultiSelectMode, selectedTaskIds, clearSelectedTaskIds } = useSelectionContext()
 
@@ -210,12 +210,13 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
             onClick: () => {
                 const sectionTasks = taskSections?.find((s) => s.id === sectionId)?.tasks
                 if (!sectionTasks) return
-                selectedTaskIds.forEach((id) => {
+                const promises = selectedTaskIds.map((id) => {
                     const task = sectionTasks.find((t) => t.id === id)
                     if (!task) return
-                    markTaskDoneOrDeleted({ id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }, task.optimisticId)
+                    return mutateAsync({ id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID })
                 })
                 clearSelectedTaskIds()
+                Promise.all(promises)
             },
         },
     ]
