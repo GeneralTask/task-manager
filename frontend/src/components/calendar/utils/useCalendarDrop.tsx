@@ -251,7 +251,8 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                     case DropType.WEEK_TASK_TO_CALENDAR_TASK:
                     case DropType.SUBTASK:
                     case DropType.NON_REORDERABLE_TASK:
-                    case DropType.TASK: {
+                    case DropType.TASK:
+                    case DropType.PULL_REQUEST: {
                         setEventPreview(undefined)
                         setDropPreviewPosition(dropPosition)
                         break
@@ -288,11 +289,6 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                     case DropType.OVERVIEW_VIEW_HEADER: {
                         setDropPreviewPosition(dropPosition)
                         setEventPreview(item.event)
-                        break
-                    }
-                    case DropType.PULL_REQUEST: {
-                        setEventPreview(undefined)
-                        setDropPreviewPosition(dropPosition)
                         break
                     }
                 }

@@ -98,13 +98,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         <EventDetailPopover event={props.event} date={props.date} hidePopover={isPopoverDisabled}>
                             <EventInfo type={eventType}>
                                 <EventIconAndTitle>
-                                    {props.event.linked_task_id && (
-                                        <EventIcon
-                                            icon={logos[props.event.logo]}
-                                            isShort={timeDurationTodayMinutes <= MINIMUM_BODY_HEIGHT}
-                                        />
-                                    )}
-                                    {props.event.linked_pr_id && (
+                                    {(props.event.linked_task_id || props.event.linked_pr_id) && (
                                         <EventIcon
                                             icon={logos[props.event.logo]}
                                             isShort={timeDurationTodayMinutes <= MINIMUM_BODY_HEIGHT}
