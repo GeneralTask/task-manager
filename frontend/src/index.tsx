@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client'
 import * as Sentry from '@sentry/react'
 import App from '../App'
+import './consoleErrorSuppression'
 import { isDevelopmentMode } from './environment'
 
 if (!isDevelopmentMode) {
