@@ -1,7 +1,7 @@
 import React, { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
@@ -93,6 +93,7 @@ const Task = ({
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const { calendarType, setCalendarType, setDate, dayViewDate } = useCalendarContext()
+    const { task: routeTaskId } = useParams()
 
     useInterval(() => {
         if (!meeting_preparation_params) return
@@ -206,7 +207,7 @@ const Task = ({
                 isVisible={isVisible}
                 onMouseLeave={() => setIsHovered(false)}
                 onMouseEnter={() => setIsHovered(true)}
-                onClick={(e) => onClickHandler(e, task.id, sectionId ?? '')}
+                onClick={(e) => onClickHandler(e, task.id, sectionId ?? '', routeTaskId ?? '')}
             >
                 <ItemContainer
                     isSelected={isSelected}

@@ -4,7 +4,12 @@ import { useGetTasks } from '../services/api/tasks.hooks'
 import { emptyFunction } from '../utils/utils'
 
 interface TSelectionContext {
-    onClickHandler: (e: React.MouseEvent<HTMLDivElement, MouseEvent>, itemId: string, sectionId: string) => void
+    onClickHandler: (
+        e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+        itemId: string,
+        sectionId: string,
+        currentlySelectedTaskId: string
+    ) => void
     isTaskSelected: (taskId: string) => boolean
     isInMultiSelectMode: boolean
     selectedTaskIds: string[]
@@ -33,13 +38,19 @@ export const SelectionContextProvider = ({ children }: SelectionContextProps) =>
         clearSelectedTaskIds()
     }, [pathname, key])
 
-    const onClickHandler = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, itemId: string, sectionId: string) => {
+    const onClickHandler = (
+        e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+        itemId: string,
+        sectionId: string,
+        currentlySelectedTaskId: string
+    ) => {
         e.stopPropagation()
         e.preventDefault()
         if (e.metaKey) {
             toggleTaskId(itemId)
         } else if (e.shiftKey && sections) {
-            const lastSelectedTaskId = selectedTaskIds[selectedTaskIds.length - 1]
+            const lastSelectedTaskId =
+                selectedTaskIds.length !== 0 ? selectedTaskIds[selectedTaskIds.length - 1] : currentlySelectedTaskId
             const section = sections.find((s) => s.id === sectionId)
             console.log('sectionId:', sectionId)
             console.log(lastSelectedTaskId)
