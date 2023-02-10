@@ -197,8 +197,7 @@ func GetSharedNote(db *mongo.Database, itemID primitive.ObjectID) (*Note, error)
 	return &note, nil
 }
 
-func GetTaskByExternalIDWithoutUser(db *mongo.Database, externalID string) (*Task, error) {
-	logger := logging.GetSentryLogger()
+func GetTaskByExternalIDWithoutUser(db *mongo.Database, externalID string, logError bool) (*Task, error) {
 	taskCollection := GetTaskCollection(db)
 	mongoResult := taskCollection.FindOne(
 		context.Background(),
@@ -209,7 +208,10 @@ func GetTaskByExternalIDWithoutUser(db *mongo.Database, externalID string) (*Tas
 	var task Task
 	err := mongoResult.Decode(&task)
 	if err != nil {
-		logger.Error().Err(err).Msgf("failed to get external task: %+v", externalID)
+		if logError {
+			logger := logging.GetSentryLogger()
+			logger.Error().Err(err).Msgf("failed to get external task: %+v", externalID)
+		}
 		return nil, err
 	}
 	return &task, nil
@@ -787,7 +789,7 @@ func GetExternalToken(db *mongo.Database, externalID string, serviceID string) (
 	return &externalAPIToken, nil
 }
 
-func GetExternalTokenByExternalID(db *mongo.Database, externalID string, serviceID string) (*ExternalAPIToken, error) {
+func GetExternalTokenByExternalID(db *mongo.Database, externalID string, serviceID string, logError bool) (*ExternalAPIToken, error) {
 	var externalAPIToken ExternalAPIToken
 	err := GetExternalTokenCollection(db).FindOne(
 		context.Background(),
@@ -798,9 +800,11 @@ func GetExternalTokenByExternalID(db *mongo.Database, externalID string, service
 			},
 		},
 	).Decode(&externalAPIToken)
-	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to load external api token")
+		if logError {
+			logger := logging.GetSentryLogger()
+			logger.Error().Err(err).Msg("failed to load external api token")
+		}
 		return nil, err
 	}
 	return &externalAPIToken, nil

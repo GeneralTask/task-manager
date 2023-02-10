@@ -557,12 +557,12 @@ func TestGetTaskByExternalIDWithoutUser(t *testing.T) {
 	assert.NoError(t, err)
 
 	t.Run("WrongID", func(t *testing.T) {
-		respTask, err := GetTaskByExternalIDWithoutUser(db, "invalid")
+		respTask, err := GetTaskByExternalIDWithoutUser(db, "invalid", false)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 		assert.Nil(t, respTask)
 	})
 	t.Run("Success", func(t *testing.T) {
-		respTask, err := GetTaskByExternalIDWithoutUser(db, "123abd")
+		respTask, err := GetTaskByExternalIDWithoutUser(db, "123abd", false)
 		assert.NoError(t, err)
 		assert.Equal(t, task1.ID, respTask.ID)
 	})
@@ -1014,15 +1014,15 @@ func TestGetExternalTokeByExternalID(t *testing.T) {
 	assert.NoError(t, err)
 
 	t.Run("WrongExternalID", func(t *testing.T) {
-		_, err := GetExternalTokenByExternalID(db, "wrong account", serviceID)
+		_, err := GetExternalTokenByExternalID(db, "wrong account", serviceID, false)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 	})
 	t.Run("WrongServiceID", func(t *testing.T) {
-		_, err := GetExternalTokenByExternalID(db, externalID, "wrong service")
+		_, err := GetExternalTokenByExternalID(db, externalID, "wrong service", false)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 	})
 	t.Run("Success", func(t *testing.T) {
-		token, err := GetExternalTokenByExternalID(db, externalID, serviceID)
+		token, err := GetExternalTokenByExternalID(db, externalID, serviceID, false)
 		assert.NoError(t, err)
 		assert.Equal(t, userID, token.UserID)
 		assert.Equal(t, serviceID, token.ServiceID)

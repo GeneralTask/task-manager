@@ -125,28 +125,40 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
                 },
             })),
         },
-        {
-            label: 'Duplicate task',
-            icon: icons.clone,
-            onClick: () => {
-                const optimisticId = uuidv4()
-                createTask({
-                    title: `${task.title} (copy)`,
-                    body: task.body,
-                    taskSectionId: sectionId || DEFAULT_SECTION_ID,
-                    optimisticId,
-                })
-                modifyTask(
-                    {
-                        id: optimisticId,
-                        priorityNormalized: task.priority_normalized || undefined,
-                        dueDate: task.due_date || undefined,
-                        recurringTaskTemplateId: task.recurring_task_template_id || undefined,
-                    },
-                    optimisticId
-                )
-            },
-        },
+        ...(!task.is_deleted && !task.is_done
+            ? [
+                  {
+                      label: 'Duplicate task',
+                      icon: icons.clone,
+                      onClick: () => {
+                          const optimisticId = uuidv4()
+                          createTask({
+                              title: `${task.title} (copy)`,
+                              body: task.body,
+                              taskSectionId: sectionId || DEFAULT_SECTION_ID,
+                              optimisticId,
+                          })
+                          modifyTask(
+                              {
+                                  id: optimisticId,
+                                  priorityNormalized: task.priority_normalized || undefined,
+                                  dueDate: task.due_date || undefined,
+                                  recurringTaskTemplateId: task.recurring_task_template_id || undefined,
+                              },
+                              optimisticId
+                          )
+                          reorderTask(
+                              {
+                                  id: optimisticId,
+                                  dropSectionId: sectionId || DEFAULT_SECTION_ID,
+                                  orderingId: task.id_ordering + 2,
+                              },
+                              optimisticId
+                          )
+                      },
+                  },
+              ]
+            : []),
         ...(task.all_statuses && task.external_status
             ? [
                   {
