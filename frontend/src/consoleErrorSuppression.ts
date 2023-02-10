@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+//eslint-disable no-console @typescript-eslint/no-explicit-any
 /**
  * This file is used to suppress console.error messages that are not relevant to the application.
  * This is a temporary solution until the issue is resolved in the library.
