@@ -536,6 +536,43 @@ func TestGetTask(t *testing.T) {
 	})
 }
 
+func TestGetPullRequest(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	notCompleted := false
+	pullRequest1, err := GetOrCreatePullRequest(
+		db,
+		userID,
+		"123abc",
+		"foobar_source",
+		&PullRequest{
+			IDExternal:  "123abc",
+			SourceID:    "foobar_source",
+			UserID:      userID,
+			IsCompleted: &notCompleted,
+		},
+	)
+	assert.NoError(t, err)
+
+	t.Run("WrongID", func(t *testing.T) {
+		pullRequest, err := GetPullRequest(db, primitive.NewObjectID(), userID)
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+		assert.Nil(t, pullRequest)
+	})
+	t.Run("WrongUserID", func(t *testing.T) {
+		pullRequest, err := GetPullRequest(db, pullRequest1.ID, primitive.NewObjectID())
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+		assert.Nil(t, pullRequest)
+	})
+	t.Run("Success", func(t *testing.T) {
+		pullRequest, err := GetPullRequest(db, pullRequest1.ID, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, pullRequest1.ID, pullRequest.ID)
+	})
+}
+
 func TestGetTaskByExternalIDWithoutUser(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
