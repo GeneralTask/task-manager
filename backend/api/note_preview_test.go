@@ -14,7 +14,7 @@ import (
 )
 
 func TestNotePreview(t *testing.T) {
-	authToken := login("test_notes_list@generaltask.com", "")
+	authToken := login("test_notes_preview@generaltask.com", "")
 	title1 := "title1"
 	title2 := "title2"
 
@@ -28,6 +28,7 @@ func TestNotePreview(t *testing.T) {
 		"123abc",
 		"foobar_source",
 		&database.Note{
+			Author:      "Elon",
 			UserID:      userID,
 			Title:       &title1,
 			SharedUntil: *testutils.CreateDateTime("9999-01-01"),
@@ -97,6 +98,10 @@ func TestNotePreview(t *testing.T) {
 
 	<meta property="og:title" content="title1" />
 	<meta name="twitter:title" content="title1">
+
+	<meta content="Note shared by Elon via General Task." property="og:description">
+	<meta content="Note shared by Elon via General Task." property="twitter:description">
+
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="http://localhost:8080/note/`+note1.ID.Hex()+`/" />
 </head>
