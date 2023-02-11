@@ -7,7 +7,7 @@ import { useCalendarContext } from '../calendar/CalendarContext'
 import CalendarView, { TCalendarType } from '../views/CalendarView'
 import NavigationView from '../views/NavigationView'
 
-const COLLAPSE_BREAKPOINT = 1500
+const COLLAPSE_BREAKPOINT = 1300
 
 const DefaultTemplateContainer = styled.div<{ $calendarType: TCalendarType; $showSidebar: boolean }>`
     display: grid;

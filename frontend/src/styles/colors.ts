@@ -1,8 +1,8 @@
 const WHITE = '#FFFFFF'
 const BLACK = '#000000'
 const GRAY = {
-    _50: '#FBFBFB',
-    _100: '#F0F3F7',
+    _50: '#FFFFFF',
+    _100: '#FFFFFF',
     _200: '#DADADA',
     _500: '#717179',
 }
@@ -11,8 +11,8 @@ const RED = {
     _2: '#F6C8CD',
 }
 const ORANGE = {
-    _1: '#FF8200',
-    _2: '#FFD7B3',
+    _1: '#F01D7F',
+    _2: '#F01D7F',
 }
 const YELLOW = {
     _1: '#FFBA0D',
@@ -23,14 +23,14 @@ const GREEN = {
     _2: '#CFDFCB',
 }
 const BLUE = {
-    _1: '#25BEFF',
-    _2: '#BEEBFF',
-    _3: '#405EFB',
+    _1: '#F01D7F',
+    _2: '#F01D7F',
+    _3: '#F01D7F',
 }
 const PURPLE = {
-    _1: '#5634CF',
-    _2: '#EEEBFA',
-    _3: '#E1D7FD33', // NOT IN DESIGN DOC (only used for drop indicator)
+    _1: '#F01D7F',
+    _2: '#F01D7F',
+    _3: '#F01D7F', // NOT IN DESIGN DOC (only used for drop indicator)
 }
 
 export const background = {

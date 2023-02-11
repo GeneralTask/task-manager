@@ -206,8 +206,8 @@ export const DayHeaderText = styled.div<{ isToday: boolean; isPreviewMode: boole
     ${Typography.body};
 `
 export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: boolean; hasLeftBorder: boolean }>`
-    min-width: 300px;
-    ${(props) => !props.isExpanded && `width: 300px;`}
+    min-width: 250px;
+    ${(props) => !props.isExpanded && `width: 250px;`}
     height: 100%;
     flex: ${(isExpanded) => (isExpanded ? '1' : '0')};
     background-color: ${Colors.background.medium};
