@@ -47,7 +47,7 @@ interface TCreateEventParams {
     date: DateTime
     linkedTask?: TTask
     linkedView?: TOverviewView
-    linkedPR?: TPullRequest
+    linkedPullRequest?: TPullRequest
     optimisticId: string
 }
 interface TCreateEventResponse {
@@ -128,7 +128,7 @@ export const useCreateEvent = () => {
             date,
             linkedTask,
             linkedView,
-            linkedPR,
+            linkedPullRequest,
             optimisticId,
         }: TCreateEventParams) => {
             const { events, blockStartTime } = queryClient.getCurrentEvents(
@@ -145,7 +145,7 @@ export const useCreateEvent = () => {
             let logo: TLogoImage
             if (linkedTask?.source.logo_v2) {
                 logo = linkedTask?.source.logo_v2
-            } else if (linkedPR) {
+            } else if (linkedPullRequest) {
                 logo = 'github'
             } else {
                 logo = 'gcal'
@@ -171,7 +171,7 @@ export const useCreateEvent = () => {
                 },
                 linked_task_id: linkedTask?.id ?? '',
                 linked_view_id: linkedView?.id ?? '',
-                linked_pull_request_id: linkedPR?.id ?? '',
+                linked_pull_request_id: linkedPullRequest?.id ?? '',
             }
 
             const newEvents = produce(events, (draft) => {

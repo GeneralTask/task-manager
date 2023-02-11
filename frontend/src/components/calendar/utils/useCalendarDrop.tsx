@@ -108,26 +108,13 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                     const converter = new showdown.Converter()
                     let description
 
-                    if (item.task) {
-                        if (item.task.nux_number_id) {
-                            // if this is a nux task, override body
-                            description = renderToString(
-                                <NuxTaskBodyStatic
-                                    nux_number_id={item.task.nux_number_id}
-                                    renderSettingsModal={false}
-                                />
-                            )
-                        } else {
-                            description = converter.makeHtml(item.task.body)
-                            if (description !== '') {
-                                description += '\n'
-                            }
-                            description = description.replaceAll('\n', '<br>')
-                            description +=
-                                '<a href="https://generaltask.com/" __is_owner="true">created by General Task</a>'
-                        }
-                    } else if (item.pullRequest) {
-                        description = converter.makeHtml(item.pullRequest.body)
+                    if (item.task?.nux_number_id) {
+                        // if this is a nux task, override body
+                        description = renderToString(
+                            <NuxTaskBodyStatic nux_number_id={item.task.nux_number_id} renderSettingsModal={false} />
+                        )
+                    } else {
+                        description = converter.makeHtml(droppableItem.body)
                         if (description !== '') {
                             description += '\n'
                         }
@@ -149,7 +136,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                         },
                         date,
                         linkedTask: item.task,
-                        linkedPR: item.pullRequest,
+                        linkedPullRequest: item.pullRequest,
                         optimisticId: uuidv4(),
                     })
                     break
