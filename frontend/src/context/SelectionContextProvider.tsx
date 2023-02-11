@@ -1,5 +1,6 @@
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
+import { TRASH_SECTION_ID } from '../constants'
 import { useGetTasks } from '../services/api/tasks.hooks'
 import { emptyFunction } from '../utils/utils'
 
@@ -44,6 +45,7 @@ export const SelectionContextProvider = ({ children }: SelectionContextProps) =>
         sectionId: string,
         currentlySelectedTaskId: string
     ) => {
+        if (sectionId === TRASH_SECTION_ID) return
         e.stopPropagation()
         e.preventDefault()
         if (e.metaKey) {
