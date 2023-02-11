@@ -5,6 +5,8 @@ import { TEvent } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 import { TCalendarType } from '../views/CalendarView'
 
+type TEventDetailType = 'create' | 'view'
+
 export interface ContextValues {
     date: DateTime
     dayViewDate: DateTime
@@ -14,6 +16,7 @@ export interface ContextValues {
     isCollapsed: boolean
     isTaskDraggingOverDetailsView: boolean
     selectedEvent: TEvent | null
+    eventDetailType: TEventDetailType
     isPopoverDisabled: boolean
     isTasksDueViewCollapsed: boolean
     disableSelectEvent: boolean
@@ -27,6 +30,7 @@ export interface ContextValues {
     setIsCollapsed: (isCollapsed: boolean) => void
     setIsTaskDraggingOverDetailsView: (isTaskDraggingOverDetailsView: boolean) => void
     setSelectedEvent: (event: TEvent | null) => void
+    setEventDetailType: (eventDetailType: TEventDetailType) => void
     setIsPopoverDisabled: React.Dispatch<React.SetStateAction<boolean>>
     setIsTasksDueViewCollapsed: React.Dispatch<React.SetStateAction<boolean>>
     setIsTasksOverdueViewCollapsed: React.Dispatch<React.SetStateAction<boolean>>
@@ -41,6 +45,7 @@ const CalendarContext = createContext<ContextValues>({
     isCollapsed: false,
     isTaskDraggingOverDetailsView: false,
     selectedEvent: null,
+    eventDetailType: 'view',
     isPopoverDisabled: false,
     isTasksDueViewCollapsed: false,
     disableSelectEvent: false,
@@ -54,6 +59,7 @@ const CalendarContext = createContext<ContextValues>({
     setIsCollapsed: emptyFunction,
     setIsTaskDraggingOverDetailsView: emptyFunction,
     setSelectedEvent: emptyFunction,
+    setEventDetailType: emptyFunction,
     setIsPopoverDisabled: emptyFunction,
     setIsTasksDueViewCollapsed: emptyFunction,
     setIsTasksOverdueViewCollapsed: emptyFunction,
@@ -73,6 +79,7 @@ export const CalendarContextProvider = (props: CalendarContextProviderProps) => 
     const [isCollapsed, setIsCollapsed] = useGTLocalStorage('calendarCollapsed', false)
     const [isTaskDraggingOverDetailsView, setIsTaskDraggingOverDetailsView] = useState<boolean>(false)
     const [selectedEvent, setSelectedEvent] = useState<TEvent | null>(null)
+    const [eventDetailType, setEventDetailType] = useState<TEventDetailType>('view')
     const [isPopoverDisabled, setIsPopoverDisabled] = useState<boolean>(!!props.isPopoverDisabled)
     const [isTasksDueViewCollapsed, setIsTasksDueViewCollapsed] = useGTLocalStorage('dueTodayCollapsed', false)
     const [isTasksOverdueViewCollapsed, setIsTasksOverdueViewCollapsed] = useGTLocalStorage('overdueCollapsed', false)
@@ -97,6 +104,7 @@ export const CalendarContextProvider = (props: CalendarContextProviderProps) => 
         isCollapsed,
         isTaskDraggingOverDetailsView,
         selectedEvent,
+        eventDetailType,
         isPopoverDisabled,
         isTasksDueViewCollapsed,
         disableSelectEvent: false,
@@ -110,6 +118,7 @@ export const CalendarContextProvider = (props: CalendarContextProviderProps) => 
         setIsCollapsed: collapseAndSetType,
         setIsTaskDraggingOverDetailsView,
         setSelectedEvent,
+        setEventDetailType,
         setIsPopoverDisabled,
         setIsTasksDueViewCollapsed,
         setIsTasksOverdueViewCollapsed,

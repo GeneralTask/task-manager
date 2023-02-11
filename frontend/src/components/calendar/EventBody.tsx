@@ -6,7 +6,6 @@ import { logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
 import { EdgeHighlight } from '../atoms/SelectableContainer'
 import FocusModeContextMenuWrapper from '../radix/EventBodyContextMenuWrapper'
-import EventDetailPopover from '../radix/EventDetailPopover'
 import { useCalendarContext } from './CalendarContext'
 import {
     CELL_HEIGHT_VALUE,
@@ -20,6 +19,7 @@ import {
     EventTitle,
 } from './CalendarEvents-styles'
 import ResizeHandle from './ResizeHandle'
+import EventDetailPopover from './eventDetails/EventDetailPopover'
 import { getCalendarColor } from './utils/utils'
 
 const LONG_EVENT_THRESHOLD = 60 // minutes

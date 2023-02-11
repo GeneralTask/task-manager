@@ -8,11 +8,14 @@ import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { getCalendarColor, getCalendarName } from './utils/utils'
 
 interface CalendarSelectorProps {
-    mode: 'task-to-cal' | 'cal-selection'
+    mode: 'task-to-cal' | 'cal-selection' | 'writeable-select'
     useTriggerWidth?: boolean
     renderTrigger: (calendar: TCalendar | undefined, accountId: string) => ReactNode
+    selectedAccount?: TCalendarAccount
+    selectedCalendar?: TCalendar
+    onSelect?: (account: TCalendarAccount, calendar: TCalendar) => void
 }
-const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSelectorProps) => {
+const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger, onSelect }: CalendarSelectorProps) => {
     const { data: calendars } = useGetCalendars()
     const { isCalendarSelected, toggleCalendarSelection } = useSelectedCalendars()
     const { field_value: taskToCalAccount, updateSetting: setTaskToCalAccount } = useSetting(
@@ -34,6 +37,7 @@ const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSele
 
     const handleCalendarClick = useCallback(
         (account: TCalendarAccount, calendar: TCalendar) => {
+            onSelect?.(account, calendar)
             if (mode === 'task-to-cal') {
                 setTaskToCalAccount(account.account_id)
                 setTaskToCalCalendar(calendar.calendar_id)

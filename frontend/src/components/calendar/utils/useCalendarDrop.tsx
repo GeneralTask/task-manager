@@ -36,7 +36,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
     const { field_value: taskToCalAccount } = useSetting('calendar_account_id_for_new_tasks')
     const { field_value: taskToCalCalendar } = useSetting('calendar_calendar_id_for_new_tasks')
     const showConnectToast = useConnectGoogleAccountToast()
-    const { setSelectedEvent } = useCalendarContext()
+    const { setSelectedEvent, setEventDetailType } = useCalendarContext()
 
     const getTimeFromDropPosition = useCallback(
         (dropPosition: number) =>
@@ -309,6 +309,8 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
             }
             setEventPreview(newEvent)
             setIsCreatingNewEvent(true)
+            setEventDetailType('create')
+
             setSelectedEvent(newEvent)
         }
         eventsContainerRef.current?.addEventListener('click', handleClick)
