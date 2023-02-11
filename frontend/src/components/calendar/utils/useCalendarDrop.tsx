@@ -5,7 +5,7 @@ import { renderToString } from 'react-dom/server'
 import { DateTime } from 'luxon'
 import showdown from 'showdown'
 import { v4 as uuidv4 } from 'uuid'
-import { useSetting } from '../../../hooks'
+import { usePreviewMode, useSetting } from '../../../hooks'
 import { useCreateEvent, useModifyEvent } from '../../../services/api/events.hooks'
 import { getDiffBetweenISOTimes } from '../../../utils/time'
 import { DropItem, DropType, TEvent } from '../../../utils/types'
@@ -25,10 +25,13 @@ interface CalendarDropArgs {
 }
 
 const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: CalendarDropArgs) => {
+    const { isPreviewMode } = usePreviewMode()
     const { mutate: createEvent } = useCreateEvent()
     const { mutate: modifyEvent } = useModifyEvent()
     const [dropPreviewPosition, setDropPreviewPosition] = useState(0)
     const [eventPreview, setEventPreview] = useState<TEvent>()
+    const [isCreatingNewEvent, setIsCreatingNewEvent] = useState(false)
+
     const { field_value: taskToCalAccount } = useSetting('calendar_account_id_for_new_tasks')
     const { field_value: taskToCalCalendar } = useSetting('calendar_calendar_id_for_new_tasks')
     const showConnectToast = useConnectGoogleAccountToast()
@@ -56,8 +59,16 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
         }
     }, [eventPreview, dropPreviewPosition])
 
+    const getDropPosition = useCallback((yPos: number, offset = 0) => {
+        if (!eventsContainerRef.current) return 0
+
+        const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
+        const yPosInEventsContainer = yPos - eventsContainerOffset + eventsContainerRef.current.scrollTop - offset
+        return Math.floor(yPosInEventsContainer / EVENT_CREATION_INTERVAL_HEIGHT)
+    }, [])
+
     // returns index of 15 minute block on the calendar, i.e. 12 am is 0, 12:15 AM is 1, etc.
-    const getDropPosition = useCallback(
+    const getDropPositionFromMonitor = useCallback(
         (monitor: DropTargetMonitor) => {
             const clientOffset = monitor.getClientOffset()
             const itemType = monitor.getItemType()
@@ -78,10 +89,8 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                 mouseFromEventTopOffset -= EVENT_CREATION_INTERVAL_HEIGHT / 2
             }
             if (!eventsContainerRef?.current || !clientOffset || !primaryAccountID) return 0
-            const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
-            const yPosInEventsContainer =
-                clientOffset.y - eventsContainerOffset + eventsContainerRef.current.scrollTop - mouseFromEventTopOffset
-            return Math.floor(yPosInEventsContainer / EVENT_CREATION_INTERVAL_HEIGHT)
+
+            return getDropPosition(clientOffset.y, mouseFromEventTopOffset)
         },
         [primaryAccountID]
     )
@@ -93,7 +102,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                 showConnectToast()
                 return
             }
-            const dropPosition = getDropPosition(monitor)
+            const dropPosition = getDropPositionFromMonitor(monitor)
             const dropTime = getTimeFromDropPosition(dropPosition)
             switch (itemType) {
                 case DropType.WEEK_TASK_TO_CALENDAR_TASK:
@@ -212,10 +221,10 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                 DropType.OVERVIEW_VIEW_HEADER,
                 DropType.WEEK_TASK_TO_CALENDAR_TASK,
             ],
-            collect: (monitor) => primaryAccountID && monitor.isOver(),
+            collect: (monitor) => Boolean(primaryAccountID && monitor.isOver()),
             drop: onDrop,
             hover: (item, monitor) => {
-                const dropPosition = getDropPosition(monitor)
+                const dropPosition = getDropPositionFromMonitor(monitor)
                 const itemType = monitor.getItemType()
                 switch (itemType) {
                     case DropType.WEEK_TASK_TO_CALENDAR_TASK:
@@ -268,9 +277,49 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
 
     useEffect(() => {
         drop(eventsContainerRef)
-    }, [eventsContainerRef])
+        if (!isPreviewMode) return
 
-    return { isOver, dropPreviewPosition, eventPreview: eventPreviewAtHoverTime }
+        const handleClick = (e: MouseEvent) => {
+            const dropPosition = getDropPosition(e.y)
+            setDropPreviewPosition(dropPosition)
+            const optimisticId = uuidv4()
+            const start = getTimeFromDropPosition(dropPreviewPosition)
+            const newEvent: TEvent = {
+                id: optimisticId,
+                optimisticId: optimisticId,
+                title: 'ahhh',
+                body: 'uhhh',
+                account_id: 'scott@generaltask.com',
+                calendar_id: 'scott@generaltask.com',
+                color_id: '',
+                logo: 'generaltask',
+                deeplink: '',
+                datetime_start: start.toISO(),
+                datetime_end: start.plus({ hour: 1 }).toISO(),
+                can_modify: true,
+                conference_call: {
+                    url: '',
+                    logo: '',
+                    platform: '',
+                },
+                linked_task_id: '',
+                linked_view_id: '',
+            }
+            setEventPreview(newEvent)
+            setIsCreatingNewEvent(true)
+        }
+        eventsContainerRef.current?.addEventListener('click', handleClick)
+        return () => {
+            eventsContainerRef.current?.removeEventListener('click', handleClick)
+        }
+    }, [eventsContainerRef, isPreviewMode])
+
+    return {
+        isOver,
+        dropPreviewPosition,
+        eventPreview: eventPreviewAtHoverTime,
+        isCreatingNewEvent: isCreatingNewEvent && isPreviewMode,
+    }
 }
 
 export default useCalendarDrop

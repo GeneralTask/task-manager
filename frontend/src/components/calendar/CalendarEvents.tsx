@@ -73,28 +73,28 @@ const CalendarTimeTable = () => {
 // WeekCalendarEvents are the events located in each day column
 // Gets called in CalendarEvents (down below)
 interface WeekCalendarEventsProps {
+    containerRef: React.RefObject<HTMLDivElement>
     date: DateTime
     groups: TEvent[][]
     primaryAccountID: string | undefined
 }
-const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEventsProps) => {
-    const eventsContainerRef = useRef<HTMLDivElement>(null)
+const WeekCalendarEvents = ({ containerRef, date, groups, primaryAccountID }: WeekCalendarEventsProps) => {
     const { calendarType } = useCalendarContext()
     const isWeekCalendar = calendarType === 'week'
-    const { isOver, dropPreviewPosition, eventPreview } = useCalendarDrop({
+    const { isOver, dropPreviewPosition, eventPreview, isCreatingNewEvent } = useCalendarDrop({
         primaryAccountID,
         date,
-        eventsContainerRef,
+        eventsContainerRef: containerRef,
     })
     const isToday = isDateToday(date)
 
     return (
-        <DayAndHeaderContainer ref={eventsContainerRef}>
+        <DayAndHeaderContainer>
             <DayContainer>
                 {groups.map((group, index) => (
                     <CollisionGroupColumns key={index} events={group} date={date} />
                 ))}
-                {isOver &&
+                {(isOver || isCreatingNewEvent) &&
                     (eventPreview ? (
                         <EventBody
                             event={eventPreview}
@@ -189,6 +189,7 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
             {allGroups.map((groups, dayOffset) => (
                 <WeekCalendarEvents
                     key={dayOffset}
+                    containerRef={scrollRef}
                     date={date.plus({ days: dayOffset })}
                     groups={groups}
                     primaryAccountID={primaryAccountID}
