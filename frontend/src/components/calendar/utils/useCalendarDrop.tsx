@@ -100,18 +100,21 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                 case DropType.SUBTASK:
                 case DropType.NON_REORDERABLE_TASK:
                 case DropType.DUE_TASK:
-                case DropType.TASK: {
-                    if (!item.task) return
+                case DropType.TASK:
+                case DropType.PULL_REQUEST: {
+                    const droppableItem = item.task ?? item.pullRequest
+                    if (!droppableItem) return
                     const end = dropTime.plus({ minutes: 30 })
                     const converter = new showdown.Converter()
                     let description
-                    if (item.task.nux_number_id) {
+
+                    if (item.task?.nux_number_id) {
                         // if this is a nux task, override body
                         description = renderToString(
                             <NuxTaskBodyStatic nux_number_id={item.task.nux_number_id} renderSettingsModal={false} />
                         )
                     } else {
-                        description = converter.makeHtml(item.task.body)
+                        description = converter.makeHtml(droppableItem.body)
                         if (description !== '') {
                             description += '\n'
                         }
@@ -119,18 +122,21 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                         description +=
                             '<a href="https://generaltask.com/" __is_owner="true">created by General Task</a>'
                     }
+
                     createEvent({
                         createEventPayload: {
                             account_id: taskToCalAccount,
                             calendar_id: taskToCalCalendar,
                             datetime_start: dropTime.toISO(),
                             datetime_end: end.toISO(),
-                            summary: item.task.title,
+                            summary: droppableItem.title,
                             description,
-                            task_id: item.task.id,
+                            task_id: item.task?.id ?? '',
+                            pr_id: item.pullRequest?.id ?? '',
                         },
                         date,
                         linkedTask: item.task,
+                        linkedPullRequest: item.pullRequest,
                         optimisticId: uuidv4(),
                     })
                     break
@@ -211,6 +217,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                 DropType.EVENT_RESIZE_HANDLE,
                 DropType.OVERVIEW_VIEW_HEADER,
                 DropType.WEEK_TASK_TO_CALENDAR_TASK,
+                DropType.PULL_REQUEST,
             ],
             collect: (monitor) => primaryAccountID && monitor.isOver(),
             drop: onDrop,
@@ -221,7 +228,8 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                     case DropType.WEEK_TASK_TO_CALENDAR_TASK:
                     case DropType.SUBTASK:
                     case DropType.NON_REORDERABLE_TASK:
-                    case DropType.TASK: {
+                    case DropType.TASK:
+                    case DropType.PULL_REQUEST: {
                         setEventPreview(undefined)
                         setDropPreviewPosition(dropPosition)
                         break
