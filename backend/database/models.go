@@ -227,7 +227,7 @@ type CalendarEvent struct {
 	CanModify           bool               `bson:"can_modify,omitempty"`
 	LinkedTaskID        primitive.ObjectID `bson:"linked_task_id,omitempty"`
 	LinkedViewID        primitive.ObjectID `bson:"linked_view_id,omitempty"`
-	LinkedPullRequestID primitive.ObjectID `bson:"linked_pr_id,omitempty"`
+	LinkedPullRequestID primitive.ObjectID `bson:"linked_pull_request_id,omitempty"`
 	LinkedSourceID      string             `bson:"linked_task_source_id,omitempty"`
 }
 
