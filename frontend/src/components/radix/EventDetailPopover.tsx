@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useEffect, useState } from 'react'
+import { ReactNode, useCallback } from 'react'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
@@ -33,18 +33,12 @@ interface EventDetailPopoverProps {
 }
 const EventDetailPopover = ({ event, date, hidePopover = false, children }: EventDetailPopoverProps) => {
     const toast = useToast()
-    const [isOpen, setIsOpen] = useState(false)
     const { selectedEvent, setSelectedEvent } = useCalendarContext()
     const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
     const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
     const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
     const navigateToTask = useNavigateToTask()
     const { data: calendars } = useGetCalendars()
-
-    useEffect(() => {
-        if (isOpen || hidePopover) return
-        setSelectedEvent(null)
-    }, [isOpen])
 
     const onDelete = useCallback(() => {
         deleteEventInCache({
@@ -96,17 +90,13 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
         )
     }
 
-    useKeyboardShortcut(
-        'close',
-        useCallback(() => setIsOpen(false), [])
-    )
     useKeyboardShortcut('deleteCalendarEvent', onDelete, event.id !== selectedEvent?.id)
 
     const calendarAccount = calendars?.find((c) => c.account_id === event.account_id)
     const calendar = calendarAccount?.calendars.find((c) => c.calendar_id === event.calendar_id)
 
     const content = (
-        <EventBoxStyle>
+        <EventBoxStyle onClick={(e) => e.stopPropagation()}>
             <EventHeader>
                 <Icon icon={logos[event.logo]} />
                 <EventHeaderIcons>
@@ -115,7 +105,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                             <Icon icon={icons.trash} />
                         </IconButton>
                     )}
-                    <IconButton onClick={() => setIsOpen(false)}>
+                    <IconButton onClick={() => setSelectedEvent(null)}>
                         <Icon icon={icons.x} />
                     </IconButton>
                 </EventHeaderIcons>
@@ -146,7 +136,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                         value="View task details"
                         fitContent={false}
                         onClick={() => {
-                            setIsOpen(false)
+                            setSelectedEvent(null)
                             navigateToTask(event.linked_task_id)
                         }}
                     />
@@ -179,11 +169,10 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
             )}
         </EventBoxStyle>
     )
-
     return (
         <GTPopover
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
+            isOpen={selectedEvent?.id === event.id}
+            setIsOpen={(isOpen) => setSelectedEvent(isOpen ? event : null)}
             content={hidePopover ? undefined : content}
             side="left"
             trigger={children}

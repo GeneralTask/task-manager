@@ -35,7 +35,7 @@ interface EventBodyProps {
 }
 function EventBody(props: EventBodyProps): JSX.Element {
     const { isPreviewMode } = usePreviewMode()
-    const { selectedEvent, setSelectedEvent, isPopoverDisabled, disableSelectEvent } = useCalendarContext()
+    const { selectedEvent, isPopoverDisabled, disableSelectEvent } = useCalendarContext()
     const startTime = DateTime.fromISO(props.event.datetime_start)
     const endTime = DateTime.fromISO(props.event.datetime_end)
     const { data: calendars } = useGetCalendars()
@@ -77,12 +77,8 @@ function EventBody(props: EventBodyProps): JSX.Element {
             : 'medium'
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
 
-    const onClick = () => {
-        if (disableSelectEvent) return
-        setSelectedEvent(props.event)
-    }
     return (
-        <div>
+        <div onClick={(e) => e.stopPropagation()}>
             <FocusModeContextMenuWrapper event={props.event}>
                 <EventBodyStyle
                     key={props.event.id}
@@ -94,7 +90,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     isBeingDragged={props.isBeingDragged}
                     isDisabled={disableSelectEvent}
                 >
-                    <EventInfoContainer onClick={onClick}>
+                    <EventInfoContainer>
                         <EventDetailPopover event={props.event} date={props.date} hidePopover={isPopoverDisabled}>
                             <EventInfo type={eventType}>
                                 <EventIconAndTitle>

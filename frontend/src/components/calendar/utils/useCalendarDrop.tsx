@@ -10,6 +10,7 @@ import { useCreateEvent, useModifyEvent } from '../../../services/api/events.hoo
 import { getDiffBetweenISOTimes } from '../../../utils/time'
 import { DropItem, DropType, TEvent } from '../../../utils/types'
 import { NuxTaskBodyStatic } from '../../details/NUXTaskBody'
+import { useCalendarContext } from '../CalendarContext'
 import {
     CELL_HEIGHT_VALUE,
     EVENT_CREATION_INTERVAL_HEIGHT,
@@ -35,6 +36,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
     const { field_value: taskToCalAccount } = useSetting('calendar_account_id_for_new_tasks')
     const { field_value: taskToCalCalendar } = useSetting('calendar_calendar_id_for_new_tasks')
     const showConnectToast = useConnectGoogleAccountToast()
+    const { setSelectedEvent } = useCalendarContext()
 
     const getTimeFromDropPosition = useCallback(
         (dropPosition: number) =>
@@ -307,6 +309,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
             }
             setEventPreview(newEvent)
             setIsCreatingNewEvent(true)
+            setSelectedEvent(newEvent)
         }
         eventsContainerRef.current?.addEventListener('click', handleClick)
         return () => {
