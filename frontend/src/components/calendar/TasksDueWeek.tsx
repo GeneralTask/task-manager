@@ -45,8 +45,11 @@ const TasksDueWeek = ({ date }: TasksDueWeekProps) => {
 
     const tasksDueWeek = useMemo(() => {
         const allTasks = taskSections?.flatMap((section) => section.tasks) ?? []
+        const nonDeletedTasks = allTasks.filter((task) => !task.is_deleted)
         return [...Array(7)].map((_, offset) =>
-            allTasks.filter((task) => DateTime.fromISO(task.due_date).hasSame(date.plus({ days: offset }), 'day'))
+            nonDeletedTasks.filter((task) =>
+                DateTime.fromISO(task.due_date).hasSame(date.plus({ days: offset }), 'day')
+            )
         )
     }, [taskSections, date])
 

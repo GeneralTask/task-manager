@@ -4,7 +4,7 @@ import { DateTime } from 'luxon'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
 import { TNote } from '../../utils/types'
-import { getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 
 export interface TCreateNoteData {
     title: string
@@ -58,7 +58,7 @@ const getNotes = async ({ signal }: QueryFunctionContext) => {
 export const useCreateNote = () => {
     const queryClient = useGTQueryClient()
     const { setOptimisticId } = useQueryContext()
-    return useQueuedMutation((data: TCreateNoteData) => createNote(data), {
+    return useGTMutation((data: TCreateNoteData) => createNote(data), {
         tag: 'notes',
         invalidateTagsOnSettled: ['notes'],
         onMutate: async (data: TCreateNoteData) => {
@@ -107,7 +107,7 @@ export const createNote = async (data: TCreateNoteData) => {
 
 export const useModifyNote = () => {
     const queryClient = useGTQueryClient()
-    return useQueuedMutation((data: TModifyNoteData) => modifyNote(data), {
+    return useGTMutation((data: TModifyNoteData) => modifyNote(data), {
         tag: 'notes',
         invalidateTagsOnSettled: ['notes'],
         onMutate: async (data: TModifyNoteData) => {

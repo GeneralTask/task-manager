@@ -152,7 +152,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                         }}
                     />
                 )}
-                {event.linked_pr_id && (
+                {event.linked_pull_request_id && (
                     <GTButton
                         styleType="secondary"
                         size="small"
@@ -160,7 +160,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                         fitContent={false}
                         onClick={() => {
                             setIsOpen(false)
-                            navigateToPullRequest(event.linked_pr_id)
+                            navigateToPullRequest(event.linked_pull_request_id)
                         }}
                     />
                 )}

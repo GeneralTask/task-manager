@@ -60,16 +60,17 @@ interface MutationOptions<TData, TError, TVariables, TContext>
     invalidateTagsOnSettled?: QueryKey[]
 }
 
-export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables = void, TContext = unknown>(
+export const useGTMutation = <TData = unknown, TError = unknown, TVariables = void, TContext = unknown>(
     mutationFn: MutationFunction<TData, TVariables>,
-    mutationOptions: MutationOptions<TData, TError, TVariables, TContext>
+    mutationOptions: MutationOptions<TData, TError, TVariables, TContext>,
+    useQueueing = true
 ) => {
     const queryClient = useGTQueryClient()
     const { getQueryQueue, getLastSentQuery, setLastSentQuery, getIdFromOptimisticId } = useQueryContext()
 
     const { mutate, ...rest } = useMutation(mutationFn, {
         ...mutationOptions,
-        onMutate: emptyFunction,
+        onMutate: useQueueing ? emptyFunction : mutationOptions.onMutate,
         onSettled: async (data, error, variables, context) => {
             mutationOptions.onSettled?.(data, error, variables, context)
             const queue = getQueryQueue(mutationOptions.tag)

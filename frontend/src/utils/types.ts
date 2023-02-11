@@ -153,7 +153,7 @@ export interface TEvent {
     conference_call: TConferenceCall
     linked_task_id: string
     linked_view_id: string
-    linked_pr_id: string
+    linked_pull_request_id: string
 }
 
 export interface TMeetingBanner {

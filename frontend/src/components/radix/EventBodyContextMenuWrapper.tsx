@@ -70,12 +70,12 @@ const FocusModeContextMenuWrapper = ({ event, children }: FocusModeContextMenuPr
                   },
               ]
             : []),
-        ...(event.linked_pr_id
+        ...(event.linked_pull_request_id
             ? [
                   {
                       label: 'View PR details',
                       icon: logos.github,
-                      onClick: () => navigateToPullRequest(event.linked_pr_id),
+                      onClick: () => navigateToPullRequest(event.linked_pull_request_id),
                   },
               ]
             : []),

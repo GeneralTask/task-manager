@@ -37,20 +37,20 @@ type Attendee struct {
 }
 
 type EventCreateObject struct {
-	ID                primitive.ObjectID `json:"id,omitempty"`
-	AccountID         string             `json:"account_id" binding:"required"`
-	CalendarID        string             `json:"calendar_id"`
-	Summary           string             `json:"summary,omitempty"`
-	Location          string             `json:"location,omitempty"`
-	Description       string             `json:"description,omitempty"`
-	TimeZone          string             `json:"time_zone,omitempty"`
-	DatetimeStart     *time.Time         `json:"datetime_start" binding:"required"`
-	DatetimeEnd       *time.Time         `json:"datetime_end" binding:"required"`
-	Attendees         []Attendee         `json:"attendees,omitempty"`
-	AddConferenceCall bool               `json:"add_conference_call,omitempty"`
-	LinkedTaskID      primitive.ObjectID `json:"task_id,omitempty"`
-	LinkedViewID      primitive.ObjectID `json:"view_id,omitempty"`
-	LinkedPRID        primitive.ObjectID `json:"pr_id,omitempty"`
+	ID                  primitive.ObjectID `json:"id,omitempty"`
+	AccountID           string             `json:"account_id" binding:"required"`
+	CalendarID          string             `json:"calendar_id"`
+	Summary             string             `json:"summary,omitempty"`
+	Location            string             `json:"location,omitempty"`
+	Description         string             `json:"description,omitempty"`
+	TimeZone            string             `json:"time_zone,omitempty"`
+	DatetimeStart       *time.Time         `json:"datetime_start" binding:"required"`
+	DatetimeEnd         *time.Time         `json:"datetime_end" binding:"required"`
+	Attendees           []Attendee         `json:"attendees,omitempty"`
+	AddConferenceCall   bool               `json:"add_conference_call,omitempty"`
+	LinkedTaskID        primitive.ObjectID `json:"task_id,omitempty"`
+	LinkedViewID        primitive.ObjectID `json:"view_id,omitempty"`
+	LinkedPullRequestID primitive.ObjectID `json:"pr_id,omitempty"`
 }
 
 type EventModifyObject struct {

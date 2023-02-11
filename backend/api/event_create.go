@@ -49,12 +49,12 @@ func (api *API) EventCreate(c *gin.Context) {
 		}
 	}
 
-	if eventCreateObject.LinkedPRID != primitive.NilObjectID {
+	if eventCreateObject.LinkedPullRequestID != primitive.NilObjectID {
 		// check that the task exists
-		linkedPR, err := database.GetPullRequest(api.DB, eventCreateObject.LinkedPRID, userID)
+		linkedPR, err := database.GetPullRequest(api.DB, eventCreateObject.LinkedPullRequestID, userID)
 		if err != nil {
-			api.Logger.Error().Err(err).Msgf("linked PR not found: %s, err", eventCreateObject.LinkedPRID.Hex())
-			c.JSON(400, gin.H{"detail": fmt.Sprintf("linked PR not found: %s", eventCreateObject.LinkedPRID.Hex())})
+			api.Logger.Error().Err(err).Msgf("linked PR not found: %s, err", eventCreateObject.LinkedPullRequestID.Hex())
+			c.JSON(400, gin.H{"detail": fmt.Sprintf("linked PR not found: %s", eventCreateObject.LinkedPullRequestID.Hex())})
 			return
 		}
 		linkedSourceID = linkedPR.SourceID
@@ -72,18 +72,18 @@ func (api *API) EventCreate(c *gin.Context) {
 	}
 
 	event := database.CalendarEvent{
-		UserID:          userID,
-		IDExternal:      externalEventID.Hex(),
-		SourceID:        sourceID,
-		SourceAccountID: eventCreateObject.AccountID,
-		Title:           eventCreateObject.Summary,
-		Body:            eventCreateObject.Description,
-		DatetimeEnd:     primitive.NewDateTimeFromTime(*eventCreateObject.DatetimeEnd),
-		DatetimeStart:   primitive.NewDateTimeFromTime(*eventCreateObject.DatetimeStart),
-		LinkedTaskID:    eventCreateObject.LinkedTaskID,
-		LinkedViewID:    eventCreateObject.LinkedViewID,
-		LinkedPRID:      eventCreateObject.LinkedPRID,
-		LinkedSourceID:  linkedSourceID,
+		UserID:              userID,
+		IDExternal:          externalEventID.Hex(),
+		SourceID:            sourceID,
+		SourceAccountID:     eventCreateObject.AccountID,
+		Title:               eventCreateObject.Summary,
+		Body:                eventCreateObject.Description,
+		DatetimeEnd:         primitive.NewDateTimeFromTime(*eventCreateObject.DatetimeEnd),
+		DatetimeStart:       primitive.NewDateTimeFromTime(*eventCreateObject.DatetimeStart),
+		LinkedTaskID:        eventCreateObject.LinkedTaskID,
+		LinkedViewID:        eventCreateObject.LinkedViewID,
+		LinkedPullRequestID: eventCreateObject.LinkedPullRequestID,
+		LinkedSourceID:      linkedSourceID,
 	}
 
 	insertedEvent, err := database.UpdateOrCreateCalendarEvent(

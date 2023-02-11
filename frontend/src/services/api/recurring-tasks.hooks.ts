@@ -7,7 +7,7 @@ import apiClient from '../../utils/api'
 import { RecurrenceRate } from '../../utils/enums'
 import { TRecurringTaskTemplate, TTaskSection } from '../../utils/types'
 import { getTaskFromSections } from '../../utils/utils'
-import { getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 import { useModifyTask } from './tasks.hooks'
 
 interface TCreateRecurringTaskPayload {
@@ -65,7 +65,7 @@ export const useCreateRecurringTask = () => {
     const { setOptimisticId } = useQueryContext()
     const { mutate: modifyTask } = useModifyTask()
 
-    return useQueuedMutation((payload: TCreateRecurringTaskPayload) => createRecurringTask(payload), {
+    return useGTMutation((payload: TCreateRecurringTaskPayload) => createRecurringTask(payload), {
         tag: 'recurring-tasks',
         invalidateTagsOnSettled: ['recurring-tasks'],
         onMutate: async (payload) => {
@@ -135,7 +135,7 @@ const createRecurringTask = async (payload: TCreateRecurringTaskPayload) => {
 export const useModifyRecurringTask = () => {
     const queryClient = useGTQueryClient()
 
-    return useQueuedMutation((payload: TModifyRecurringTaskPayload) => modifyRecurringTask(payload), {
+    return useGTMutation((payload: TModifyRecurringTaskPayload) => modifyRecurringTask(payload), {
         tag: 'recurring-tasks',
         invalidateTagsOnSettled: ['recurring-tasks'],
         onMutate: async (payload) => {

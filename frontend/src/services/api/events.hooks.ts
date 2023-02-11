@@ -9,7 +9,7 @@ import { useGTLocalStorage } from '../../hooks'
 import { TLogoImage } from '../../styles/images'
 import apiClient from '../../utils/api'
 import { TCalendar, TCalendarAccount, TEvent, TOverviewView, TPullRequest, TTask } from '../../utils/types'
-import { getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 
 interface TEventAttendee {
     name: string
@@ -120,7 +120,7 @@ export const useCreateEvent = () => {
         selectedEventRef.current = selectedEvent
     }, [selectedEvent])
 
-    return useQueuedMutation(({ createEventPayload }: TCreateEventParams) => createEvent(createEventPayload), {
+    return useGTMutation(({ createEventPayload }: TCreateEventParams) => createEvent(createEventPayload), {
         tag: 'events',
         invalidateTagsOnSettled: ['events'],
         onMutate: ({
@@ -171,7 +171,7 @@ export const useCreateEvent = () => {
                 },
                 linked_task_id: linkedTask?.id ?? '',
                 linked_view_id: linkedView?.id ?? '',
-                linked_pr_id: linkedPR?.id ?? '',
+                linked_pull_request_id: linkedPR?.id ?? '',
             }
 
             const newEvents = produce(events, (draft) => {
@@ -216,7 +216,7 @@ const createEvent = async (data: TCreateEventPayload) => {
 
 export const useDeleteEvent = () => {
     const queryClient = useGTQueryClient()
-    const useMutationResult = useQueuedMutation((data: TDeleteEventData) => deleteEvent(data.id), {
+    const useMutationResult = useGTMutation((data: TDeleteEventData) => deleteEvent(data.id), {
         tag: 'events',
         invalidateTagsOnSettled: ['events'],
         onMutate: (data: TDeleteEventData) => {
@@ -272,7 +272,7 @@ const deleteEvent = async (eventId: string) => {
 export const useModifyEvent = () => {
     const queryClient = useGTQueryClient()
 
-    return useQueuedMutation((data: TModifyEventData) => modifyEvent(data), {
+    return useGTMutation((data: TModifyEventData) => modifyEvent(data), {
         tag: 'events',
         invalidateTagsOnSettled: ['events'],
         onMutate: ({ event, payload, date }: TModifyEventData) => {

@@ -21,22 +21,22 @@ type EventListParams struct {
 }
 
 type EventResult struct {
-	ID             primitive.ObjectID   `json:"id"`
-	AccountID      string               `json:"account_id"`
-	CalendarID     string               `json:"calendar_id"`
-	ColorID        string               `json:"color_id"`
-	Deeplink       string               `json:"deeplink"`
-	Title          string               `json:"title"`
-	Body           string               `json:"body"`
-	Location       string               `json:"location"`
-	CanModify      bool                 `json:"can_modify"`
-	ConferenceCall utils.ConferenceCall `json:"conference_call"`
-	DatetimeEnd    primitive.DateTime   `json:"datetime_end,omitempty"`
-	DatetimeStart  primitive.DateTime   `json:"datetime_start,omitempty"`
-	LinkedTaskID   string               `json:"linked_task_id"`
-	LinkedViewID   string               `json:"linked_view_id"`
-	LinkedPRID     string               `json:"linked_pr_id"`
-	Logo           string               `json:"logo"`
+	ID                  primitive.ObjectID   `json:"id"`
+	AccountID           string               `json:"account_id"`
+	CalendarID          string               `json:"calendar_id"`
+	ColorID             string               `json:"color_id"`
+	Deeplink            string               `json:"deeplink"`
+	Title               string               `json:"title"`
+	Body                string               `json:"body"`
+	Location            string               `json:"location"`
+	CanModify           bool                 `json:"can_modify"`
+	ConferenceCall      utils.ConferenceCall `json:"conference_call"`
+	DatetimeEnd         primitive.DateTime   `json:"datetime_end,omitempty"`
+	DatetimeStart       primitive.DateTime   `json:"datetime_start,omitempty"`
+	LinkedTaskID        string               `json:"linked_task_id"`
+	LinkedViewID        string               `json:"linked_view_id"`
+	LinkedPullRequestID string               `json:"linked_pull_request_id"`
+	Logo                string               `json:"logo"`
 }
 
 func (api *API) EventsList(c *gin.Context) {
@@ -129,8 +129,8 @@ func (api *API) EventsList(c *gin.Context) {
 				linkedViewID = event.LinkedViewID.Hex()
 			}
 			var linkedPRID string
-			if event.LinkedPRID != primitive.NilObjectID {
-				linkedPRID = event.LinkedPRID.Hex()
+			if event.LinkedPullRequestID != primitive.NilObjectID {
+				linkedPRID = event.LinkedPullRequestID.Hex()
 				if event.LinkedSourceID != "" {
 					taskSourceResult, _ = api.ExternalConfig.GetSourceResult(event.LinkedSourceID)
 					logo = taskSourceResult.Details.LogoV2
@@ -155,10 +155,10 @@ func (api *API) EventsList(c *gin.Context) {
 					Platform: event.CallPlatform,
 					URL:      event.CallURL,
 				},
-				Logo:         logo,
-				LinkedTaskID: linkedTaskID,
-				LinkedViewID: linkedViewID,
-				LinkedPRID:   linkedPRID,
+				Logo:                logo,
+				LinkedTaskID:        linkedTaskID,
+				LinkedViewID:        linkedViewID,
+				LinkedPullRequestID: linkedPRID,
 			})
 		}
 		err := api.adjustForCompletedEvents(userID, &calendarEvents, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd)

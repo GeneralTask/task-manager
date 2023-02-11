@@ -220,15 +220,15 @@ type CalendarEvent struct {
 	DatetimeEnd     primitive.DateTime `bson:"datetime_end,omitempty"`
 	DatetimeStart   primitive.DateTime `bson:"datetime_start,omitempty"`
 	//time in nanoseconds
-	TimeAllocation int64              `bson:"time_allocated"`
-	CallLogo       string             `bson:"call_logo,omitempty"`
-	CallPlatform   string             `bson:"call_platform,omitempty"`
-	CallURL        string             `bson:"call_url,omitempty"`
-	CanModify      bool               `bson:"can_modify,omitempty"`
-	LinkedTaskID   primitive.ObjectID `bson:"linked_task_id,omitempty"`
-	LinkedViewID   primitive.ObjectID `bson:"linked_view_id,omitempty"`
-	LinkedPRID     primitive.ObjectID `bson:"linked_pr_id,omitempty"`
-	LinkedSourceID string             `bson:"linked_task_source_id,omitempty"`
+	TimeAllocation      int64              `bson:"time_allocated"`
+	CallLogo            string             `bson:"call_logo,omitempty"`
+	CallPlatform        string             `bson:"call_platform,omitempty"`
+	CallURL             string             `bson:"call_url,omitempty"`
+	CanModify           bool               `bson:"can_modify,omitempty"`
+	LinkedTaskID        primitive.ObjectID `bson:"linked_task_id,omitempty"`
+	LinkedViewID        primitive.ObjectID `bson:"linked_view_id,omitempty"`
+	LinkedPullRequestID primitive.ObjectID `bson:"linked_pull_request_id,omitempty"`
+	LinkedSourceID      string             `bson:"linked_task_source_id,omitempty"`
 }
 
 type MeetingPreparationParams struct {
