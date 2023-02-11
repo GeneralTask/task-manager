@@ -23,7 +23,7 @@ const DueTodayViewItems = forwardRef(
                             <Task
                                 key={item.id}
                                 task={item as TTask}
-                                dragDisabled={true}
+                                dragDisabled={false}
                                 index={index}
                                 isSelected={overviewViewId === view.id && overviewItemId === item.id}
                                 sectionScrollingRef={scrollRef}
