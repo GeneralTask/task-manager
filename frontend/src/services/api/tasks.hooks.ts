@@ -424,137 +424,141 @@ const modifyTask = async (data: TModifyTaskData) => {
     }
 }
 
-export const useMarkTaskDoneOrDeleted = () => {
+export const useMarkTaskDoneOrDeleted = (useQueueing = true) => {
     const queryClient = useGTQueryClient()
     const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
     const navigate = useNavigate()
     const { setOpenListIds } = useOverviewContext()
 
-    return useGTMutation((data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data), {
-        tag: 'tasks',
-        invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
-        onMutate: async (data: TMarkTaskDoneOrDeletedData) => {
-            await Promise.all([
-                queryClient.cancelQueries('tasks'),
-                queryClient.cancelQueries('tasks_v4'),
-                queryClient.cancelQueries('overview'),
-            ])
-            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-            const tasks_v4 = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
-            const lists = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+    return useGTMutation(
+        (data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data),
+        {
+            tag: 'tasks',
+            invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
+            onMutate: async (data: TMarkTaskDoneOrDeletedData) => {
+                await Promise.all([
+                    queryClient.cancelQueries('tasks'),
+                    queryClient.cancelQueries('tasks_v4'),
+                    queryClient.cancelQueries('overview'),
+                ])
+                const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+                const tasks_v4 = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
+                const lists = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
 
-            const updateSections = async () => {
-                if (sections) {
-                    const newSections = produce(sections, (draft) => {
+                const updateSections = async () => {
+                    if (sections) {
+                        const newSections = produce(sections, (draft) => {
+                            const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(
+                                draft,
+                                data.id,
+                                undefined,
+                                data.subtaskId
+                            )
+                            if (taskIndex === undefined || sectionIndex === undefined) return
+
+                            const task = draft[sectionIndex].tasks[taskIndex]
+                            if (data.subtaskId !== undefined) {
+                                if (subtaskIndex === undefined) return
+                                const subtask = task.sub_tasks?.[subtaskIndex]
+                                if (!subtask) return
+                                if (data.isDone !== undefined) subtask.is_done = data.isDone
+                                if (data.isDeleted !== undefined) {
+                                    subtask.is_deleted = data.isDeleted
+                                    draft[sectionIndex].tasks[taskIndex].sub_tasks?.splice(subtaskIndex, 1)
+                                    const trashSection = draft.find((section) => section.id === TRASH_SECTION_ID)
+                                    trashSection?.tasks.unshift(subtask)
+                                }
+                            } else {
+                                if (data.isDone !== undefined) task.is_done = data.isDone
+                                if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
+                                if (data.isDeleted) draft.find((s) => s.is_trash)?.tasks.unshift(task)
+                                if (data.isDone) draft.find((s) => s.is_done)?.tasks.unshift(task)
+                                draft[sectionIndex].tasks.splice(taskIndex, 1)
+                            }
+                        })
+                        if (data.waitForAnimation) {
+                            await sleep(TASK_MARK_AS_DONE_TIMEOUT)
+                        }
+                        queryClient.setQueryData('tasks', newSections)
+                    }
+                }
+                const updateTasks = async () => {
+                    if (tasks_v4) {
+                        const updatedTasks = produce(tasks_v4, (draft) => {
+                            const task = draft.find((task) => task.id === data.id)
+                            if (!task) return
+                            if (data.isDone !== undefined) task.is_done = data.isDone
+                            if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
+                        })
+                        if (data.waitForAnimation) {
+                            await sleep(TASK_MARK_AS_DONE_TIMEOUT)
+                        }
+                        queryClient.setQueryData('tasks_v4', updatedTasks)
+                    }
+                }
+                const updateOverviewPage = async () => {
+                    if (!lists) return
+                    const newLists = produce(lists, (draft) => {
+                        const sections = lists.map((view) => ({
+                            id: view.task_section_id,
+                            tasks: view.view_items,
+                        }))
                         const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(
-                            draft,
+                            sections,
                             data.id,
-                            undefined,
+                            data.sectionId,
                             data.subtaskId
                         )
-                        if (taskIndex === undefined || sectionIndex === undefined) return
-
-                        const task = draft[sectionIndex].tasks[taskIndex]
-                        if (data.subtaskId !== undefined) {
+                        if (sectionIndex === undefined || taskIndex === undefined) return
+                        const task = draft[sectionIndex].view_items[taskIndex]
+                        if (data.subtaskId) {
                             if (subtaskIndex === undefined) return
-                            const subtask = task.sub_tasks?.[subtaskIndex]
-                            if (!subtask) return
-                            if (data.isDone !== undefined) subtask.is_done = data.isDone
+                            if (!task.sub_tasks) return
+                            if (data.isDone !== undefined) task.sub_tasks[subtaskIndex].is_done = data.isDone
                             if (data.isDeleted !== undefined) {
-                                subtask.is_deleted = data.isDeleted
-                                draft[sectionIndex].tasks[taskIndex].sub_tasks?.splice(subtaskIndex, 1)
-                                const trashSection = draft.find((section) => section.id === TRASH_SECTION_ID)
-                                trashSection?.tasks.unshift(subtask)
+                                task.sub_tasks[subtaskIndex].is_deleted = data.isDeleted
+                                draft[sectionIndex].view_items[taskIndex].sub_tasks?.splice(subtaskIndex, 1)
                             }
                         } else {
                             if (data.isDone !== undefined) task.is_done = data.isDone
                             if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
-                            if (data.isDeleted) draft.find((s) => s.is_trash)?.tasks.unshift(task)
-                            if (data.isDone) draft.find((s) => s.is_done)?.tasks.unshift(task)
-                            draft[sectionIndex].tasks.splice(taskIndex, 1)
+                            draft[sectionIndex].view_items.splice(taskIndex, 1)
+                        }
+                        if (draft[sectionIndex].view_items.length === 0) {
+                            draft[sectionIndex].has_tasks_completed_today = true
+                        }
+                        if (overviewAutomaticEmptySort) {
+                            draft.sort((a, b) => {
+                                if (a.view_items.length === 0 && b.view_items.length > 0) return 1
+                                if (a.view_items.length > 0 && b.view_items.length === 0) return -1
+                                return 0
+                            })
                         }
                     })
                     if (data.waitForAnimation) {
                         await sleep(TASK_MARK_AS_DONE_TIMEOUT)
                     }
-                    queryClient.setQueryData('tasks', newSections)
-                }
-            }
-            const updateTasks = async () => {
-                if (tasks_v4) {
-                    const updatedTasks = produce(tasks_v4, (draft) => {
-                        const task = draft.find((task) => task.id === data.id)
-                        if (!task) return
-                        if (data.isDone !== undefined) task.is_done = data.isDone
-                        if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
-                    })
-                    if (data.waitForAnimation) {
-                        await sleep(TASK_MARK_AS_DONE_TIMEOUT)
-                    }
-                    queryClient.setQueryData('tasks_v4', updatedTasks)
-                }
-            }
-            const updateOverviewPage = async () => {
-                if (!lists) return
-                const newLists = produce(lists, (draft) => {
-                    const sections = lists.map((view) => ({
-                        id: view.task_section_id,
-                        tasks: view.view_items,
-                    }))
-                    const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(
-                        sections,
+
+                    queryClient.setQueryData('overview', newLists)
+
+                    if (window.location.pathname.split('/')[1] !== 'overview') return
+                    if (data.subtaskId) return
+                    navigateToNextItemAfterOverviewCompletion(
+                        lists as TOverviewView[],
+                        newLists as TOverviewView[],
                         data.id,
-                        data.sectionId,
-                        data.subtaskId
+                        navigate,
+                        setOpenListIds
                     )
-                    if (sectionIndex === undefined || taskIndex === undefined) return
-                    const task = draft[sectionIndex].view_items[taskIndex]
-                    if (data.subtaskId) {
-                        if (subtaskIndex === undefined) return
-                        if (!task.sub_tasks) return
-                        if (data.isDone !== undefined) task.sub_tasks[subtaskIndex].is_done = data.isDone
-                        if (data.isDeleted !== undefined) {
-                            task.sub_tasks[subtaskIndex].is_deleted = data.isDeleted
-                            draft[sectionIndex].view_items[taskIndex].sub_tasks?.splice(subtaskIndex, 1)
-                        }
-                    } else {
-                        if (data.isDone !== undefined) task.is_done = data.isDone
-                        if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
-                        draft[sectionIndex].view_items.splice(taskIndex, 1)
-                    }
-                    if (draft[sectionIndex].view_items.length === 0) {
-                        draft[sectionIndex].has_tasks_completed_today = true
-                    }
-                    if (overviewAutomaticEmptySort) {
-                        draft.sort((a, b) => {
-                            if (a.view_items.length === 0 && b.view_items.length > 0) return 1
-                            if (a.view_items.length > 0 && b.view_items.length === 0) return -1
-                            return 0
-                        })
-                    }
-                })
-                if (data.waitForAnimation) {
-                    await sleep(TASK_MARK_AS_DONE_TIMEOUT)
                 }
-
-                queryClient.setQueryData('overview', newLists)
-
-                if (window.location.pathname.split('/')[1] !== 'overview') return
-                if (data.subtaskId) return
-                navigateToNextItemAfterOverviewCompletion(
-                    lists as TOverviewView[],
-                    newLists as TOverviewView[],
-                    data.id,
-                    navigate,
-                    setOpenListIds
-                )
-            }
-            // execute in parallel if waiting for animation delay
-            updateSections()
-            updateTasks()
-            updateOverviewPage()
+                // execute in parallel if waiting for animation delay
+                updateSections()
+                updateTasks()
+                updateOverviewPage()
+            },
         },
-    })
+        useQueueing
+    )
 }
 export const markTaskDoneOrDeleted = async (data: TMarkTaskDoneOrDeletedData) => {
     const requestBody: TMarkTaskDoneOrDeletedRequestBody = {}

@@ -42,7 +42,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask } = useModifyTask()
-    const { mutate: markTaskDoneOrDeleted, mutateAsync } = useMarkTaskDoneOrDeleted()
+    const { mutate: markTaskDoneOrDeleted, mutateAsync } = useMarkTaskDoneOrDeleted(false)
     const [isRecurringTaskTemplateModalOpen, setIsRecurringTaskTemplateModalOpen] = useState(false)
     const { isInMultiSelectMode, selectedTaskIds, clearSelectedTaskIds } = useSelectionContext()
 
