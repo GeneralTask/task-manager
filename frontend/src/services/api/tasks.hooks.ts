@@ -24,7 +24,7 @@ import {
     resetOrderingIds,
     sleep,
 } from '../../utils/utils'
-import { GTQueryClient, getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { GTQueryClient, getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 import { createNewTaskV4Helper } from './tasksv4.hooks'
 
 export interface TCreateTaskData {
@@ -169,7 +169,7 @@ export const useCreateTask = () => {
     const { setOptimisticId } = useQueryContext()
     const navigate = useNavigate()
 
-    return useQueuedMutation((data: TCreateTaskData) => createTask(data), {
+    return useGTMutation((data: TCreateTaskData) => createTask(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TCreateTaskData) => {
@@ -337,7 +337,7 @@ const modifyTaskOptimisticUpdate = (task: TTask, data: TModifyTaskData) => {
 }
 export const useModifyTask = () => {
     const queryClient = useGTQueryClient()
-    return useQueuedMutation((data: TModifyTaskData) => modifyTask(data), {
+    return useGTMutation((data: TModifyTaskData) => modifyTask(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TModifyTaskData) => {
@@ -430,7 +430,7 @@ export const useMarkTaskDoneOrDeleted = () => {
     const navigate = useNavigate()
     const { setOpenListIds } = useOverviewContext()
 
-    return useQueuedMutation((data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data), {
+    return useGTMutation((data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TMarkTaskDoneOrDeletedData) => {
@@ -626,7 +626,7 @@ const reorderSubtasks = (data: TReorderTaskData, queryClient: GTQueryClient) => 
 
 export const useReorderTask = () => {
     const queryClient = useGTQueryClient()
-    return useQueuedMutation((data: TReorderTaskData) => reorderTask(data), {
+    return useGTMutation((data: TReorderTaskData) => reorderTask(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TReorderTaskData) => {
@@ -763,7 +763,7 @@ export const reorderTask = async (data: TReorderTaskData) => {
 
 export const usePostComment = () => {
     const queryClient = useGTQueryClient()
-    return useQueuedMutation((data: TPostCommentData) => postComment(data), {
+    return useGTMutation((data: TPostCommentData) => postComment(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TPostCommentData) => {

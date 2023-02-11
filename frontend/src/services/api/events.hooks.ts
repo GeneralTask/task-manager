@@ -8,7 +8,7 @@ import useQueryContext from '../../context/QueryContext'
 import { useGTLocalStorage } from '../../hooks'
 import apiClient from '../../utils/api'
 import { TCalendar, TCalendarAccount, TEvent, TOverviewView, TTask } from '../../utils/types'
-import { getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 
 interface TEventAttendee {
     name: string
@@ -117,7 +117,7 @@ export const useCreateEvent = () => {
         selectedEventRef.current = selectedEvent
     }, [selectedEvent])
 
-    return useQueuedMutation(({ createEventPayload }: TCreateEventParams) => createEvent(createEventPayload), {
+    return useGTMutation(({ createEventPayload }: TCreateEventParams) => createEvent(createEventPayload), {
         tag: 'events',
         invalidateTagsOnSettled: ['events'],
         onMutate: ({ createEventPayload, date, linkedTask, linkedView, optimisticId }: TCreateEventParams) => {
@@ -196,7 +196,7 @@ const createEvent = async (data: TCreateEventPayload) => {
 
 export const useDeleteEvent = () => {
     const queryClient = useGTQueryClient()
-    const useMutationResult = useQueuedMutation((data: TDeleteEventData) => deleteEvent(data.id), {
+    const useMutationResult = useGTMutation((data: TDeleteEventData) => deleteEvent(data.id), {
         tag: 'events',
         invalidateTagsOnSettled: ['events'],
         onMutate: (data: TDeleteEventData) => {
@@ -252,7 +252,7 @@ const deleteEvent = async (eventId: string) => {
 export const useModifyEvent = () => {
     const queryClient = useGTQueryClient()
 
-    return useQueuedMutation((data: TModifyEventData) => modifyEvent(data), {
+    return useGTMutation((data: TModifyEventData) => modifyEvent(data), {
         tag: 'events',
         invalidateTagsOnSettled: ['events'],
         onMutate: ({ event, payload, date }: TModifyEventData) => {
