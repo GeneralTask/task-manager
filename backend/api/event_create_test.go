@@ -107,7 +107,7 @@ func TestEventCreate(t *testing.T) {
 		assert.NoError(t, err)
 		prID := mongoResult.InsertedID.(primitive.ObjectID)
 		eventCreateObject := defaultEventCreateObject
-		eventCreateObject.LinkedPRID = prID
+		eventCreateObject.LinkedPullRequestID = prID
 
 		eventID := makeCreateRequest(t, &eventCreateObject, http.StatusCreated, "", url, authToken, api)
 		dbEvent, err := database.GetCalendarEvent(api.DB, eventID, userID)
@@ -156,7 +156,7 @@ func TestEventCreate(t *testing.T) {
 	t.Run("NonExistentLinkedPR", func(t *testing.T) {
 		eventCreateObject := defaultEventCreateObject
 		nonExistentLinkedPRID := primitive.NewObjectID()
-		eventCreateObject.LinkedPRID = nonExistentLinkedPRID
+		eventCreateObject.LinkedPullRequestID = nonExistentLinkedPRID
 		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, fmt.Sprintf(`{"detail":"linked PR not found: %s"}`, nonExistentLinkedPRID.Hex()), url, authToken, api)
 	})
 	t.Run("LinkedPRFromWrongUser", func(t *testing.T) {
@@ -169,7 +169,7 @@ func TestEventCreate(t *testing.T) {
 		assert.NoError(t, err)
 		prID := mongoResult.InsertedID.(primitive.ObjectID)
 		eventCreateObject := defaultEventCreateObject
-		eventCreateObject.LinkedPRID = prID
+		eventCreateObject.LinkedPullRequestID = prID
 		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, fmt.Sprintf(`{"detail":"linked PR not found: %s"}`, prID.Hex()), url, authToken, api)
 	})
 	t.Run("UnsupportedService", func(t *testing.T) {
@@ -203,7 +203,7 @@ func checkEventMatchesCreateObject(t *testing.T, event database.CalendarEvent, c
 	assert.Equal(t, primitive.NewDateTimeFromTime(*createObject.DatetimeEnd), event.DatetimeEnd)
 	assert.Equal(t, createObject.LinkedTaskID, event.LinkedTaskID)
 	assert.Equal(t, createObject.LinkedViewID, event.LinkedViewID)
-	assert.Equal(t, createObject.LinkedPRID, event.LinkedPRID)
+	assert.Equal(t, createObject.LinkedPullRequestID, event.LinkedPullRequestID)
 }
 
 func makeCreateRequest(t *testing.T, eventCreateObject *external.EventCreateObject, expectedStatus int, expectedErrorResponse string, url string, authToken string, api *API) primitive.ObjectID {

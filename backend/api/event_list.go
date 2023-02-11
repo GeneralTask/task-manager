@@ -129,8 +129,8 @@ func (api *API) EventsList(c *gin.Context) {
 				linkedViewID = event.LinkedViewID.Hex()
 			}
 			var linkedPRID string
-			if event.LinkedPRID != primitive.NilObjectID {
-				linkedPRID = event.LinkedPRID.Hex()
+			if event.LinkedPullRequestID != primitive.NilObjectID {
+				linkedPRID = event.LinkedPullRequestID.Hex()
 				if event.LinkedSourceID != "" {
 					taskSourceResult, _ = api.ExternalConfig.GetSourceResult(event.LinkedSourceID)
 					logo = taskSourceResult.Details.LogoV2
