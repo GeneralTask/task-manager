@@ -36,3 +36,8 @@ infrastructure/.terraform/*
 
 # Kube Config
 kube-manifests/kube_secrets.yaml
+
+# Encore config
+backend/.encore
+backend/encore.gen.go
+backend/encore.gen.cue

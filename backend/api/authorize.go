@@ -33,6 +33,7 @@ type Oauth2RedirectParams struct {
 // @Failure      404 {object} string "service not found"
 // @Failure      500 {object} string "internal server error"
 // @Router       /link/{service_name}/ [get]
+//encore:api public path=/link/:service_name
 func (api *API) Link(c *gin.Context) {
 	taskService, err := api.ExternalConfig.GetTaskServiceResult(c.Param("service_name"))
 	if err != nil {

@@ -24,6 +24,7 @@ import (
 const SentryDSN = "https://2b8b40065a7c480584a06774b22741d5@o1302719.ingest.sentry.io/6540750"
 
 // API is the object containing API route handlers
+//encore:service
 type API struct {
 	ExternalConfig      external.Config
 	SkipStateTokenCheck bool
