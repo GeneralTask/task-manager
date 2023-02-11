@@ -13,14 +13,14 @@ const fontSize = {
     s: '14px',
     m: '16px',
     l: '20px',
-    xl: '32px',
+    xl: '24px',
     xxl: '48px',
 }
 const lineHeight = {
     xs: '14px',
     s: '16px',
     m: '24px',
-    l: '40px',
+    l: '30px',
     xl: '56px',
 }
 const weight = {
