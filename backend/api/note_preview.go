@@ -43,6 +43,10 @@ func (api *API) NotePreview(c *gin.Context) {
 
 	<meta property="og:title" content="` + previewTitle + `" />
 	<meta name="twitter:title" content="` + previewTitle + `">
+
+	<meta content="Note shared by ` + note.Author + ` via General Task." property="og:description">
+	<meta content="Note shared by ` + note.Author + ` via General Task." property="twitter:description">
+
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="` + config.GetConfigValue("SERVER_URL") + "note/" + note.ID.Hex() + `/" />
 </head>
