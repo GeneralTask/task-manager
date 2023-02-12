@@ -40,7 +40,7 @@ interface TaskContextMenuProps {
 const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenChange }: TaskContextMenuProps) => {
     const { data: taskSections } = useGetTasks(false)
     const { mutate: createTask } = useCreateTask()
-    const { mutate: reorderTask } = useReorderTask()
+    const { mutate: reorderTask, mutateAsync: reorderTaskAsync } = useReorderTask(false)
     const { mutate: modifyTask, mutateAsync: modifyTaskAsync } = useModifyTask(false)
     const { mutate: markTaskDoneOrDeleted, mutateAsync } = useMarkTaskDoneOrDeleted(false)
     const [isRecurringTaskTemplateModalOpen, setIsRecurringTaskTemplateModalOpen] = useState(false)
@@ -202,6 +202,37 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
         },
     ]
     const multiSelectContextMenuItems: GTMenuItem[] = [
+        {
+            label: 'Move to folder',
+            icon: icons.folder,
+            subItems: taskSections
+                ? [
+                      ...taskSections
+                          .filter((s) => !s.is_done && !s.is_trash)
+                          .map((section) => ({
+                              label: section.name,
+                              icon: section.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
+                              selected: section.id === sectionId,
+                              onClick: () => {
+                                  const sectionTasks = taskSections?.find((s) => s.id === sectionId)?.tasks
+                                  if (!sectionTasks) return
+                                  const promises = selectedTaskIds.map((id) => {
+                                      const task = sectionTasks.find((t) => t.id === id)
+                                      if (!task) return
+                                      return reorderTaskAsync({
+                                          id: task.id,
+                                          dropSectionId: section.id,
+                                          dragSectionId: sectionId,
+                                          orderingId: 1,
+                                      })
+                                  })
+                                  clearSelectedTaskIds()
+                                  Promise.all(promises)
+                              },
+                          })),
+                  ]
+                : [],
+        },
         {
             label: 'Set due date',
             icon: icons.clock,

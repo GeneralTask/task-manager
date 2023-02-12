@@ -633,124 +633,128 @@ const reorderSubtasks = (data: TReorderTaskData, queryClient: GTQueryClient) => 
     }
 }
 
-export const useReorderTask = () => {
+export const useReorderTask = (useQueueing = true) => {
     const queryClient = useGTQueryClient()
-    return useGTMutation((data: TReorderTaskData) => reorderTask(data), {
-        tag: 'tasks',
-        invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
-        onMutate: async (data: TReorderTaskData) => {
-            await Promise.all([
-                queryClient.cancelQueries('overview-supported-views'),
-                queryClient.cancelQueries('overview'),
-                queryClient.cancelQueries('tasks'),
-                queryClient.cancelQueries('tasks_v4'),
-            ])
-            if (data.isSubtask) {
-                reorderSubtasks(data, queryClient)
-                return
-            }
-            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-            const tasks_v4 = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
-            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-            if (sections) {
-                const newSections = produce(sections, (draft) => {
-                    // move within the existing section
-                    if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
-                        const section = draft.find((s) => s.id === data.dropSectionId)
-                        if (section == null) return
-                        const startIndex = section.tasks.findIndex((t) => t.id === data.id)
-                        if (startIndex === -1) return
-                        let endIndex = data.orderingId - 1
-                        if (startIndex < endIndex) {
-                            endIndex -= 1
+    return useGTMutation(
+        (data: TReorderTaskData) => reorderTask(data),
+        {
+            tag: 'tasks',
+            invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
+            onMutate: async (data: TReorderTaskData) => {
+                await Promise.all([
+                    queryClient.cancelQueries('overview-supported-views'),
+                    queryClient.cancelQueries('overview'),
+                    queryClient.cancelQueries('tasks'),
+                    queryClient.cancelQueries('tasks_v4'),
+                ])
+                if (data.isSubtask) {
+                    reorderSubtasks(data, queryClient)
+                    return
+                }
+                const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+                const tasks_v4 = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
+                const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+                if (sections) {
+                    const newSections = produce(sections, (draft) => {
+                        // move within the existing section
+                        if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
+                            const section = draft.find((s) => s.id === data.dropSectionId)
+                            if (section == null) return
+                            const startIndex = section.tasks.findIndex((t) => t.id === data.id)
+                            if (startIndex === -1) return
+                            let endIndex = data.orderingId - 1
+                            if (startIndex < endIndex) {
+                                endIndex -= 1
+                            }
+                            arrayMoveInPlace(section.tasks, startIndex, endIndex)
+
+                            // update ordering ids
+                            resetOrderingIds(section.tasks)
                         }
-                        arrayMoveInPlace(section.tasks, startIndex, endIndex)
+                        // move task from one section to the other
+                        else {
+                            // remove task from old location
+                            const dragSection = draft.find((section) => section.id === data.dragSectionId)
+                            if (dragSection == null) return
+                            const dragTaskIndex = dragSection.tasks.findIndex((task) => task.id === data.id)
+                            if (dragTaskIndex === -1) return
+                            const dragTask = dragSection.tasks[dragTaskIndex]
+                            dragSection.tasks.splice(dragTaskIndex, 1)
 
-                        // update ordering ids
-                        resetOrderingIds(section.tasks)
-                    }
-                    // move task from one section to the other
-                    else {
-                        // remove task from old location
-                        const dragSection = draft.find((section) => section.id === data.dragSectionId)
-                        if (dragSection == null) return
-                        const dragTaskIndex = dragSection.tasks.findIndex((task) => task.id === data.id)
-                        if (dragTaskIndex === -1) return
-                        const dragTask = dragSection.tasks[dragTaskIndex]
-                        dragSection.tasks.splice(dragTaskIndex, 1)
+                            // change done/trash status if needed
+                            dragTask.is_done = data.dropSectionId === DONE_SECTION_ID
+                            dragTask.is_deleted = data.dropSectionId === TRASH_SECTION_ID
 
-                        // change done/trash status if needed
-                        dragTask.is_done = data.dropSectionId === DONE_SECTION_ID
-                        dragTask.is_deleted = data.dropSectionId === TRASH_SECTION_ID
+                            // add task to new location
+                            const dropSection = draft.find((section) => section.id === data.dropSectionId)
+                            if (dropSection == null) return
+                            dropSection.tasks.splice(data.orderingId - 1, 0, dragTask)
 
-                        // add task to new location
-                        const dropSection = draft.find((section) => section.id === data.dropSectionId)
-                        if (dropSection == null) return
-                        dropSection.tasks.splice(data.orderingId - 1, 0, dragTask)
-
-                        // update ordering ids
-                        resetOrderingIds(dropSection.tasks)
-                        resetOrderingIds(dragSection.tasks)
-                    }
-                })
-                queryClient.setQueryData('tasks', newSections)
-            }
-            if (tasks_v4) {
-                const updatedTasks = produce(tasks_v4, (draft) => {
-                    const task = draft.find((task) => task.id === data.id)
-                    if (!task) return
-                    task.id_ordering = data.orderingId
-                    task.id_folder = data.dropSectionId
-                    task.is_done = data.dropSectionId === DONE_SECTION_ID
-                    task.is_deleted = data.dropSectionId === TRASH_SECTION_ID
-                    const dropFolder = draft
-                        .filter((task) => task.id_folder === data.dropSectionId && !task.id_parent)
-                        .sort((a, b) => a.id_ordering - b.id_ordering)
-                    resetOrderingIds(dropFolder)
-                })
-                queryClient.setQueryData('tasks_v4', updatedTasks)
-            }
-            if (views) {
-                const newViews = produce(views, (draft) => {
-                    // move within the existing section
-                    if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
-                        const section = draft.find((view) => view.task_section_id === data.dropSectionId)
-                        if (section == null) return
-                        const startIndex = section.view_items.findIndex((t) => t.id === data.id)
-                        if (startIndex === -1) return
-                        let endIndex = data.orderingId - 1
-                        if (startIndex < endIndex) {
-                            endIndex -= 1
+                            // update ordering ids
+                            resetOrderingIds(dropSection.tasks)
+                            resetOrderingIds(dragSection.tasks)
                         }
-                        arrayMoveInPlace(section.view_items, startIndex, endIndex)
+                    })
+                    queryClient.setQueryData('tasks', newSections)
+                }
+                if (tasks_v4) {
+                    const updatedTasks = produce(tasks_v4, (draft) => {
+                        const task = draft.find((task) => task.id === data.id)
+                        if (!task) return
+                        task.id_ordering = data.orderingId
+                        task.id_folder = data.dropSectionId
+                        task.is_done = data.dropSectionId === DONE_SECTION_ID
+                        task.is_deleted = data.dropSectionId === TRASH_SECTION_ID
+                        const dropFolder = draft
+                            .filter((task) => task.id_folder === data.dropSectionId && !task.id_parent)
+                            .sort((a, b) => a.id_ordering - b.id_ordering)
+                        resetOrderingIds(dropFolder)
+                    })
+                    queryClient.setQueryData('tasks_v4', updatedTasks)
+                }
+                if (views) {
+                    const newViews = produce(views, (draft) => {
+                        // move within the existing section
+                        if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
+                            const section = draft.find((view) => view.task_section_id === data.dropSectionId)
+                            if (section == null) return
+                            const startIndex = section.view_items.findIndex((t) => t.id === data.id)
+                            if (startIndex === -1) return
+                            let endIndex = data.orderingId - 1
+                            if (startIndex < endIndex) {
+                                endIndex -= 1
+                            }
+                            arrayMoveInPlace(section.view_items, startIndex, endIndex)
 
-                        // update ordering ids
-                        resetOrderingIds(section.view_items)
-                    }
-                    // move task from one section to the other
-                    else {
-                        // remove task from old location
-                        const dragSection = draft.find((section) => section.task_section_id === data.dragSectionId)
-                        if (dragSection == null) return
-                        const dragTaskIndex = dragSection.view_items.findIndex((item) => item.id === data.id)
-                        if (dragTaskIndex === -1) return
-                        const dragTask = dragSection.view_items[dragTaskIndex]
-                        dragSection.view_items.splice(dragTaskIndex, 1)
+                            // update ordering ids
+                            resetOrderingIds(section.view_items)
+                        }
+                        // move task from one section to the other
+                        else {
+                            // remove task from old location
+                            const dragSection = draft.find((section) => section.task_section_id === data.dragSectionId)
+                            if (dragSection == null) return
+                            const dragTaskIndex = dragSection.view_items.findIndex((item) => item.id === data.id)
+                            if (dragTaskIndex === -1) return
+                            const dragTask = dragSection.view_items[dragTaskIndex]
+                            dragSection.view_items.splice(dragTaskIndex, 1)
 
-                        // add task to new location
-                        const dropSection = draft.find((section) => section.task_section_id === data.dropSectionId)
-                        if (dropSection == null) return
-                        dropSection.view_items.splice(data.orderingId - 1, 0, dragTask)
+                            // add task to new location
+                            const dropSection = draft.find((section) => section.task_section_id === data.dropSectionId)
+                            if (dropSection == null) return
+                            dropSection.view_items.splice(data.orderingId - 1, 0, dragTask)
 
-                        // update ordering ids
-                        resetOrderingIds(dropSection.view_items)
-                        resetOrderingIds(dragSection.view_items)
-                    }
-                })
-                queryClient.setQueryData('overview', newViews)
-            }
+                            // update ordering ids
+                            resetOrderingIds(dropSection.view_items)
+                            resetOrderingIds(dragSection.view_items)
+                        }
+                    })
+                    queryClient.setQueryData('overview', newViews)
+                }
+            },
         },
-    })
+        useQueueing
+    )
 }
 
 export const reorderTask = async (data: TReorderTaskData) => {
