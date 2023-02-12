@@ -253,7 +253,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
     return (
         <>
             <GTContextMenu
-                items={isInMultiSelectMode ? multiSelectContextMenuItems : contextMenuItems}
+                items={isInMultiSelectMode && !parentTask ? multiSelectContextMenuItems : contextMenuItems}
                 trigger={children}
                 onOpenChange={onOpenChange}
             />
