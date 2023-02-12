@@ -220,15 +220,6 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
                     })
                     clearSelectedTaskIds()
                     Promise.all(promises)
-
-                    // if (parentTask && task) {
-                    //     modifyTask(
-                    //         { id: parentTask.id, priorityNormalized: val, subtaskId: task.id },
-                    //         task.optimisticId
-                    //     )
-                    // } else {
-                    //     modifyTask({ id: task.id, priorityNormalized: val }, task.optimisticId)
-                    // }
                 },
             })),
         },
