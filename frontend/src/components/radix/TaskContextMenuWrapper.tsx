@@ -203,6 +203,34 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
     ]
     const multiSelectContextMenuItems: GTMenuItem[] = [
         {
+            label: 'Set due date',
+            icon: icons.clock,
+            subItems: [
+                {
+                    label: 'Calendar',
+                    renderer: () => (
+                        <GTDatePicker
+                            initialDate={DateTime.fromISO(task.due_date)}
+                            setDate={(date) => {
+                                const sectionTasks = taskSections?.find((s) => s.id === sectionId)?.tasks
+                                if (!sectionTasks) return
+                                const promises = selectedTaskIds.map((id) => {
+                                    const task = sectionTasks.find((t) => t.id === id)
+                                    if (!task) return
+                                    return modifyTaskAsync({
+                                        id: task.id,
+                                        dueDate: date,
+                                    })
+                                })
+                                Promise.all(promises)
+                            }}
+                            onlyCalendar
+                        />
+                    ),
+                },
+            ],
+        },
+        {
             label: 'Set priority',
             icon: icons.priority,
             subItems: TASK_PRIORITIES.map((priority, val) => ({
