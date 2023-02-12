@@ -335,70 +335,75 @@ const modifyTaskOptimisticUpdate = (task: TTask, data: TModifyTaskData) => {
         if (newPriority) task.priority = newPriority
     }
 }
-export const useModifyTask = () => {
+export const useModifyTask = (useQueueing = true) => {
     const queryClient = useGTQueryClient()
-    return useGTMutation((data: TModifyTaskData) => modifyTask(data), {
-        tag: 'tasks',
-        invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
-        onMutate: async (data: TModifyTaskData) => {
-            await Promise.all([
-                queryClient.cancelQueries('overview-supported-views'),
-                queryClient.cancelQueries('overview'),
-                queryClient.cancelQueries('tasks'),
-                queryClient.cancelQueries('tasks_v4'),
-            ])
+    return useGTMutation(
+        (data: TModifyTaskData) => modifyTask(data),
+        {
+            tag: 'tasks',
+            invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
+            onMutate: async (data: TModifyTaskData) => {
+                await Promise.all([
+                    queryClient.cancelQueries('overview-supported-views'),
+                    queryClient.cancelQueries('overview'),
+                    queryClient.cancelQueries('tasks'),
+                    queryClient.cancelQueries('tasks_v4'),
+                ])
 
-            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-            if (sections) {
-                const newSections = produce(sections, (draft) => {
-                    const task = getTaskFromSections(draft, data.id, undefined, data.subtaskId)
-                    if (!task) return
-                    modifyTaskOptimisticUpdate(task, data)
-                })
+                const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+                if (sections) {
+                    const newSections = produce(sections, (draft) => {
+                        const task = getTaskFromSections(draft, data.id, undefined, data.subtaskId)
+                        if (!task) return
+                        modifyTaskOptimisticUpdate(task, data)
+                    })
 
-                queryClient.setQueryData('tasks', newSections)
-            }
+                    queryClient.setQueryData('tasks', newSections)
+                }
 
-            const tasks_v4 = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
-            if (tasks_v4) {
-                const updatedTasks = produce(tasks_v4, (draft) => {
-                    const task = draft.find((task) => task.id === data.id)
-                    if (!task) return
-                    task.title = data.title || task.title
-                    task.due_date = data.dueDate ?? task.due_date
-                    task.body = data.body ?? task.body
-                    task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
-                    task.external_status = data.status ?? task.external_status
-                    task.recurring_task_template_id = data.recurringTaskTemplateId ?? task.recurring_task_template_id
-                    task.updated_at = DateTime.utc().toISO()
-                })
-                queryClient.setQueryData('tasks_v4', updatedTasks)
-            }
+                const tasks_v4 = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
+                if (tasks_v4) {
+                    const updatedTasks = produce(tasks_v4, (draft) => {
+                        const task = draft.find((task) => task.id === data.id)
+                        if (!task) return
+                        task.title = data.title || task.title
+                        task.due_date = data.dueDate ?? task.due_date
+                        task.body = data.body ?? task.body
+                        task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
+                        task.external_status = data.status ?? task.external_status
+                        task.recurring_task_template_id =
+                            data.recurringTaskTemplateId ?? task.recurring_task_template_id
+                        task.updated_at = DateTime.utc().toISO()
+                    })
+                    queryClient.setQueryData('tasks_v4', updatedTasks)
+                }
 
-            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-            if (views) {
-                const newViews = produce(views, (draft) => {
-                    for (const view of draft) {
-                        for (const task of view.view_items) {
-                            if (task.id === data.id) {
-                                if (data.subtaskId && task.sub_tasks) {
-                                    for (const subtask of task.sub_tasks) {
-                                        if (subtask.id === data.subtaskId) {
-                                            modifyTaskOptimisticUpdate(subtask, data)
+                const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+                if (views) {
+                    const newViews = produce(views, (draft) => {
+                        for (const view of draft) {
+                            for (const task of view.view_items) {
+                                if (task.id === data.id) {
+                                    if (data.subtaskId && task.sub_tasks) {
+                                        for (const subtask of task.sub_tasks) {
+                                            if (subtask.id === data.subtaskId) {
+                                                modifyTaskOptimisticUpdate(subtask, data)
+                                            }
                                         }
+                                    } else {
+                                        modifyTaskOptimisticUpdate(task, data)
                                     }
-                                } else {
-                                    modifyTaskOptimisticUpdate(task, data)
                                 }
                             }
                         }
-                    }
-                })
+                    })
 
-                queryClient.setQueryData('overview', newViews)
-            }
+                    queryClient.setQueryData('overview', newViews)
+                }
+            },
         },
-    })
+        useQueueing
+    )
 }
 const modifyTask = async (data: TModifyTaskData) => {
     const requestBody: TTaskModifyRequestBody = { task: {} }

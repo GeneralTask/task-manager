@@ -41,7 +41,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
     const { data: taskSections } = useGetTasks(false)
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderTask } = useReorderTask()
-    const { mutate: modifyTask } = useModifyTask()
+    const { mutate: modifyTask, mutateAsync: modifyTaskAsync } = useModifyTask(false)
     const { mutate: markTaskDoneOrDeleted, mutateAsync } = useMarkTaskDoneOrDeleted(false)
     const [isRecurringTaskTemplateModalOpen, setIsRecurringTaskTemplateModalOpen] = useState(false)
     const { isInMultiSelectMode, selectedTaskIds, clearSelectedTaskIds } = useSelectionContext()
@@ -202,6 +202,36 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
         },
     ]
     const multiSelectContextMenuItems: GTMenuItem[] = [
+        {
+            label: 'Set priority',
+            icon: icons.priority,
+            subItems: TASK_PRIORITIES.map((priority, val) => ({
+                label: priority.label,
+                icon: priority.icon,
+                selected: val === task.priority_normalized,
+                iconColor: priority.color,
+                onClick: () => {
+                    const sectionTasks = taskSections?.find((s) => s.id === sectionId)?.tasks
+                    if (!sectionTasks) return
+                    const promises = selectedTaskIds.map((id) => {
+                        const task = sectionTasks.find((t) => t.id === id)
+                        if (!task) return
+                        return modifyTaskAsync({ id: task.id, priorityNormalized: val })
+                    })
+                    clearSelectedTaskIds()
+                    Promise.all(promises)
+
+                    // if (parentTask && task) {
+                    //     modifyTask(
+                    //         { id: parentTask.id, priorityNormalized: val, subtaskId: task.id },
+                    //         task.optimisticId
+                    //     )
+                    // } else {
+                    //     modifyTask({ id: task.id, priorityNormalized: val }, task.optimisticId)
+                    // }
+                },
+            })),
+        },
         {
             label: 'Delete tasks',
             icon: icons.trash,
