@@ -84,10 +84,7 @@ const TaskSectionView = () => {
         })
     }, [section, selectedSort, selectedSortDirection, selectedFilter])
 
-    const task = useMemo(
-        () => sortedTasks.find(({ id }) => id === params.task) ?? (sortedTasks.length > 0 ? sortedTasks[0] : undefined),
-        [sortedTasks, params.task]
-    )
+    const task = useMemo(() => sortedTasks.find(({ id }) => id === params.task), [sortedTasks, params.task])
     const subtask = useMemo(() => task?.sub_tasks?.find(({ id }) => id === params.subtaskId), [task, params.subtaskId])
 
     const [taskIndex, setTaskIndex] = useState(0)
@@ -138,7 +135,7 @@ const TaskSectionView = () => {
                 navigate(`/tasks/${section.id}/${sortedTasks[0].id}`, { replace: true })
             }
         }
-    }, [taskSections, params.section, params.task])
+    }, [taskSections, params.section, params.task, sortedTasks])
 
     useItemSelectionController(sortedTasks, selectTask)
 

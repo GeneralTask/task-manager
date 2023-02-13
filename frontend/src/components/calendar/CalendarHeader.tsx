@@ -2,27 +2,20 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
-import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
+import { useKeyboardShortcut } from '../../hooks'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
-import { isGoogleCalendarLinked } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Subtitle } from '../atoms/typography/Typography'
-import ConnectIntegration from '../molecules/ConnectIntegration'
 import { useCalendarContext } from './CalendarContext'
-import EnableCalendarsBanner from './EnableCalendarsBanner'
 
 const RelativeDiv = styled.div`
     position: relative;
 `
-const ConnectContainer = styled.div`
-    width: 100%;
-    z-index: 100;
-`
+
 const PaddedContainer = styled.div`
     display: flex;
     justify-content: space-between;
@@ -49,7 +42,6 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
     } = useCalendarContext()
     const isCalendarExpanded = calendarType === 'week' && !isCollapsed
     const { pathname } = useLocation()
-    const { isPreviewMode } = usePreviewMode()
 
     const isFocusMode = pathname.startsWith('/focus-mode')
 
@@ -93,11 +85,8 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
         return isToday || (calendarType === 'week' && isThisWeek)
     }, [date, calendarType])
     useKeyboardShortcut('jumpToToday', selectToday, isFocusMode)
-    useKeyboardShortcut('nextDate', selectNext, isFocusMode)
-    useKeyboardShortcut('previousDate', selectPrevious, isFocusMode)
-
-    const { data: linkedAccounts } = useGetLinkedAccounts()
-    const showOauthPrompt = linkedAccounts !== undefined && !isGoogleCalendarLinked(linkedAccounts)
+    useKeyboardShortcut(isCalendarExpanded ? 'nextWeek' : 'nextDay', selectNext, isFocusMode)
+    useKeyboardShortcut(isCalendarExpanded ? 'previousWeek' : 'previousDay', selectPrevious, isFocusMode)
 
     const goToTodayButton = (
         <GTButton
@@ -110,8 +99,16 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
     )
     const nextPreviousButtons = (
         <Flex gap={Spacing._8} alignItems="center">
-            <GTIconButton shortcutName="previousDate" onClick={selectPrevious} icon={icons.caret_left} />
-            <GTIconButton shortcutName="nextDate" onClick={selectNext} icon={icons.caret_right} />
+            <GTIconButton
+                shortcutName={isCalendarExpanded ? 'previousWeek' : 'previousDay'}
+                onClick={selectPrevious}
+                icon={icons.caret_left}
+            />
+            <GTIconButton
+                shortcutName={isCalendarExpanded ? 'nextWeek' : 'nextDay'}
+                onClick={selectNext}
+                icon={icons.caret_right}
+            />
             {additionalHeaderContent}
         </Flex>
     )
@@ -123,7 +120,7 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                 <>
                     <PaddedContainer>
                         <Flex gap={Spacing._16} alignItems="center">
-                            {isPreviewMode && isCalendarExpanded && !showTaskToCalSidebar && (
+                            {isCalendarExpanded && !showTaskToCalSidebar && (
                                 <GTButton
                                     icon={icons.hamburger}
                                     iconColor="black"
@@ -167,10 +164,6 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                     )}
                 </>
             )}
-            <ConnectContainer>
-                {showOauthPrompt && <ConnectIntegration type="google_calendar" />}
-                {isPreviewMode && <EnableCalendarsBanner />}
-            </ConnectContainer>
         </RelativeDiv>
     )
 }

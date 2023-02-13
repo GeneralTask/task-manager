@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { QueryFunctionContext, useQuery } from 'react-query'
+import { useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { useCalendarContext } from '../../components/calendar/CalendarContext'
 import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
-import { useGTLocalStorage, usePreviewMode } from '../../hooks'
+import { useGTLocalStorage } from '../../hooks'
+import { TLogoImage } from '../../styles/images'
 import apiClient from '../../utils/api'
-import { TCalendar, TCalendarAccount, TEvent, TOverviewView, TTask } from '../../utils/types'
-import { getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { TCalendar, TCalendarAccount, TEvent, TOverviewView, TPullRequest, TTask } from '../../utils/types'
+import { getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 
 interface TEventAttendee {
     name: string
@@ -28,6 +29,7 @@ interface TCreateEventPayload {
     add_conference_call?: boolean
     task_id?: string
     view_id?: string
+    pr_id?: string
 }
 interface TModifyEventPayload {
     account_id: string
@@ -45,6 +47,7 @@ interface TCreateEventParams {
     date: DateTime
     linkedTask?: TTask
     linkedView?: TOverviewView
+    linkedPullRequest?: TPullRequest
     optimisticId: string
 }
 interface TCreateEventResponse {
@@ -75,14 +78,25 @@ interface TDeleteEventData {
     datetime_end: string
 }
 
-export const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
+const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
+    const queryClient = useGTQueryClient()
     return useQuery<TEvent[]>(
         ['events', calendarType, params.startISO],
         (queryFunctionContext) => getEvents(params, queryFunctionContext),
-        getBackgroundQueryOptions(EVENTS_REFETCH_INTERVAL)
+        {
+            ...getBackgroundQueryOptions(EVENTS_REFETCH_INTERVAL),
+            onSettled: () => {
+                // because apparently we only refetch calendars when we refetch events
+                queryClient.invalidateQueries('calendars')
+            },
+        }
     )
 }
-const getEvents = async (params: { startISO: string; endISO: string }, { signal }: QueryFunctionContext) => {
+
+export const getEvents = async (
+    params: { startISO: string; endISO: string },
+    { signal }: { signal?: AbortSignal } = {}
+) => {
     try {
         const res = await apiClient.get('/events/', {
             params: { datetime_start: params.startISO, datetime_end: params.endISO },
@@ -106,10 +120,17 @@ export const useCreateEvent = () => {
         selectedEventRef.current = selectedEvent
     }, [selectedEvent])
 
-    return useQueuedMutation(({ createEventPayload }: TCreateEventParams) => createEvent(createEventPayload), {
+    return useGTMutation(({ createEventPayload }: TCreateEventParams) => createEvent(createEventPayload), {
         tag: 'events',
         invalidateTagsOnSettled: ['events'],
-        onMutate: ({ createEventPayload, date, linkedTask, linkedView, optimisticId }: TCreateEventParams) => {
+        onMutate: ({
+            createEventPayload,
+            date,
+            linkedTask,
+            linkedView,
+            linkedPullRequest,
+            optimisticId,
+        }: TCreateEventParams) => {
             const { events, blockStartTime } = queryClient.getCurrentEvents(
                 date,
                 createEventPayload.datetime_start,
@@ -121,6 +142,15 @@ export const useCreateEvent = () => {
             const calendar = selectedCalendars.find((calendar) => calendar.account_id === createEventPayload.account_id)
                 ?.calendars[0]
 
+            let logo: TLogoImage
+            if (linkedTask?.source.logo_v2) {
+                logo = linkedTask?.source.logo_v2
+            } else if (linkedPullRequest) {
+                logo = 'github'
+            } else {
+                logo = 'gcal'
+            }
+
             const newEvent: TEvent = {
                 id: optimisticId,
                 optimisticId: optimisticId,
@@ -128,8 +158,8 @@ export const useCreateEvent = () => {
                 body: createEventPayload.description ?? '',
                 account_id: createEventPayload.account_id,
                 calendar_id: createEventPayload.calendar_id ?? calendar?.calendar_id ?? '',
-                color_id: calendar?.color_id ?? '',
-                logo: linkedTask?.source.logo_v2 ?? 'gcal',
+                color_id: '',
+                logo: logo,
                 deeplink: '',
                 datetime_start: createEventPayload.datetime_start,
                 datetime_end: createEventPayload.datetime_end,
@@ -141,6 +171,7 @@ export const useCreateEvent = () => {
                 },
                 linked_task_id: linkedTask?.id ?? '',
                 linked_view_id: linkedView?.id ?? '',
+                linked_pull_request_id: linkedPullRequest?.id ?? '',
             }
 
             const newEvents = produce(events, (draft) => {
@@ -185,7 +216,7 @@ const createEvent = async (data: TCreateEventPayload) => {
 
 export const useDeleteEvent = () => {
     const queryClient = useGTQueryClient()
-    const useMutationResult = useQueuedMutation((data: TDeleteEventData) => deleteEvent(data.id), {
+    const useMutationResult = useGTMutation((data: TDeleteEventData) => deleteEvent(data.id), {
         tag: 'events',
         invalidateTagsOnSettled: ['events'],
         onMutate: (data: TDeleteEventData) => {
@@ -241,7 +272,7 @@ const deleteEvent = async (eventId: string) => {
 export const useModifyEvent = () => {
     const queryClient = useGTQueryClient()
 
-    return useQueuedMutation((data: TModifyEventData) => modifyEvent(data), {
+    return useGTMutation((data: TModifyEventData) => modifyEvent(data), {
         tag: 'events',
         invalidateTagsOnSettled: ['events'],
         onMutate: ({ event, payload, date }: TModifyEventData) => {
@@ -309,38 +340,48 @@ export const useSelectedCalendars = () => {
     useEffect(() => {
         if (!calendars) return
 
+        let hasChanged = true
         const newSelectedCalendars = produce(selectedCalendars, (draft) => {
-            const newAccounts = calendars.filter(
-                (calendar) =>
-                    !selectedCalendars.find((selectedCalendar) => selectedCalendar.account_id === calendar.account_id)
-            )
-
-            const removedAccounts = selectedCalendars.filter(
-                (selectedCalendar) => !calendars.find((calendar) => calendar.account_id === selectedCalendar.account_id)
-            )
-            if (!newAccounts.length && !removedAccounts.length) return
-
-            // when a new account is added, select the primary calendar
-            newAccounts.forEach((account) => {
-                const primaryCalendar = account.calendars.find(
-                    (calendar) => calendar.calendar_id === account.account_id || calendar.calendar_id === 'primary'
+            // if account scopes change, consider the account both added and removed so we remove all existing selected accounts and re-add them
+            const newAccounts = calendars.filter((calendar) => {
+                const selectedAccount = selectedCalendars.find(
+                    (selectedCalendar) => selectedCalendar.account_id === calendar.account_id
                 )
-                if (primaryCalendar)
-                    draft.push({
-                        ...account,
-                        calendars: [{ ...primaryCalendar }],
-                    })
+                return (
+                    !selectedAccount ||
+                    selectedAccount.has_primary_calendar_scopes !== calendar.has_primary_calendar_scopes ||
+                    selectedAccount.has_multical_scopes !== calendar.has_multical_scopes
+                )
             })
+
+            const removedAccounts = selectedCalendars.filter((selectedCalendar) => {
+                const calendar = calendars.find((calendar) => selectedCalendar.account_id === calendar.account_id)
+                return (
+                    !calendar ||
+                    calendar.has_primary_calendar_scopes !== selectedCalendar.has_primary_calendar_scopes ||
+                    calendar.has_multical_scopes !== selectedCalendar.has_multical_scopes
+                )
+            })
+            if (!newAccounts.length && !removedAccounts.length) {
+                hasChanged = false
+                return
+            }
+
             removedAccounts.forEach((removedAccount) => {
                 const index = draft.findIndex(
                     (newSelectedCalendar) => newSelectedCalendar.account_id === removedAccount.account_id
                 )
                 draft.splice(index, 1)
             })
+            // when a new account is added, select all calendars
+            newAccounts.forEach((account) => {
+                draft.push(account)
+            })
         })
-
-        setSelectedCalendars(newSelectedCalendars)
-    }, [calendars])
+        if (hasChanged) {
+            setSelectedCalendars(newSelectedCalendars)
+        }
+    }, [calendars, selectedCalendars])
 
     const lookupTable: Map<string, Set<string>> = useMemo(() => {
         return new Map(
@@ -380,15 +421,11 @@ export const useSelectedCalendars = () => {
 
 // wrapper around useGetEvents that filters out events that are not in the selected calendars
 export const useEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
-    const { isPreviewMode } = usePreviewMode()
     const { data: events, ...rest } = useGetEvents(params, calendarType)
     const { selectedCalendars, isCalendarSelected } = useSelectedCalendars()
     const filteredEvents = useMemo(() => {
         if (!events || selectedCalendars.length === 0) return events
-        if (!isPreviewMode) {
-            return events.filter((event) => event.calendar_id === event.account_id || event.calendar_id === 'primary')
-        }
         return events.filter((event) => isCalendarSelected(event.account_id, event.calendar_id))
-    }, [events, selectedCalendars, isPreviewMode, isCalendarSelected])
+    }, [events, selectedCalendars, isCalendarSelected])
     return { data: filteredEvents, ...rest }
 }

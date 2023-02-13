@@ -1,21 +1,21 @@
 import { useModifyRecurringTask } from '../../../services/api/recurring-tasks.hooks'
 import { icons } from '../../../styles/images'
-import { TRecurringTaskTemplate } from '../../../utils/types'
 import GTButton from '../../atoms/buttons/GTButton'
 import GTIconButton from '../../atoms/buttons/GTIconButton'
 
 interface DeleteRecurringTaskTemplateButtonProps {
-    task: TRecurringTaskTemplate
+    templateId: string
+    is_deleted: boolean
 }
-const DeleteRecurringTaskTemplateButton = ({ task }: DeleteRecurringTaskTemplateButtonProps) => {
+const DeleteRecurringTaskTemplateButton = ({ templateId, is_deleted }: DeleteRecurringTaskTemplateButtonProps) => {
     const { mutate: modifyRecurringTask } = useModifyRecurringTask()
-    const deleteOrRestoreTemplate = (is_deleted: boolean) => {
+    const deleteOrRestoreTemplate = (deleted: boolean) => {
         modifyRecurringTask({
-            id: task.id,
-            is_deleted: is_deleted,
+            id: templateId,
+            is_deleted: deleted,
         })
     }
-    if (task.is_deleted) {
+    if (is_deleted) {
         return (
             <GTButton
                 styleType="secondary"

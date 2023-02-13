@@ -171,7 +171,7 @@ export const EventFill = styled.div<{
     box-sizing: border-box;
     box-shadow: ${Shadows.light};
     /* add opacity to background color */
-    background-color: ${(props) => `${props.backgroundColorHex}80`};
+    background-color: ${(props) => `${props.backgroundColorHex}1A`};
     border-top-left-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
     border-top-right-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
     border-bottom-left-radius: ${(props) => (props.squareEnd ? '0' : Border.radius.mini)};

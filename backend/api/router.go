@@ -57,6 +57,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	// The note detail endpoint is specifically unauthenticated for shareable notes
 	// only notes with is_shared=true can be shared
 	router.GET("/notes/detail/:note_id/", handlers.NoteDetails)
+	router.GET("/note/:note_id/", handlers.NotePreview)
 
 	// Unauthenticated endpoints only for dev environment
 	router.POST("/create_test_user/", handlers.CreateTestUser)

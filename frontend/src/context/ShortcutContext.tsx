@@ -31,7 +31,9 @@ export const ShortcutContextProvider = ({ children }: ShortcutContextProps) => {
             if (shortcut) {
                 setShowCommandPalette(false)
                 shortcut.action()
-                e.preventDefault()
+                if (key !== 'Escape') {
+                    e.preventDefault()
+                }
             }
         }
         document.addEventListener('keydown', handleKeyDown)

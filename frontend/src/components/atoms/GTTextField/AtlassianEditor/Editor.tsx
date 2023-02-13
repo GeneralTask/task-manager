@@ -1,15 +1,28 @@
 import { Editor as AtlaskitEditor, EditorActions } from '@atlaskit/editor-core'
 import { JSONTransformer } from '@atlaskit/editor-json-transformer'
 import { MarkdownTransformer } from '@atlaskit/editor-markdown-transformer'
-import adf2md from 'adf-to-md'
-import styled from 'styled-components'
-import { Spacing } from '../../../../styles'
+import styled, { css } from 'styled-components'
+import useReplaceEditorButtonIcons from '../../../../hooks/useReplaceEditorIcons'
+import { Colors, Spacing, Typography } from '../../../../styles'
 import { TOOLBAR_HEIGHT } from '../toolbar/styles'
 import { RichTextEditorProps } from '../types'
+import adf2md from './adfToMd'
 
 const serializer = new JSONTransformer()
 
+const EditorTypographyOverride = css`
+    div[aria-label='Floating Toolbar'] {
+        ${Typography.body};
+        color: ${Colors.text.light} !important;
+    }
+    button[aria-label='Edit link'] {
+        ${Typography.body};
+        display: inline;
+        color: ${Colors.text.light} !important;
+    }
+`
 const EditorContainer = styled.div<{ isMarkdown: boolean }>`
+    ${EditorTypographyOverride}
     height: 100%;
     :focus-within {
         height: calc(100% - ${TOOLBAR_HEIGHT});
@@ -30,8 +43,7 @@ const EditorContainer = styled.div<{ isMarkdown: boolean }>`
         padding: ${Spacing._8};
         box-sizing: border-box;
         > * {
-            padding-bottom: ${Spacing._8};
-            margin: 0;
+            margin-bottom: ${Spacing._8};
         }
         > .code-block {
             margin: 0;
@@ -42,7 +54,6 @@ const EditorContainer = styled.div<{ isMarkdown: boolean }>`
     }
     ${({ isMarkdown }) => isMarkdown && `u { text-decoration: none; } `}/* remove underline if in markdown mode */
 `
-
 interface EditorProps extends RichTextEditorProps {
     editorActions: EditorActions
 }
@@ -57,6 +68,8 @@ const Editor = ({
     onChange,
     editorActions,
 }: EditorProps) => {
+    useReplaceEditorButtonIcons()
+
     const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
         if (e.key === 'Escape' || (enterBehavior === 'blur' && e.key === 'Enter')) {
             editorActions.blur()
@@ -79,6 +92,10 @@ const Editor = ({
                     } else {
                         onChange(JSON.stringify(json))
                     }
+                }}
+                media={{
+                    allowMediaSingle: true,
+                    allowResizing: true,
                 }}
                 contentTransformerProvider={isMarkdown ? (schema) => new MarkdownTransformer(schema) : undefined}
             />

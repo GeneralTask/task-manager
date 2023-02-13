@@ -583,8 +583,8 @@ func reorderTaskResultsByDueDate(taskResults []*TaskResult) []*TaskResult {
 	sort.SliceStable(taskResults, func(i, j int) bool {
 		a := taskResults[i]
 		b := taskResults[j]
-		aTime, _ := time.Parse(time.RFC3339, a.DueDate)
-		bTime, _ := time.Parse(time.RFC3339, b.DueDate)
+		aTime, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, a.DueDate)
+		bTime, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, b.DueDate)
 		return aTime.Unix() < bTime.Unix()
 	})
 	for idx, result := range taskResults {

@@ -153,6 +153,7 @@ export interface TEvent {
     conference_call: TConferenceCall
     linked_task_id: string
     linked_view_id: string
+    linked_pull_request_id: string
 }
 
 export interface TMeetingBanner {
@@ -272,6 +273,7 @@ export enum DropType {
     OVERVIEW_VIEW = 'overview-view',
     FOLDER = 'folder',
     OVERVIEW_VIEW_HEADER = 'overview-view-header',
+    PULL_REQUEST = 'pull-request',
 }
 
 export interface DropItem {
@@ -281,6 +283,7 @@ export interface DropItem {
     event?: TEvent
     folder?: TTaskSection
     view?: TOverviewView
+    pullRequest?: TPullRequest
 }
 
 export interface TTaskCreateParams {
@@ -389,4 +392,5 @@ export interface TCalendarAccount {
     account_id: string
     calendars: TCalendar[]
     has_multical_scopes: boolean
+    has_primary_calendar_scopes: boolean
 }

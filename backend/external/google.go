@@ -148,6 +148,12 @@ func (Google GoogleService) HandleLinkCallback(db *mongo.Database, params Callba
 		logger.Error().Err(err).Msg("failed to fetch token from google")
 		return err
 	}
+
+	err = database.UpdateUserSetting(db, userID, constants.HasDismissedMulticalPrompt, "false")
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to set HasDismissedMulticalPrompt as false")
+		return err
+	}
 	return nil
 }
 

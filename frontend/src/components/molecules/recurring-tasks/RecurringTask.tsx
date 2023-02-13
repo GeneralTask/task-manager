@@ -7,6 +7,7 @@ import Flex from '../../atoms/Flex'
 import { Icon } from '../../atoms/Icon'
 import TaskTemplate from '../../atoms/TaskTemplate'
 import { Truncated } from '../../atoms/typography/Typography'
+import { useCalendarContext } from '../../calendar/CalendarContext'
 import ItemContainer from '../ItemContainer'
 
 const Title = styled(Truncated)<{ deleted?: boolean }>`
@@ -21,9 +22,17 @@ interface RecurringTaskProps {
     onSelect: (recurringTask: TRecurringTaskTemplate) => void
 }
 const RecurringTask = ({ recurringTask, isSelected, onSelect }: RecurringTaskProps) => {
+    const { calendarType, setCalendarType, setDate, dayViewDate } = useCalendarContext()
+    const onClick = () => {
+        onSelect(recurringTask)
+        if (calendarType === 'week' && isSelected) {
+            setCalendarType('day')
+            setDate(dayViewDate)
+        }
+    }
     return (
         <TaskTemplate>
-            <ItemContainer isSelected={isSelected} onClick={() => onSelect(recurringTask)}>
+            <ItemContainer isSelected={isSelected} onClick={onClick}>
                 <Title deleted={recurringTask.is_deleted}>{recurringTask.title}</Title>
                 <Flex gap={Spacing._12}>
                     {recurringTask.priority_normalized !== undefined && recurringTask.priority_normalized !== 0 && (
