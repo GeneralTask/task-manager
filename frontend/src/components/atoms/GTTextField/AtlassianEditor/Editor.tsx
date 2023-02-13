@@ -42,11 +42,13 @@ const EditorContainer = styled.div<{ isMarkdown: boolean }>`
         height: 100%;
         padding: ${Spacing._8};
         box-sizing: border-box;
-        > * {
-            margin-bottom: ${Spacing._8};
+        > :not(.code-block) {
+            padding-bottom: ${Spacing._8};
+            margin: 0;
         }
         > .code-block {
-            margin: 0;
+            margin: 0 0 ${Spacing._8};
+            background-color: red;
         }
     }
     .assistive {

@@ -1,5 +1,6 @@
 import { Suspense, forwardRef, lazy, useRef } from 'react'
 import styled from 'styled-components'
+import { usePreviewMode } from '../../../hooks'
 import { Border, Colors, Shadows } from '../../../styles'
 import { stopKeydownPropogation } from '../../../utils/utils'
 import Spinner from '../Spinner'
@@ -53,6 +54,7 @@ const Container = styled.div<{
 `
 
 const GTTextField = forwardRef((props: GTTextFieldProps, ref) => {
+    const { isPreviewMode } = usePreviewMode()
     const containerRef = useRef<HTMLDivElement>(null)
 
     const getEditor = () => {
