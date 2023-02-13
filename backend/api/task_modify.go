@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -33,7 +34,7 @@ type TaskItemChangeableFields struct {
 	Task           TaskChangeable      `json:"task,omitempty" bson:"task,omitempty"`
 	Title          *string             `json:"title,omitempty" bson:"title,omitempty"`
 	Body           *string             `json:"body,omitempty" bson:"body,omitempty"`
-	DueDate        *primitive.DateTime `json:"due_date,omitempty" bson:"due_date,omitempty"`
+	DueDate        *string `json:"due_date,omitempty" bson:"due_date,omitempty"`
 	TimeAllocation *int64              `json:"time_duration,omitempty" bson:"time_allocated,omitempty"`
 	IsCompleted    *bool               `json:"is_completed,omitempty" bson:"is_completed,omitempty"`
 	CompletedAt    primitive.DateTime  `json:"completed_at,omitempty" bson:"completed_at"`
@@ -70,6 +71,7 @@ func (api *API) TaskModify(c *gin.Context) {
 			return
 		}
 	}
+	fmt.Printf("modifyParams: %+v", *modifyParams.DueDate)
 
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
@@ -98,11 +100,23 @@ func (api *API) TaskModify(c *gin.Context) {
 		return
 	}
 
+	var dueDate primitive.DateTime
+	if modifyParams.TaskItemChangeableFields.DueDate != nil {
+		// Parse "2006-01-02" due date into time.Time
+		dueDateTime, err := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, *modifyParams.TaskItemChangeableFields.DueDate)
+		if err != nil {
+			c.JSON(400, gin.H{"detail": "due_date is not a valid date"})
+			return
+		}
+		dueDate = primitive.NewDateTimeFromTime(dueDateTime)
+	}
+
+
 	if modifyParams.TaskItemChangeableFields != (TaskItemChangeableFields{}) {
 		updateTask := database.Task{
 			Title:              modifyParams.TaskItemChangeableFields.Title,
-			Body:               modifyParams.TaskItemChangeableFields.Body,
-			DueDate:            modifyParams.TaskItemChangeableFields.DueDate,
+			Body:               modifyParams.TaskItemChangeableFields.Body,        
+			DueDate:			&dueDate,
 			TimeAllocation:     modifyParams.TaskItemChangeableFields.TimeAllocation,
 			IsCompleted:        modifyParams.TaskItemChangeableFields.IsCompleted,
 			CompletedAt:        modifyParams.TaskItemChangeableFields.CompletedAt,

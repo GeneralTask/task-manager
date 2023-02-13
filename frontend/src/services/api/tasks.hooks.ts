@@ -401,6 +401,11 @@ export const useModifyTask = () => {
     })
 }
 const modifyTask = async (data: TModifyTaskData) => {
+    //conver dueDate to 'YYYY-MM-DD' format
+    if (data.dueDate) {
+        data.dueDate = DateTime.fromISO(data.dueDate).toFormat('yyyy-MM-dd')
+    }
+
     const requestBody: TTaskModifyRequestBody = { task: {} }
     if (data.title !== undefined) requestBody.title = data.title
     if (data.dueDate !== undefined) requestBody.due_date = data.dueDate
