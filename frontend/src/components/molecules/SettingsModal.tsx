@@ -43,6 +43,11 @@ const ServiceDetails = styled.div`
     color: ${Colors.text.light};
     margin-bottom: auto;
 `
+const TruncatedLabel = styled(Label)`
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+`
 
 interface SettingsModalProps {
     isOpen: boolean
@@ -118,7 +123,7 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
     )
 
     const getEnableAllCalendarsButton = (account: TLinkedAccount) => {
-        if (account.name !== GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME || !calendars || !isPreviewMode) return
+        if (account.name !== GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME || !calendars) return
         const calendar = calendars.find((calendar) => calendar.account_id === account.display_id)
         if (!calendar || calendar?.has_multical_scopes) return
         const authUrl = supportedTypes?.find(
@@ -252,10 +257,10 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                     icon: icons.user,
                     body: (
                         <Flex column gap={Spacing._24}>
-                            <Service>
+                            <Flex column gap={Spacing._12}>
                                 <Label color="light">Email</Label>
-                                <Label>{userInfo?.email}</Label>
-                            </Service>
+                                <TruncatedLabel>{userInfo?.email}</TruncatedLabel>
+                            </Flex>
                             <div>
                                 <SignOutButton />
                             </div>

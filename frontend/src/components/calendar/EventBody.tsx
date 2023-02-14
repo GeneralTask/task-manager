@@ -98,7 +98,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         <EventDetailPopover event={props.event} date={props.date} hidePopover={isPopoverDisabled}>
                             <EventInfo type={eventType}>
                                 <EventIconAndTitle>
-                                    {props.event.linked_task_id && (
+                                    {(props.event.linked_task_id || props.event.linked_pull_request_id) && (
                                         <EventIcon
                                             icon={logos[props.event.logo]}
                                             isShort={timeDurationTodayMinutes <= MINIMUM_BODY_HEIGHT}
@@ -121,7 +121,11 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         backgroundColorHex={getCalendarColor(props.event.color_id || calendar?.color_id || '')}
                     />
                     {isPreviewMode && (
-                        <EdgeHighlight color="blue" squareStart={startedBeforeToday} squareEnd={endedAfterToday} />
+                        <EdgeHighlight
+                            color={getCalendarColor(props.event.color_id || calendar?.color_id || '')}
+                            squareStart={startedBeforeToday}
+                            squareEnd={endedAfterToday}
+                        />
                     )}
                     <ResizeHandle event={props.event} />
                 </EventBodyStyle>

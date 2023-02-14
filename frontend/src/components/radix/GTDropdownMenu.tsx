@@ -52,6 +52,7 @@ const DropdownMenuSubTrigger = styled(DropdownMenu.SubTrigger)`
 `
 const DropdownMenuSubContent = styled(DropdownMenu.SubContent)`
     ${MenuContentShared};
+    user-select: none;
 `
 const Description = styled(Label)`
     padding: ${Spacing._8} ${Spacing._12};

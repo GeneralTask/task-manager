@@ -14,7 +14,7 @@ import (
 )
 
 func TestNotePreview(t *testing.T) {
-	authToken := login("test_notes_list@generaltask.com", "")
+	authToken := login("test_notes_preview@generaltask.com", "")
 	title1 := "title1"
 	title2 := "title2"
 
@@ -28,6 +28,7 @@ func TestNotePreview(t *testing.T) {
 		"123abc",
 		"foobar_source",
 		&database.Note{
+			Author:      "Elon",
 			UserID:      userID,
 			Title:       &title1,
 			SharedUntil: *testutils.CreateDateTime("9999-01-01"),
@@ -55,7 +56,7 @@ func TestNotePreview(t *testing.T) {
 	t.Run("InvalidNoteID", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"GET",
-			fmt.Sprintf("/notes/preview/%s/", primitive.NewObjectID()),
+			fmt.Sprintf("/note/%s/", primitive.NewObjectID()),
 			nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -67,7 +68,7 @@ func TestNotePreview(t *testing.T) {
 	t.Run("NoteIsNotShared", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"GET",
-			fmt.Sprintf("/notes/preview/%s/", note2.ID.Hex()),
+			fmt.Sprintf("/note/%s/", note2.ID.Hex()),
 			nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -79,7 +80,7 @@ func TestNotePreview(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"GET",
-			fmt.Sprintf("/notes/preview/%s/", note1.ID.Hex()),
+			fmt.Sprintf("/note/%s/", note1.ID.Hex()),
 			nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -88,7 +89,25 @@ func TestNotePreview(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t,
-			`<html><head><title>title1</title><meta http-equiv="Refresh" content="0; url='http://localhost:3000/note/`+note1.ID.Hex()+`'" /></head><body></body></html>`,
+			`
+<!DOCTYPE html>
+<html>
+<head>
+	<title>title1</title>
+	<meta http-equiv="Refresh" content="0; url='http://localhost:3000/note/`+note1.ID.Hex()+`'" />
+
+	<meta property="og:title" content="title1" />
+	<meta name="twitter:title" content="title1">
+
+	<meta content="Note shared by Elon via General Task." property="og:description">
+	<meta content="Note shared by Elon via General Task." property="twitter:description">
+
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="http://localhost:8080/note/`+note1.ID.Hex()+`/" />
+</head>
+<body>
+</body>
+</html>`,
 			string(body))
 	})
 }

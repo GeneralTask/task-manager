@@ -7,7 +7,7 @@ import useOverviewContext from '../../context/OverviewContextProvider'
 import useQueryContext from '../../context/QueryContext'
 import { useGTLocalStorage } from '../../hooks'
 import apiClient from '../../utils/api'
-import navigateToNextItemAfterOverviewCommpletion from '../../utils/navigateToNextItemAfterOverviewCommpletion'
+import navigateToNextItemAfterOverviewCompletion from '../../utils/navigateToNextItemAfterOverviewCompletion'
 import {
     TExternalStatus,
     TOverviewItem,
@@ -24,7 +24,7 @@ import {
     resetOrderingIds,
     sleep,
 } from '../../utils/utils'
-import { GTQueryClient, getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { GTQueryClient, getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 import { createNewTaskV4Helper } from './tasksv4.hooks'
 
 export interface TCreateTaskData {
@@ -169,7 +169,7 @@ export const useCreateTask = () => {
     const { setOptimisticId } = useQueryContext()
     const navigate = useNavigate()
 
-    return useQueuedMutation((data: TCreateTaskData) => createTask(data), {
+    return useGTMutation((data: TCreateTaskData) => createTask(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TCreateTaskData) => {
@@ -249,12 +249,13 @@ export const useCreateTask = () => {
                 queryClient.setQueryData('tasks', updatedSections)
                 if (
                     createData.parent_task_id &&
-                    window.location.pathname ===
+                    window.location.pathname.startsWith(
                         `/tasks/${createData.taskSectionId}/${createData.parent_task_id}/${createData.optimisticId}`
+                    )
                 ) {
                     navigate(`/tasks/${createData.taskSectionId}/${createData.parent_task_id}/${response.task_id}`)
                 } else if (
-                    window.location.pathname === `/tasks/${createData.taskSectionId}/${createData.optimisticId}`
+                    window.location.pathname.startsWith(`/tasks/${createData.taskSectionId}/${createData.optimisticId}`)
                 ) {
                     navigate(`/tasks/${createData.taskSectionId}/${response.task_id}`)
                 }
@@ -291,12 +292,15 @@ export const useCreateTask = () => {
                     queryClient.setQueryData('overview', updatedViews)
                     if (
                         createData.parent_task_id &&
-                        window.location.pathname ===
+                        window.location.pathname.startsWith(
                             `/overview/${views[sectionIdx].id}/${createData.parent_task_id}/${createData.optimisticId}`
+                        )
                     ) {
                         navigate(`/overview/${views[sectionIdx].id}/${createData.parent_task_id}/${response.task_id}`)
                     } else if (
-                        window.location.pathname === `/overview/${views[sectionIdx].id}/${createData.optimisticId}`
+                        window.location.pathname.startsWith(
+                            `/overview/${views[sectionIdx].id}/${createData.optimisticId}`
+                        )
                     ) {
                         navigate(`/overview/${views[sectionIdx].id}/${response.task_id}`)
                     }
@@ -333,7 +337,7 @@ const modifyTaskOptimisticUpdate = (task: TTask, data: TModifyTaskData) => {
 }
 export const useModifyTask = () => {
     const queryClient = useGTQueryClient()
-    return useQueuedMutation((data: TModifyTaskData) => modifyTask(data), {
+    return useGTMutation((data: TModifyTaskData) => modifyTask(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TModifyTaskData) => {
@@ -426,7 +430,7 @@ export const useMarkTaskDoneOrDeleted = () => {
     const navigate = useNavigate()
     const { setOpenListIds } = useOverviewContext()
 
-    return useQueuedMutation((data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data), {
+    return useGTMutation((data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TMarkTaskDoneOrDeletedData) => {
@@ -536,7 +540,8 @@ export const useMarkTaskDoneOrDeleted = () => {
                 queryClient.setQueryData('overview', newLists)
 
                 if (window.location.pathname.split('/')[1] !== 'overview') return
-                navigateToNextItemAfterOverviewCommpletion(
+                if (data.subtaskId) return
+                navigateToNextItemAfterOverviewCompletion(
                     lists as TOverviewView[],
                     newLists as TOverviewView[],
                     data.id,
@@ -621,7 +626,7 @@ const reorderSubtasks = (data: TReorderTaskData, queryClient: GTQueryClient) => 
 
 export const useReorderTask = () => {
     const queryClient = useGTQueryClient()
-    return useQueuedMutation((data: TReorderTaskData) => reorderTask(data), {
+    return useGTMutation((data: TReorderTaskData) => reorderTask(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TReorderTaskData) => {
@@ -758,7 +763,7 @@ export const reorderTask = async (data: TReorderTaskData) => {
 
 export const usePostComment = () => {
     const queryClient = useGTQueryClient()
-    return useQueuedMutation((data: TPostCommentData) => postComment(data), {
+    return useGTMutation((data: TPostCommentData) => postComment(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TPostCommentData) => {

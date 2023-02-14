@@ -1,8 +1,8 @@
 import { Dispatch, SetStateAction } from 'react'
 import { NavigateFunction } from 'react-router-dom'
-import { TOverviewView } from '../utils/types'
+import { TOverviewView } from './types'
 
-const navigateToNextItemAfterOverviewCommpletion = (
+const navigateToNextItemAfterOverviewCompletion = (
     oldLists: TOverviewView[],
     newLists: TOverviewView[],
     deletedTaskId: string,
@@ -23,6 +23,9 @@ const navigateToNextItemAfterOverviewCommpletion = (
         const nextTask = listWithDeletedTask.view_items[taskIndex + 1]
         if (nextTask) {
             navigate(`/overview/${listWithDeletedTask.id}/${nextTask.id}`)
+        } else {
+            const previousTask = listWithDeletedTask.view_items[taskIndex - 1]
+            navigate(`/overview/${listWithDeletedTask.id}/${previousTask.id}`)
         }
     } else {
         // If list has only one task, navigate to first non-empty list
@@ -40,4 +43,4 @@ const navigateToNextItemAfterOverviewCommpletion = (
         }
     }
 }
-export default navigateToNextItemAfterOverviewCommpletion
+export default navigateToNextItemAfterOverviewCompletion

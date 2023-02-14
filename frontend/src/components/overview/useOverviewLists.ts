@@ -21,7 +21,7 @@ const useOverviewLists = () => {
 
     const sortedAndFilteredLists = useMemo(() => {
         if (areListsLoading || areSettingsLoading || !lists || !settings) return []
-        return lists?.map((list) => {
+        const sortedAndFiltered = lists?.map((list) => {
             if (list.type === 'task_section') {
                 const { selectedSort, selectedSortDirection, selectedFilter } = getSortAndFilterSettings(
                     settings,
@@ -54,7 +54,15 @@ const useOverviewLists = () => {
             }
             return list
         })
-    }, [lists, areListsLoading, settings, areSettingsLoading])
+        if (overviewAutomaticEmptySort) {
+            sortedAndFiltered.sort((a, b) => {
+                if (a.view_items.length === 0 && b.view_items.length > 0) return 1
+                if (a.view_items.length > 0 && b.view_items.length === 0) return -1
+                return 0
+            })
+        }
+        return sortedAndFiltered
+    }, [lists, areListsLoading, settings, areSettingsLoading, overviewAutomaticEmptySort])
 
     // adds listId to the item so we know which list to navigate to
     const flattenedLists: TOverviewItemWithListId[] = useMemo(
@@ -67,16 +75,7 @@ const useOverviewLists = () => {
     }, [])
     useItemSelectionController(flattenedLists, selectItem)
 
-    if (overviewAutomaticEmptySort) {
-        const copy = [...sortedAndFilteredLists]
-        copy.sort((a, b) => {
-            if (a.view_items.length === 0 && b.view_items.length > 0) return 1
-            if (a.view_items.length > 0 && b.view_items.length === 0) return -1
-            return 0
-        })
-        return { lists: copy, isLoading: areListsLoading, isSuccess }
-    }
-    return { lists: sortedAndFilteredLists, isLoading: areListsLoading, isSuccess: isSuccess }
+    return { lists: sortedAndFilteredLists, isLoading: areListsLoading, isSuccess: isSuccess, flattenedLists }
 }
 
 export default useOverviewLists

@@ -1,5 +1,5 @@
 import { Ref, forwardRef, useCallback } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 import { useCreateTask, useReorderTask } from '../../../services/api/tasks.hooks'
 import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSelectors'
@@ -10,15 +10,19 @@ import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import CreateNewItemInput from '../../molecules/CreateNewItemInput'
 import Task from '../../molecules/Task'
 import { ViewHeader, ViewName } from '../styles'
+import useOverviewLists from '../useOverviewLists'
 import EmptyListMessage from './EmptyListMessage'
 import { ViewItemsProps } from './viewItems.types'
 
 const TaskSectionViewItems = forwardRef(
     ({ view, visibleItemsCount, scrollRef, hideHeader }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
+        const { lists } = useOverviewLists()
         const { task_section_id: sectionId } = view
         const { overviewViewId, overviewItemId } = useParams()
         const { mutate: createTask } = useCreateTask()
         const { mutate: reorderTask } = useReorderTask()
+        const navigate = useNavigate()
+        const location = useLocation()
 
         const sortAndFilterSettings = useSortAndFilterSettings<TTask>(
             TASK_SORT_AND_FILTER_CONFIG,
@@ -41,6 +45,20 @@ const TaskSectionViewItems = forwardRef(
             [view.task_section_id]
         )
 
+        const onCreateNewTaskSubmit = (title: string) => {
+            if (!sectionId) return
+            const optimisticId = uuidv4()
+            createTask({
+                title: title,
+                taskSectionId: sectionId,
+                optimisticId: optimisticId,
+            })
+            const allListsEmpty = lists?.every((list) => list.view_items.length === 0)
+            if (allListsEmpty && location.pathname.includes('overview')) {
+                navigate(`/overview/${view.id}/${optimisticId}/`)
+            }
+        }
+
         return (
             <>
                 {!hideHeader && (
@@ -49,18 +67,7 @@ const TaskSectionViewItems = forwardRef(
                     </ViewHeader>
                 )}
                 {view.total_view_items !== 0 && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
-                {sectionId && (
-                    <CreateNewItemInput
-                        placeholder="Create new task"
-                        onSubmit={(title) =>
-                            createTask({
-                                title: title,
-                                taskSectionId: sectionId,
-                                optimisticId: uuidv4(),
-                            })
-                        }
-                    />
-                )}
+                {sectionId && <CreateNewItemInput placeholder="Create new task" onSubmit={onCreateNewTaskSubmit} />}
                 {view.view_items.length > 0 ? (
                     view.view_items.slice(0, visibleItemsCount).map((item, index) => (
                         <ReorderDropContainer

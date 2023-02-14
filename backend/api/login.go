@@ -155,7 +155,11 @@ func (api *API) LoginCallback(c *gin.Context) {
 		c.Redirect(302, fmt.Sprintf(constants.DeeplinkAuthentication, internalToken))
 	} else {
 		c.SetCookie("authToken", internalToken, constants.MONTH, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
-		c.Redirect(302, config.GetConfigValue("HOME_URL"))
+		if userIsNew != nil && *userIsNew {
+			c.Redirect(302, config.GetConfigValue("HOME_URL")+"tos-summary")
+		} else {
+			c.Redirect(302, config.GetConfigValue("HOME_URL"))
+		}
 	}
 }
 

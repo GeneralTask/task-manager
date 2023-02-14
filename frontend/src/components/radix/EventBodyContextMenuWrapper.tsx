@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { DateTime } from 'luxon'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
-import { useNavigateToTask, useToast } from '../../hooks'
+import { useNavigateToPullRequest, useNavigateToTask, useToast } from '../../hooks'
 import { useDeleteEvent } from '../../services/api/events.hooks'
 import { icons, logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
@@ -17,6 +17,7 @@ interface FocusModeContextMenuProps {
 const FocusModeContextMenuWrapper = ({ event, children }: FocusModeContextMenuProps) => {
     const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
     const navigateToTask = useNavigateToTask()
+    const navigateToPullRequest = useNavigateToPullRequest()
     const { setSelectedEvent } = useCalendarContext()
     const toast = useToast()
 
@@ -66,6 +67,15 @@ const FocusModeContextMenuWrapper = ({ event, children }: FocusModeContextMenuPr
                       label: 'View task details',
                       icon: logos.generaltask,
                       onClick: () => navigateToTask(event.linked_task_id),
+                  },
+              ]
+            : []),
+        ...(event.linked_pull_request_id
+            ? [
+                  {
+                      label: 'View PR details',
+                      icon: logos.github,
+                      onClick: () => navigateToPullRequest(event.linked_pull_request_id),
                   },
               ]
             : []),

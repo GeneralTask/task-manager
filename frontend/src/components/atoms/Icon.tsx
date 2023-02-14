@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { Colors, Dimensions } from '../../styles'
 import { TIconColor } from '../../styles/colors'
 import { TIconSize } from '../../styles/dimensions'
+import Flex from './Flex'
 
 export type TIconType = IconProp | string
 
@@ -21,6 +22,11 @@ const ImageContainer = styled.img`
     width: 100%;
     aspect-ratio: 1;
 `
+const StyledFontAwesomeIcon = styled(FontAwesomeIcon)<{ height: string; hidden?: boolean }>`
+    height: ${({ height }) => height};
+    visibility: ${({ hidden }) => (hidden ? 'hidden' : 'visible')};
+    aspect-ratio: 1;
+`
 interface IconProps {
     icon: TIconType
     size?: TIconSize
@@ -33,15 +39,22 @@ export const Icon = ({ icon, size = 'default', color, colorHex, className, hidde
     const dimension = Dimensions.iconSize[size]
     // priority is color -> colorHex -> black
     const iconColor = color ? Colors.icon[color] : colorHex ?? Colors.icon.black
-    const getIcon = () => {
-        if (hidden) return null
-        if (typeof icon === 'string') return <ImageContainer src={icon} />
-        return <FontAwesomeIcon icon={icon} color={iconColor} />
-    }
 
+    if (typeof icon === 'string')
+        return (
+            <IconContainer size={dimension} className={className}>
+                {!hidden && <ImageContainer src={icon} />}
+            </IconContainer>
+        )
     return (
-        <IconContainer size={dimension} className={className}>
-            {getIcon()}
-        </IconContainer>
+        <Flex>
+            <StyledFontAwesomeIcon
+                icon={icon}
+                color={iconColor}
+                className={className}
+                height={dimension}
+                hidden={hidden}
+            />
+        </Flex>
     )
 }

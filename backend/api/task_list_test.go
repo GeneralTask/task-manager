@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
@@ -41,7 +42,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 			SourceID: external.TASK_SOURCE_ID_LINEAR,
 			DueDate:  &primitiveDueDate,
 		}, userID)
-		assert.Equal(t, primitiveDueDate.Time().UTC().Format(time.RFC3339), result.DueDate)
+		assert.Equal(t, primitiveDueDate.Time().UTC().Format(constants.YEAR_MONTH_DAY_FORMAT), result.DueDate)
 	})
 	t.Run("ValidTemplateID", func(t *testing.T) {
 		templateID := primitive.NewObjectID()
@@ -100,7 +101,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 			AllExternalPriorities: allPriorities,
 		}, userID)
 		// TODO change to a helper method to compare taskResults
-		assert.Equal(t, primitiveDueDate.Time().UTC().Format(time.RFC3339), result.DueDate)
+		assert.Equal(t, primitiveDueDate.Time().UTC().Format(constants.YEAR_MONTH_DAY_FORMAT), result.DueDate)
 		assert.Equal(t, timeAllocation, result.TimeAllocation)
 		assert.False(t, result.IsDone)
 		assert.Equal(t, title, result.Title)
@@ -165,7 +166,7 @@ func TestTaskListToTaskResultList(t *testing.T) {
 
 		result := results[0]
 		// TODO change to a helper method to compare taskResults
-		assert.Equal(t, primitiveDueDate.Time().UTC().Format(time.RFC3339), result.DueDate)
+		assert.Equal(t, primitiveDueDate.Time().UTC().Format(constants.YEAR_MONTH_DAY_FORMAT), result.DueDate)
 		assert.Equal(t, timeAllocation, result.TimeAllocation)
 		assert.False(t, result.IsDone)
 		assert.Equal(t, title, result.Title)

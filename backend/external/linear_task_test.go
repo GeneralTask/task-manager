@@ -230,8 +230,8 @@ func TestLoadLinearTasks(t *testing.T) {
 			},
 		}}
 
-		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
-		commentCreatedAt, _ := time.Parse("2006-01-02", "2019-04-21")
+		createdAt, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, "2019-04-20")
+		commentCreatedAt, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, "2019-04-21")
 		title := "test title"
 		description := "test description"
 		dueDate := primitive.NewDateTimeFromTime(time.Unix(0, 0))
@@ -339,8 +339,8 @@ func TestLoadLinearTasks(t *testing.T) {
 			},
 		}}
 
-		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
-		commentCreatedAt, _ := time.Parse("2006-01-02", "2019-04-21")
+		createdAt, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, "2019-04-20")
+		commentCreatedAt, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, "2019-04-21")
 		completed := true
 		title := "wrong test title"
 		description := "wrong test description"
@@ -428,7 +428,7 @@ func TestModifyLinearTask(t *testing.T) {
 	taskCollection := database.GetTaskCollection(db)
 
 	userID := primitive.NewObjectID()
-	createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
+	createdAt, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, "2019-04-20")
 	completed := true
 	testTitle := "test title"
 	testDescription := "test description"
@@ -502,7 +502,7 @@ func TestModifyLinearTask(t *testing.T) {
 
 		newName := "New Title"
 		newBody := "New Body"
-		newDueDate, err := time.Parse("2006-01-02", "2022-09-12")
+		newDueDate, err := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, "2022-09-12")
 		assert.NoError(t, err)
 		dueDatePrimitive := primitive.NewDateTimeFromTime(newDueDate)
 		priority := 3.0
