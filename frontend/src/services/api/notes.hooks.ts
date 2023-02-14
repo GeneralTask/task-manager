@@ -107,6 +107,7 @@ export const createNote = async (data: TCreateNoteData) => {
 
 export const useModifyNote = () => {
     const queryClient = useGTQueryClient()
+    const { getIdFromOptimisticId } = useQueryContext()
     return useGTMutation((data: TModifyNoteData) => modifyNote(data), {
         tag: 'notes',
         invalidateTagsOnSettled: ['notes'],
@@ -117,7 +118,7 @@ export const useModifyNote = () => {
             if (!notes) return
 
             const updatedNotes = produce(notes, (draft) => {
-                const note = draft.find((note) => note.id === data.id)
+                const note = draft.find((note) => note.id === data.id || note.id === getIdFromOptimisticId(data.id))
                 if (!note) return
                 note.title = data.title || note.title
                 note.body = data.body ?? note.body

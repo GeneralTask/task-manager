@@ -95,8 +95,7 @@ interface NavigationViewCollapsedProps {
 const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProps) => {
     const { data: folders } = useGetTasks()
     const { section: sectionId } = useParams()
-    const { showTaskToCalSidebar, setShowTaskToCalSidebar, calendarType } =
-        useCalendarContext()
+    const { showTaskToCalSidebar, setShowTaskToCalSidebar, calendarType } = useCalendarContext()
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const { isPreviewMode, toggle: togglePreviewMode } = usePreviewMode()
     const navigate = useNavigate()

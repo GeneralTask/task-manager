@@ -99,8 +99,7 @@ const NavigationLink = ({
 }: NavigationLinkProps) => {
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
-    const { showTaskToCalSidebar, setShowTaskToCalSidebar, calendarType } =
-        useCalendarContext()
+    const { showTaskToCalSidebar, setShowTaskToCalSidebar, calendarType } = useCalendarContext()
     const navigate = useNavigate()
 
     const onDrop = useCallback(
