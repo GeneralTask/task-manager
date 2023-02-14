@@ -95,7 +95,7 @@ func TestRecurringTaskTemplateListV2(t *testing.T) {
 	t.Run("NoUser", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"GET",
-			"/recurring_task_templates_v2/",
+			"/recurring_task_templates/v2/",
 			nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -104,7 +104,7 @@ func TestRecurringTaskTemplateListV2(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"GET",
-			"/recurring_task_templates_v2/",
+			"/recurring_task_templates/v2/",
 			nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
