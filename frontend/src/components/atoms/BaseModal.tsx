@@ -45,7 +45,7 @@ const BaseModal = ({ children, size = 'sm', open, onClose, setIsModalOpen }: Bas
         onClose?.()
     }
     return (
-        <Modal opened={open} onClose={() => onModalClose()} size={MODAL_WIDTH[size]} {...modalProps}>
+        <Modal opened={open} onClose={onModalClose} size={MODAL_WIDTH[size]} {...modalProps}>
             <ModalContentContainer>{children}</ModalContentContainer>
         </Modal>
     )
