@@ -51,6 +51,9 @@ const EditorContainer = styled.div<{ isMarkdown: boolean }>`
             background-color: red;
         }
     }
+    [aria-label*='floating controls'] {
+        z-index: 1 !important;
+    }
     .assistive {
         display: none;
     }
