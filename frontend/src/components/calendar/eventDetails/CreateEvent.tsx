@@ -10,7 +10,7 @@ import { Icon } from '../../atoms/Icon'
 import GTButton from '../../atoms/buttons/GTButton'
 import GTIconButton from '../../atoms/buttons/GTIconButton'
 import { Label, Truncated } from '../../atoms/typography/Typography'
-import { EventBoxStyle, EventHeader, EventHeaderIcons, FlexAnchor } from '../../molecules/EventDetailPopover-styles'
+import { EventBoxStyle, EventHeader, EventHeaderIcons } from '../../molecules/EventDetailPopover-styles'
 import CalendarSelector from '../CalendarSelector'
 import { getCalendarColor, getCalendarName } from '../utils/utils'
 
@@ -80,19 +80,9 @@ const CreateEvent = ({ event, onCancel }: CreateEventProps) => {
                 fontSize="small"
                 maxHeight={400}
             />
-            {event.conference_call.logo && (
-                <Flex flex="1" alignItems="center">
-                    <FlexAnchor href={event.conference_call.url}>
-                        <GTButton
-                            styleType="secondary"
-                            size="small"
-                            value="Join"
-                            icon={event.conference_call.logo}
-                            fitContent={false}
-                        />
-                    </FlexAnchor>
-                </Flex>
-            )}
+            <Flex justifyContent="end">
+                <GTButton value="Create" size="small" />
+            </Flex>
         </EventBoxStyle>
     )
 }
