@@ -30,15 +30,15 @@ type TaskChangeable struct {
 }
 
 type TaskItemChangeableFields struct {
-	Task           TaskChangeable      `json:"task,omitempty" bson:"task,omitempty"`
-	Title          *string             `json:"title,omitempty" bson:"title,omitempty"`
-	Body           *string             `json:"body,omitempty" bson:"body,omitempty"`
-	DueDate        *primitive.DateTime `json:"due_date,omitempty" bson:"due_date,omitempty"`
-	TimeAllocation *int64              `json:"time_duration,omitempty" bson:"time_allocated,omitempty"`
-	IsCompleted    *bool               `json:"is_completed,omitempty" bson:"is_completed,omitempty"`
-	CompletedAt    primitive.DateTime  `json:"completed_at,omitempty" bson:"completed_at"`
-	IsDeleted      *bool               `json:"is_deleted,omitempty" bson:"is_deleted,omitempty"`
-	DeletedAt      primitive.DateTime  `json:"deleted_at,omitempty" bson:"deleted_at"`
+	Task           TaskChangeable     `json:"task,omitempty" bson:"task,omitempty"`
+	Title          *string            `json:"title,omitempty" bson:"title,omitempty"`
+	Body           *string            `json:"body,omitempty" bson:"body,omitempty"`
+	DueDate        *string            `json:"due_date,omitempty" bson:"due_date,omitempty"`
+	TimeAllocation *int64             `json:"time_duration,omitempty" bson:"time_allocated,omitempty"`
+	IsCompleted    *bool              `json:"is_completed,omitempty" bson:"is_completed,omitempty"`
+	CompletedAt    primitive.DateTime `json:"completed_at,omitempty" bson:"completed_at"`
+	IsDeleted      *bool              `json:"is_deleted,omitempty" bson:"is_deleted,omitempty"`
+	DeletedAt      primitive.DateTime `json:"deleted_at,omitempty" bson:"deleted_at"`
 }
 
 type TaskModifyParams struct {
@@ -98,11 +98,27 @@ func (api *API) TaskModify(c *gin.Context) {
 		return
 	}
 
+	var dueDate primitive.DateTime
+	if modifyParams.TaskItemChangeableFields.DueDate != nil {
+		yearMonthDayDate, yearMonthDayErr := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, *modifyParams.TaskItemChangeableFields.DueDate)
+		rfcDate, rfcErr := time.Parse(time.RFC3339, *modifyParams.TaskItemChangeableFields.DueDate)
+
+		if yearMonthDayErr != nil && rfcErr != nil {
+			c.JSON(400, gin.H{"detail": "due_date is not a valid date"})
+			return
+		}
+		if yearMonthDayErr == nil {
+			dueDate = primitive.NewDateTimeFromTime(yearMonthDayDate)
+		} else {
+			dueDate = primitive.NewDateTimeFromTime(rfcDate)
+		}
+	}
+
 	if modifyParams.TaskItemChangeableFields != (TaskItemChangeableFields{}) {
 		updateTask := database.Task{
 			Title:              modifyParams.TaskItemChangeableFields.Title,
 			Body:               modifyParams.TaskItemChangeableFields.Body,
-			DueDate:            modifyParams.TaskItemChangeableFields.DueDate,
+			DueDate:            &dueDate,
 			TimeAllocation:     modifyParams.TaskItemChangeableFields.TimeAllocation,
 			IsCompleted:        modifyParams.TaskItemChangeableFields.IsCompleted,
 			CompletedAt:        modifyParams.TaskItemChangeableFields.CompletedAt,
