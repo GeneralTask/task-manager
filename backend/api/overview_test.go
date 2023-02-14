@@ -855,9 +855,9 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		var item database.Task
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertResult.InsertedID.(primitive.ObjectID)}).Decode(&item)
 		assert.NoError(t, err)
-		assert.Equal(t, false, *item.IsCompleted)
+		assert.False(t, *item.IsCompleted)
 		assert.Equal(t, primitive.DateTime(0), item.CompletedAt)
-		assert.Equal(t, false, item.MeetingPreparationParams.HasBeenAutomaticallyCompleted)
+		assert.False(t, item.MeetingPreparationParams.HasBeenAutomaticallyCompleted)
 		assert.True(t, item.MeetingPreparationParams.EventMovedOrDeleted)
 	})
 	t.Run("EventIsNotOnOwnedCalendar", func(t *testing.T) {
