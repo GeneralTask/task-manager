@@ -45,6 +45,7 @@ export const Description = styled.div`
     overflow-y: auto;
     max-height: ${MAX_POPUP_HEIGHT}px;
     margin-bottom: ${Spacing._16};
+    white-space: pre-wrap;
 `
 export const FlexAnchor = styled(NoStyleAnchor)`
     flex: 1;

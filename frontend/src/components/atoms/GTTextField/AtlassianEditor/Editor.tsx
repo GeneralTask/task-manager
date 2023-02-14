@@ -42,12 +42,17 @@ const EditorContainer = styled.div<{ isMarkdown: boolean }>`
         height: 100%;
         padding: ${Spacing._8};
         box-sizing: border-box;
-        > * {
-            margin-bottom: ${Spacing._8};
-        }
-        > .code-block {
+        > :not(.code-block) {
+            padding-bottom: ${Spacing._8};
             margin: 0;
         }
+        > .code-block {
+            margin: 0 0 ${Spacing._8};
+            background-color: red;
+        }
+    }
+    [aria-label*='floating controls'] {
+        z-index: 1 !important;
     }
     .assistive {
         display: none;
