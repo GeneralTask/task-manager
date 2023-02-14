@@ -98,7 +98,7 @@ func (api *API) TaskModify(c *gin.Context) {
 		return
 	}
 
-	var dueDate primitive.DateTime
+	var dueDate *primitive.DateTime
 	if modifyParams.TaskItemChangeableFields.DueDate != nil {
 		yearMonthDayDate, yearMonthDayErr := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, *modifyParams.TaskItemChangeableFields.DueDate)
 		rfcDate, rfcErr := time.Parse(time.RFC3339, *modifyParams.TaskItemChangeableFields.DueDate)
@@ -108,9 +108,11 @@ func (api *API) TaskModify(c *gin.Context) {
 			return
 		}
 		if yearMonthDayErr == nil {
-			dueDate = primitive.NewDateTimeFromTime(yearMonthDayDate)
+			result := primitive.NewDateTimeFromTime(yearMonthDayDate)
+			dueDate = &result
 		} else {
-			dueDate = primitive.NewDateTimeFromTime(rfcDate)
+			result := primitive.NewDateTimeFromTime(rfcDate)
+			dueDate = &result
 		}
 	}
 
@@ -118,7 +120,7 @@ func (api *API) TaskModify(c *gin.Context) {
 		updateTask := database.Task{
 			Title:              modifyParams.TaskItemChangeableFields.Title,
 			Body:               modifyParams.TaskItemChangeableFields.Body,
-			DueDate:            &dueDate,
+			DueDate:            dueDate,
 			TimeAllocation:     modifyParams.TaskItemChangeableFields.TimeAllocation,
 			IsCompleted:        modifyParams.TaskItemChangeableFields.IsCompleted,
 			CompletedAt:        modifyParams.TaskItemChangeableFields.CompletedAt,
