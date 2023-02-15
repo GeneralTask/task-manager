@@ -55,6 +55,7 @@ interface TCreateEventResponse {
 }
 interface TModifyEventPayload {
     account_id: string
+    calendar_id: string
     datetime_start?: string
     datetime_end?: string
     summary?: string
