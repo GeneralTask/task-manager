@@ -152,6 +152,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                             event: item.event,
                             payload: {
                                 account_id: item.event.account_id,
+                                calendar_id: item.event.calendar_id,
                                 datetime_start: dropTime.toISO(),
                                 datetime_end: end.toISO(),
                             },
@@ -175,6 +176,8 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                             event: item.event,
                             payload: {
                                 account_id: item.event.account_id,
+                                calendar_id: item.event.calendar_id,
+
                                 datetime_end: end.toISO(),
                             },
                             date,
