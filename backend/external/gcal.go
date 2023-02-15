@@ -381,12 +381,8 @@ func (googleCalendar GoogleCalendarSource) ModifyEvent(db *mongo.Database, userI
 	if updateFields.Attendees != nil {
 		gcalEvent.Attendees = *createGcalAttendees(updateFields.Attendees)
 	}
-	calendarID := updateFields.CalendarID
-	if updateFields.CalendarID != "" {
-		calendarID = updateFields.CalendarID
-	}
 
-	_, err = calendarService.Events.Patch(calendarID, eventID, &gcalEvent).Do()
+	_, err = calendarService.Events.Patch(updateFields.CalendarID, eventID, &gcalEvent).Do()
 	if err != nil {
 		return err
 	}
