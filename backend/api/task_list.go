@@ -283,7 +283,7 @@ func (api *API) taskListToTaskResultList(tasks *[]database.Task, userID primitiv
 func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID) *TaskResult {
 	var dueDate string
 	if t.DueDate != nil {
-		if t.DueDate.Time().Unix() == int64(0) {
+		if t.DueDate.Time().UTC().Year() <= 1971 {
 			dueDate = ""
 		} else {
 			dueDate = t.DueDate.Time().UTC().Format(constants.YEAR_MONTH_DAY_FORMAT)
