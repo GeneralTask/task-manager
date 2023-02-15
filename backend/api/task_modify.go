@@ -120,7 +120,6 @@ func (api *API) TaskModify(c *gin.Context) {
 		updateTask := database.Task{
 			Title:              modifyParams.TaskItemChangeableFields.Title,
 			Body:               modifyParams.TaskItemChangeableFields.Body,
-			DueDate:            dueDate,
 			TimeAllocation:     modifyParams.TaskItemChangeableFields.TimeAllocation,
 			IsCompleted:        modifyParams.TaskItemChangeableFields.IsCompleted,
 			CompletedAt:        modifyParams.TaskItemChangeableFields.CompletedAt,
@@ -134,6 +133,9 @@ func (api *API) TaskModify(c *gin.Context) {
 			Status:             modifyParams.TaskItemChangeableFields.Task.Status,
 			PreviousStatus:     modifyParams.TaskItemChangeableFields.Task.PreviousStatus,
 			CompletedStatus:    modifyParams.TaskItemChangeableFields.Task.CompletedStatus,
+		}
+		if dueDate != nil {
+			updateTask.DueDate = dueDate
 		}
 		if modifyParams.TaskItemChangeableFields.Task.RecurringTaskTemplateID != nil {
 			recurring_task_template_id, err := primitive.ObjectIDFromHex(*modifyParams.TaskItemChangeableFields.Task.RecurringTaskTemplateID)
