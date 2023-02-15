@@ -36,7 +36,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		assert.Equal(t, "", result.DueDate)
 	})
 	t.Run("ValidDueDate", func(t *testing.T) {
-		dueDate := time.Unix(420, 0)
+		dueDate := time.Unix(1676478754, 0)
 		primitiveDueDate := primitive.NewDateTimeFromTime(dueDate)
 		result := api.taskBaseToTaskResult(&database.Task{
 			SourceID: external.TASK_SOURCE_ID_LINEAR,
@@ -53,7 +53,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		assert.Equal(t, templateID, result.RecurringTaskTemplateID)
 	})
 	t.Run("AllFieldSuccess", func(t *testing.T) {
-		dueDate := time.Unix(420, 0)
+		dueDate := time.Unix(1676478754, 0)
 		timeAllocation := int64(420)
 		primitiveDueDate := primitive.NewDateTimeFromTime(dueDate)
 		notCompleted := false
@@ -125,7 +125,7 @@ func TestTaskListToTaskResultList(t *testing.T) {
 
 	userID := primitive.NewObjectID()
 	t.Run("SubtaskSuccess", func(t *testing.T) {
-		dueDate := time.Unix(420, 0)
+		dueDate := time.Unix(1676478754, 0)
 		timeAllocation := int64(420)
 		primitiveDueDate := primitive.NewDateTimeFromTime(dueDate)
 		notCompleted := false
