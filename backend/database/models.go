@@ -99,7 +99,7 @@ type Task struct {
 	Title              *string             `bson:"title,omitempty"`
 	Body               *string             `bson:"body,omitempty"`
 	HasBeenReordered   bool                `bson:"has_been_reordered,omitempty"`
-	DueDate            *primitive.DateTime `bson:"due_date,omitempty"`
+	DueDate            *primitive.DateTime `bson:"due_date"`
 	TimeAllocation     *int64              `bson:"time_allocated,omitempty"` // time in nanoseconds
 	CreatedAtExternal  primitive.DateTime  `bson:"created_at_external,omitempty"`
 	UpdatedAt          primitive.DateTime  `bson:"updated_at,omitempty"`

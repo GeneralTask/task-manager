@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"time"
 
@@ -29,11 +30,33 @@ type TaskChangeable struct {
 	RecurringTaskTemplateID *string                      `json:"recurring_task_template_id,omitempty" bson:"recurring_task_template_id,omitempty"`
 }
 
+type JSONString struct {
+	Value string
+	Valid bool
+	Set bool
+}
+
+func (i *JSONString) UnmarshalJSON(data []byte) error {
+	i.Set = true
+
+	if string(data) == "null" {
+		i.Valid = false
+		return nil
+	}
+	var tmp string
+	if err := json.Unmarshal(data, &tmp); err != nil {
+		return err
+	}
+	i.Value = tmp
+	i.Valid = true
+	return nil
+}
+
 type TaskItemChangeableFields struct {
 	Task           TaskChangeable     `json:"task,omitempty" bson:"task,omitempty"`
 	Title          *string            `json:"title,omitempty" bson:"title,omitempty"`
 	Body           *string            `json:"body,omitempty" bson:"body,omitempty"`
-	DueDate        *string            `json:"due_date,omitempty" bson:"due_date,omitempty"`
+	DueDate        JSONString            `json:"due_date,omitempty" bson:"due_date,omitempty"`
 	TimeAllocation *int64             `json:"time_duration,omitempty" bson:"time_allocated,omitempty"`
 	IsCompleted    *bool              `json:"is_completed,omitempty" bson:"is_completed,omitempty"`
 	CompletedAt    primitive.DateTime `json:"completed_at,omitempty" bson:"completed_at"`
@@ -97,24 +120,7 @@ func (api *API) TaskModify(c *gin.Context) {
 	if !ValidateFields(c, &modifyParams.TaskItemChangeableFields, taskSourceResult, task) {
 		return
 	}
-
-	var dueDate *primitive.DateTime
-	if modifyParams.TaskItemChangeableFields.DueDate != nil {
-		yearMonthDayDate, yearMonthDayErr := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, *modifyParams.TaskItemChangeableFields.DueDate)
-		rfcDate, rfcErr := time.Parse(time.RFC3339, *modifyParams.TaskItemChangeableFields.DueDate)
-
-		if yearMonthDayErr != nil && rfcErr != nil {
-			c.JSON(400, gin.H{"detail": "due_date is not a valid date"})
-			return
-		}
-		if yearMonthDayErr == nil {
-			result := primitive.NewDateTimeFromTime(yearMonthDayDate)
-			dueDate = &result
-		} else {
-			result := primitive.NewDateTimeFromTime(rfcDate)
-			dueDate = &result
-		}
-	}
+	
 
 	if modifyParams.TaskItemChangeableFields != (TaskItemChangeableFields{}) {
 		updateTask := database.Task{
@@ -134,9 +140,29 @@ func (api *API) TaskModify(c *gin.Context) {
 			PreviousStatus:     modifyParams.TaskItemChangeableFields.Task.PreviousStatus,
 			CompletedStatus:    modifyParams.TaskItemChangeableFields.Task.CompletedStatus,
 		}
-		if dueDate != nil {
-			updateTask.DueDate = dueDate
+
+		if modifyParams.TaskItemChangeableFields.DueDate.Set && !modifyParams.TaskItemChangeableFields.DueDate.Valid {
+			// unset it if it's null
+		} else if modifyParams.TaskItemChangeableFields.DueDate.Set {
+			yearMonthDayDate, yearMonthDayErr := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, modifyParams.TaskItemChangeableFields.DueDate.Value)
+			rfcDate, rfcErr := time.Parse(time.RFC3339, modifyParams.TaskItemChangeableFields.DueDate.Value)
+
+			if yearMonthDayErr != nil && rfcErr != nil {
+				c.JSON(400, gin.H{"detail": "due_date is not a valid date"})
+				return
+			}
+			if yearMonthDayErr == nil {
+				result := primitive.NewDateTimeFromTime(yearMonthDayDate)
+				updateTask.DueDate = &result
+			} else {
+				result := primitive.NewDateTimeFromTime(rfcDate)
+				updateTask.DueDate = &result
+			}
+
+		} else if !modifyParams.TaskItemChangeableFields.DueDate.Set {
+			updateTask.DueDate = nil
 		}
+
 		if modifyParams.TaskItemChangeableFields.Task.RecurringTaskTemplateID != nil {
 			recurring_task_template_id, err := primitive.ObjectIDFromHex(*modifyParams.TaskItemChangeableFields.Task.RecurringTaskTemplateID)
 			if err != nil {

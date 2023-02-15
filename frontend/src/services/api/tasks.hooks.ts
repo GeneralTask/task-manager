@@ -43,7 +43,7 @@ export interface TModifyTaskData {
     id: string
     subtaskId?: string
     title?: string
-    dueDate?: string
+    dueDate?: string | null
     body?: string
     external_priority_id?: string
     priorityNormalized?: number
@@ -64,7 +64,7 @@ interface TTaskModifyRequestBody {
     id_task_section?: string
     id_ordering?: number
     title?: string
-    due_date?: string
+    due_date?: string | null
     time_duration?: number
     body?: string
 }
@@ -324,7 +324,7 @@ export const createTask = async (data: TCreateTaskData) => {
 }
 const modifyTaskOptimisticUpdate = (task: TTask, data: TModifyTaskData) => {
     task.title = data.title || task.title
-    task.due_date = data.dueDate ?? task.due_date
+    task.due_date = data.dueDate === null ? '' : data.dueDate ? data.dueDate : task.due_date
     task.body = data.body ?? task.body
     task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
     task.external_status = data.status ?? task.external_status
@@ -403,7 +403,12 @@ export const useModifyTask = () => {
 const modifyTask = async (data: TModifyTaskData) => {
     // Format due date to ISO string in format yyyy-MM-dd
     if (data.dueDate) {
-        data.dueDate = DateTime.fromISO(data.dueDate).toFormat('yyyy-MM-dd')
+        const dueDate = DateTime.fromISO(data.dueDate)
+        if (dueDate.toMillis() === 0) {
+            data.dueDate = null
+        } else {
+            data.dueDate = DateTime.fromISO(data.dueDate).toFormat('yyyy-MM-dd')
+        }
     }
     const requestBody: TTaskModifyRequestBody = { task: {} }
     if (data.title !== undefined) requestBody.title = data.title
