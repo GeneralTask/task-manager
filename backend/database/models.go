@@ -217,6 +217,7 @@ type CalendarEvent struct {
 	Title           string             `bson:"title,omitempty"`
 	Body            string             `bson:"body,omitempty"`
 	Location        string             `bson:"location,omitempty"`
+	EventType       string             `bson:"event_type,omitempty"`
 	DatetimeEnd     primitive.DateTime `bson:"datetime_end,omitempty"`
 	DatetimeStart   primitive.DateTime `bson:"datetime_start,omitempty"`
 	//time in nanoseconds
