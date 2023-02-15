@@ -643,7 +643,7 @@ func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.Atlassi
 			Description: updateRequest.Fields.Description,
 			Priority:    updateRequest.Fields.Priority,
 		}
-		if updateFields.DueDate != nil && updateFields.DueDate.Time().Unix() != 0 {
+		if updateFields.DueDate != nil && updateFields.DueDate.Time().UTC().Year() > 1971 {
 			dueDateString := updateFields.DueDate.Time().Format(constants.YEAR_MONTH_DAY_FORMAT)
 			dueDateUpdateRequest.Fields.DueDate = &dueDateString
 		}

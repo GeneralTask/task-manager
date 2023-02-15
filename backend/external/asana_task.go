@@ -175,7 +175,7 @@ func (asanaTask AsanaTaskSource) ModifyTask(db *mongo.Database, userID primitive
 
 func (asanaTask AsanaTaskSource) GetTaskUpdateBody(updateFields *database.Task) *AsanaTasksUpdateBody {
 	var dueDate *string
-	if updateFields.DueDate != nil && updateFields.DueDate.Time() != time.Unix(0, 0) {
+	if updateFields.DueDate != nil && updateFields.DueDate.Time().UTC().Year() > 1971 {
 		dueDateString := updateFields.DueDate.Time().Format(constants.YEAR_MONTH_DAY_FORMAT)
 		dueDate = &dueDateString
 	}

@@ -458,7 +458,7 @@ func handleMutateLinearIssue(client *graphqlBasic.Client, issueID string, update
 	}
 	if updateFields.DueDate != nil {
 		request.Var("dueDate", updateFields.DueDate.Time().Format(constants.YEAR_MONTH_DAY_FORMAT))
-		if updateFields.DueDate.Time().Unix() == 0 {
+		if updateFields.DueDate.Time().UTC().Year() <= 1971 {
 			request.Var("dueDate", nil)
 		}
 	}
