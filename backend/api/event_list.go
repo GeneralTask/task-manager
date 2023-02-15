@@ -108,6 +108,9 @@ func (api *API) EventsList(c *gin.Context) {
 				log.Debug().Msg("event is empty")
 				continue
 			}
+			if event.EventType == "outOfOffice" {
+				continue
+			}
 			taskSourceResult, err := api.ExternalConfig.GetSourceResult(event.SourceID)
 			if err != nil {
 				log.Error().Err(err).Msgf("could not find task source: %s for event: %+v", event.SourceID, event)
