@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { TTask } from '../../../utils/types'
 import Task from '../../molecules/Task'
 import { ViewHeader, ViewName } from '../styles'
-import EmptyViewItem from './EmptyViewItem'
+import EmptyListMessage from './EmptyListMessage'
 import { ViewItemsProps } from './viewItems.types'
 
 const DueTodayViewItems = forwardRef(
@@ -31,10 +31,7 @@ const DueTodayViewItems = forwardRef(
                             />
                         ))
                 ) : (
-                    <EmptyViewItem
-                        header="You have no more tasks due today."
-                        body="When you have tasks left which are due today, they will appear here."
-                    />
+                    <EmptyListMessage list={view} />
                 )}
             </>
         )

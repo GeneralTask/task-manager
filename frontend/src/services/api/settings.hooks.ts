@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/browser'
 import produce, { castImmutable } from 'immer'
 import apiClient from '../../utils/api'
 import { TLinkedAccount, TSetting, TSupportedType } from '../../utils/types'
-import { useGTQueryClient } from '../queryUtils'
+import { useGTMutation, useGTQueryClient } from '../queryUtils'
 
 export type GHSortPreference = `${string}github_sorting_preference${string}`
 export type GHSortDirection = `${string}github_sorting_direction${string}`
@@ -19,7 +19,7 @@ export type NoteFilterPreference = `${string}note_filtering_preference${string}`
 
 export type TSettingsKey =
     | 'calendar_account_id_for_new_tasks'
-    | 'calendar_id_for_new_tasks'
+    | 'calendar_calendar_id_for_new_tasks'
     | GHFilterPreference
     | GHSortPreference
     | GHSortDirection
@@ -32,6 +32,7 @@ export type TSettingsKey =
     | 'sidebar_linear_preference'
     | 'sidebar_github_preference'
     | 'sidebar_slack_preference'
+    | 'has_dismissed_multical_prompt'
 
 type TUpdateSettingsData = {
     key: TSettingsKey
@@ -49,7 +50,7 @@ const getSettings = async ({ signal }: QueryFunctionContext) => {
         return castImmutable([
             ...settings,
             {
-                field_key: 'calendar_id_for_new_tasks',
+                field_key: 'calendar_calendar_id_for_new_tasks',
                 field_value:
                     settings.find((s) => s.field_key === 'calendar_account_id_for_new_tasks')?.field_value || '',
                 field_name: '',
@@ -117,7 +118,19 @@ const getSupportedTypes = async ({ signal }: QueryFunctionContext) => {
 
 export const useDeleteLinkedAccount = () => {
     const queryClient = useGTQueryClient()
-    return useMutation(deleteLinkedAccount, {
+    return useGTMutation(deleteLinkedAccount, {
+        tag: 'linked_accounts',
+        invalidateTagsOnSettled: ['linked_accounts'],
+        onMutate: ({ id }: { id: string }) => {
+            const linkedAccounts = queryClient.getQueryData<TLinkedAccount[]>('linked_accounts')
+            if (!linkedAccounts) return
+            const newLinkedAccounts = produce(linkedAccounts, (draft) => {
+                const idx = draft.findIndex((linkedAccount) => linkedAccount.id === id)
+                if (idx === -1) return
+                draft.splice(idx, 1)
+            })
+            queryClient.setQueriesData('linked_accounts', newLinkedAccounts)
+        },
         onSettled: () => {
             queryClient.invalidateQueries('linked_accounts')
             queryClient.invalidateQueries('calendars')

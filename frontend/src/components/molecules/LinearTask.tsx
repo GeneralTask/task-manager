@@ -11,6 +11,7 @@ import CommentCount from '../atoms/CommentCount'
 import Domino from '../atoms/Domino'
 import SelectableContainer, { EdgeHighlight } from '../atoms/SelectableContainer'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
+import { useCalendarContext } from '../calendar/CalendarContext'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTButtonHack } from './Task'
 
@@ -21,7 +22,7 @@ const DominoIconContainer = styled.div`
 `
 const LinearSelectableContainer = styled(SelectableContainer)`
     display: flex;
-    padding: ${Spacing._16} ${Spacing._16};
+    padding: ${Spacing._8} ${Spacing._8} ${Spacing._8} ${Spacing._16};
     margin-bottom: ${Spacing._4};
     align-items: center;
     ${Typography.bodySmall};
@@ -52,6 +53,7 @@ interface LinearTaskProps {
 const LinearTask = ({ task }: LinearTaskProps) => {
     const navigate = useNavigate()
     const { linearIssueId } = useParams()
+    const { calendarType, setCalendarType, setDate, dayViewDate } = useCalendarContext()
     const [isHovered, setIsHovered] = useState(false)
     const { mutate: modifyTask } = useModifyTask()
 
@@ -68,6 +70,10 @@ const LinearTask = ({ task }: LinearTaskProps) => {
     )
 
     const onClick = (id: string) => {
+        if (calendarType === 'week' && linearIssueId === id) {
+            setCalendarType('day')
+            setDate(dayViewDate)
+        }
         navigate(`/linear/${id}`)
         Log(`linear_select_/linear/${id}`)
     }

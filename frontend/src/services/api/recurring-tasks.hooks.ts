@@ -1,12 +1,13 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
+import { DateTime } from 'luxon'
 import { BACKFILL_RECURRING_TASKS_INTERVAL } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
 import { RecurrenceRate } from '../../utils/enums'
 import { TRecurringTaskTemplate, TTaskSection } from '../../utils/types'
 import { getTaskFromSections } from '../../utils/utils'
-import { getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 import { useModifyTask } from './tasks.hooks'
 
 interface TCreateRecurringTaskPayload {
@@ -48,7 +49,7 @@ export const useRecurringTaskTemplates = () => {
 
 const getRecurringTaskTemplates = async ({ signal }: QueryFunctionContext) => {
     try {
-        const res = await apiClient.get('/recurring_task_templates/', {
+        const res = await apiClient.get('/recurring_task_templates/v2/', {
             signal,
         })
         // the backend currently returns null if the list is empty - will change once this is fixed
@@ -64,7 +65,7 @@ export const useCreateRecurringTask = () => {
     const { setOptimisticId } = useQueryContext()
     const { mutate: modifyTask } = useModifyTask()
 
-    return useQueuedMutation((payload: TCreateRecurringTaskPayload) => createRecurringTask(payload), {
+    return useGTMutation((payload: TCreateRecurringTaskPayload) => createRecurringTask(payload), {
         tag: 'recurring-tasks',
         invalidateTagsOnSettled: ['recurring-tasks'],
         onMutate: async (payload) => {
@@ -78,6 +79,10 @@ export const useCreateRecurringTask = () => {
                     ...payload,
                     id: payload.optimisticId,
                     last_backfill_datetime: '',
+                    created_at: DateTime.utc().toISO(),
+                    updated_at: DateTime.utc().toISO(),
+                    is_deleted: false,
+                    is_enabled: true,
                 }
                 draft.unshift(newRecurringTask)
             })
@@ -130,7 +135,7 @@ const createRecurringTask = async (payload: TCreateRecurringTaskPayload) => {
 export const useModifyRecurringTask = () => {
     const queryClient = useGTQueryClient()
 
-    return useQueuedMutation((payload: TModifyRecurringTaskPayload) => modifyRecurringTask(payload), {
+    return useGTMutation((payload: TModifyRecurringTaskPayload) => modifyRecurringTask(payload), {
         tag: 'recurring-tasks',
         invalidateTagsOnSettled: ['recurring-tasks'],
         onMutate: async (payload) => {
@@ -140,24 +145,20 @@ export const useModifyRecurringTask = () => {
             if (!recurringTasks) return
 
             const newRecurringTasks = produce(recurringTasks, (draft) => {
-                if (payload.is_deleted) {
-                    const index = draft.findIndex((task) => task.id === payload.id)
-                    if (index === -1) return
-                    draft.splice(index, 1)
-                } else {
-                    const recurringTask = draft.find((recurringTask) => recurringTask.id === payload.id)
-                    if (!recurringTask) return
-                    recurringTask.title = payload.title ?? recurringTask.title
-                    recurringTask.body = payload.body ?? recurringTask.body
-                    recurringTask.id_task_section = payload.id_task_section ?? recurringTask.id_task_section
-                    recurringTask.priority_normalized = payload.priority_normalized ?? recurringTask.priority_normalized
-                    recurringTask.recurrence_rate = payload.recurrence_rate ?? recurringTask.recurrence_rate
-                    recurringTask.time_of_day_seconds_to_create_task =
-                        payload.time_of_day_seconds_to_create_task ?? recurringTask.time_of_day_seconds_to_create_task
-                    recurringTask.day_to_create_task = payload.day_to_create_task ?? recurringTask.day_to_create_task
-                    recurringTask.month_to_create_task =
-                        payload.month_to_create_task ?? recurringTask.month_to_create_task
-                }
+                const recurringTask = draft.find((recurringTask) => recurringTask.id === payload.id)
+                if (!recurringTask) return
+                recurringTask.title = payload.title ?? recurringTask.title
+                recurringTask.body = payload.body ?? recurringTask.body
+                recurringTask.id_task_section = payload.id_task_section ?? recurringTask.id_task_section
+                recurringTask.priority_normalized = payload.priority_normalized ?? recurringTask.priority_normalized
+                recurringTask.recurrence_rate = payload.recurrence_rate ?? recurringTask.recurrence_rate
+                recurringTask.time_of_day_seconds_to_create_task =
+                    payload.time_of_day_seconds_to_create_task ?? recurringTask.time_of_day_seconds_to_create_task
+                recurringTask.day_to_create_task = payload.day_to_create_task ?? recurringTask.day_to_create_task
+                recurringTask.month_to_create_task = payload.month_to_create_task ?? recurringTask.month_to_create_task
+                recurringTask.is_enabled = payload.is_enabled ?? recurringTask.is_enabled
+                recurringTask.is_deleted = payload.is_deleted ?? recurringTask.is_deleted
+                recurringTask.updated_at = DateTime.utc().toISO()
             })
             queryClient.setQueryData('recurring-tasks', newRecurringTasks)
         },

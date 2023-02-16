@@ -37,6 +37,7 @@ const DropdownMenuContent = styled(DropdownMenu.Content)<{
     ${({ $textColor }) => $textColor && `color: ${$textColor};`}
     ${({ $fontStyle }) => $fontStyle && Typography[$fontStyle]};
     box-sizing: border-box;
+    z-index: 10000; // higher than toast z-index of 9999
 `
 const DropdownMenuItem = styled(DropdownMenu.Item)`
     ${MenuItemShared};
@@ -51,6 +52,7 @@ const DropdownMenuSubTrigger = styled(DropdownMenu.SubTrigger)`
 `
 const DropdownMenuSubContent = styled(DropdownMenu.SubContent)`
     ${MenuContentShared};
+    user-select: none;
 `
 const Description = styled(Label)`
     padding: ${Spacing._8} ${Spacing._12};

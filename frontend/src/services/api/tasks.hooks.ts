@@ -1,9 +1,13 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
+import { useNavigate } from 'react-router-dom'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TRASH_SECTION_ID } from '../../constants'
+import useOverviewContext from '../../context/OverviewContextProvider'
 import useQueryContext from '../../context/QueryContext'
+import { useGTLocalStorage } from '../../hooks'
 import apiClient from '../../utils/api'
+import navigateToNextItemAfterOverviewCompletion from '../../utils/navigateToNextItemAfterOverviewCompletion'
 import {
     TExternalStatus,
     TOverviewItem,
@@ -15,13 +19,12 @@ import {
 } from '../../utils/types'
 import {
     arrayMoveInPlace,
-    getSubtaskFromSections,
     getTaskFromSections,
     getTaskIndexFromSections,
     resetOrderingIds,
     sleep,
 } from '../../utils/utils'
-import { GTQueryClient, getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { GTQueryClient, getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 import { createNewTaskV4Helper } from './tasksv4.hooks'
 
 export interface TCreateTaskData {
@@ -164,7 +167,9 @@ const updateCacheForOptimsticSubtask = (queryClient: GTQueryClient, data: TCreat
 export const useCreateTask = () => {
     const queryClient = useGTQueryClient()
     const { setOptimisticId } = useQueryContext()
-    return useQueuedMutation((data: TCreateTaskData) => createTask(data), {
+    const navigate = useNavigate()
+
+    return useGTMutation((data: TCreateTaskData) => createTask(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TCreateTaskData) => {
@@ -230,31 +235,76 @@ export const useCreateTask = () => {
 
             if (sections) {
                 const updatedSections = produce(sections, (draft) => {
-                    const task = getTaskFromSections(draft, createData.optimisticId, createData.taskSectionId)
-                    if (!task?.id) return
-                    task.id = response.task_id
-                    task.optimisticId = undefined
+                    const task = getTaskFromSections(
+                        draft,
+                        createData.parent_task_id ?? createData.optimisticId,
+                        createData.taskSectionId,
+                        createData.parent_task_id ? createData.optimisticId : undefined
+                    )
+                    if (task?.id) {
+                        task.id = response.task_id
+                        task.optimisticId = undefined
+                    }
                 })
                 queryClient.setQueryData('tasks', updatedSections)
+                if (
+                    createData.parent_task_id &&
+                    window.location.pathname.startsWith(
+                        `/tasks/${createData.taskSectionId}/${createData.parent_task_id}/${createData.optimisticId}`
+                    )
+                ) {
+                    navigate(`/tasks/${createData.taskSectionId}/${createData.parent_task_id}/${response.task_id}`)
+                } else if (
+                    window.location.pathname.startsWith(`/tasks/${createData.taskSectionId}/${createData.optimisticId}`)
+                ) {
+                    navigate(`/tasks/${createData.taskSectionId}/${response.task_id}`)
+                }
             }
             if (tasks_v4) {
                 const updatedTasks = produce(tasks_v4, (draft) => {
                     const task = draft.find((task) => task.id === createData.optimisticId)
-                    if (!task?.id) return
-                    task.id = response.task_id
-                    task.optimisticId = undefined
+                    if (task?.id) {
+                        task.id = response.task_id
+                        task.optimisticId = undefined
+                    }
                 })
                 queryClient.setQueryData('tasks_v4', updatedTasks)
             }
             if (views) {
-                const updatedViews = produce(views, (draft) => {
-                    const section = draft.find((section) => section.task_section_id === createData.taskSectionId)
-                    const task = section?.view_items.find((task) => task.id === createData.optimisticId)
-                    if (!task) return
-                    task.id = response.task_id
-                    task.optimisticId = undefined
-                })
-                queryClient.setQueryData('overview', updatedViews)
+                const sectionIdx = views.findIndex((section) => section.task_section_id === createData.taskSectionId)
+                if (sectionIdx !== -1) {
+                    const updatedViews = produce(views, (draft) => {
+                        const tempSections = draft.map((view) => ({
+                            id: view.task_section_id,
+                            tasks: view.view_items,
+                        }))
+                        const task = getTaskFromSections(
+                            tempSections as unknown as TTaskSection[],
+                            createData.parent_task_id ?? createData.optimisticId,
+                            createData.taskSectionId,
+                            createData.parent_task_id ? createData.optimisticId : undefined
+                        )
+                        if (task?.id) {
+                            task.id = response.task_id
+                            task.optimisticId = undefined
+                        }
+                    })
+                    queryClient.setQueryData('overview', updatedViews)
+                    if (
+                        createData.parent_task_id &&
+                        window.location.pathname.startsWith(
+                            `/overview/${views[sectionIdx].id}/${createData.parent_task_id}/${createData.optimisticId}`
+                        )
+                    ) {
+                        navigate(`/overview/${views[sectionIdx].id}/${createData.parent_task_id}/${response.task_id}`)
+                    } else if (
+                        window.location.pathname.startsWith(
+                            `/overview/${views[sectionIdx].id}/${createData.optimisticId}`
+                        )
+                    ) {
+                        navigate(`/overview/${views[sectionIdx].id}/${response.task_id}`)
+                    }
+                }
             }
         },
     })
@@ -274,7 +324,11 @@ export const createTask = async (data: TCreateTaskData) => {
 }
 const modifyTaskOptimisticUpdate = (task: TTask, data: TModifyTaskData) => {
     task.title = data.title || task.title
-    task.due_date = data.dueDate ?? task.due_date
+    if (data.dueDate === '1969-12-31') {
+        task.due_date = ''
+    } else {
+        task.due_date = data.dueDate ?? task.due_date
+    }
     task.body = data.body ?? task.body
     task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
     task.external_status = data.status ?? task.external_status
@@ -287,7 +341,7 @@ const modifyTaskOptimisticUpdate = (task: TTask, data: TModifyTaskData) => {
 }
 export const useModifyTask = () => {
     const queryClient = useGTQueryClient()
-    return useQueuedMutation((data: TModifyTaskData) => modifyTask(data), {
+    return useGTMutation((data: TModifyTaskData) => modifyTask(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TModifyTaskData) => {
@@ -301,9 +355,7 @@ export const useModifyTask = () => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (sections) {
                 const newSections = produce(sections, (draft) => {
-                    const task = data.subtaskId
-                        ? getSubtaskFromSections(draft, data.id, data.subtaskId)
-                        : getTaskFromSections(draft, data.id)
+                    const task = getTaskFromSections(draft, data.id, undefined, data.subtaskId)
                     if (!task) return
                     modifyTaskOptimisticUpdate(task, data)
                 })
@@ -353,6 +405,10 @@ export const useModifyTask = () => {
     })
 }
 const modifyTask = async (data: TModifyTaskData) => {
+    // Format due date to ISO string in format yyyy-MM-dd
+    if (data.dueDate) {
+        data.dueDate = DateTime.fromISO(data.dueDate).toFormat('yyyy-MM-dd')
+    }
     const requestBody: TTaskModifyRequestBody = { task: {} }
     if (data.title !== undefined) requestBody.title = data.title
     if (data.dueDate !== undefined) requestBody.due_date = data.dueDate
@@ -378,7 +434,11 @@ const modifyTask = async (data: TModifyTaskData) => {
 
 export const useMarkTaskDoneOrDeleted = () => {
     const queryClient = useGTQueryClient()
-    return useQueuedMutation((data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data), {
+    const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
+    const navigate = useNavigate()
+    const { setOpenListIds } = useOverviewContext()
+
+    return useGTMutation((data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TMarkTaskDoneOrDeletedData) => {
@@ -473,11 +533,29 @@ export const useMarkTaskDoneOrDeleted = () => {
                     if (draft[sectionIndex].view_items.length === 0) {
                         draft[sectionIndex].has_tasks_completed_today = true
                     }
+                    if (overviewAutomaticEmptySort) {
+                        draft.sort((a, b) => {
+                            if (a.view_items.length === 0 && b.view_items.length > 0) return 1
+                            if (a.view_items.length > 0 && b.view_items.length === 0) return -1
+                            return 0
+                        })
+                    }
                 })
                 if (data.waitForAnimation) {
                     await sleep(TASK_MARK_AS_DONE_TIMEOUT)
                 }
+
                 queryClient.setQueryData('overview', newLists)
+
+                if (window.location.pathname.split('/')[1] !== 'overview') return
+                if (data.subtaskId) return
+                navigateToNextItemAfterOverviewCompletion(
+                    lists as TOverviewView[],
+                    newLists as TOverviewView[],
+                    data.id,
+                    navigate,
+                    setOpenListIds
+                )
             }
             // execute in parallel if waiting for animation delay
             updateSections()
@@ -556,7 +634,7 @@ const reorderSubtasks = (data: TReorderTaskData, queryClient: GTQueryClient) => 
 
 export const useReorderTask = () => {
     const queryClient = useGTQueryClient()
-    return useQueuedMutation((data: TReorderTaskData) => reorderTask(data), {
+    return useGTMutation((data: TReorderTaskData) => reorderTask(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TReorderTaskData) => {
@@ -693,7 +771,7 @@ export const reorderTask = async (data: TReorderTaskData) => {
 
 export const usePostComment = () => {
     const queryClient = useGTQueryClient()
-    return useQueuedMutation((data: TPostCommentData) => postComment(data), {
+    return useGTMutation((data: TPostCommentData) => postComment(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TPostCommentData) => {

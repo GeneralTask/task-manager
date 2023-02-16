@@ -4,7 +4,7 @@ import { DateTime } from 'luxon'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
 import { TNote } from '../../utils/types'
-import { getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 
 export interface TCreateNoteData {
     title: string
@@ -58,7 +58,7 @@ const getNotes = async ({ signal }: QueryFunctionContext) => {
 export const useCreateNote = () => {
     const queryClient = useGTQueryClient()
     const { setOptimisticId } = useQueryContext()
-    return useQueuedMutation((data: TCreateNoteData) => createNote(data), {
+    return useGTMutation((data: TCreateNoteData) => createNote(data), {
         tag: 'notes',
         invalidateTagsOnSettled: ['notes'],
         onMutate: async (data: TCreateNoteData) => {
@@ -107,7 +107,8 @@ export const createNote = async (data: TCreateNoteData) => {
 
 export const useModifyNote = () => {
     const queryClient = useGTQueryClient()
-    return useQueuedMutation((data: TModifyNoteData) => modifyNote(data), {
+    const { getIdFromOptimisticId } = useQueryContext()
+    return useGTMutation((data: TModifyNoteData) => modifyNote(data), {
         tag: 'notes',
         invalidateTagsOnSettled: ['notes'],
         onMutate: async (data: TModifyNoteData) => {
@@ -117,12 +118,12 @@ export const useModifyNote = () => {
             if (!notes) return
 
             const updatedNotes = produce(notes, (draft) => {
-                const note = draft.find((note) => note.id === data.id)
+                const note = draft.find((note) => note.id === data.id || note.id === getIdFromOptimisticId(data.id))
                 if (!note) return
                 note.title = data.title || note.title
                 note.body = data.body ?? note.body
                 note.shared_until = data.shared_until ?? note.shared_until
-                note.updated_at = DateTime.now().toISO()
+                note.updated_at = DateTime.utc().toISO()
                 note.is_deleted = data.is_deleted ?? note.is_deleted
             })
             queryClient.setQueryData('notes', updatedNotes)
@@ -147,8 +148,8 @@ export const createNewNoteHelper = (
         title: data.title,
         body: data.body ?? '',
         author: data.author,
-        created_at: data.created_at ?? DateTime.local().toISO(),
-        updated_at: data.updated_at ?? DateTime.local().toISO(),
+        created_at: data.created_at ?? DateTime.utc().toISO(),
+        updated_at: data.updated_at ?? DateTime.utc().toISO(),
         is_deleted: data.is_deleted ?? false,
         shared_until: data.shared_until,
     }

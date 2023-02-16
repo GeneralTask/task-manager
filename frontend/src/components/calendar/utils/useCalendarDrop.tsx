@@ -5,12 +5,8 @@ import { renderToString } from 'react-dom/server'
 import { DateTime } from 'luxon'
 import showdown from 'showdown'
 import { v4 as uuidv4 } from 'uuid'
-import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../../constants'
-import { usePreviewMode, useSetting, useToast } from '../../../hooks'
-import { useAuthWindow } from '../../../hooks'
-import { useCreateEvent, useModifyEvent } from '../../../services/api/events.hooks'
-import { useGetSupportedTypes } from '../../../services/api/settings.hooks'
-import { logos } from '../../../styles/images'
+import { useSetting } from '../../../hooks'
+import { useCreateEvent, useGetCalendars, useModifyEvent } from '../../../services/api/events.hooks'
 import { getDiffBetweenISOTimes } from '../../../utils/time'
 import { DropItem, DropType, TEvent } from '../../../utils/types'
 import { NuxTaskBodyStatic } from '../../details/NUXTaskBody'
@@ -20,25 +16,22 @@ import {
     EVENT_CREATION_INTERVAL_IN_MINUTES,
     EVENT_CREATION_INTERVAL_PER_HOUR,
 } from '../CalendarEvents-styles'
+import useConnectGoogleAccountToast from './useConnectGoogleAccountToast'
 
 interface CalendarDropArgs {
-    primaryAccountID: string | undefined
     date: DateTime
     eventsContainerRef: React.MutableRefObject<HTMLDivElement | null>
 }
 
-const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: CalendarDropArgs) => {
+const useCalendarDrop = ({ date, eventsContainerRef }: CalendarDropArgs) => {
     const { mutate: createEvent } = useCreateEvent()
     const { mutate: modifyEvent } = useModifyEvent()
     const [dropPreviewPosition, setDropPreviewPosition] = useState(0)
     const [eventPreview, setEventPreview] = useState<TEvent>()
-    const toast = useToast()
-    const { data: supportedTypes } = useGetSupportedTypes()
-    const googleSupportedType = supportedTypes?.find((type) => type.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)
-    const { openAuthWindow } = useAuthWindow()
-    const { isPreviewMode } = usePreviewMode()
+    const { data: calendars } = useGetCalendars()
     const { field_value: taskToCalAccount } = useSetting('calendar_account_id_for_new_tasks')
-    const { field_value: taskToCalCalendar } = useSetting('calendar_id_for_new_tasks')
+    const { field_value: taskToCalCalendar } = useSetting('calendar_calendar_id_for_new_tasks')
+    const showConnectToast = useConnectGoogleAccountToast()
 
     const getTimeFromDropPosition = useCallback(
         (dropPosition: number) =>
@@ -64,54 +57,37 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
     }, [eventPreview, dropPreviewPosition])
 
     // returns index of 15 minute block on the calendar, i.e. 12 am is 0, 12:15 AM is 1, etc.
-    const getDropPosition = useCallback(
-        (monitor: DropTargetMonitor) => {
-            const clientOffset = monitor.getClientOffset()
-            const itemType = monitor.getItemType()
-            // if dragging an event, the distance from the mouse to the top of the event
-            let mouseFromEventTopOffset = 0
-            if (itemType === DropType.EVENT) {
-                const initialClientOffset = monitor.getInitialClientOffset()
-                const initialSourceClientOffset = monitor.getInitialSourceClientOffset()
-                const { event } = monitor.getItem<DropItem>()
-                if (initialClientOffset && initialSourceClientOffset && event) {
-                    const startTime = DateTime.fromISO(event.datetime_start)
-                    const eventBodyTop = CELL_HEIGHT_VALUE * startTime.diff(startTime.startOf('day'), 'hours').hours
-                    mouseFromEventTopOffset = initialClientOffset.y - initialSourceClientOffset.y - eventBodyTop
-                }
+    const getDropPosition = useCallback((monitor: DropTargetMonitor) => {
+        const clientOffset = monitor.getClientOffset()
+        const itemType = monitor.getItemType()
+        // if dragging an event, the distance from the mouse to the top of the event
+        let mouseFromEventTopOffset = 0
+        if (itemType === DropType.EVENT) {
+            const initialClientOffset = monitor.getInitialClientOffset()
+            const initialSourceClientOffset = monitor.getInitialSourceClientOffset()
+            const { event } = monitor.getItem<DropItem>()
+            if (initialClientOffset && initialSourceClientOffset && event) {
+                const startTime = DateTime.fromISO(event.datetime_start)
+                const eventBodyTop = CELL_HEIGHT_VALUE * startTime.diff(startTime.startOf('day'), 'hours').hours
+                mouseFromEventTopOffset = initialClientOffset.y - initialSourceClientOffset.y - eventBodyTop
             }
-            // snap drop position to mouse position
-            if (itemType === DropType.EVENT || itemType === DropType.EVENT_RESIZE_HANDLE) {
-                mouseFromEventTopOffset -= EVENT_CREATION_INTERVAL_HEIGHT / 2
-            }
-            if (!eventsContainerRef?.current || !clientOffset || !primaryAccountID) return 0
-            const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
-            const yPosInEventsContainer =
-                clientOffset.y - eventsContainerOffset + eventsContainerRef.current.scrollTop - mouseFromEventTopOffset
-            return Math.floor(yPosInEventsContainer / EVENT_CREATION_INTERVAL_HEIGHT)
-        },
-        [primaryAccountID]
-    )
+        }
+        // snap drop position to mouse position
+        if (itemType === DropType.EVENT || itemType === DropType.EVENT_RESIZE_HANDLE) {
+            mouseFromEventTopOffset -= EVENT_CREATION_INTERVAL_HEIGHT / 2
+        }
+        if (!eventsContainerRef?.current || !clientOffset) return 0
+        const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
+        const yPosInEventsContainer =
+            clientOffset.y - eventsContainerOffset + eventsContainerRef.current.scrollTop - mouseFromEventTopOffset
+        return Math.floor(yPosInEventsContainer / EVENT_CREATION_INTERVAL_HEIGHT)
+    }, [])
 
     const onDrop = useCallback(
         (item: DropItem, monitor: DropTargetMonitor) => {
             const itemType = monitor.getItemType()
-            if (!primaryAccountID) {
-                const toastProps = {
-                    title: '',
-                    message: 'Connect your Google account to create events from tasks.',
-                    rightAction: {
-                        icon: logos.gcal,
-                        label: 'Connect',
-                        onClick: () => {
-                            openAuthWindow({ url: googleSupportedType?.authorization_url, isGoogleSignIn: true })
-                        },
-                    },
-                }
-                toast.show(toastProps, {
-                    autoClose: 2000,
-                    pauseOnFocusLoss: false,
-                })
+            if (!calendars?.length) {
+                showConnectToast()
                 return
             }
             const dropPosition = getDropPosition(monitor)
@@ -121,18 +97,21 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                 case DropType.SUBTASK:
                 case DropType.NON_REORDERABLE_TASK:
                 case DropType.DUE_TASK:
-                case DropType.TASK: {
-                    if (!item.task) return
+                case DropType.TASK:
+                case DropType.PULL_REQUEST: {
+                    const droppableItem = item.task ?? item.pullRequest
+                    if (!droppableItem) return
                     const end = dropTime.plus({ minutes: 30 })
                     const converter = new showdown.Converter()
                     let description
-                    if (item.task.nux_number_id) {
+
+                    if (item.task?.nux_number_id) {
                         // if this is a nux task, override body
                         description = renderToString(
                             <NuxTaskBodyStatic nux_number_id={item.task.nux_number_id} renderSettingsModal={false} />
                         )
                     } else {
-                        description = converter.makeHtml(item.task.body)
+                        description = converter.makeHtml(droppableItem.body)
                         if (description !== '') {
                             description += '\n'
                         }
@@ -140,18 +119,21 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                         description +=
                             '<a href="https://generaltask.com/" __is_owner="true">created by General Task</a>'
                     }
+
                     createEvent({
                         createEventPayload: {
-                            account_id: isPreviewMode ? taskToCalAccount : primaryAccountID,
-                            calendar_id: isPreviewMode ? taskToCalCalendar : undefined,
+                            account_id: taskToCalAccount,
+                            calendar_id: taskToCalCalendar,
                             datetime_start: dropTime.toISO(),
                             datetime_end: end.toISO(),
-                            summary: item.task.title,
+                            summary: droppableItem.title,
                             description,
-                            task_id: item.task.id,
+                            task_id: item.task?.id ?? '',
+                            pr_id: item.pullRequest?.id ?? '',
                         },
                         date,
                         linkedTask: item.task,
+                        linkedPullRequest: item.pullRequest,
                         optimisticId: uuidv4(),
                     })
                     break
@@ -167,6 +149,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                             event: item.event,
                             payload: {
                                 account_id: item.event.account_id,
+                                calendar_id: item.event.calendar_id,
                                 datetime_start: dropTime.toISO(),
                                 datetime_end: end.toISO(),
                             },
@@ -190,6 +173,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                             event: item.event,
                             payload: {
                                 account_id: item.event.account_id,
+                                calendar_id: item.event.calendar_id,
                                 datetime_end: end.toISO(),
                             },
                             date,
@@ -204,8 +188,8 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                     createEvent({
                         createEventPayload: {
                             summary: item.view.name,
-                            account_id: isPreviewMode ? taskToCalAccount : primaryAccountID,
-                            calendar_id: isPreviewMode ? taskToCalCalendar : undefined,
+                            account_id: taskToCalAccount,
+                            calendar_id: taskToCalCalendar,
                             datetime_start: dropTime.toISO(),
                             datetime_end: end.toISO(),
                             view_id: item.view.id,
@@ -218,7 +202,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                 }
             }
         },
-        [date, primaryAccountID]
+        [date, calendars]
     )
 
     const [isOver, drop] = useDrop(
@@ -232,8 +216,9 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                 DropType.EVENT_RESIZE_HANDLE,
                 DropType.OVERVIEW_VIEW_HEADER,
                 DropType.WEEK_TASK_TO_CALENDAR_TASK,
+                DropType.PULL_REQUEST,
             ],
-            collect: (monitor) => primaryAccountID && monitor.isOver(),
+            collect: (monitor) => !!calendars?.length && monitor.isOver(),
             drop: onDrop,
             hover: (item, monitor) => {
                 const dropPosition = getDropPosition(monitor)
@@ -242,7 +227,8 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                     case DropType.WEEK_TASK_TO_CALENDAR_TASK:
                     case DropType.SUBTASK:
                     case DropType.NON_REORDERABLE_TASK:
-                    case DropType.TASK: {
+                    case DropType.TASK:
+                    case DropType.PULL_REQUEST: {
                         setEventPreview(undefined)
                         setDropPreviewPosition(dropPosition)
                         break
@@ -284,7 +270,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                 }
             },
         }),
-        [primaryAccountID, onDrop, date]
+        [calendars, onDrop, date]
     )
 
     useEffect(() => {

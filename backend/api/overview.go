@@ -560,6 +560,7 @@ func (api *API) GetDueTodayOverviewResult(view database.View, userID primitive.O
 		{"due_date": bson.M{"$lte": primitive.NewDateTimeFromTime(timeEndOfDay)}},
 		{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Time{})}},
 		{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Unix(0, 0))}},
+		{"due_date": bson.M{"$gte": primitive.NewDateTimeFromTime(time.Unix(63090000, 0))}},
 	}, nil)
 	if err != nil {
 		return nil, err
@@ -582,6 +583,7 @@ func (api *API) GetDueTodayOverviewResult(view database.View, userID primitive.O
 			{"due_date": bson.M{"$lte": primitive.NewDateTimeFromTime(timeEndOfDay)}},
 			{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Time{})}},
 			{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Unix(0, 0))}},
+			{"due_date": bson.M{"$gte": primitive.NewDateTimeFromTime(time.Unix(63090000, 0))}},
 		},
 	)
 
@@ -594,8 +596,8 @@ func reorderTaskResultsByDueDate(taskResults []*TaskResult) []*TaskResult {
 	sort.SliceStable(taskResults, func(i, j int) bool {
 		a := taskResults[i]
 		b := taskResults[j]
-		aTime, _ := time.Parse(time.RFC3339, a.DueDate)
-		bTime, _ := time.Parse(time.RFC3339, b.DueDate)
+		aTime, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, a.DueDate)
+		bTime, _ := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, b.DueDate)
 		return aTime.Unix() < bTime.Unix()
 	})
 	for idx, result := range taskResults {

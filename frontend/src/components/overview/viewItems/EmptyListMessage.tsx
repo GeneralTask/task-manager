@@ -12,7 +12,6 @@ const EmptyListMessageContainer = styled.div`
     align-items: center;
     gap: ${Spacing._12};
     justify-content: center;
-    margin: ${Spacing._24} 0 ${Spacing._32};
 `
 
 const emptyListMessage = (list: TOverviewView) => {
@@ -28,7 +27,7 @@ const emptyListMessage = (list: TOverviewView) => {
         case 'slack':
             return 'Saved messages will appear here.'
         case 'due_today':
-            return 'Tasks due today will appear here.'
+            return 'Tasks which are due today will appear here.'
         default:
             return ''
     }

@@ -1,19 +1,17 @@
-import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { useGTLocalStorage } from '../../hooks'
+import useOverviewContext from '../../context/OverviewContextProvider'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
-import { TPullRequest, TTask } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
-import EmptyDetails from '../details/EmptyDetails'
-import PullRequestDetails from '../details/PullRequestDetails'
-import TaskDetails from '../details/TaskDetails'
+import { useCalendarContext } from '../calendar/CalendarContext'
 import { SectionHeader } from '../molecules/Header'
 import AccordionItem from '../overview/AccordionItem'
 import EditModal from '../overview/EditModal'
+import OverviewDetails from '../overview/OverviewDetails'
 import SmartPrioritizationBanner from '../overview/SmartPrioritizationBanner'
 import useOverviewLists from '../overview/useOverviewLists'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
@@ -34,83 +32,39 @@ const RightActions = styled.div`
     display: flex;
 `
 
-export const useGetCorrectlyOrderedOverviewLists = () => {
-    const { lists, isLoading } = useOverviewLists()
-    const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
-    if (overviewAutomaticEmptySort) {
-        const listsCopy = [...lists]
-        listsCopy.sort((a, b) => {
-            if (a.view_items.length === 0 && b.view_items.length > 0) return 1
-            if (a.view_items.length > 0 && b.view_items.length === 0) return -1
-            return 0
-        })
-        return { lists: listsCopy, isLoading }
-    }
-    return { lists, isLoading }
+const useSelectFirstItemOnFirstLoad = () => {
+    const { setOpenListIds } = useOverviewContext()
+    const { lists, isSuccess } = useOverviewLists()
+    const isFirstSuccess = useRef(true)
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        if (!isFirstSuccess.current || lists?.length === 0) return
+        const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
+        if (firstNonEmptyView) {
+            setOpenListIds((ids) => {
+                if (!ids.includes(firstNonEmptyView.id)) {
+                    return [...ids, firstNonEmptyView.id]
+                }
+                return ids
+            })
+            navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
+        } else {
+            navigate(`/overview`, { replace: true })
+        }
+        isFirstSuccess.current = false
+    }, [lists, isSuccess])
 }
 
 const DailyOverviewView = () => {
     const [isEditListsModalOpen, setIsEditListsModalOpen] = useState(false)
     const [editListTabIndex, setEditListTabIndex] = useState(0) // 0 - add, 1 - reorder
-    const { overviewViewId, overviewItemId, subtaskId } = useParams()
-    const navigate = useNavigate()
 
-    const [openListIds, setOpenListIds] = useState<string[]>([])
-    const expandAll = () => setOpenListIds(lists.map((list) => list.id))
-    const collapseAll = () => setOpenListIds([])
+    const { calendarType } = useCalendarContext()
+    useSelectFirstItemOnFirstLoad()
+    const { expandAll, collapseAll } = useOverviewContext()
 
-    const { lists, isLoading } = useGetCorrectlyOrderedOverviewLists()
-    useLayoutEffect(() => {
-        if (overviewViewId && overviewItemId) {
-            setOpenListIds((ids) => {
-                if (!openListIds.includes(overviewViewId)) {
-                    return [...ids, overviewViewId]
-                }
-                return ids
-            })
-        }
-    }, [overviewItemId, JSON.stringify(lists)])
-
-    const selectFirstItem = () => {
-        const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
-        if (firstNonEmptyView) {
-            navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
-        }
-    }
-
-    const detailsView = useMemo(() => {
-        if (!lists?.length) return <EmptyDetails icon={icons.list} text="You have no views" />
-        for (const list of lists) {
-            if (list.id !== overviewViewId) continue
-            for (const item of list.view_items) {
-                if (item.id !== overviewItemId) continue
-                if (list.type === 'github') return <PullRequestDetails pullRequest={item as TPullRequest} />
-
-                const subtask = item?.sub_tasks?.find((subtask) => subtask.id === subtaskId)
-                const detailsLink = subtask
-                    ? `/overview/${list.id}/${item.id}/${subtask.id}`
-                    : `/overview/${list.id}/${item.id}`
-                return <TaskDetails task={item as TTask} subtask={subtask} link={detailsLink} />
-            }
-        }
-        return null
-    }, [lists, overviewItemId, overviewViewId, subtaskId])
-
-    useEffect(() => {
-        if (!isLoading && (!overviewViewId || !overviewItemId || !detailsView)) {
-            selectFirstItem()
-        }
-        for (const list of lists) {
-            if (list.id === overviewViewId) {
-                for (const item of list.view_items) {
-                    if (item.id === overviewItemId) {
-                        return
-                    }
-                }
-            }
-        }
-        selectFirstItem()
-    }, [isLoading, overviewViewId, overviewItemId, lists, detailsView])
+    const { lists, isLoading } = useOverviewLists()
 
     if (isLoading) return <Spinner />
     return (
@@ -166,16 +120,11 @@ const DailyOverviewView = () => {
                     </ActionsContainer>
                     <SmartPrioritizationBanner />
                     {lists.map((list) => (
-                        <AccordionItem
-                            key={list.id}
-                            list={list}
-                            openListIds={openListIds}
-                            setOpenListIds={setOpenListIds}
-                        />
+                        <AccordionItem key={list.id} list={list} />
                     ))}
                 </ScrollableListTemplate>
             </Flex>
-            {detailsView}
+            {calendarType === 'day' && <OverviewDetails />}
             <EditModal
                 isOpen={isEditListsModalOpen}
                 setisOpen={setIsEditListsModalOpen}

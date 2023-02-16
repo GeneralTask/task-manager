@@ -72,7 +72,7 @@ const TaskSectionView = () => {
     const section = useMemo(() => taskSections?.find(({ id }) => id === params.section), [taskSections, params.section])
 
     const sortAndFilterSettings = useSortAndFilterSettings<TTask>(TASK_SORT_AND_FILTER_CONFIG, section?.id, '_main')
-    const { selectedSort, selectedSortDirection, selectedFilter, isLoading: areSettingsLoading } = sortAndFilterSettings
+    const { selectedSort, selectedSortDirection, isLoading: areSettingsLoading } = sortAndFilterSettings
     const sortedTasks = useMemo(() => {
         if (section && (section.is_done || section.is_trash)) return section.tasks
         if (!section || areSettingsLoading) return []
@@ -82,12 +82,9 @@ const TaskSectionView = () => {
             sortDirection: selectedSortDirection,
             tieBreakerField: TASK_SORT_AND_FILTER_CONFIG.tieBreakerField,
         })
-    }, [section, selectedSort, selectedSortDirection, selectedFilter])
+    }, [section, selectedSort, selectedSortDirection, areSettingsLoading])
 
-    const task = useMemo(
-        () => sortedTasks.find(({ id }) => id === params.task) ?? (sortedTasks.length > 0 ? sortedTasks[0] : undefined),
-        [sortedTasks, params.task]
-    )
+    const task = useMemo(() => sortedTasks.find(({ id }) => id === params.task), [sortedTasks, params.task])
     const subtask = useMemo(() => task?.sub_tasks?.find(({ id }) => id === params.subtaskId), [task, params.subtaskId])
 
     const [taskIndex, setTaskIndex] = useState(0)
@@ -138,11 +135,7 @@ const TaskSectionView = () => {
                 navigate(`/tasks/${section.id}/${sortedTasks[0].id}`, { replace: true })
             }
         }
-    }, [taskSections, params.section, params.task])
-
-    const detailsLink = subtask
-        ? `/tasks/${params.section}/${task?.id}/${subtask.id}`
-        : `/tasks/${params.section}/${task?.id}`
+    }, [taskSections, params.section, params.task, sortedTasks])
 
     useItemSelectionController(sortedTasks, selectTask)
 
@@ -262,7 +255,7 @@ const TaskSectionView = () => {
             {calendarType === 'day' && (
                 <>
                     {task && section ? (
-                        <TaskDetails task={task} subtask={subtask} link={detailsLink} />
+                        <TaskDetails task={task} subtask={subtask} />
                     ) : (
                         <EmptyDetails icon={icons.check} text="You have no tasks" />
                     )}

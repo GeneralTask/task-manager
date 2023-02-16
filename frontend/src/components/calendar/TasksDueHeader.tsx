@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
@@ -21,8 +22,9 @@ interface TasksDueHeaderProps {
     dueType: 'due' | 'overdue'
     numTasksDue: number
     hideCollapseButton?: boolean
+    date: DateTime
 }
-const TasksDueHeader = ({ type, dueType, numTasksDue, hideCollapseButton }: TasksDueHeaderProps) => {
+const TasksDueHeader = ({ type, dueType, numTasksDue, hideCollapseButton, date }: TasksDueHeaderProps) => {
     const {
         isTasksDueViewCollapsed,
         setIsTasksDueViewCollapsed,
@@ -31,7 +33,8 @@ const TasksDueHeader = ({ type, dueType, numTasksDue, hideCollapseButton }: Task
     } = useCalendarContext()
     const isCollapsed = dueType === 'due' ? isTasksDueViewCollapsed : isTasksOverdueViewCollapsed
     const caretIcon = isCollapsed ? icons.caret_right : icons.caret_down
-    const dayMessage = dueType === 'due' ? `Due today (${numTasksDue})` : `Overdue (${numTasksDue})`
+    const dayMessage =
+        dueType === 'due' ? `Due ${date.toRelativeCalendar()} (${numTasksDue})` : `Overdue (${numTasksDue})`
     const weekMessage = numTasksDue === 1 ? `1 task` : `${numTasksDue} tasks`
     const message = type === 'day' ? dayMessage : weekMessage
 

@@ -12,7 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type SettingDefinition struct {
@@ -33,52 +32,8 @@ type SettingChoice struct {
 	Name string `json:"choice_name"`
 }
 
-const (
-	// Sidebar settings
-	SettingFieldSidebarLinearPreference = "sidebar_linear_preference"
-	SettingFieldSidebarJiraPreference   = "sidebar_jira_preference"
-	SettingFieldSidebarGithubPreference = "sidebar_github_preference"
-	SettingFieldSidebarSlackPreference  = "sidebar_slack_preference"
-	// Github PR filtering
-	SettingFieldGithubFilteringPreference = "github_filtering_preference"
-	ChoiceKeyAllPRs                       = "all_prs"
-	ChoiceKeyActionableOnly               = "actionable_only"
-	// Github PR sorting
-	SettingFieldGithubSortingPreference = "github_sorting_preference"
-	ChoiceKeyRequiredAction             = "required_action"
-	ChoiceKeyPRNumber                   = "pr_number"
-	ChoiceKeyCreatedAt                  = "created_at"
-	ChoiceKeyUpdatedAt                  = "updated_at"
-	// Github PR sorting direction
-	SettingFieldGithubSortingDirection = "github_sorting_direction"
-	ChoiceKeyDescending                = "descending"
-	ChoiceKeyAscending                 = "ascending"
-	// Task sorting
-	SettingFieldTaskSortingPreference = "task_sorting_preference"
-	SettingFieldTaskSortingDirection  = "task_sorting_direction"
-	ChoiceKeyManual                   = "manual"
-	ChoiceKeyDueDate                  = "due_date"
-	ChoiceKeyPriority                 = "priority"
-	// Note sorting and filtering
-	SettingFieldNoteSortingPreference   = "note_sorting_preference"
-	SettingFieldNoteSortingDirection    = "note_sorting_direction"
-	SettingFieldNoteFilteringPreference = "note_filtering_preference"
-	ChoiceKeyNoDeleted                  = "no_deleted"
-	ChoiceKeyShowDeleted                = "show_deleted"
-	// Calendar choice
-	SettingFieldCalendarForNewTasks   = "calendar_account_id_for_new_tasks"
-	SettingFieldCalendarIDForNewTasks = "calendar_calendar_id_for_new_tasks"
-	// Overview page settings
-	SettingCollapseEmptyLists     = "collapse_empty_lists"
-	SettingMoveEmptyListsToBottom = "move_empty_lists_to_bottom"
-	// Lab settings
-	LabSmartPrioritizeEnabled = "lab_smart_prioritize_enabled"
-	// Misc settings
-	HasDismissedMulticalPrompt = "has_dismissed_multical_prompt"
-)
-
 var SidebarLinearSetting = SettingDefinition{
-	FieldKey:      SettingFieldSidebarLinearPreference,
+	FieldKey:      constants.SettingFieldSidebarLinearPreference,
 	DefaultChoice: "true",
 	Choices: []SettingChoice{
 		{Key: "true"},
@@ -87,7 +42,7 @@ var SidebarLinearSetting = SettingDefinition{
 }
 
 var SidebarJiraSetting = SettingDefinition{
-	FieldKey:      SettingFieldSidebarJiraPreference,
+	FieldKey:      constants.SettingFieldSidebarJiraPreference,
 	DefaultChoice: "true",
 	Choices: []SettingChoice{
 		{Key: "true"},
@@ -96,7 +51,7 @@ var SidebarJiraSetting = SettingDefinition{
 }
 
 var SidebarGithubSetting = SettingDefinition{
-	FieldKey:      SettingFieldSidebarGithubPreference,
+	FieldKey:      constants.SettingFieldSidebarGithubPreference,
 	DefaultChoice: "true",
 	Choices: []SettingChoice{
 		{Key: "true"},
@@ -105,7 +60,7 @@ var SidebarGithubSetting = SettingDefinition{
 }
 
 var SidebarSlackSetting = SettingDefinition{
-	FieldKey:      SettingFieldSidebarSlackPreference,
+	FieldKey:      constants.SettingFieldSidebarSlackPreference,
 	DefaultChoice: "true",
 	Choices: []SettingChoice{
 		{Key: "true"},
@@ -115,84 +70,93 @@ var SidebarSlackSetting = SettingDefinition{
 
 // human readable names aren't defined here because they are not used
 var GithubFilteringSetting = SettingDefinition{
-	FieldKey:      SettingFieldGithubFilteringPreference,
-	DefaultChoice: ChoiceKeyActionableOnly,
+	FieldKey:      constants.SettingFieldGithubFilteringPreference,
+	DefaultChoice: constants.ChoiceKeyActionableOnly,
 	Choices: []SettingChoice{
-		{Key: ChoiceKeyActionableOnly},
-		{Key: ChoiceKeyAllPRs},
+		{Key: constants.ChoiceKeyActionableOnly},
+		{Key: constants.ChoiceKeyAllPRs},
 	},
 }
 
 var GithubSortingPreferenceSetting = SettingDefinition{
-	FieldKey:      SettingFieldGithubSortingPreference,
-	DefaultChoice: ChoiceKeyRequiredAction,
+	FieldKey:      constants.SettingFieldGithubSortingPreference,
+	DefaultChoice: constants.ChoiceKeyRequiredAction,
 	Choices: []SettingChoice{
-		{Key: ChoiceKeyRequiredAction},
-		{Key: ChoiceKeyPRNumber},
-		{Key: ChoiceKeyCreatedAt},
-		{Key: ChoiceKeyUpdatedAt},
+		{Key: constants.ChoiceKeyRequiredAction},
+		{Key: constants.ChoiceKeyPRNumber},
+		{Key: constants.ChoiceKeyCreatedAt},
+		{Key: constants.ChoiceKeyUpdatedAt},
 	},
 }
 
 var GithubSortingDirectionSetting = SettingDefinition{
-	FieldKey:      SettingFieldGithubSortingDirection,
-	DefaultChoice: ChoiceKeyDescending,
+	FieldKey:      constants.SettingFieldGithubSortingDirection,
+	DefaultChoice: constants.ChoiceKeyDescending,
 	Choices: []SettingChoice{
-		{Key: ChoiceKeyDescending},
-		{Key: ChoiceKeyAscending},
+		{Key: constants.ChoiceKeyDescending},
+		{Key: constants.ChoiceKeyAscending},
 	},
 }
 
 var TaskSortingPreferenceSetting = SettingDefinition{
-	FieldKey:      SettingFieldTaskSortingPreference,
-	DefaultChoice: ChoiceKeyManual,
+	FieldKey:      constants.SettingFieldTaskSortingPreference,
+	DefaultChoice: constants.ChoiceKeyManual,
 	Choices: []SettingChoice{
-		{Key: ChoiceKeyManual},
-		{Key: ChoiceKeyDueDate},
-		{Key: ChoiceKeyPriority},
-		{Key: ChoiceKeyCreatedAt},
-		{Key: ChoiceKeyUpdatedAt},
+		{Key: constants.ChoiceKeyManual},
+		{Key: constants.ChoiceKeyDueDate},
+		{Key: constants.ChoiceKeyPriority},
+		{Key: constants.ChoiceKeyCreatedAt},
+		{Key: constants.ChoiceKeyUpdatedAt},
 	},
 }
 
 var TaskSortingDirectionSetting = SettingDefinition{
-	FieldKey:      SettingFieldTaskSortingDirection,
-	DefaultChoice: ChoiceKeyDescending,
+	FieldKey:      constants.SettingFieldTaskSortingDirection,
+	DefaultChoice: constants.ChoiceKeyDescending,
 	Choices: []SettingChoice{
-		{Key: ChoiceKeyDescending},
-		{Key: ChoiceKeyAscending},
+		{Key: constants.ChoiceKeyDescending},
+		{Key: constants.ChoiceKeyAscending},
 	},
 }
 
 var NoteSortingPreferenceSetting = SettingDefinition{
-	FieldKey:      SettingFieldNoteSortingPreference,
-	DefaultChoice: ChoiceKeyUpdatedAt,
+	FieldKey:      constants.SettingFieldNoteSortingPreference,
+	DefaultChoice: constants.ChoiceKeyUpdatedAt,
 	Choices: []SettingChoice{
-		{Key: ChoiceKeyUpdatedAt},
-		{Key: ChoiceKeyCreatedAt},
+		{Key: constants.ChoiceKeyUpdatedAt},
+		{Key: constants.ChoiceKeyCreatedAt},
 	},
 }
 
 var NoteSortingDirectionSetting = SettingDefinition{
-	FieldKey:      SettingFieldNoteSortingDirection,
-	DefaultChoice: ChoiceKeyDescending,
+	FieldKey:      constants.SettingFieldNoteSortingDirection,
+	DefaultChoice: constants.ChoiceKeyDescending,
 	Choices: []SettingChoice{
-		{Key: ChoiceKeyDescending},
-		{Key: ChoiceKeyAscending},
+		{Key: constants.ChoiceKeyDescending},
+		{Key: constants.ChoiceKeyAscending},
 	},
 }
 
 var NoteFilteringSetting = SettingDefinition{
-	FieldKey:      SettingFieldNoteFilteringPreference,
-	DefaultChoice: ChoiceKeyNoDeleted,
+	FieldKey:      constants.SettingFieldNoteFilteringPreference,
+	DefaultChoice: constants.ChoiceKeyNoDeleted,
 	Choices: []SettingChoice{
-		{Key: ChoiceKeyNoDeleted},
-		{Key: ChoiceKeyShowDeleted},
+		{Key: constants.ChoiceKeyNoDeleted},
+		{Key: constants.ChoiceKeyShowDeleted},
+	},
+}
+
+var RecurringTaskFilteringSetting = SettingDefinition{
+	FieldKey:      constants.SettingFieldRecurringTaskFilteringPreference,
+	DefaultChoice: constants.ChoiceKeyNoDeleted,
+	Choices: []SettingChoice{
+		{Key: constants.ChoiceKeyNoDeleted},
+		{Key: constants.ChoiceKeyShowDeleted},
 	},
 }
 
 var OverviewCollapseEmptyListsSetting = SettingDefinition{
-	FieldKey:      SettingCollapseEmptyLists,
+	FieldKey:      constants.SettingCollapseEmptyLists,
 	DefaultChoice: "true",
 	Choices: []SettingChoice{
 		{Key: "true"},
@@ -201,7 +165,7 @@ var OverviewCollapseEmptyListsSetting = SettingDefinition{
 }
 
 var OverviewMoveEmptyListsToBottomSetting = SettingDefinition{
-	FieldKey:      SettingMoveEmptyListsToBottom,
+	FieldKey:      constants.SettingMoveEmptyListsToBottom,
 	DefaultChoice: "true",
 	Choices: []SettingChoice{
 		{Key: "true"},
@@ -210,7 +174,7 @@ var OverviewMoveEmptyListsToBottomSetting = SettingDefinition{
 }
 
 var LabSmartPrioritizeEnabledSetting = SettingDefinition{
-	FieldKey:      LabSmartPrioritizeEnabled,
+	FieldKey:      constants.LabSmartPrioritizeEnabled,
 	DefaultChoice: "false",
 	Choices: []SettingChoice{
 		{Key: "true"},
@@ -219,7 +183,7 @@ var LabSmartPrioritizeEnabledSetting = SettingDefinition{
 }
 
 var HasDismissedMulticalPromptSetting = SettingDefinition{
-	FieldKey:      HasDismissedMulticalPrompt,
+	FieldKey:      constants.HasDismissedMulticalPrompt,
 	DefaultChoice: "false",
 	Choices: []SettingChoice{
 		{Key: "true"},
@@ -230,22 +194,27 @@ var HasDismissedMulticalPromptSetting = SettingDefinition{
 var TaskSectionSettingTypes = []string{"main", "overview"}
 
 var hardcodedSettings = []SettingDefinition{
-	// these settings are for the Github PR page
+	// Github PR page settings
 	GithubFilteringSetting,
 	GithubSortingPreferenceSetting,
 	GithubSortingDirectionSetting,
-	// these settings are for the sidebar
+	// sidebar settings
 	SidebarLinearSetting,
 	SidebarJiraSetting,
 	SidebarGithubSetting,
 	SidebarSlackSetting,
-	// these settings are for the notes page
+	// notes page settings
 	NoteSortingPreferenceSetting,
 	NoteSortingDirectionSetting,
 	NoteFilteringSetting,
+	// recurring tasks page settings
+	RecurringTaskFilteringSetting,
+	// overview settings
 	OverviewCollapseEmptyListsSetting,
 	OverviewMoveEmptyListsToBottomSetting,
+	// smart prioritize settings
 	LabSmartPrioritizeEnabledSetting,
+	// multical settings
 	HasDismissedMulticalPromptSetting,
 }
 
@@ -261,17 +230,17 @@ func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]Setti
 		settingsOptions = append(
 			settingsOptions,
 			SettingDefinition{
-				FieldKey:      getGithubFieldKey(githubView, SettingFieldGithubFilteringPreference),
+				FieldKey:      getGithubFieldKey(githubView, constants.SettingFieldGithubFilteringPreference),
 				DefaultChoice: GithubFilteringSetting.DefaultChoice,
 				Choices:       GithubFilteringSetting.Choices,
 			},
 			SettingDefinition{
-				FieldKey:      getGithubFieldKey(githubView, SettingFieldGithubSortingPreference),
+				FieldKey:      getGithubFieldKey(githubView, constants.SettingFieldGithubSortingPreference),
 				DefaultChoice: GithubSortingPreferenceSetting.DefaultChoice,
 				Choices:       GithubSortingPreferenceSetting.Choices,
 			},
 			SettingDefinition{
-				FieldKey:      getGithubFieldKey(githubView, SettingFieldGithubSortingDirection),
+				FieldKey:      getGithubFieldKey(githubView, constants.SettingFieldGithubSortingDirection),
 				DefaultChoice: GithubSortingDirectionSetting.DefaultChoice,
 				Choices:       GithubSortingDirectionSetting.Choices,
 			},
@@ -288,12 +257,12 @@ func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]Setti
 			settingsOptions = append(
 				settingsOptions,
 				SettingDefinition{
-					FieldKey:      getTaskSectionFieldKey(taskSection, SettingFieldTaskSortingPreference, settingType),
+					FieldKey:      getTaskSectionFieldKey(taskSection, constants.SettingFieldTaskSortingPreference, settingType),
 					DefaultChoice: TaskSortingPreferenceSetting.DefaultChoice,
 					Choices:       TaskSortingPreferenceSetting.Choices,
 				},
 				SettingDefinition{
-					FieldKey:      getTaskSectionFieldKey(taskSection, SettingFieldTaskSortingDirection, settingType),
+					FieldKey:      getTaskSectionFieldKey(taskSection, constants.SettingFieldTaskSortingDirection, settingType),
 					DefaultChoice: TaskSortingDirectionSetting.DefaultChoice,
 					Choices:       TaskSortingDirectionSetting.Choices,
 				},
@@ -314,7 +283,7 @@ func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]Setti
 	}
 	if len(calendarChoices) > 0 {
 		settingsOptions = append(settingsOptions, SettingDefinition{
-			FieldKey:      SettingFieldCalendarForNewTasks,
+			FieldKey:      constants.SettingFieldCalendarForNewTasks,
 			DefaultChoice: calendarChoices[0].Key,
 			Choices:       calendarChoices,
 		})
@@ -335,7 +304,7 @@ func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]Setti
 	}
 	if len(calendarIDChoices) > 0 {
 		settingsOptions = append(settingsOptions, SettingDefinition{
-			FieldKey:      SettingFieldCalendarIDForNewTasks,
+			FieldKey:      constants.SettingFieldCalendarIDForNewTasks,
 			DefaultChoice: calendarIDChoices[0].Key,
 			Choices:       calendarIDChoices,
 		})
@@ -441,20 +410,7 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 	if !valueFound {
 		return errors.New("invalid value: " + fieldValue)
 	}
-	settingCollection := database.GetUserSettingsCollection(db)
-	_, err = settingCollection.UpdateOne(
-		context.Background(),
-		bson.M{"$and": []bson.M{
-			{"user_id": userID},
-			{"field_key": fieldKey},
-		}},
-		bson.M{"$set": &database.UserSetting{
-			FieldKey:   fieldKey,
-			FieldValue: fieldValue,
-			UserID:     userID,
-		}},
-		options.Update().SetUpsert(true),
-	)
+	err = database.UpdateUserSetting(db, userID, fieldKey, fieldValue)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to update user setting")
 		return errors.New("internal server error")

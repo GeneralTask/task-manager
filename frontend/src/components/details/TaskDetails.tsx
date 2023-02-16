@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react'
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import {
@@ -111,11 +111,10 @@ const SOURCES_ALLOWED_WITH_SUBTASKS = [GENERAL_TASK_SOURCE_NAME, SLACK_SOURCE_NA
 
 interface TaskDetailsProps {
     task: Partial<TTask> & Partial<TRecurringTaskTemplate> & { id: string; title: string }
-    link: string
     subtask?: TTask
     isRecurringTaskTemplate?: boolean
 }
-const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetailsProps) => {
+const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProps) => {
     const currentTask = subtask || task
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
@@ -128,7 +127,6 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
     const navigate = useNavigate()
-    const location = useLocation()
 
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
     const { is_meeting_preparation_task, meeting_preparation_params } = currentTask as TTask
@@ -163,14 +161,6 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
         }
     }, [isError, isLoading, isEditing])
 
-    /* when the optimistic ID changes to undefined, we know that that task.id is now the real ID
-    so we can then navigate to the correct link */
-    useEffect(() => {
-        if (!currentTask.optimisticId && location.pathname !== link) {
-            navigate(link, { replace: true })
-        }
-    }, [currentTask.optimisticId, location, link])
-
     useEffect(() => {
         titleRef.current?.addEventListener('focus', () => {
             if (titleRef.current?.value === NO_TITLE) {
@@ -186,7 +176,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
     }, [])
 
     const syncDetails = useCallback(
-        ({ id, title, body }: TModifyTaskData) => {
+        ({ id, title, body, subtaskId }: TModifyTaskData) => {
             setIsEditing(false)
             const isEditingTitle = title !== undefined
             if (isEditingTitle && title === '' && titleRef.current) {
@@ -196,7 +186,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                     titleRef.current.select()
                 }
             }
-            const timerId = id + (isEditingTitle ? title : 'body')
+            const timerId = id + subtaskId + (title === undefined ? 'body' : 'title')
             if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
             if (isRecurringTaskTemplate) {
                 modifyRecurringTask(
@@ -208,19 +198,19 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                     currentTask.optimisticId
                 )
             } else {
-                modifyTask({ id, title, body }, currentTask.optimisticId)
+                modifyTask({ id, title, body, subtaskId }, currentTask.optimisticId)
             }
         },
         [currentTask.id, modifyTask]
     )
 
-    const onEdit = ({ id, title, body }: TModifyTaskData) => {
+    const onEdit = ({ id, title, body, subtaskId }: TModifyTaskData) => {
         setIsEditing(true)
-        const timerId = id + (title === undefined ? 'body' : 'title') // we're only modifying the body or title, one at a time
+        const timerId = id + subtaskId + (title === undefined ? 'body' : 'title') // we're only modifying the body or title, one at a time
         if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
         timers.current[timerId] = {
-            timeout: setTimeout(() => syncDetails({ id, title, body }), DETAILS_SYNC_TIMEOUT),
-            callback: () => syncDetails({ id, title, body }),
+            timeout: setTimeout(() => syncDetails({ id, title, body, subtaskId }), DETAILS_SYNC_TIMEOUT),
+            callback: () => syncDetails({ id, title, body, subtaskId }),
         }
     }
 
@@ -303,7 +293,11 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                                 )}
                                 {currentTask.deeplink && <ExternalLinkButton link={currentTask.deeplink} />}
                                 {!isRecurringTaskTemplate && <TaskActionsDropdown task={currentTask as TTask} />}
-                                {isRecurringTaskTemplate && <DeleteRecurringTaskTemplateButton templateId={task.id} />}
+                                {isRecurringTaskTemplate && (
+                                    <DeleteRecurringTaskTemplateButton
+                                        template={currentTask as TRecurringTaskTemplate}
+                                    />
+                                )}
                             </MarginLeftAuto>
                         )}
                     </>
@@ -321,7 +315,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         !!currentTask.nux_number_id ||
                         isInTrash
                     }
-                    onChange={(val) => onEdit({ id: currentTask.id, title: val })}
+                    onChange={(val) => onEdit({ id: task.id, title: val, subtaskId: subtask?.id })}
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
                     hideUnfocusedOutline
@@ -406,7 +400,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         id={currentTask.id}
                         body={currentTask.body ?? ''}
                         contentType={currentTask.source?.name === 'Jira' ? 'atlassian' : 'markdown'}
-                        onChange={(val) => onEdit({ id: currentTask.id, body: val })}
+                        onChange={(val) => onEdit({ id: task.id, body: val, subtaskId: subtask?.id })}
                         disabled={isInTrash}
                         nux_number_id={currentTask.nux_number_id}
                     />

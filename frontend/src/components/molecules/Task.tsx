@@ -20,6 +20,7 @@ import TaskTemplate from '../atoms/TaskTemplate'
 import GTButton from '../atoms/buttons/GTButton'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
 import { Mini } from '../atoms/typography/Typography'
+import { useCalendarContext } from '../calendar/CalendarContext'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import JiraPriorityDropdown from '../radix/JiraPriorityDropdown'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
@@ -90,6 +91,7 @@ const Task = ({
     const dateTimeStart = DateTime.fromISO(task.meeting_preparation_params?.datetime_start || '')
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
+    const { calendarType, setCalendarType, setDate, dayViewDate } = useCalendarContext()
 
     useInterval(() => {
         if (!meeting_preparation_params) return
@@ -153,7 +155,11 @@ const Task = ({
     const onClick = useCallback(() => {
         navigate(link)
         Log(`task_select__${link}`)
-    }, [link])
+        if (calendarType === 'week' && isSelected) {
+            setCalendarType('day')
+            setDate(dayViewDate)
+        }
+    }, [link, isSelected, dayViewDate])
 
     const [, drag, dragPreview] = useDrag(
         () => ({

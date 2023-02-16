@@ -2,7 +2,7 @@ import { ReactNode, useCallback, useEffect, useState } from 'react'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
-import { useKeyboardShortcut, useNavigateToTask, usePreviewMode, useToast } from '../../hooks'
+import { useKeyboardShortcut, useNavigateToPullRequest, useNavigateToTask, useToast } from '../../hooks'
 import { useDeleteEvent, useGetCalendars } from '../../services/api/events.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -12,7 +12,7 @@ import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
 import { Label } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
-import getCalendarColor from '../calendar/utils/colors'
+import { getCalendarColor } from '../calendar/utils/utils'
 import {
     CopyButton,
     Description,
@@ -32,7 +32,6 @@ interface EventDetailPopoverProps {
     children: ReactNode
 }
 const EventDetailPopover = ({ event, date, hidePopover = false, children }: EventDetailPopoverProps) => {
-    const { isPreviewMode } = usePreviewMode()
     const toast = useToast()
     const [isOpen, setIsOpen] = useState(false)
     const { selectedEvent, setSelectedEvent } = useCalendarContext()
@@ -40,6 +39,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
     const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
     const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
     const navigateToTask = useNavigateToTask()
+    const navigateToPullRequest = useNavigateToPullRequest()
     const { data: calendars } = useGetCalendars()
 
     useEffect(() => {
@@ -111,20 +111,24 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
             <EventHeader>
                 <Icon icon={logos[event.logo]} />
                 <EventHeaderIcons>
-                    <IconButton onClick={onDelete}>
-                        <Icon icon={icons.trash} />
-                    </IconButton>
+                    {event.can_modify && (
+                        <IconButton onClick={onDelete}>
+                            <Icon icon={icons.trash} />
+                        </IconButton>
+                    )}
                     <IconButton onClick={() => setIsOpen(false)}>
                         <Icon icon={icons.x} />
                     </IconButton>
                 </EventHeaderIcons>
             </EventHeader>
             <EventTitle>{event.title}</EventTitle>
-            {isPreviewMode && calendarAccount && calendar && (
+            {calendarAccount && calendar && (
                 <Flex gap={Spacing._8}>
-                    <Icon icon={icons.square} colorHex={getCalendarColor(event.color_id)} />
+                    <Icon icon={icons.square} colorHex={getCalendarColor(event.color_id || calendar.color_id)} />
                     <Label>
-                        {calendar.title} ({calendarAccount.account_id})
+                        {calendar.title && calendar.title !== calendarAccount.account_id
+                            ? `${calendar.title} (${calendarAccount.account_id})`
+                            : calendarAccount.account_id}
                     </Label>
                 </Flex>
             )}
@@ -145,6 +149,18 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                         onClick={() => {
                             setIsOpen(false)
                             navigateToTask(event.linked_task_id)
+                        }}
+                    />
+                )}
+                {event.linked_pull_request_id && (
+                    <GTButton
+                        styleType="secondary"
+                        size="small"
+                        value="View PR details"
+                        fitContent={false}
+                        onClick={() => {
+                            setIsOpen(false)
+                            navigateToPullRequest(event.linked_pull_request_id)
                         }}
                     />
                 )}

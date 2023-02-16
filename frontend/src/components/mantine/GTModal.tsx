@@ -74,7 +74,12 @@ const GTModal = ({ title, tabs, defaultTabIndex = 0, ...baseModalProps }: GTModa
     const tab = Array.isArray(tabs) ? tabs[selectedTab] : tabs
 
     return (
-        <BaseModal open={baseModalProps.open} setIsModalOpen={baseModalProps.setIsModalOpen} size={baseModalProps.size}>
+        <BaseModal
+            open={baseModalProps.open}
+            onClose={baseModalProps.onClose}
+            setIsModalOpen={baseModalProps.setIsModalOpen}
+            size={baseModalProps.size}
+        >
             <ModalOuter fixedHeight={Array.isArray(tabs)}>
                 {Array.isArray(tabs) && (
                     <ModalSidebar>
@@ -99,7 +104,10 @@ const GTModal = ({ title, tabs, defaultTabIndex = 0, ...baseModalProps }: GTModa
                         <GTIconButton
                             tooltipText="Close"
                             icon={icons.x}
-                            onClick={() => baseModalProps.setIsModalOpen(false)}
+                            onClick={() => {
+                                baseModalProps.setIsModalOpen(false)
+                                baseModalProps.onClose?.()
+                            }}
                         />
                     </Flex>
                     {tab.subtitle && <Label color="light">{tab.subtitle}</Label>}

@@ -2,11 +2,10 @@ import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
-import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
-import { useCreateEvent, useEvents } from '../../services/api/events.hooks'
+import { useSetting } from '../../hooks'
+import { useCreateEvent, useEvents, useGetCalendars } from '../../services/api/events.hooks'
 import Log from '../../services/api/log'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
-import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
@@ -17,6 +16,7 @@ import GTHeader from '../atoms/GTHeader'
 import GTTitle from '../atoms/GTTitle'
 import { Icon } from '../atoms/Icon'
 import { Body, Eyebrow, Subtitle } from '../atoms/typography/Typography'
+import useConnectGoogleAccountToast from '../calendar/utils/useConnectGoogleAccountToast'
 import ItemContainer from '../molecules/ItemContainer'
 
 const FlexTimeContainer = styled.div`
@@ -119,8 +119,11 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
     const fifteenMinuteBlock = currentFifteenMinuteBlock(DateTime.local())
     const { data: taskSections } = useGetTasks()
     const { mutate: createEvent } = useCreateEvent()
-    const { data: linkedAccounts } = useGetLinkedAccounts()
+    const { data: calendars } = useGetCalendars()
     const { data: views } = useGetOverviewViews()
+    const { field_value: taskToCalAccount } = useSetting('calendar_account_id_for_new_tasks')
+    const { field_value: taskToCalCalendar } = useSetting('calendar_calendar_id_for_new_tasks')
+    const showConnectToast = useConnectGoogleAccountToast()
 
     const [recommendedTasks, setRecommendedTasks] = useState<[TTask?, TTask?]>([])
 
@@ -153,14 +156,11 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
         }
     }, [taskSections])
 
-    const primaryAccountID = useMemo(
-        () =>
-            linkedAccounts?.filter((account) => account.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)?.[0]?.display_id,
-        [linkedAccounts]
-    )
-
     const onClickHandler = (task: TTask) => {
-        if (!primaryAccountID) return
+        if (!calendars?.length) {
+            showConnectToast()
+            return
+        }
         let description = task.body
         if (description !== '') {
             description += '\n'
@@ -169,7 +169,8 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
         description += '<a href="https://generaltask.com/" __is_owner="true">created by General Task</a>'
         createEvent({
             createEventPayload: {
-                account_id: primaryAccountID,
+                account_id: taskToCalAccount,
+                calendar_id: taskToCalCalendar,
                 datetime_start: fifteenMinuteBlock.toISO(),
                 datetime_end: fifteenMinuteBlock.plus({ hours: 1 }).toISO(),
                 summary: task.title,

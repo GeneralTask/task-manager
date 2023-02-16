@@ -1,7 +1,6 @@
 import { forwardRef } from 'react'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
-import { TItemEdgeColor } from '../../styles/colors'
 import { EdgeHighlight } from '../atoms/SelectableContainer'
 
 const ItemContainerDiv = styled.div<{ isSelected?: boolean; isCompact?: boolean; forceHoverStyle?: boolean }>`
@@ -37,10 +36,9 @@ interface ItemContainerProps {
     children: React.ReactNode
     forceHoverStyle?: boolean
     className?: string
-    edgeColor?: TItemEdgeColor
 }
 const ItemContainer = forwardRef<HTMLDivElement, ItemContainerProps>(
-    ({ isSelected, isCompact = false, onClick, children, forceHoverStyle, className, edgeColor = 'orange' }, ref) => (
+    ({ isSelected, isCompact = false, onClick, children, forceHoverStyle, className }, ref) => (
         <ItemContainerDiv
             isSelected={isSelected}
             isCompact={isCompact}
@@ -49,7 +47,7 @@ const ItemContainer = forwardRef<HTMLDivElement, ItemContainerProps>(
             forceHoverStyle={forceHoverStyle}
             className={className}
         >
-            {isSelected && <EdgeHighlight color={edgeColor} />}
+            {isSelected && <EdgeHighlight color={Colors.gtColor.orange} />}
             {children}
         </ItemContainerDiv>
     )

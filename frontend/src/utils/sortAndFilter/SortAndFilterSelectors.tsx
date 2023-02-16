@@ -75,14 +75,15 @@ const SortAndFilterDropdowns = <T,>({
         [filterOptions, selectedFilter, setSelectedFilter]
     )
     const sortSelectorItems = [sortItems]
-    if (!selectedSort.forceDirection) {
+    if (selectedSort && !selectedSort.forceDirection) {
         sortSelectorItems.push(sortDirectionGroups)
     }
-    const sortIcon = selectedSort.icon
-        ? icons[selectedSort.icon]
-        : selectedSortDirection === SORT_DIRECTION.ASC
-        ? icons.arrow_ascend
-        : icons.arrow_descend
+    const sortIcon =
+        selectedSort && selectedSort.icon
+            ? icons[selectedSort.icon]
+            : selectedSortDirection === SORT_DIRECTION.ASC
+            ? icons.arrow_ascend
+            : icons.arrow_descend
 
     return (
         <SortAndFilterContainer>
@@ -105,23 +106,25 @@ const SortAndFilterDropdowns = <T,>({
                     }
                 />
             )}
-            <GTDropdownMenu
-                items={sortSelectorItems}
-                trigger={
-                    <GTButton
-                        icon={sortIcon}
-                        value={
-                            <span>
-                                <Bold>Sort: </Bold>
-                                {sortOptions[selectedSort.id].label}
-                            </span>
-                        }
-                        styleType="simple"
-                        size="small"
-                        asDiv
-                    />
-                }
-            />
+            {sortItems.length > 0 && (
+                <GTDropdownMenu
+                    items={sortSelectorItems}
+                    trigger={
+                        <GTButton
+                            icon={sortIcon}
+                            value={
+                                <span>
+                                    <Bold>Sort: </Bold>
+                                    {sortOptions[selectedSort.id].label}
+                                </span>
+                            }
+                            styleType="simple"
+                            size="small"
+                            asDiv
+                        />
+                    }
+                />
+            )}
         </SortAndFilterContainer>
     )
 }

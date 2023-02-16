@@ -1,6 +1,5 @@
 import styled from 'styled-components'
 import { Border, Colors, Shadows } from '../../styles'
-import { TItemEdgeColor } from '../../styles/colors'
 
 const SelectableContainer = styled.div<{ isSelected: boolean }>`
     background-color: ${Colors.background.white};
@@ -13,12 +12,13 @@ const SelectableContainer = styled.div<{ isSelected: boolean }>`
         outline: ${Border.stroke.medium} solid ${Colors.border.light};
     }
 `
-export const EdgeHighlight = styled.div<{ color: TItemEdgeColor; squareStart?: boolean; squareEnd?: boolean }>`
+
+export const EdgeHighlight = styled.div<{ color: string; squareStart?: boolean; squareEnd?: boolean }>`
     position: absolute;
     left: 0;
     height: 100%;
     width: 4px;
-    background-color: ${(props) => Colors.itemEdge[props.color]};
+    background-color: ${(props) => props.color};
     border-top-left-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
     border-bottom-left-radius: ${(props) => (props.squareEnd ? '0' : Border.radius.mini)};
 `

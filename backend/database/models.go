@@ -217,17 +217,19 @@ type CalendarEvent struct {
 	Title           string             `bson:"title,omitempty"`
 	Body            string             `bson:"body,omitempty"`
 	Location        string             `bson:"location,omitempty"`
+	EventType       string             `bson:"event_type,omitempty"`
 	DatetimeEnd     primitive.DateTime `bson:"datetime_end,omitempty"`
 	DatetimeStart   primitive.DateTime `bson:"datetime_start,omitempty"`
 	//time in nanoseconds
-	TimeAllocation     int64              `bson:"time_allocated"`
-	CallLogo           string             `bson:"call_logo,omitempty"`
-	CallPlatform       string             `bson:"call_platform,omitempty"`
-	CallURL            string             `bson:"call_url,omitempty"`
-	CanModify          bool               `bson:"can_modify,omitempty"`
-	LinkedTaskID       primitive.ObjectID `bson:"linked_task_id,omitempty"`
-	LinkedViewID       primitive.ObjectID `bson:"linked_view_id,omitempty"`
-	LinkedTaskSourceID string             `bson:"linked_task_source_id,omitempty"`
+	TimeAllocation      int64              `bson:"time_allocated"`
+	CallLogo            string             `bson:"call_logo,omitempty"`
+	CallPlatform        string             `bson:"call_platform,omitempty"`
+	CallURL             string             `bson:"call_url,omitempty"`
+	CanModify           bool               `bson:"can_modify,omitempty"`
+	LinkedTaskID        primitive.ObjectID `bson:"linked_task_id,omitempty"`
+	LinkedViewID        primitive.ObjectID `bson:"linked_view_id,omitempty"`
+	LinkedPullRequestID primitive.ObjectID `bson:"linked_pull_request_id,omitempty"`
+	LinkedSourceID      string             `bson:"linked_task_source_id,omitempty"`
 }
 
 type MeetingPreparationParams struct {
@@ -326,6 +328,8 @@ type FeedbackItem struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
 	UserID    primitive.ObjectID `bson:"user_id"`
 	Feedback  string             `bson:"feedback"`
+	Email     string             `bson:"email"`
+	Name      string             `bson:"name"`
 	CreatedAt primitive.DateTime `bson:"created_at"`
 }
 

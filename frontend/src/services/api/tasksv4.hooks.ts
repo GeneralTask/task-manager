@@ -3,7 +3,7 @@ import produce, { castImmutable } from 'immer'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
 import { TTaskV4 } from '../../utils/types'
-import { useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { useGTMutation, useGTQueryClient } from '../queryUtils'
 import { TCreateTaskData, TCreateTaskResponse } from './tasks.hooks'
 
 export const useGetTasksV4 = (isEnabled = true) => {
@@ -21,7 +21,7 @@ const getTasksV4 = async ({ signal }: QueryFunctionContext) => {
 export const useCreateTaskV4 = () => {
     const queryClient = useGTQueryClient()
     const { setOptimisticId } = useQueryContext()
-    return useQueuedMutation((data: TCreateTaskData) => createTask(data), {
+    return useGTMutation((data: TCreateTaskData) => createTask(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TCreateTaskData) => {

@@ -1,6 +1,7 @@
 import { useLayoutEffect } from 'react'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
+import useOverviewContext from '../../context/OverviewContextProvider'
 import useGetViewItems from '../../hooks/useGetViewItems'
 import useGetVisibleItemCount from '../../hooks/useGetVisibleItemCount'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
@@ -43,26 +44,24 @@ export const getOverviewAccordionHeaderIcon = (logo: TLogoImage, sectionId?: str
 
 interface AccordionItemProps {
     list: TOverviewView
-    openListIds: string[]
-    setOpenListIds: React.Dispatch<React.SetStateAction<string[]>>
 }
-const AccordionItem = ({ list, openListIds, setOpenListIds }: AccordionItemProps) => {
+const AccordionItem = ({ list }: AccordionItemProps) => {
     const ViewItems = useGetViewItems(list)
+    const { setOpenListIds, openListIds } = useOverviewContext()
     const isOpen = openListIds.includes(list.id)
+
     const toggerAccordion = () => {
         if (isOpen) setOpenListIds(openListIds.filter((id) => id !== list.id))
         else setOpenListIds([...openListIds, list.id])
     }
 
+    useLayoutEffect(() => {
+        //close if no view items
+        if (list.view_items.length === 0) setOpenListIds(openListIds.filter((id) => id !== list.id))
+    }, [list.view_items.length])
+
     const [visibleItemsCount, setVisibleItemsCount] = useGetVisibleItemCount(list, list.id)
     const nextPageLength = Math.min(list.view_items.length - visibleItemsCount, PAGE_SIZE)
-
-    useLayoutEffect(() => {
-        if (!openListIds.includes(list.id)) return
-        if (list.view_items.length === 0) {
-            setOpenListIds((ids) => ids.filter((id) => id !== list.id))
-        }
-    }, [list.view_items.length])
 
     return (
         <AccordionContainer>

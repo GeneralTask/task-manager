@@ -162,6 +162,21 @@ func GetTask(db *mongo.Database, itemID primitive.ObjectID, userID primitive.Obj
 	return &task, nil
 }
 
+func GetPullRequest(db *mongo.Database, itemID primitive.ObjectID, userID primitive.ObjectID) (*PullRequest, error) {
+	logger := logging.GetSentryLogger()
+	pullRequestCollection := GetPullRequestCollection(db)
+	mongoResult := FindOneWithCollection(pullRequestCollection, userID, itemID)
+
+	var pullRequest PullRequest
+	err := mongoResult.Decode(&pullRequest)
+
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to get task: %+v", itemID)
+		return nil, err
+	}
+	return &pullRequest, nil
+}
+
 func GetNote(db *mongo.Database, itemID primitive.ObjectID, userID primitive.ObjectID) (*Note, error) {
 	logger := logging.GetSentryLogger()
 	mongoResult := GetNoteCollection(db).FindOne(
@@ -197,8 +212,7 @@ func GetSharedNote(db *mongo.Database, itemID primitive.ObjectID) (*Note, error)
 	return &note, nil
 }
 
-func GetTaskByExternalIDWithoutUser(db *mongo.Database, externalID string) (*Task, error) {
-	logger := logging.GetSentryLogger()
+func GetTaskByExternalIDWithoutUser(db *mongo.Database, externalID string, logError bool) (*Task, error) {
 	taskCollection := GetTaskCollection(db)
 	mongoResult := taskCollection.FindOne(
 		context.Background(),
@@ -209,7 +223,10 @@ func GetTaskByExternalIDWithoutUser(db *mongo.Database, externalID string) (*Tas
 	var task Task
 	err := mongoResult.Decode(&task)
 	if err != nil {
-		logger.Error().Err(err).Msgf("failed to get external task: %+v", externalID)
+		if logError {
+			logger := logging.GetSentryLogger()
+			logger.Error().Err(err).Msgf("failed to get external task: %+v", externalID)
+		}
 		return nil, err
 	}
 	return &task, nil
@@ -801,7 +818,7 @@ func GetExternalToken(db *mongo.Database, externalID string, serviceID string) (
 	return &externalAPIToken, nil
 }
 
-func GetExternalTokenByExternalID(db *mongo.Database, externalID string, serviceID string) (*ExternalAPIToken, error) {
+func GetExternalTokenByExternalID(db *mongo.Database, externalID string, serviceID string, logError bool) (*ExternalAPIToken, error) {
 	var externalAPIToken ExternalAPIToken
 	err := GetExternalTokenCollection(db).FindOne(
 		context.Background(),
@@ -812,9 +829,11 @@ func GetExternalTokenByExternalID(db *mongo.Database, externalID string, service
 			},
 		},
 	).Decode(&externalAPIToken)
-	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to load external api token")
+		if logError {
+			logger := logging.GetSentryLogger()
+			logger.Error().Err(err).Msg("failed to load external api token")
+		}
 		return nil, err
 	}
 	return &externalAPIToken, nil
@@ -929,6 +948,27 @@ func LogRequestInfo(db *mongo.Database, timestamp time.Time, userID primitive.Ob
 	}
 }
 
+func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string, fieldValue string) error {
+	settingCollection := GetUserSettingsCollection(db)
+	_, err := settingCollection.UpdateOne(
+		context.Background(),
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"field_key": fieldKey},
+		}},
+		bson.M{"$set": UserSetting{
+			FieldKey:   fieldKey,
+			FieldValue: fieldValue,
+			UserID:     userID,
+		}},
+		options.Update().SetUpsert(true),
+	)
+	if err != nil {
+		return errors.New("failed to update user setting")
+	}
+	return nil
+}
+
 func GetServerRequestCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("server_requests")
 }
@@ -1019,4 +1059,8 @@ func GetRecurringTaskTemplateCollection(db *mongo.Database) *mongo.Collection {
 
 func HasUserGrantedMultiCalendarScope(scopes []string) bool {
 	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar")
+}
+
+func HasUserGrantedPrimaryCalendarScope(scopes []string) bool {
+	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar.events")
 }

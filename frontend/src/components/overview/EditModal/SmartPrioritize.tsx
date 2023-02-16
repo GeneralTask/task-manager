@@ -40,6 +40,7 @@ export enum SmartPrioritizeState {
     MANUAL,
     LOADING,
     ERROR,
+    ERROR_TOO_LONG,
     LOADED,
 }
 
@@ -63,7 +64,11 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
             setState(SmartPrioritizeState.LOADED)
         } catch (e) {
             await queryClient.invalidateQueries('overview-suggestions-remaining')
-            setState(SmartPrioritizeState.ERROR)
+            if (e instanceof Error && e.message === 'prompt is too long for suggestion') {
+                setState(SmartPrioritizeState.ERROR_TOO_LONG)
+            } else {
+                setState(SmartPrioritizeState.ERROR)
+            }
         }
     }
 
@@ -106,11 +111,11 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
             case SmartPrioritizeState.ERROR:
                 return (
                     <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
-                        <Icon icon={icons.warning} color="red" />
+                        <Icon icon={icons.warningTriangle} color="red" />
                         <Label color="red">
-                            There was an error sorting your lists.{' '}
+                            There was an error sorting your lists.
                             {hasSuggestionsRemaining
-                                ? `Please try again (${suggestionsRemaining} uses remaining).`
+                                ? ` Please try again. (${suggestionsRemaining} uses remaining)`
                                 : null}
                         </Label>
                         <GTButton
@@ -126,6 +131,36 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                                 <GTButton size="small" value="Retry" onClick={getSuggestion} disabled />
                             </Tip>
                         )}
+                    </Flex>
+                )
+            case SmartPrioritizeState.ERROR_TOO_LONG:
+                return (
+                    <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
+                        <Icon icon={icons.warningTriangle} color="red" />
+                        <Flex column justifyContent="center">
+                            <Label color="red">
+                                Some of your lists are too long to be prioritized. Try removing items from your Daily
+                                Overview.
+                            </Label>
+                            <Label color="red">
+                                {hasSuggestionsRemaining ? ` (${suggestionsRemaining} uses remaining)` : null}
+                            </Label>
+                        </Flex>
+                        <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
+                            <GTButton
+                                size="small"
+                                value="Cancel"
+                                styleType="secondary"
+                                onClick={() => setState(SmartPrioritizeState.MANUAL)}
+                            />
+                            {hasSuggestionsRemaining || isPreviewMode ? (
+                                <GTButton size="small" value="Retry" onClick={getSuggestion} />
+                            ) : (
+                                <Tip content="You have no uses remaining">
+                                    <GTButton size="small" value="Retry" onClick={getSuggestion} disabled />
+                                </Tip>
+                            )}
+                        </Flex>
                     </Flex>
                 )
             case SmartPrioritizeState.LOADED:

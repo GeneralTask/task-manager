@@ -57,6 +57,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	// The note detail endpoint is specifically unauthenticated for shareable notes
 	// only notes with is_shared=true can be shared
 	router.GET("/notes/detail/:note_id/", handlers.NoteDetails)
+	router.GET("/note/:note_id/", handlers.NotePreview)
 
 	// Unauthenticated endpoints only for dev environment
 	router.POST("/create_test_user/", handlers.CreateTestUser)
@@ -86,6 +87,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.POST("/tasks/:task_id/comments/add/", handlers.TaskAddComment)
 
 	router.GET("/recurring_task_templates/", handlers.RecurringTaskTemplateList)
+	router.GET("/recurring_task_templates/v2/", handlers.RecurringTaskTemplateListV2)
 	router.GET("/recurring_task_templates/backfill_tasks/", handlers.RecurringTaskTemplateBackfillTasks)
 	router.POST("/recurring_task_templates/create/", handlers.RecurringTaskTemplateCreate)
 	router.PATCH("/recurring_task_templates/modify/:template_id/", handlers.RecurringTaskTemplateModify)

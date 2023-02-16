@@ -10,6 +10,7 @@ import { icons } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import { doesAccountNeedRelinking, isLinearLinked } from '../../utils/utils'
 import Flex from '../atoms/Flex'
+import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
@@ -27,6 +28,7 @@ const LinearView = () => {
     const { data: taskSections } = useGetTasks()
     const { linearIssueId } = useParams()
     const navigate = useNavigate()
+    const { calendarType } = useCalendarContext()
 
     const linearTasks = useMemo(() => {
         const tasks =
@@ -72,10 +74,14 @@ const LinearView = () => {
                     )}
                 </ScrollableListTemplate>
             </Flex>
-            {task ? (
-                <TaskDetails task={task} link={`/linear/${task.id}`} />
-            ) : (
-                <EmptyDetails icon={icons.check} text="You have no Linear tasks" />
+            {calendarType === 'day' && (
+                <>
+                    {task ? (
+                        <TaskDetails task={task} />
+                    ) : (
+                        <EmptyDetails icon={icons.check} text="You have no Linear tasks" />
+                    )}
+                </>
             )}
         </>
     )

@@ -6,7 +6,7 @@ import { isGoogleCalendarLinked } from '../../../utils/utils'
 import ConnectIntegration from '../../molecules/ConnectIntegration'
 import Task from '../../molecules/Task'
 import { ViewHeader, ViewName } from '../styles'
-import EmptyViewItem from './EmptyViewItem'
+import EmptyListMessage from './EmptyListMessage'
 import { ViewItemsProps } from './viewItems.types'
 
 const MeetingPreparationViewItems = forwardRef(({ view, hideHeader }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
@@ -34,12 +34,7 @@ const MeetingPreparationViewItems = forwardRef(({ view, hideHeader }: ViewItemsP
                         />
                     ))
                 ) : (
-                    <>
-                        <EmptyViewItem
-                            header="You have no more meeting prep for today."
-                            body="When you have calendar events scheduled later in the day, they will appear here."
-                        />
-                    </>
+                    <EmptyListMessage list={view} />
                 )
             ) : (
                 <ConnectIntegration type="google_calendar" />

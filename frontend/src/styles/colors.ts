@@ -100,9 +100,3 @@ export const gtColor = {
     orange: ORANGE._1,
     blue: BLUE._3,
 }
-
-export const itemEdge = {
-    orange: ORANGE._1,
-    blue: BLUE._3,
-}
-export type TItemEdgeColor = keyof typeof itemEdge

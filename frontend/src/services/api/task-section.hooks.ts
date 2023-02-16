@@ -5,7 +5,7 @@ import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
 import { TRecurringTaskTemplate, TTaskSection } from '../../utils/types'
 import { arrayMoveInPlace } from '../../utils/utils'
-import { useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { useGTMutation, useGTQueryClient } from '../queryUtils'
 
 interface TAddTaskSectionData {
     optimisticId: string
@@ -29,9 +29,9 @@ export const useAddTaskSection = () => {
     const { setOptimisticId } = useQueryContext()
     const navigate = useNavigate()
 
-    return useQueuedMutation((data: TAddTaskSectionData) => addTaskSection(data), {
+    return useGTMutation((data: TAddTaskSectionData) => addTaskSection(data), {
         tag: 'tasks',
-        invalidateTagsOnSettled: ['tasks', 'settings'],
+        invalidateTagsOnSettled: ['tasks', 'settings', 'overview-supported-views'],
         onMutate: async (data) => {
             await queryClient.cancelQueries('tasks')
 
@@ -78,7 +78,7 @@ const addTaskSection = async (data: TAddTaskSectionData) => {
 
 export const useDeleteTaskSection = () => {
     const queryClient = useGTQueryClient()
-    return useQueuedMutation(({ id }: TDeleteSectionData) => deleteTaskSection(id), {
+    return useGTMutation(({ id }: TDeleteSectionData) => deleteTaskSection(id), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'recurring-tasks'],
         onMutate: async ({ id }) => {
@@ -119,7 +119,7 @@ const deleteTaskSection = async (id: string) => {
 
 export const useModifyTaskSection = () => {
     const queryClient = useGTQueryClient()
-    return useQueuedMutation((data: TModifyTaskSectionData) => modifyTaskSection(data), {
+    return useGTMutation((data: TModifyTaskSectionData) => modifyTaskSection(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks'],
         onMutate: async (data: TModifyTaskSectionData) => {

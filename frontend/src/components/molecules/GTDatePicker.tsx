@@ -42,6 +42,7 @@ interface GTDatePickerProps {
     showIcon?: boolean
     onlyCalendar?: boolean
     disabled?: boolean
+    isLinearTask?: boolean
 }
 const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = false, disabled }: GTDatePickerProps) => {
     const [currentDate, setCurrentDate] = useState<DateTime | null>(initialDate)
@@ -58,11 +59,11 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
 
     const handleOnChange = (date: Date | null) => {
         if (!date) {
-            setDate(DateTime.fromMillis(0).toISO())
-            return
+            setDate(DateTime.fromMillis(0).toFormat('yyyy-MM-dd'))
+        } else {
+            setCurrentDate(DateTime.fromJSDate(date))
+            setDate(DateTime.fromJSDate(date).toISO())
         }
-        setCurrentDate(DateTime.fromJSDate(date))
-        setDate(DateTime.fromJSDate(date).toISO())
     }
 
     const calendar = (

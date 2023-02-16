@@ -5,11 +5,13 @@ import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import { useGTLocalStorage, usePreviewMode, useSetting } from '../../hooks'
 import { useAuthWindow } from '../../hooks'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
+import { useGetCalendars } from '../../services/api/events.hooks'
 import Log from '../../services/api/log'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
+import { TLinkedAccount } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import GTCheckbox from '../atoms/GTCheckbox'
 import { Icon } from '../atoms/Icon'
@@ -18,6 +20,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Body, BodySmall, Label } from '../atoms/typography/Typography'
 import CalendarSettings from '../calendar/CalendarSettings'
+import { getCalendarAuthButton } from '../calendar/utils/utils'
 import GTModal from '../mantine/GTModal'
 import SignOutButton from './SignOutButton'
 
@@ -40,18 +43,25 @@ const ServiceDetails = styled.div`
     color: ${Colors.text.light};
     margin-bottom: auto;
 `
+const TruncatedLabel = styled(Label)`
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+`
 
 interface SettingsModalProps {
     isOpen: boolean
     setIsOpen: (isOpen: boolean) => void
+    defaultTabIndex?: number
 }
-const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
+const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProps) => {
     const { isPreviewMode } = usePreviewMode()
     const { data: userInfo } = useGetUserInfo()
     const { data: supportedTypes } = useGetSupportedTypes()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const { openAuthWindow } = useAuthWindow()
+    const { data: calendars } = useGetCalendars()
 
     const refetchStaleQueries = useRefetchStaleQueries()
 
@@ -112,12 +122,25 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
         />
     )
 
+    const getEnableAllCalendarsButton = (account: TLinkedAccount) => {
+        if (account.name !== GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME || !calendars) return
+        const calendar = calendars.find((calendar) => calendar.account_id === account.display_id)
+        if (!calendar || calendar?.has_multical_scopes) return
+        const authUrl = supportedTypes?.find(
+            (supportedType) => supportedType.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME
+        )?.authorization_url
+        if (!authUrl) return
+
+        return getCalendarAuthButton(calendar, () => openAuthWindow({ url: authUrl, isGoogleSignIn: true }))
+    }
+
     return (
         <GTModal
             open={isOpen}
             setIsModalOpen={setIsOpen}
             title="Settings"
             size="lg"
+            defaultTabIndex={defaultTabIndex}
             tabs={[
                 {
                     title: 'Integrations',
@@ -194,7 +217,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                                             {account.name in nameToSetting && (
                                                 <VisibilityButton accountName={account.name as TNameToSetting} />
                                             )}
-                                            {account.has_bad_token && (
+                                            {account.has_bad_token ? (
                                                 <GTButton
                                                     onClick={() => onRelink(account.name)}
                                                     value="Re-link account"
@@ -202,6 +225,8 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                                                     size="small"
                                                     textColor="red"
                                                 />
+                                            ) : (
+                                                getEnableAllCalendarsButton(account)
                                             )}
                                             {account.is_unlinkable && (
                                                 <GTButton
@@ -222,24 +247,20 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                         </Flex>
                     ),
                 },
-                ...(isPreviewMode
-                    ? [
-                          {
-                              title: 'Calendar',
-                              icon: icons.calendar_blank,
-                              body: <CalendarSettings />,
-                          },
-                      ]
-                    : []),
+                {
+                    title: 'Calendar',
+                    icon: icons.calendar_blank,
+                    body: <CalendarSettings />,
+                },
                 {
                     title: 'Account details',
                     icon: icons.user,
                     body: (
                         <Flex column gap={Spacing._24}>
-                            <Service>
+                            <Flex column gap={Spacing._12}>
                                 <Label color="light">Email</Label>
-                                <Label>{userInfo?.email}</Label>
-                            </Service>
+                                <TruncatedLabel>{userInfo?.email}</TruncatedLabel>
+                            </Flex>
                             <div>
                                 <SignOutButton />
                             </div>

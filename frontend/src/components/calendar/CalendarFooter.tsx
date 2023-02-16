@@ -3,8 +3,12 @@ import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
+import { Truncated } from '../atoms/typography/Typography'
+import SettingsModalButton from '../molecules/SettingsModalButton'
+import Tip from '../radix/Tip'
+import { useCalendarContext } from './CalendarContext'
 import CalendarSelector from './CalendarSelector'
-import { DEFAULT_CALENDAR_COLOR, calendarColors } from './utils/colors'
+import { getCalendarColor, getCalendarName } from './utils/utils'
 
 const Container = styled.div`
     display: flex;
@@ -22,6 +26,7 @@ const TaskToCalContainer = styled.div`
 `
 
 const CalendarFooter = () => {
+    const { calendarType } = useCalendarContext()
     return (
         <Container>
             <CalendarSelector
@@ -31,24 +36,28 @@ const CalendarFooter = () => {
             <TaskToCalContainer>
                 <CalendarSelector
                     mode="task-to-cal"
-                    renderTrigger={(calendar) => (
-                        <GTButton
-                            value={calendar?.title || 'Select a calendar'}
-                            icon={icons.square}
-                            iconColorHex={
-                                calendarColors[calendar?.color_id as keyof typeof calendarColors]?.background ??
-                                DEFAULT_CALENDAR_COLOR
-                            }
-                            asDiv
-                            isDropdown
-                            styleType="secondary"
-                            size="small"
-                            fitContent={false}
-                        />
+                    renderTrigger={(calendar, accountId) => (
+                        <Tip content="Choose the default calendar to create new events in">
+                            <GTButton
+                                value={
+                                    <Truncated>
+                                        {getCalendarName(accountId, calendar?.title) || 'Select a calendar'}
+                                    </Truncated>
+                                }
+                                icon={icons.square}
+                                iconColorHex={getCalendarColor(calendar?.color_id || '')}
+                                asDiv
+                                isDropdown
+                                styleType="secondary"
+                                size="small"
+                                fitContent={false}
+                            />
+                        </Tip>
                     )}
+                    useTriggerWidth={calendarType === 'week'}
                 />
             </TaskToCalContainer>
-            <GTIconButton icon={icons.gear} tooltipText="Calendar settings" />
+            <SettingsModalButton type="icon-button" label="Calendar settings" defaultTabIndex={1} />
         </Container>
     )
 }

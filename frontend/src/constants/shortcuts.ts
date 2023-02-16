@@ -149,15 +149,29 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Calendar',
         icon: 'trash',
     },
-    nextDate: {
+    nextDay: {
         label: 'Next day',
         key: 'n',
         keyLabel: 'N',
         category: 'Calendar',
         icon: 'caret_right',
     },
-    previousDate: {
+    previousDay: {
         label: 'Previous day',
+        key: 'p',
+        keyLabel: 'P',
+        category: 'Calendar',
+        icon: 'caret_left',
+    },
+    nextWeek: {
+        label: 'Next week',
+        key: 'n',
+        keyLabel: 'N',
+        category: 'Calendar',
+        icon: 'caret_right',
+    },
+    previousWeek: {
+        label: 'Previous week',
         key: 'p',
         keyLabel: 'P',
         category: 'Calendar',

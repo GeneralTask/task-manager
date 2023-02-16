@@ -14,6 +14,7 @@ import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilter
 import { TPullRequest } from '../../utils/types'
 import { doesAccountNeedRelinking, isGithubLinked } from '../../utils/utils'
 import Spinner from '../atoms/Spinner'
+import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
@@ -38,6 +39,7 @@ const PullRequestsView = () => {
     const params = useParams()
     const { data: repositories, isLoading } = useGetPullRequests()
     useFetchPullRequests()
+    const { calendarType } = useCalendarContext()
 
     // Repos in the same order they are passed in as, with pull requests sorted and filtered
     const sortedAndFilteredRepositories = useMemo(
@@ -124,10 +126,14 @@ const PullRequestsView = () => {
                     )}
                 </ScrollableListTemplate>
             </PullRequestsContainer>
-            {selectedPullRequest ? (
-                <PullRequestDetails pullRequest={selectedPullRequest} />
-            ) : (
-                <EmptyDetails icon={logos.github} text="You have no pull requests" />
+            {calendarType === 'day' && (
+                <>
+                    {selectedPullRequest ? (
+                        <PullRequestDetails pullRequest={selectedPullRequest} />
+                    ) : (
+                        <EmptyDetails icon={logos.github} text="You have no pull requests" />
+                    )}
+                </>
             )}
         </>
     )

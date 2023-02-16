@@ -59,6 +59,7 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 		SourceID:        TASK_SOURCE_ID_GCAL,
 		Title:           event.Summary,
 		Body:            event.Description,
+		EventType:       event.EventType,
 		Location:        event.Location,
 		TimeAllocation:  dbEndTime.Sub(dbStartTime).Nanoseconds(),
 		SourceAccountID: accountID,
@@ -298,6 +299,11 @@ func CheckAndHandleBadToken(err error, db *mongo.Database, userID primitive.Obje
 	)
 	if err != nil {
 		logger.Error().Str("tokenID", token.ID.Hex()).Err(err).Msg("unable to update external token")
+	}
+
+	err = database.UpdateUserSetting(db, userID, constants.HasDismissedMulticalPrompt, constants.SettingFalse)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to set HasDismissedMulticalPrompt as false")
 	}
 	return true
 }
