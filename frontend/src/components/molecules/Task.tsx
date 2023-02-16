@@ -227,7 +227,6 @@ const Task = ({
                                 }))}
                                 trigger={
                                     <GTButtonHack
-                                        value={status}
                                         icon={linearStatus[task.external_status.type]}
                                         size="small"
                                         styleType="simple"
