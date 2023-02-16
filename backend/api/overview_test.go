@@ -917,10 +917,10 @@ func createTestMeetingPreparationTask(taskCollection *mongo.Collection, userID p
 		IsCompleted:              &isCompleted,
 		IsMeetingPreparationTask: true,
 		MeetingPreparationParams: &database.MeetingPreparationParams{
-			CalendarEventID: eventID,
-			IDExternal:      IDExternal,
-			DatetimeStart:   primitive.NewDateTimeFromTime(dateTimeStart),
-			DatetimeEnd:     primitive.NewDateTimeFromTime(dateTimeEnd),
+			CalendarEventID:     eventID,
+			IDExternal:          IDExternal,
+			DatetimeStart:       primitive.NewDateTimeFromTime(dateTimeStart),
+			DatetimeEnd:         primitive.NewDateTimeFromTime(dateTimeEnd),
 			EventMovedOrDeleted: false,
 		},
 	})

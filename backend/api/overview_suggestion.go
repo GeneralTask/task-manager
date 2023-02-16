@@ -81,8 +81,7 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 		return
 	}
 
-
-	showDeleted, err :=	GetShowDeletedQueryParam(c)
+	showDeleted, err := GetShowDeletedQueryParam(c)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return

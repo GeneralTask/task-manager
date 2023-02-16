@@ -771,7 +771,7 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 	return nil
 }
 
-func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID primitive.ObjectID, timezoneOffset time.Duration) (error) {
+func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID primitive.ObjectID, timezoneOffset time.Duration) error {
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
 	taskCollection := database.GetTaskCollection(api.DB)
 	for _, task := range *meetingTasks {
@@ -785,7 +785,7 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 		// Do nothing if event time has not changed
 		if event != nil && !(task.MeetingPreparationParams.DatetimeStart.Time().Equal(event.DatetimeStart.Time()) && task.MeetingPreparationParams.DatetimeEnd.Time().Equal(event.DatetimeEnd.Time())) {
 			// if event has been moved to different day, update event_moved_or_deleted
-			localZone := time.FixedZone("", int(-1 * timezoneOffset.Seconds()))
+			localZone := time.FixedZone("", int(-1*timezoneOffset.Seconds()))
 			if event.DatetimeStart.Time().In(localZone).Day() != task.MeetingPreparationParams.DatetimeStart.Time().In(localZone).Day() {
 				eventMovedOrDeleted = true
 			}
@@ -812,9 +812,9 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 			bson.M{"$set": bson.M{
 				"is_completed": task.IsCompleted,
 				"completed_at": task.CompletedAt,
-				"meeting_preparation_params.datetime_start": task.MeetingPreparationParams.DatetimeStart,
-				"meeting_preparation_params.datetime_end": task.MeetingPreparationParams.DatetimeEnd,
-				"meeting_preparation_params.event_moved_or_deleted": task.MeetingPreparationParams.EventMovedOrDeleted,
+				"meeting_preparation_params.datetime_start":                   task.MeetingPreparationParams.DatetimeStart,
+				"meeting_preparation_params.datetime_end":                     task.MeetingPreparationParams.DatetimeEnd,
+				"meeting_preparation_params.event_moved_or_deleted":           task.MeetingPreparationParams.EventMovedOrDeleted,
 				"meeting_preparation_params.has_been_automatically_completed": task.MeetingPreparationParams.HasBeenAutomaticallyCompleted,
 			}},
 		)
