@@ -95,6 +95,7 @@ export interface TTaskV4 {
 export interface TMeetingPreparationParams {
     datetime_start: string
     datetime_end: string
+    event_moved_or_deleted: boolean
 }
 
 export interface TSlackMessageParams {
