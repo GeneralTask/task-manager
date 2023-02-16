@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
-import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
+import { useInterval, useKeyboardShortcut } from '../../hooks'
 import Log from '../../services/api/log'
 import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
@@ -24,13 +24,9 @@ import { useCalendarContext } from '../calendar/CalendarContext'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import JiraPriorityDropdown from '../radix/JiraPriorityDropdown'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
-import Tip from '../radix/Tip'
 import ItemContainer from './ItemContainer'
 import { useGetRecurringTaskTemplateFromId } from './recurring-tasks/recurringTasks.utils'
 
-const MarginRight = styled.div`
-    margin-right: ${Spacing._8};
-`
 export const GTButtonHack = styled(GTButton)`
     width: 20px !important;
     padding: ${Spacing._4} !important;
@@ -193,7 +189,6 @@ const Task = ({
     }, [task])
 
     useKeyboardShortcut('deleteTask', deleteTask, !isSelected)
-    const { isPreviewMode } = usePreviewMode()
 
     const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(task.recurring_task_template_id)
 
@@ -206,15 +201,7 @@ const Task = ({
                 onMouseEnter={() => setIsHovered(true)}
             >
                 <ItemContainer isSelected={isSelected} onClick={onClick} ref={drag} forceHoverStyle={contextMenuOpen}>
-                    <MarginRight>
-                        {isPreviewMode && task.meeting_preparation_params?.event_moved_or_deleted ? (
-                            <Tip content="Event has been moved or deleted">
-                                <Icon icon={icons.warning} color="red" />
-                            </Tip>
-                        ) : (
-                            <Domino isVisible={isHovered && !dragDisabled} />
-                        )}
-                    </MarginRight>
+                    <PositionedDomino isVisible={isHovered && !dragDisabled} />
                     {task.source?.name !== 'Jira' &&
                         (task.external_status && task.all_statuses ? (
                             <GTDropdownMenu
