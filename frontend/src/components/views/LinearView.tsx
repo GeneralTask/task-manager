@@ -4,10 +4,10 @@ import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
 import Log from '../../services/api/log'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import { useGetTasks } from '../../services/api/tasks.hooks'
+import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
-import { TTask } from '../../utils/types'
+import { TTaskV4 } from '../../utils/types'
 import { doesAccountNeedRelinking, isLinearLinked } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import { useCalendarContext } from '../calendar/CalendarContext'
@@ -25,20 +25,17 @@ const LinearBodyHeader = styled.div`
 `
 
 const LinearView = () => {
-    const { data: taskSections } = useGetTasks()
+    const { data: allTasks } = useGetTasksV4()
     const { linearIssueId } = useParams()
     const navigate = useNavigate()
     const { calendarType } = useCalendarContext()
 
-    const linearTasks = useMemo(() => {
-        const tasks =
-            taskSections
-                ?.filter((section) => !section.is_done && !section.is_trash)
-                .flatMap((section) => section.tasks) ?? []
-        return tasks.filter((task) => task.source.name === 'Linear')
-    }, [taskSections])
+    const linearTasks = useMemo(
+        () => allTasks?.filter((task) => task.source.name === 'Linear' && !task.is_deleted && !task.is_done) || [],
+        [allTasks]
+    )
 
-    const selectTask = useCallback((task: TTask) => {
+    const selectTask = useCallback((task: TTaskV4) => {
         navigate(`/linear/${task.id}`)
         Log(`linear_task_select__/linear/${task.id}`)
     }, [])
@@ -50,7 +47,7 @@ const LinearView = () => {
             if (task.id === linearIssueId) return { task }
         }
         return { task: linearTasks[0] }
-    }, [taskSections, linearIssueId])
+    }, [allTasks, linearIssueId])
 
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const isLinearIntegrationLinked = isLinearLinked(linkedAccounts || [])
