@@ -4,10 +4,10 @@ import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
 import Log from '../../services/api/log'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import { useGetTasks } from '../../services/api/tasks.hooks'
+import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
-import { TTask } from '../../utils/types'
+import { TTaskV4 } from '../../utils/types'
 import { doesAccountNeedRelinking, isSlackLinked } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import { useCalendarContext } from '../calendar/CalendarContext'
@@ -25,18 +25,15 @@ const BodyHeader = styled.div`
 `
 
 const SlackTasksView = () => {
-    const { data: taskSections } = useGetTasks()
+    const { data: allTasks } = useGetTasksV4()
     const { slackTaskId } = useParams()
     const navigate = useNavigate()
     const { calendarType, setCalendarType, setDate, dayViewDate } = useCalendarContext()
 
-    const slackTasks = useMemo(() => {
-        const tasks =
-            taskSections
-                ?.filter((section) => !section.is_done && !section.is_trash)
-                .flatMap((section) => section.tasks) ?? []
-        return tasks.filter((task) => task.source.name === 'Slack')
-    }, [taskSections])
+    const slackTasks = useMemo(
+        () => allTasks?.filter((task) => task.source.name === 'Slack' && !task.is_done && !task.is_deleted) || [],
+        [allTasks]
+    )
 
     const { data: linkedAccounts } = useGetLinkedAccounts()
 
@@ -49,7 +46,7 @@ const SlackTasksView = () => {
             if (task.id === slackTaskId) return { task }
         }
         return { task: slackTasks[0] }
-    }, [taskSections, slackTaskId])
+    }, [allTasks, slackTaskId])
 
     useEffect(() => {
         if (task) navigate(`/slack/${task.id}`)
@@ -64,7 +61,7 @@ const SlackTasksView = () => {
         Log(`slack_task_select__/slack/${id}`)
     }
 
-    const selectTask = useCallback((task: TTask) => {
+    const selectTask = useCallback((task: TTaskV4) => {
         navigate(`/slack/${task.id}`)
         Log(`slack_task_select__/slack/${task.id}`)
     }, [])
