@@ -52,9 +52,6 @@ const Title = styled.span`
     ${Typography.bodySmall};
     padding-right: ${Spacing._8};
 `
-const AbsoluteDiv = styled.div`
-    position: absolute;
-`
 export const PositionedDomino = styled(Domino)`
     margin-right: ${Spacing._8};
 `
