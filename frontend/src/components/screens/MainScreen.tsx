@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
 import { DateTime } from 'luxon'
@@ -6,6 +6,7 @@ import { OverviewContextProvider } from '../../context/OverviewContextProvider'
 import { useEventBanners, usePageFocus } from '../../hooks'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
+import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { focusModeBackground, noteBackground } from '../../styles/images'
 import { CalendarContextProvider } from '../calendar/CalendarContext'
@@ -21,8 +22,9 @@ import TaskSection from '../views/TaskSectionView'
 
 const MainScreen = () => {
     const location = useLocation()
-    const { data: userInfo } = useGetUserInfo()
-    const { isLoading: isTaskSectionsLoading } = useGetTasks()
+    useGetUserInfo()
+    useGetTasksV4()
+    useGetTasks()
     useFetchPullRequests()
     useFetchExternalTasks()
     useEventBanners(DateTime.now())
@@ -56,8 +58,6 @@ const MainScreen = () => {
                 )
         }
     }
-
-    if (!isTaskSectionsLoading && !userInfo?.agreed_to_terms) return <Navigate to="/tos-summary" />
 
     return (
         <CalendarContextProvider>
