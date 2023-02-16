@@ -82,13 +82,13 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 	}
 
 
-	version, err :=	GetVersionQueryParam(c)
+	showDeleted, err :=	GetShowDeletedQueryParam(c)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	overviewResponse, err := api.GetOverviewResults(views, userID, timezoneOffset, version)
+	overviewResponse, err := api.GetOverviewResults(views, userID, timezoneOffset, showDeleted)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to load views")
 		Handle500(c)

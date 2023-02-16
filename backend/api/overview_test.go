@@ -24,9 +24,9 @@ func TestOverview(t *testing.T) {
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	router := GetRouter(api)
-	UnauthorizedTest(t, "GET", "/overview/views/", nil)
+	UnauthorizedTest(t, "GET", "/overview/views", nil)
 	t.Run("SuccessGetViews", func(t *testing.T) {
-		request, _ := http.NewRequest("GET", "/overview/views/", nil)
+		request, _ := http.NewRequest("GET", "/overview/views", nil)
 		request.Header.Set("Authorization", "Bearer "+authtoken)
 		request.Header.Set("Timezone-Offset", "420")
 
@@ -45,7 +45,7 @@ func TestOverview(t *testing.T) {
 		viewCollection := database.GetViewCollection(db)
 		viewCollection.DeleteMany(context.Background(), bson.M{})
 
-		request, _ := http.NewRequest("GET", "/overview/views/", nil)
+		request, _ := http.NewRequest("GET", "/overview/views", nil)
 		request.Header.Set("Authorization", "Bearer "+authtoken)
 		request.Header.Set("Timezone-Offset", "420")
 
@@ -57,7 +57,7 @@ func TestOverview(t *testing.T) {
 		assert.Equal(t, "[]", string(body))
 	})
 	t.Run("MissingTimezoneOffsetHeader", func(t *testing.T) {
-		request, _ := http.NewRequest("GET", "/overview/views/", nil)
+		request, _ := http.NewRequest("GET", "/overview/views", nil)
 		request.Header.Set("Authorization", "Bearer "+authtoken)
 
 		recorder := httptest.NewRecorder()
@@ -74,7 +74,7 @@ func TestGetOverviewResults(t *testing.T) {
 	defer dbCleanup()
 
 	t.Run("NoViews", func(t *testing.T) {
-		result, err := api.GetOverviewResults([]database.View{}, primitive.NewObjectID(), 0)
+		result, err := api.GetOverviewResults([]database.View{}, primitive.NewObjectID(), 0, true)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, 0, len(result))
@@ -82,7 +82,7 @@ func TestGetOverviewResults(t *testing.T) {
 	t.Run("InvalidViewType", func(t *testing.T) {
 		result, err := api.GetOverviewResults([]database.View{{
 			Type: "invalid",
-		}}, primitive.NewObjectID(), 0)
+		}}, primitive.NewObjectID(), 0, true)
 		assert.Error(t, err)
 		assert.Equal(t, "invalid view type", err.Error())
 		assert.Nil(t, result)
@@ -118,7 +118,7 @@ func TestGetOverviewResults(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		result, err := api.GetOverviewResults(views, userID, 0)
+		result, err := api.GetOverviewResults(views, userID, 0, true)
 		expectedViewResult := OverviewResult[TaskResult]{
 			ID:            views[0].ID,
 			Name:          taskSectionName,

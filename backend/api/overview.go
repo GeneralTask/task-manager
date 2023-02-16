@@ -61,23 +61,24 @@ type SupportedView struct {
 	Views            []SupportedViewItem `json:"views"`
 }
 
-func GetVersionQueryParam(c *gin.Context) (string, error) {
+func GetShowDeletedQueryParam(c *gin.Context) (bool, error) {
 	params := c.Request.URL.Query()
-	versionParms := params["v"]
+	showDeletedParams := params["show_deleted"]
 
-	if len(versionParms) > 0 {
-		for _, v := range constants.ValidOverviewAPIVersions {
-			if v == versionParms[0] {
-				return versionParms[0], nil
-			}
+	if len(showDeletedParams) > 0 {
+		if showDeletedParams[0] == "true" {
+			return true, nil
+		} else if showDeletedParams[0] == "false" {
+			return false, nil
 		}
-		return "", errors.New("invalid overview endpoint version")
+		return false, errors.New("invalid overview endpoint version")
 	}
-	return "1.0", nil
+	return false, nil
 }
 
 func (api *API) OverviewViewsList(c *gin.Context) {
-	version, err := GetVersionQueryParam(c)
+	showDeleted, err := GetShowDeletedQueryParam(c)
+	fmt.Printf("showDeleted: %v\n", showDeleted)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -123,7 +124,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		return
 	}
 
-	result, err := api.GetOverviewResults(views, userID, timezoneOffset, version)
+	result, err := api.GetOverviewResults(views, userID, timezoneOffset, showDeleted)
 	if err != nil {
 		log.Print("failed to get results")
 		api.Logger.Error().Err(err).Msg("failed to load views")
@@ -136,7 +137,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	c.JSON(200, result)
 }
 
-func (api *API) GetOverviewResults(views []database.View, userID primitive.ObjectID, timezoneOffset time.Duration, version string) ([]OrderingIDGetter, error) {
+func (api *API) GetOverviewResults(views []database.View, userID primitive.ObjectID, timezoneOffset time.Duration, showDeleted bool) ([]OrderingIDGetter, error) {
 	result := []OrderingIDGetter{}
 	for _, view := range views {
 		var singleOverviewResult OrderingIDGetter
@@ -151,10 +152,10 @@ func (api *API) GetOverviewResults(views []database.View, userID primitive.Objec
 		case string(constants.ViewGithub):
 			singleOverviewResult, err = api.GetGithubOverviewResult(view, userID, timezoneOffset)
 		case string(constants.ViewMeetingPreparation):
-			if version == "1.0" {
-				singleOverviewResult, err = api.GetMeetingPreparationOverviewResultOld(view, userID, timezoneOffset)
+			if showDeleted {
+				singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
 			} else {
-				singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, version)
+				singleOverviewResult, err = api.GetMeetingPreparationOverviewResultOld(view, userID, timezoneOffset)
 			}
 		case string(constants.ViewDueToday):
 			singleOverviewResult, err = api.GetDueTodayOverviewResult(view, userID, timezoneOffset)
@@ -548,7 +549,7 @@ func (api *API) GetMeetingPreparationOverviewResultOld(view database.View, userI
 	}, nil
 }
 
-func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration, version string) (*OverviewResult[TaskResult], error) {
+func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
