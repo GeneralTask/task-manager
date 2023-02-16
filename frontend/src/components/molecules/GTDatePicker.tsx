@@ -59,7 +59,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
 
     const handleOnChange = (date: Date | null) => {
         if (!date) {
-            setDate(DateTime.fromMillis(0).toISO())
+            setDate(DateTime.fromMillis(0).toFormat('yyyy-MM-dd'))
         } else {
             setCurrentDate(DateTime.fromJSDate(date))
             setDate(DateTime.fromJSDate(date).toISO())
