@@ -24,9 +24,13 @@ import { useCalendarContext } from '../calendar/CalendarContext'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import JiraPriorityDropdown from '../radix/JiraPriorityDropdown'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
+import Tip from '../radix/Tip'
 import ItemContainer from './ItemContainer'
 import { useGetRecurringTaskTemplateFromId } from './recurring-tasks/recurringTasks.utils'
 
+const MarginRight = styled.div`
+    margin-right: ${Spacing._8};
+`
 export const GTButtonHack = styled(GTButton)`
     width: 20px !important;
     padding: ${Spacing._4} !important;
@@ -47,6 +51,9 @@ const Title = styled.span`
     text-overflow: ellipsis;
     ${Typography.bodySmall};
     padding-right: ${Spacing._8};
+`
+const AbsoluteDiv = styled.div`
+    position: absolute;
 `
 export const PositionedDomino = styled(Domino)`
     margin-right: ${Spacing._8};
@@ -201,7 +208,15 @@ const Task = ({
                 onMouseEnter={() => setIsHovered(true)}
             >
                 <ItemContainer isSelected={isSelected} onClick={onClick} ref={drag} forceHoverStyle={contextMenuOpen}>
-                    <PositionedDomino isVisible={isHovered && !dragDisabled} />
+                    <MarginRight>
+                        {task.meeting_preparation_params?.event_moved_or_deleted ? (
+                            <Tip content="Event has been moved or deleted">
+                                <Icon icon={icons.warning} color="red" />
+                            </Tip>
+                        ) : (
+                            <Domino isVisible={isHovered && !dragDisabled} />
+                        )}
+                    </MarginRight>
                     {task.source?.name !== 'Jira' &&
                         (task.external_status && task.all_statuses ? (
                             <GTDropdownMenu
