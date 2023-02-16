@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
-import { useInterval, useKeyboardShortcut } from '../../hooks'
+import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
 import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
@@ -193,6 +193,7 @@ const Task = ({
     }, [task])
 
     useKeyboardShortcut('deleteTask', deleteTask, !isSelected)
+    const { isPreviewMode } = usePreviewMode()
 
     const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(task.recurring_task_template_id)
 
@@ -206,7 +207,7 @@ const Task = ({
             >
                 <ItemContainer isSelected={isSelected} onClick={onClick} ref={drag} forceHoverStyle={contextMenuOpen}>
                     <MarginRight>
-                        {task.meeting_preparation_params?.event_moved_or_deleted ? (
+                        {isPreviewMode && task.meeting_preparation_params?.event_moved_or_deleted ? (
                             <Tip content="Event has been moved or deleted">
                                 <Icon icon={icons.warning} color="red" />
                             </Tip>
