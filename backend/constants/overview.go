@@ -2,6 +2,8 @@ package constants
 
 type ViewType string
 
+var ValidOverviewAPIVersions = []string {"1.0", "2.0"}
+
 const (
 	ViewLinearSourceName = "Linear"
 	ViewSlackSourceName  = "Slack"

@@ -61,7 +61,28 @@ type SupportedView struct {
 	Views            []SupportedViewItem `json:"views"`
 }
 
+func GetVersionQueryParam(c *gin.Context) (string, error) {
+	params := c.Request.URL.Query()
+	versionParms := params["v"]
+
+	if len(versionParms) > 0 {
+		for _, v := range constants.ValidOverviewAPIVersions {
+			if v == versionParms[0] {
+				return versionParms[0], nil
+			}
+		}
+		return "", errors.New("invalid overview endpoint version")
+	}
+	return "1.0", nil
+}
+
 func (api *API) OverviewViewsList(c *gin.Context) {
+	version, err := GetVersionQueryParam(c)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
 	timezoneOffset, err := GetTimezoneOffsetFromHeader(c)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -102,7 +123,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		return
 	}
 
-	result, err := api.GetOverviewResults(views, userID, timezoneOffset)
+	result, err := api.GetOverviewResults(views, userID, timezoneOffset, version)
 	if err != nil {
 		log.Print("failed to get results")
 		api.Logger.Error().Err(err).Msg("failed to load views")
@@ -112,11 +133,10 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	sort.SliceStable(result, func(i, j int) bool {
 		return result[i].GetOrderingID() < result[j].GetOrderingID()
 	})
-
 	c.JSON(200, result)
 }
 
-func (api *API) GetOverviewResults(views []database.View, userID primitive.ObjectID, timezoneOffset time.Duration) ([]OrderingIDGetter, error) {
+func (api *API) GetOverviewResults(views []database.View, userID primitive.ObjectID, timezoneOffset time.Duration, version string) ([]OrderingIDGetter, error) {
 	result := []OrderingIDGetter{}
 	for _, view := range views {
 		var singleOverviewResult OrderingIDGetter
@@ -131,7 +151,11 @@ func (api *API) GetOverviewResults(views []database.View, userID primitive.Objec
 		case string(constants.ViewGithub):
 			singleOverviewResult, err = api.GetGithubOverviewResult(view, userID, timezoneOffset)
 		case string(constants.ViewMeetingPreparation):
-			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
+			if version == "1.0" {
+				singleOverviewResult, err = api.GetMeetingPreparationOverviewResultOld(view, userID, timezoneOffset)
+			} else {
+				singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, version)
+			}
 		case string(constants.ViewDueToday):
 			singleOverviewResult, err = api.GetDueTodayOverviewResult(view, userID, timezoneOffset)
 		default:
@@ -473,7 +497,58 @@ func (api *API) GetGithubOverviewResult(view database.View, userID primitive.Obj
 	return &result, nil
 }
 
-func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
+func (api *API) GetMeetingPreparationOverviewResultOld(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
+	if view.UserID != userID {
+		return nil, errors.New("invalid user")
+	}
+	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
+	events, err := database.GetEventsUntilEndOfDay(api.DB, userID, timeNow)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create new meeting prep tasks for events. Ignore events if meeting prep task already exists
+	err = CreateMeetingTasksFromEvents(api.DB, userID, events)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get all meeting prep tasks for user
+	meetingTasks, err := database.GetMeetingPreparationTasks(api.DB, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Sort by datetime_start
+	sort.Slice(*meetingTasks, func(i, j int) bool {
+		return (*meetingTasks)[i].MeetingPreparationParams.DatetimeStart <= (*meetingTasks)[j].MeetingPreparationParams.DatetimeStart
+	})
+
+	// Create result of meeting prep tasks
+	result, err := api.GetMeetingPrepTaskResultOld(userID, timeNow, meetingTasks)
+	if err != nil {
+		return nil, err
+	}
+
+	timeStartOfDay := time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 0, 0, 0, 0, time.FixedZone("", 0))
+	taskCompletedInLastDay := api.getCompletedInLastDay(database.GetTaskCollection(api.DB), userID, timeStartOfDay, &[]bson.M{{"is_meeting_preparation_task": true}})
+
+	return &OverviewResult[TaskResult]{
+		ID:                     view.ID,
+		Name:                   constants.ViewMeetingPreparationName,
+		Logo:                   external.TaskSourceGoogleCalendar.LogoV2,
+		Type:                   constants.ViewMeetingPreparation,
+		IsLinked:               true,
+		Sources:                []SourcesResult{},
+		TaskSectionID:          view.TaskSectionID,
+		IsReorderable:          view.IsReorderable,
+		IDOrdering:             view.IDOrdering,
+		ViewItems:              result,
+		HasTasksCompletedToday: taskCompletedInLastDay,
+	}, nil
+}
+
+func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration, version string) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
@@ -748,6 +823,41 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 	}
 
 	return nil
+}
+
+// GetMeetingPrepTaskResult returns a result of meeting prep tasks for a user, and auto-completes tasks that have ended
+func (api *API) GetMeetingPrepTaskResultOld(userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
+	eventCollection := database.GetCalendarEventCollection(api.DB)
+	taskCollection := database.GetTaskCollection(api.DB)
+	result := []*TaskResult{}
+	for _, task := range *tasks {
+		// if meeting has ended or linked event no longer exists, mark task as complete
+		count, err := eventCollection.CountDocuments(context.Background(), bson.M{"_id": task.MeetingPreparationParams.CalendarEventID})
+		if err != nil {
+			return nil, err
+		}
+		if count == int64(0) || task.MeetingPreparationParams.DatetimeEnd.Time().Before(expirationTime) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
+			_, err := taskCollection.UpdateOne(
+				context.Background(),
+				bson.M{"$and": []bson.M{
+					{"_id": task.ID},
+					{"user_id": userID},
+				}},
+				bson.M{"$set": bson.M{
+					"is_completed": true,
+					"completed_at": primitive.NewDateTimeFromTime(time.Now()),
+					"meeting_preparation_params.has_been_automatically_completed": true,
+				}})
+			if err != nil {
+				return nil, err
+			}
+			continue
+		}
+		// for implicit memory aliasing
+		tempTask := task
+		result = append(result, api.taskBaseToTaskResult(&tempTask, userID))
+	}
+	return result, nil
 }
 
 // GetMeetingPrepTaskResult returns a result of meeting prep tasks for a user, and auto-completes tasks that have ended
