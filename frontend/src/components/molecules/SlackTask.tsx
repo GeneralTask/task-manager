@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useDrag } from 'react-dnd'
 import styled from 'styled-components'
 import { Spacing, Typography } from '../../styles'
-import { DropType, TTask } from '../../utils/types'
+import { DropType, TTaskV4 } from '../../utils/types'
 import Domino from '../atoms/Domino'
 import SelectableContainer, { EdgeHighlight } from '../atoms/SelectableContainer'
 import TaskTemplate from '../atoms/TaskTemplate'
@@ -30,7 +30,7 @@ const ExternalLinkContainer = styled.div`
 `
 
 interface SlackTaskProps {
-    task: TTask
+    task: TTaskV4
     isSelected: boolean
     onClick: (id: string) => void
 }

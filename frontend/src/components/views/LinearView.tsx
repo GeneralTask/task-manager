@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
@@ -48,6 +48,10 @@ const LinearView = () => {
         }
         return { task: linearTasks[0] }
     }, [allTasks, linearIssueId])
+
+    useEffect(() => {
+        if (task) navigate(`/linear/${task.id}`)
+    }, [])
 
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const isLinearIntegrationLinked = isLinearLinked(linkedAccounts || [])
