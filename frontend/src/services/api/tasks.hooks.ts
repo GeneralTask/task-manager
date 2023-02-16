@@ -324,7 +324,11 @@ export const createTask = async (data: TCreateTaskData) => {
 }
 const modifyTaskOptimisticUpdate = (task: TTask, data: TModifyTaskData) => {
     task.title = data.title || task.title
-    task.due_date = data.dueDate ?? task.due_date
+    if (data.dueDate === '1969-12-31') {
+        task.due_date = ''
+    } else {
+        task.due_date = data.dueDate ?? task.due_date
+    }
     task.body = data.body ?? task.body
     task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
     task.external_status = data.status ?? task.external_status
