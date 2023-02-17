@@ -998,6 +998,43 @@ func TestEditFields(t *testing.T) {
 		expectedTask.DueDate = &expectedDueDate
 		utils.AssertTasksEqual(t, &expectedTask, &task)
 	})
+	t.Run("Edit Due Date with \"2006-01-02\" Date Format", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		insertResult, err := taskCollection.InsertOne(
+			context.Background(),
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		dueDate, err := time.Parse("2006-01-02", "2021-12-06")
+		assert.NoError(t, err)
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"due_date": "`+dueDate.Format("2006-01-02")+`"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := io.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
+
+		var task database.Task
+
+		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertedTaskID}).Decode(&task)
+		assert.NoError(t, err)
+
+		expectedDueDate := primitive.NewDateTimeFromTime(dueDate)
+		expectedTask.DueDate = &expectedDueDate
+		utils.AssertTasksEqual(t, &expectedTask, &task)
+
+	})
 	t.Run("Edit Due Date Empty", func(t *testing.T) {
 		expectedTask := sampleTask
 		expectedTask.UserID = userID
@@ -1022,7 +1059,45 @@ func TestEditFields(t *testing.T) {
 
 		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"parameter missing or malformatted\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"due_date is not a valid date\"}", string(body))
+	})
+	t.Run("Modifying other fields does not change due date", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		insertResult, err := taskCollection.InsertOne(
+			context.Background(),
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{
+				"title": "New title",
+				"body": "New body",
+				"time_duration": 20,
+				"is_complete": true,
+				"is_deleted": true
+			}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := io.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
+
+		var task database.Task
+
+		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertedTaskID}).Decode(&task)
+		assert.NoError(t, err)
+
+		assert.Equal(t, expectedTask.DueDate, task.DueDate)
 	})
 	t.Run("Edit Time Duration Success", func(t *testing.T) {
 		expectedTask := sampleTask

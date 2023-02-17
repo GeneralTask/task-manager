@@ -59,6 +59,7 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 		SourceID:        TASK_SOURCE_ID_GCAL,
 		Title:           event.Summary,
 		Body:            event.Description,
+		EventType:       event.EventType,
 		Location:        event.Location,
 		TimeAllocation:  dbEndTime.Sub(dbStartTime).Nanoseconds(),
 		SourceAccountID: accountID,

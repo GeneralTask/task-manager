@@ -165,6 +165,20 @@ func TestEventList(t *testing.T) {
 		assert.Equal(t, int64(5), count)
 	})
 	t.Run("Success", func(t *testing.T) {
+		oooEvent := calendar.Event{
+			Created:         "2023-02-25T17:53:01.000Z",
+			Summary:         "ooo Event",
+			Description:     "ooo event <strong>description</strong>",
+			Location:        "ooo event location",
+			EventType:       "outOfOffice",
+			Start:           &calendar.EventDateTime{DateTime: "2023-03-06T15:01:00-05:00"},
+			End:             &calendar.EventDateTime{DateTime: "2023-03-06T15:30:00-05:00"},
+			HtmlLink:        "generaltask.com",
+			Id:              "ooo_event",
+			GuestsCanModify: false,
+			Organizer:       &calendar.EventOrganizer{Self: true},
+			ServerResponse:  googleapi.ServerResponse{HTTPStatusCode: 0},
+		}
 		standardEvent := calendar.Event{
 			Created:         "2021-02-25T17:53:01.000Z",
 			Summary:         "Normal Event",
@@ -192,7 +206,7 @@ func TestEventList(t *testing.T) {
 			Organizer:       &calendar.EventOrganizer{Self: true},
 			ServerResponse:  googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
-		server := testutils.GetGcalFetchServer([]*calendar.Event{&standardEvent, &newEvent})
+		server := testutils.GetGcalFetchServer([]*calendar.Event{&standardEvent, &newEvent, &oooEvent})
 		defer server.Close()
 		api.ExternalConfig.GoogleOverrideURLs.CalendarFetchURL = &server.URL
 
@@ -206,11 +220,12 @@ func TestEventList(t *testing.T) {
 		assert.Equal(t, 2, len(eventResult))
 		assert.Equal(t, "New Event", eventResult[0].Title)
 		assert.Equal(t, "Normal Event", eventResult[1].Title)
+		// ooo event should not be in result
 
 		// normal_event2 should be deleted and replaced by new_event
 		count, err := eventCollection.CountDocuments(context.Background(), bson.M{"user_id": userID})
 		assert.NoError(t, err)
-		assert.Equal(t, int64(5), count)
+		assert.Equal(t, int64(6), count)
 		count, err = eventCollection.CountDocuments(context.Background(), bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"id_external": "normal_event2"},

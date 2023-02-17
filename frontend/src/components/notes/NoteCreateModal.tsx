@@ -4,6 +4,7 @@ import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { NOTE_SYNC_TIMEOUT, NO_TITLE, SYNC_MESSAGES } from '../../constants'
 import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
+import useQueryContext from '../../context/QueryContext'
 import { useToast } from '../../hooks'
 import { useCreateNote, useGetNotes, useModifyNote } from '../../services/api/notes.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
@@ -28,8 +29,8 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
     const { data: userInfo } = useGetUserInfo()
     const [noteTitle, setNoteTitle] = useState('')
     const [noteBody, setNoteBody] = useState('')
-    const [optimisticId, setOptimisticId] = useState<string | undefined>(undefined)
-    const [realId, setRealId] = useState<string | undefined>(undefined)
+    const optimisticId = useRef<string | undefined>(undefined)
+    const { getIdFromOptimisticId } = useQueryContext()
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
     const timer = useRef<{ timeout: NodeJS.Timeout; callback: () => void }>()
@@ -48,8 +49,8 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         }
     }, [isOpen, isError, isLoading, isEditing])
 
-    const copyNoteLink = () => {
-        navigator.clipboard.writeText(getNoteURL(realId || ''))
+    const copyNoteLink = (realId: string) => {
+        navigator.clipboard.writeText(getNoteURL(realId))
         toast.show(
             {
                 message: `Note URL copied to clipboard`,
@@ -83,14 +84,17 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         setIsEditing(false)
         if (timer.current) clearTimeout(timer.current.timeout)
 
-        if (realId) {
-            modifyNote({
-                id: realId,
-                title: title || NO_TITLE,
-                body: body,
-                shared_until,
-            })
-        } else if (!optimisticId) {
+        if (optimisticId.current) {
+            modifyNote(
+                {
+                    id: optimisticId.current,
+                    title: title || NO_TITLE,
+                    body: body,
+                    shared_until,
+                },
+                optimisticId.current
+            )
+        } else {
             const newOptimisticNoteId = uuidv4()
             createNote({
                 title: title || NO_TITLE,
@@ -98,24 +102,28 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                 author: userInfo?.name || 'Anonymous',
                 optimisticId: newOptimisticNoteId,
                 shared_until: shared_until,
-                callback: (data) => {
-                    setRealId(data.note_id)
-                    setOptimisticId(undefined)
-                },
             })
-            setOptimisticId(newOptimisticNoteId)
-        } else {
-            modifyNote(
-                {
-                    id: optimisticId,
-                    title: title || NO_TITLE,
-                    body: body,
-                    shared_until,
-                },
-                optimisticId
-            )
+            optimisticId.current = newOptimisticNoteId
         }
     }
+
+    const onClose = () => {
+        // If this is the user's first note, we navigate to the notes page the modal is closed (learnability)
+        if ((isEditing && notes?.length === 0) || (optimisticId.current && notes?.length === 1)) {
+            navigate('/notes')
+        }
+        setNoteTitle('')
+        setNoteBody('')
+        timer.current?.callback()
+        timer.current = undefined
+        optimisticId.current = undefined
+    }
+
+    useEffect(() => {
+        if (!isOpen) {
+            optimisticId.current = undefined
+        }
+    }, [isOpen])
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         const keyCode = getKeyCode(e)
@@ -125,27 +133,15 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
             KEYBOARD_SHORTCUTS.newNote.key.split('|').some((key) => key === keyCode)
         ) {
             setIsOpen(false)
+            onClose()
         }
         stopKeydownPropogation(e, undefined, true)
     }
 
-    useEffect(() => {
-        if (!isOpen) {
-            // If this is the user's first note, we navigate to the notes page the modal is closed (learnability)
-            if ((isEditing && notes?.length === 0) || ((realId || optimisticId) && notes?.length === 1)) {
-                navigate('/notes')
-            }
-
-            setNoteTitle('')
-            setNoteBody('')
-            setOptimisticId(undefined)
-            setRealId(undefined)
-        }
-    }, [isOpen])
-
     return (
         <GTModal
             open={isOpen}
+            onClose={onClose}
             setIsModalOpen={setIsOpen}
             size="md"
             tabs={{
@@ -180,24 +176,40 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                         </Flex>
                         <Flex justifyContent="space-between" alignItems="center">
                             <Label color="light">{syncIndicatorText}</Label>
-                            <GTButton
-                                value="Share note"
-                                styleType="secondary"
-                                size="small"
-                                icon={icons.share}
-                                disabled={!realId}
-                                onClick={() => {
-                                    onEdit(
-                                        {
-                                            title: noteTitle,
-                                            body: noteBody,
-                                            shared_until: DateTime.local().plus({ months: 3 }).toISO(),
-                                        },
-                                        0
-                                    )
-                                    copyNoteLink()
-                                }}
-                            />
+                            <Flex gap={Spacing._8}>
+                                <GTButton
+                                    value="Share note"
+                                    styleType="secondary"
+                                    size="small"
+                                    icon={icons.share}
+                                    disabled={!optimisticId.current || !getIdFromOptimisticId(optimisticId.current)}
+                                    onClick={() => {
+                                        onEdit(
+                                            {
+                                                title: noteTitle,
+                                                body: noteBody,
+                                                shared_until: DateTime.local().plus({ months: 3 }).toISO(),
+                                            },
+                                            0
+                                        )
+                                        const realId = optimisticId.current
+                                            ? getIdFromOptimisticId(optimisticId.current)
+                                            : undefined
+                                        if (realId) copyNoteLink(realId)
+                                    }}
+                                />
+                                <GTButton
+                                    value="Save note"
+                                    styleType="secondary"
+                                    size="small"
+                                    icon={icons.save}
+                                    disabled={!(noteBody || noteTitle)}
+                                    onClick={() => {
+                                        onClose()
+                                        setIsOpen(false)
+                                    }}
+                                />
+                            </Flex>
                         </Flex>
                     </Flex>
                 ),

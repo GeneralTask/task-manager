@@ -78,7 +78,7 @@ const GTTextField = forwardRef((props: GTTextFieldProps, ref) => {
     return (
         <Container
             ref={containerRef}
-            onKeyDown={(e) => stopKeydownPropogation(e, props.keyDownExceptions)}
+            onKeyDown={(e) => stopKeydownPropogation(e, props.keyDownExceptions, true)}
             isFullHeight={props.isFullHeight}
             minHeight={props.minHeight}
             hideUnfocusedOutline={props.hideUnfocusedOutline}

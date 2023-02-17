@@ -72,7 +72,7 @@ const TaskSectionView = () => {
     const section = useMemo(() => taskSections?.find(({ id }) => id === params.section), [taskSections, params.section])
 
     const sortAndFilterSettings = useSortAndFilterSettings<TTask>(TASK_SORT_AND_FILTER_CONFIG, section?.id, '_main')
-    const { selectedSort, selectedSortDirection, selectedFilter, isLoading: areSettingsLoading } = sortAndFilterSettings
+    const { selectedSort, selectedSortDirection, isLoading: areSettingsLoading } = sortAndFilterSettings
     const sortedTasks = useMemo(() => {
         if (section && (section.is_done || section.is_trash)) return section.tasks
         if (!section || areSettingsLoading) return []
@@ -82,7 +82,7 @@ const TaskSectionView = () => {
             sortDirection: selectedSortDirection,
             tieBreakerField: TASK_SORT_AND_FILTER_CONFIG.tieBreakerField,
         })
-    }, [section, selectedSort, selectedSortDirection, selectedFilter])
+    }, [section, selectedSort, selectedSortDirection, areSettingsLoading])
 
     const task = useMemo(() => sortedTasks.find(({ id }) => id === params.task), [sortedTasks, params.task])
     const subtask = useMemo(() => task?.sub_tasks?.find(({ id }) => id === params.subtaskId), [task, params.subtaskId])

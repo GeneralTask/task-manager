@@ -87,6 +87,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.POST("/tasks/:task_id/comments/add/", handlers.TaskAddComment)
 
 	router.GET("/recurring_task_templates/", handlers.RecurringTaskTemplateList)
+	router.GET("/recurring_task_templates/v2/", handlers.RecurringTaskTemplateListV2)
 	router.GET("/recurring_task_templates/backfill_tasks/", handlers.RecurringTaskTemplateBackfillTasks)
 	router.POST("/recurring_task_templates/create/", handlers.RecurringTaskTemplateCreate)
 	router.PATCH("/recurring_task_templates/modify/:template_id/", handlers.RecurringTaskTemplateModify)
