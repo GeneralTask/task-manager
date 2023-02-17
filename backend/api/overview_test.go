@@ -67,6 +67,7 @@ func TestOverview(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, `{"error":"Timezone-Offset header is required"}`, string(body))
 	})
+
 }
 
 func TestGetOverviewResults(t *testing.T) {
@@ -837,6 +838,26 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, 2, len(res.ViewItems))
 		assert.Equal(t, "Event1", res.ViewItems[0].Title)
 		assert.Equal(t, "Event2", res.ViewItems[1].Title)
+	})
+	t.Run("MarkTaskWithMissingEventDone", func(t *testing.T) {
+		idExternal := primitive.NewObjectID().Hex()
+		insertResult, err := createTestMeetingPreparationTask(taskCollection, userID, "Event3", idExternal, false, timeTwoHoursLater, timeOneDayLater, primitive.NewObjectID())
+		assert.NoError(t, err)
+
+		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, false)
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+		// Event3 shouldn't be included in the results
+		assert.Equal(t, 2, len(res.ViewItems))
+		assert.Equal(t, "Event1", res.ViewItems[0].Title)
+		assert.Equal(t, "Event2", res.ViewItems[1].Title)
+
+		var item database.Task
+		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertResult.InsertedID.(primitive.ObjectID)}).Decode(&item)
+		assert.NoError(t, err)
+		assert.Equal(t, true, *item.IsCompleted)
+		assert.NotEqual(t, primitive.DateTime(0), item.CompletedAt)
+		assert.Equal(t, true, item.MeetingPreparationParams.HasBeenAutomaticallyCompleted)
 	})
 	t.Run("TaskWithMissingEvent", func(t *testing.T) {
 		idExternal := primitive.NewObjectID().Hex()
