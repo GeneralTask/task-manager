@@ -5,6 +5,7 @@ import { DateTime } from 'luxon'
 import { OverviewContextProvider } from '../../context/OverviewContextProvider'
 import { useEventBanners, usePageFocus } from '../../hooks'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
+import { useGetSections } from '../../services/api/task-section.hooks'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
 import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
@@ -25,6 +26,7 @@ const MainScreen = () => {
     useGetUserInfo()
     useGetTasksV4()
     useGetTasks()
+    useGetSections()
     useFetchPullRequests()
     useFetchExternalTasks()
     useEventBanners(DateTime.now())
