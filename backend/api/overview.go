@@ -61,22 +61,22 @@ type SupportedView struct {
 	Views            []SupportedViewItem `json:"views"`
 }
 
-func GetShowDeletedQueryParam(c *gin.Context) (bool, error) {
+func GetShowMovedOrDeletedQueryParam(c *gin.Context) (bool, error) {
 	params := c.Request.URL.Query()
-	showDeletedParams := params[constants.ShowDeletedQueryParam]
-	if len(showDeletedParams) == 0 {
+	showMovedOrDeletedParams := params[constants.ShowMovedOrDeleted]
+	if len(showMovedOrDeletedParams) == 0 {
 		return false, nil
 	}
-	if showDeletedParams[0] == "true" {
+	if showMovedOrDeletedParams[0] == "true" {
 		return true, nil
-	} else if showDeletedParams[0] == "false" {
+	} else if showMovedOrDeletedParams[0] == "false" {
 		return false, nil
 	}
 	return false, errors.New("invalid or missing parameter")
 }
 
 func (api *API) OverviewViewsList(c *gin.Context) {
-	showDeleted, err := GetShowDeletedQueryParam(c)
+	showMovedOrDeleted, err := GetShowMovedOrDeletedQueryParam(c)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -122,7 +122,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		return
 	}
 
-	result, err := api.GetOverviewResults(views, userID, timezoneOffset, showDeleted)
+	result, err := api.GetOverviewResults(views, userID, timezoneOffset, showMovedOrDeleted)
 	if err != nil {
 		log.Print("failed to get results")
 		api.Logger.Error().Err(err).Msg("failed to load views")
@@ -135,7 +135,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	c.JSON(200, result)
 }
 
-func (api *API) GetOverviewResults(views []database.View, userID primitive.ObjectID, timezoneOffset time.Duration, showDeleted bool) ([]OrderingIDGetter, error) {
+func (api *API) GetOverviewResults(views []database.View, userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool) ([]OrderingIDGetter, error) {
 	result := []OrderingIDGetter{}
 	for _, view := range views {
 		var singleOverviewResult OrderingIDGetter
@@ -150,7 +150,7 @@ func (api *API) GetOverviewResults(views []database.View, userID primitive.Objec
 		case string(constants.ViewGithub):
 			singleOverviewResult, err = api.GetGithubOverviewResult(view, userID, timezoneOffset)
 		case string(constants.ViewMeetingPreparation):
-			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, showDeleted)
+			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, showMovedOrDeleted)
 		case string(constants.ViewDueToday):
 			singleOverviewResult, err = api.GetDueTodayOverviewResult(view, userID, timezoneOffset)
 		default:
@@ -492,7 +492,7 @@ func (api *API) GetGithubOverviewResult(view database.View, userID primitive.Obj
 	return &result, nil
 }
 
-func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration, showDeletedEvents bool) (*OverviewResult[TaskResult], error) {
+func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
@@ -514,7 +514,7 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 		return nil, err
 	}
 
-	if showDeletedEvents {
+	if showMovedOrDeleted {
 		// Sync existing Meeting prep tasks with their events
 		err = api.SyncMeetingTasksWithEvents(meetingTasks, userID, timezoneOffset)
 		if err != nil {
@@ -533,7 +533,7 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 
 	// Create result of meeting prep tasks
 	var result []*TaskResult
-	if showDeletedEvents {
+	if showMovedOrDeleted {
 		result, err = api.GetMeetingPrepTaskResult(userID, timeNow, meetingTasks)
 		} else {
 			result, err = api.GetMeetingPrepTaskResultWithAutocompletion(userID, timeNow, meetingTasks)

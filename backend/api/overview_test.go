@@ -25,8 +25,8 @@ func TestOverview(t *testing.T) {
 	defer dbCleanup()
 	router := GetRouter(api)
 	UnauthorizedTest(t, "GET", "/overview/views/", nil)
-	t.Run("InvalidShowDeletedQueryParam", func(t *testing.T) {
-		request, _ := http.NewRequest("GET", "/overview/views/?show_deleted=invalid", nil)
+	t.Run("InvalidShowMovedOrDeletedQueryParam", func(t *testing.T) {
+		request, _ := http.NewRequest("GET", "/overview/views/?show_moved_or_deleted=invalid", nil)
 		request.Header.Set("Authorization", "Bearer "+authtoken)
 		request.Header.Set("Timezone-Offset", "420")
 
@@ -37,9 +37,9 @@ func TestOverview(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, `{"error":"invalid or missing parameter"}`, string(body))
 	})
-	t.Run("ValidShowDeletedQueryParam", func(t *testing.T) {
+	t.Run("ValidShowMovedOrDeletedQueryParam", func(t *testing.T) {
 		// True
-		request, _ := http.NewRequest("GET", "/overview/views/?show_deleted=true", nil)
+		request, _ := http.NewRequest("GET", "/overview/views/?show_moved_or_deleted=true", nil)
 		request.Header.Set("Authorization", "Bearer "+authtoken)
 		request.Header.Set("Timezone-Offset", "420")
 
@@ -50,7 +50,7 @@ func TestOverview(t *testing.T) {
 		assert.NoError(t, err)
 
 		// False
-		request, _ = http.NewRequest("GET", "/overview/views/?show_deleted=false", nil)
+		request, _ = http.NewRequest("GET", "/overview/views/?show_moved_or_deleted=false", nil)
 		request.Header.Set("Authorization", "Bearer "+authtoken)
 		request.Header.Set("Timezone-Offset", "420")
 
