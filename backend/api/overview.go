@@ -64,16 +64,15 @@ type SupportedView struct {
 func GetShowDeletedQueryParam(c *gin.Context) (bool, error) {
 	params := c.Request.URL.Query()
 	showDeletedParams := params["show_deleted"]
-
-	if len(showDeletedParams) > 0 {
-		if showDeletedParams[0] == "true" {
-			return true, nil
-		} else if showDeletedParams[0] == "false" {
-			return false, nil
-		}
-		return false, errors.New("invalid overview endpoint version")
+	if len(showDeletedParams) == 0 {
+		return false, nil
 	}
-	return false, nil
+	if showDeletedParams[0] == "true" {
+		return true, nil
+	} else if showDeletedParams[0] == "false" {
+		return false, nil
+	}
+	return false, errors.New("invalid overview endpoint version")
 }
 
 func (api *API) OverviewViewsList(c *gin.Context) {
