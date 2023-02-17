@@ -27,3 +27,5 @@ const (
 const (
 	MAX_OVERVIEW_SUGGESTION int = 5
 )
+
+const ShowDeletedQueryParam = "show_deleted"

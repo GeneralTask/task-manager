@@ -63,7 +63,7 @@ type SupportedView struct {
 
 func GetShowDeletedQueryParam(c *gin.Context) (bool, error) {
 	params := c.Request.URL.Query()
-	showDeletedParams := params["show_deleted"]
+	showDeletedParams := params[constants.ShowDeletedQueryParam]
 	if len(showDeletedParams) == 0 {
 		return false, nil
 	}
