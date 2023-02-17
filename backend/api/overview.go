@@ -72,7 +72,7 @@ func GetShowDeletedQueryParam(c *gin.Context) (bool, error) {
 	} else if showDeletedParams[0] == "false" {
 		return false, nil
 	}
-	return false, errors.New("invalid overview endpoint version")
+	return false, errors.New("invalid or missing parameter")
 }
 
 func (api *API) OverviewViewsList(c *gin.Context) {

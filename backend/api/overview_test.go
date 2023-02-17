@@ -25,6 +25,40 @@ func TestOverview(t *testing.T) {
 	defer dbCleanup()
 	router := GetRouter(api)
 	UnauthorizedTest(t, "GET", "/overview/views/", nil)
+	t.Run("InvalidShowDeletedQueryParam", func(t *testing.T) {
+		request, _ := http.NewRequest("GET", "/overview/views/?show_deleted=invalid", nil)
+		request.Header.Set("Authorization", "Bearer "+authtoken)
+		request.Header.Set("Timezone-Offset", "420")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := io.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, `{"error":"invalid or missing parameter"}`, string(body))
+	})
+	t.Run("ValidShowDeletedQueryParam", func(t *testing.T) {
+		// True
+		request, _ := http.NewRequest("GET", "/overview/views/?show_deleted=true", nil)
+		request.Header.Set("Authorization", "Bearer "+authtoken)
+		request.Header.Set("Timezone-Offset", "420")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		_, err := io.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+
+		// False
+		request, _ = http.NewRequest("GET", "/overview/views/?show_deleted=false", nil)
+		request.Header.Set("Authorization", "Bearer "+authtoken)
+		request.Header.Set("Timezone-Offset", "420")
+
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		_, err = io.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+	})
 	t.Run("SuccessGetViews", func(t *testing.T) {
 		request, _ := http.NewRequest("GET", "/overview/views/", nil)
 		request.Header.Set("Authorization", "Bearer "+authtoken)
