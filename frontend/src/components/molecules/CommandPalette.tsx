@@ -8,7 +8,8 @@ import useShortcutContext from '../../context/ShortcutContext'
 import { useKeyboardShortcut } from '../../hooks'
 import useNavigateToTask from '../../hooks/useNavigateToTask'
 import Log from '../../services/api/log'
-import { useGetTasks } from '../../services/api/tasks.hooks'
+import { useGetSections } from '../../services/api/task-section.hooks'
+import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { TShortcut, TShortcutCategory } from '../../utils/types'
@@ -129,12 +130,10 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
     const [selectedShortcut, setSelectedShortcut] = useState<string>()
     const [searchValue, setSearchValue] = useState<string>()
 
-    const { data: taskFolders } = useGetTasks()
+    const { data: allTasks } = useGetTasksV4()
+    const { data: folders } = useGetSections()
     const navigateToTask = useNavigateToTask()
     const navigate = useNavigate()
-    const tasks = useMemo(() => {
-        return taskFolders?.flatMap((folder) => folder.tasks) ?? []
-    }, [taskFolders])
 
     useKeyboardShortcut(
         'toggleCommandPalette',
@@ -231,7 +230,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                     )}
                     {searchValue && (
                         <CommandGroup heading={`Search for "${searchValue}"`}>
-                            {taskFolders
+                            {folders
                                 ?.filter((f) => f.id !== DEFAULT_SECTION_ID)
                                 .map(({ name, id }) => (
                                     <CommandItem
@@ -260,7 +259,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                         </FlexWidth100>
                                     </CommandItem>
                                 ))}
-                            {tasks.map(({ is_done, is_deleted, title, source, id }) => (
+                            {allTasks?.map(({ is_done, is_deleted, title, source, id }) => (
                                 <CommandItem
                                     key={id}
                                     onSelect={() => {

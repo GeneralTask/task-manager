@@ -1,3 +1,4 @@
+import { QueryFunctionContext, useQuery } from 'react-query'
 import { useNavigate } from 'react-router-dom'
 import produce, { castImmutable } from 'immer'
 import { DEFAULT_SECTION_ID } from '../../constants'
@@ -22,6 +23,18 @@ interface TModifyTaskSectionData {
     id: string
     name?: string
     id_ordering?: number
+}
+
+export const useGetSections = (isEnabled = true) => {
+    return useQuery<TTaskSection[], void>('sections', getSections, { enabled: isEnabled, refetchOnMount: false })
+}
+const getSections = async ({ signal }: QueryFunctionContext) => {
+    try {
+        const res = await apiClient.get('/sections/', { signal })
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('getTasks failed')
+    }
 }
 
 export const useAddTaskSection = () => {
