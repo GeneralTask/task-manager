@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import produce from 'immer'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { SINGLE_SECOND_INTERVAL } from '../../constants'
 import { useInterval, useSetting } from '../../hooks'
 import { useGetCalendars } from '../../services/api/events.hooks'
-import { useGetTasks } from '../../services/api/tasks.hooks'
+import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { Border, Colors, Spacing } from '../../styles'
 import { useCalendarContext } from './CalendarContext'
 import TaskDueBody from './TaskDueBody'
@@ -44,7 +43,7 @@ interface TasksDueProps {
 }
 const TasksDue = ({ date }: TasksDueProps) => {
     const { isTasksDueViewCollapsed, isTasksOverdueViewCollapsed, setDate } = useCalendarContext()
-    const { data: taskFolders } = useGetTasks()
+    const { data: allTasks } = useGetTasksV4()
     const [currentTime, setCurrentTime] = useState(DateTime.local())
 
     useInterval(
@@ -62,21 +61,8 @@ const TasksDue = ({ date }: TasksDueProps) => {
     }, [currentTime])
 
     const incompleteTasks = useMemo(() => {
-        const allTasks = taskFolders?.flatMap((section) => section.tasks) ?? []
-        const allSubtasks = allTasks
-            .filter((task) => task.sub_tasks !== undefined)
-            .map((task) => {
-                return produce(task, (draft) => {
-                    for (const subtask of draft.sub_tasks || []) {
-                        subtask.parent_task_id = draft.id
-                        subtask.isSubtask = true
-                    }
-                })
-            })
-            .flatMap((task) => task.sub_tasks || [])
-        const allTasksAndSubtasks = [...allTasks, ...allSubtasks]
-        return allTasksAndSubtasks.filter((task) => !task.is_done && !task.is_deleted)
-    }, [taskFolders])
+        return allTasks?.filter((task) => !task.is_done && !task.is_deleted) || []
+    }, [allTasks])
 
     const tasksDueToday = useMemo(
         () =>
