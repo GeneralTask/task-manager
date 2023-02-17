@@ -90,6 +90,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     eventBodyHeight={eventBodyHeight}
                     eventHasEnded={eventHasEnded}
                     isBeingDragged={props.isBeingDragged}
+                    isSelected={selectedEvent?.id === props.event.id}
                     isDisabled={disableSelectEvent}
                 >
                     <EventInfoContainer onClick={onClick}>
