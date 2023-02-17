@@ -77,7 +77,6 @@ func GetShowDeletedQueryParam(c *gin.Context) (bool, error) {
 
 func (api *API) OverviewViewsList(c *gin.Context) {
 	showDeleted, err := GetShowDeletedQueryParam(c)
-	fmt.Printf("showDeleted: %v\n", showDeleted)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
