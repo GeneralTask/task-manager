@@ -54,7 +54,7 @@ const DueTask = ({ task, showDueDate }: DueTaskProps) => {
             ref={drag}
         >
             <TaskDue>
-                <Icon icon={logos[task.source.logo_v2]} />
+                <Icon icon={logos[task.source.logo]} />
                 <TaskTitle title={task.title}>{task.title}</TaskTitle>
             </TaskDue>
             {showDueDate && <TaskDueDate>{DateTime.fromISO(task.due_date).toFormat('MMM dd')}</TaskDueDate>}
