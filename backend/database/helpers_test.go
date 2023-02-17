@@ -1196,3 +1196,41 @@ func createTestCalendarEvent(db *mongo.Database, userID primitive.ObjectID, date
 	)
 	return result.InsertedID.(primitive.ObjectID), err
 }
+
+func createTestCalendarEventWithExternalID(db *mongo.Database, userID primitive.ObjectID, externalID string) (primitive.ObjectID, error) {
+	eventsCollection := GetCalendarEventCollection(db)
+	result, err := eventsCollection.InsertOne(
+		context.Background(),
+		&CalendarEvent{
+			UserID:        userID,
+			IDExternal:    externalID,
+		},
+	)
+	return result.InsertedID.(primitive.ObjectID), err
+}
+
+func TestGetCalendarEventByExternalId(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	externalID := primitive.NewObjectID().Hex()
+	event, err := createTestCalendarEventWithExternalID(db, userID, externalID)
+	assert.NoError(t, err)
+
+	t.Run("WrongID", func(t *testing.T) {
+		respEvent, err := GetCalendarEventByExternalId(db, "wrong ID", userID)
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+		assert.Nil(t, respEvent)
+	})
+	t.Run("WrongUserID", func(t *testing.T) {
+		respEvent, err := GetCalendarEventByExternalId(db, externalID, primitive.NewObjectID())
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+		assert.Nil(t, respEvent)
+	})
+	t.Run("Success", func(t *testing.T) {
+		respEvent, err := GetCalendarEventByExternalId(db, externalID, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, event, respEvent.ID)
+	})
+}
