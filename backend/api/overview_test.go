@@ -24,9 +24,9 @@ func TestOverview(t *testing.T) {
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	router := GetRouter(api)
-	UnauthorizedTest(t, "GET", "/overview/views", nil)
+	UnauthorizedTest(t, "GET", "/overview/views/", nil)
 	t.Run("SuccessGetViews", func(t *testing.T) {
-		request, _ := http.NewRequest("GET", "/overview/views", nil)
+		request, _ := http.NewRequest("GET", "/overview/views/", nil)
 		request.Header.Set("Authorization", "Bearer "+authtoken)
 		request.Header.Set("Timezone-Offset", "420")
 
@@ -45,7 +45,7 @@ func TestOverview(t *testing.T) {
 		viewCollection := database.GetViewCollection(db)
 		viewCollection.DeleteMany(context.Background(), bson.M{})
 
-		request, _ := http.NewRequest("GET", "/overview/views", nil)
+		request, _ := http.NewRequest("GET", "/overview/views/", nil)
 		request.Header.Set("Authorization", "Bearer "+authtoken)
 		request.Header.Set("Timezone-Offset", "420")
 
@@ -57,7 +57,7 @@ func TestOverview(t *testing.T) {
 		assert.Equal(t, "[]", string(body))
 	})
 	t.Run("MissingTimezoneOffsetHeader", func(t *testing.T) {
-		request, _ := http.NewRequest("GET", "/overview/views", nil)
+		request, _ := http.NewRequest("GET", "/overview/views/", nil)
 		request.Header.Set("Authorization", "Bearer "+authtoken)
 
 		recorder := httptest.NewRecorder()
