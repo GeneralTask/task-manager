@@ -101,3 +101,19 @@ func getValidExternalOwnerAssignedTask(db *mongo.Database, userID primitive.Obje
 	}
 	return nil, "", errors.New("unable to perform with non General Task users")
 }
+
+func GetTaskSectionViewItemIDs(viewItems []*TaskResult) []string {
+	ids := make([]string, len(viewItems))
+	for i, item := range viewItems {
+		ids[i] = item.ID.Hex()
+	}
+	return ids
+}
+
+func GetPullRequestViewItemsIDs(viewItems []*PullRequestResult) []string {
+	ids := make([]string, len(viewItems))
+	for i, item := range viewItems {
+		ids[i] = item.ID
+	}
+	return ids
+}
