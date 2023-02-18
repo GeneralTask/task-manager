@@ -7,6 +7,10 @@ import styled from 'styled-components'
 const Container = styled.div`
     max-width: 100%;
     overflow: auto;
+    * {
+        max-width: 100%;
+        white-space: pre-wrap;
+    }
 `
 
 interface MarkdownRendererProps {
