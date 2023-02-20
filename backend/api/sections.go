@@ -2,8 +2,6 @@ package api
 
 import (
 	"context"
-	"sort"
-
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
@@ -28,30 +26,46 @@ type SectionResult struct {
 }
 
 func (api *API) SectionList(c *gin.Context) {
-	userID, _ := c.Get("user")
+	userID := getUserIDFromContext(c)
+	var userObject database.User
+	userCollection := database.GetUserCollection(api.DB)
+	err := userCollection.FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
 
-	sections, err := database.GetTaskSections(api.DB, userID.(primitive.ObjectID))
 	if err != nil {
-		api.Logger.Error().Err(err).Msg("failed to fetch sections for user")
+		api.Logger.Error().Err(err).Msg("failed to find user")
 		Handle500(c)
 		return
 	}
-	sectionResults := []SectionResult{}
-	for _, section := range *sections {
-		sectionResults = append(sectionResults, SectionResult{
-			ID:         section.ID,
-			IDOrdering: section.IDOrdering,
-			Name:       section.Name,
-		})
+
+	activeTasks, err := database.GetActiveTasks(api.DB, userID)
+	if err != nil {
+		Handle500(c)
+		return
 	}
-	sort.SliceStable(sectionResults, func(i, j int) bool {
-		// preserve existing sort if no ordering ID set
-		if sectionResults[i].IDOrdering == 0 && sectionResults[j].IDOrdering == 0 {
-			return sectionResults[i].ID.Hex() < sectionResults[j].ID.Hex()
-		}
-		return sectionResults[i].IDOrdering < sectionResults[j].IDOrdering
-	})
-	c.JSON(200, sectionResults)
+	completedTasks, err := database.GetCompletedTasks(api.DB, userID)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	deletedTasks, err := database.GetDeletedTasks(api.DB, userID)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+
+	allTasks, err := api.mergeTasksV3(
+		api.DB,
+		activeTasks,
+		completedTasks,
+		deletedTasks,
+		userID,
+	)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	c.JSON(200, allTasks)
+
 }
 
 func (api *API) SectionAdd(c *gin.Context) {
