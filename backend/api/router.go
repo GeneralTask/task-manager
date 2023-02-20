@@ -108,6 +108,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.PATCH("/user_info/", handlers.UserInfoUpdate)
 
 	router.GET("/sections/", handlers.SectionList)
+	router.GET("/sections/v2/", handlers.SectionListV2)
 	router.POST("/sections/create/", handlers.SectionAdd)
 	router.PATCH("/sections/modify/:section_id/", handlers.SectionModify)
 	router.DELETE("/sections/delete/:section_id/", handlers.SectionDelete)

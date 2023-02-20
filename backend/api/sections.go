@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"sort"
 )
 
 type SectionCreateParams struct {
@@ -25,7 +26,15 @@ type SectionResult struct {
 	Name       string             `json:"name"`
 }
 
-func (api *API) SectionList(c *gin.Context) {
+func GetTaskIDs(tasks []*TaskResult) []string {
+	ids := make([]string, len(tasks))
+	for i, item := range tasks {
+		ids[i] = item.ID.Hex()
+	}
+	return ids
+}
+
+func (api *API) SectionListV2(c *gin.Context) {
 	userID := getUserIDFromContext(c)
 	var userObject database.User
 	userCollection := database.GetUserCollection(api.DB)
@@ -64,8 +73,37 @@ func (api *API) SectionList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
+	for _, sections := range allTasks {
+		sections.Tasks = []*TaskResult{}
+	}
 	c.JSON(200, allTasks)
+}
 
+func (api *API) SectionList(c *gin.Context) {
+	userID, _ := c.Get("user")
+
+	sections, err := database.GetTaskSections(api.DB, userID.(primitive.ObjectID))
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to fetch sections for user")
+		Handle500(c)
+		return
+	}
+	sectionResults := []SectionResult{}
+	for _, section := range *sections {
+		sectionResults = append(sectionResults, SectionResult{
+			ID:         section.ID,
+			IDOrdering: section.IDOrdering,
+			Name:       section.Name,
+		})
+	}
+	sort.SliceStable(sectionResults, func(i, j int) bool {
+		// preserve existing sort if no ordering ID set
+		if sectionResults[i].IDOrdering == 0 && sectionResults[j].IDOrdering == 0 {
+			return sectionResults[i].ID.Hex() < sectionResults[j].ID.Hex()
+		}
+		return sectionResults[i].IDOrdering < sectionResults[j].IDOrdering
+	})
+	c.JSON(200, sectionResults)
 }
 
 func (api *API) SectionAdd(c *gin.Context) {

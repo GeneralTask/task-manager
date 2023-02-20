@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -25,6 +26,7 @@ func TestSections(t *testing.T) {
 	createdTaskID := ""
 	createdTaskID2 := ""
 	UnauthorizedTest(t, "GET", "/sections/", nil)
+	UnauthorizedTest(t, "GET", "/sections/v2/", nil)
 	UnauthorizedTest(t, "POST", "/sections/create/", nil)
 	UnauthorizedTest(t, "PATCH", "/sections/modify/123/", nil)
 	UnauthorizedTest(t, "DELETE", "/sections/delete/123/", nil)
@@ -113,6 +115,86 @@ func TestSections(t *testing.T) {
 		assert.Equal(t, 2, sectionResult[1].IDOrdering)
 		createdTaskID = sectionResult[0].ID.Hex()
 		createdTaskID2 = sectionResult[1].ID.Hex()
+	})
+	t.Run("SuccessGetV2", func(t *testing.T) {
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		_true := true
+		_false := false
+		authToken := login("test_sections_v2@generaltask.com", "")
+		userID := getUserIDFromAuthToken(t, api.DB, authToken)
+
+		body := ServeRequest(t, authToken, "POST", "/sections/create/", bytes.NewBuffer([]byte(`{"name": "important videos"}`)), http.StatusCreated, api)
+		responseObject := sectionCreateResponse{}
+		err := json.Unmarshal(body, &responseObject)
+		assert.NoError(t, err)
+		section1ID := responseObject.ID
+		ServeRequest(t, authToken, "POST", "/sections/create/", bytes.NewBuffer([]byte(`{"name": "important videos 2"}`)), http.StatusCreated, api)
+
+		taskID1 := primitive.NewObjectID()
+		taskID2 := primitive.NewObjectID()
+		taskID3 := primitive.NewObjectID()
+		taskID4 := primitive.NewObjectID()
+
+		database.GetTaskCollection(api.DB).InsertMany(context.Background(), []interface{}{
+			database.Task{
+				ID:            taskID1,
+				UserID:        userID,
+				IDTaskSection: section1ID,
+				IsCompleted:   &_false,
+				IsDeleted:     &_false,
+			},
+			database.Task{
+				ID:            taskID2,
+				UserID:        userID,
+				IDTaskSection: section1ID,
+				IsCompleted:   &_false,
+				IsDeleted:     &_false,
+			},
+			database.Task{
+				ID:          taskID3,
+				UserID:      userID,
+				IsCompleted: &_false,
+				IsDeleted:   &_true,
+			},
+			database.Task{
+				ID:          taskID4,
+				UserID:      userID,
+				IsCompleted: &_true,
+				IsDeleted:   &_false,
+			},
+		})
+
+		router := GetRouter(api)
+
+		request, _ := http.NewRequest("GET", "/sections/v2/", nil)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err = io.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		var sectionResult []TaskSection
+		err = json.Unmarshal(body, &sectionResult)
+		assert.NoError(t, err)
+		assert.Equal(t, 5, len(sectionResult))
+		log.Error().Msgf("%+v", sectionResult)
+
+		assert.Equal(t, "Task Inbox", sectionResult[0].Name)
+		assert.Equal(t, "important videos", sectionResult[1].Name)
+		assert.Equal(t, "important videos 2", sectionResult[2].Name)
+		assert.Equal(t, "Done", sectionResult[3].Name)
+		assert.Equal(t, "Trash", sectionResult[4].Name)
+
+		assert.Equal(t, 2, len(sectionResult[1].TaskIDs))
+		assert.Equal(t, taskID1.Hex(), sectionResult[1].TaskIDs[0])
+		assert.Equal(t, taskID2.Hex(), sectionResult[1].TaskIDs[1])
+
+		assert.Equal(t, 1, len(sectionResult[3].TaskIDs))
+		assert.Equal(t, taskID4.Hex(), sectionResult[3].TaskIDs[0])
+
+		assert.Equal(t, 1, len(sectionResult[4].TaskIDs))
+		assert.Equal(t, taskID3.Hex(), sectionResult[4].TaskIDs[0])
 	})
 	t.Run("EmptyPayloadModify", func(t *testing.T) {
 		api, dbCleanup := GetAPIWithDBCleanup()
