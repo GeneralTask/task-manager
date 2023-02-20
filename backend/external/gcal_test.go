@@ -433,18 +433,23 @@ func TestGetEvents(t *testing.T) {
 
 		eventCollection := database.GetCalendarEventCollection(db)
 
-		var calendarEventFromDB database.CalendarEvent
-		err = eventCollection.FindOne(
+		var calendarEventsFromDB []database.CalendarEvent
+		cursor, err := eventCollection.Find(
 			context.Background(),
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
 				{"source_id": TASK_SOURCE_ID_GCAL},
 				{"user_id": userID},
 			}},
-		).Decode(&calendarEventFromDB)
+		)
+		err = cursor.All(context.Background(), &calendarEventsFromDB)
 		assert.NoError(t, err)
-		assertCalendarEventsEqual(t, &standardDBEvent, &calendarEventFromDB)
-		assert.Equal(t, "exampleAccountID", calendarEventFromDB.SourceAccountID)
+
+		assert.Equal(t, 2, len(calendarEventsFromDB))
+		standardDBEvent.CalendarID = "testuser@gmail.com"
+		assertCalendarEventsEqual(t, &standardDBEvent, &calendarEventsFromDB[0])
+		standardDBEvent.CalendarID = "exampleAccountID"
+		assertCalendarEventsEqual(t, &standardDBEvent, &calendarEventsFromDB[1])
 	})
 }
 
