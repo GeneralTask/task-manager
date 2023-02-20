@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"sort"
 	"testing"
 	"time"
 
@@ -446,9 +447,12 @@ func TestGetEvents(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, 2, len(calendarEventsFromDB))
-		standardDBEvent.CalendarID = "testuser@gmail.com"
-		assertCalendarEventsEqual(t, &standardDBEvent, &calendarEventsFromDB[0])
+		sort.Slice(calendarEventsFromDB, func(i, j int) bool {
+			return calendarEventsFromDB[i].CalendarID < calendarEventsFromDB[j].CalendarID
+		})
 		standardDBEvent.CalendarID = "exampleAccountID"
+		assertCalendarEventsEqual(t, &standardDBEvent, &calendarEventsFromDB[0])
+		standardDBEvent.CalendarID = "testuser@gmail.com"
 		assertCalendarEventsEqual(t, &standardDBEvent, &calendarEventsFromDB[1])
 	})
 }
