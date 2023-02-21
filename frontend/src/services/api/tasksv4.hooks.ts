@@ -99,7 +99,7 @@ export const createNewTaskV4Helper = (data: Partial<TTaskV4> & { optimisticId: s
         due_date: data.due_date ?? '',
         source: data.source ?? {
             name: 'General Task',
-            logo: '',
+            logo: 'generaltask',
             logo_v2: 'generaltask',
             is_completable: false,
             is_replyable: false,

@@ -2,9 +2,9 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
+import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import Log from '../../services/api/log'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
@@ -25,15 +25,12 @@ const LinearBodyHeader = styled.div`
 `
 
 const LinearView = () => {
-    const { data: allTasks } = useGetTasksV4()
+    const { data: activeTasks } = useGetActiveTasks()
     const { linearIssueId } = useParams()
     const navigate = useNavigate()
     const { calendarType } = useCalendarContext()
 
-    const linearTasks = useMemo(
-        () => allTasks?.filter((task) => task.source.name === 'Linear' && !task.is_deleted && !task.is_done) || [],
-        [allTasks]
-    )
+    const linearTasks = useMemo(() => activeTasks?.filter((task) => task.source.name === 'Linear') || [], [activeTasks])
 
     const selectTask = useCallback((task: TTaskV4) => {
         navigate(`/linear/${task.id}`)
@@ -47,11 +44,11 @@ const LinearView = () => {
             if (task.id === linearIssueId) return { task }
         }
         return { task: linearTasks[0] }
-    }, [allTasks, linearIssueId])
+    }, [activeTasks, linearIssueId])
 
     useEffect(() => {
         if (task) navigate(`/linear/${task.id}`)
-    }, [allTasks, task])
+    }, [activeTasks, task])
 
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const isLinearIntegrationLinked = isLinearLinked(linkedAccounts || [])

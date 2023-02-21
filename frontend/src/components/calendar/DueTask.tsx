@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { useNavigateToTask } from '../../hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
-import { DropType, TTask } from '../../utils/types'
+import { DropType, TTaskV4 } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import ItemContainer from '../molecules/ItemContainer'
 
@@ -29,7 +29,7 @@ const TaskDue = styled.div`
 `
 
 interface DueTaskProps {
-    task: TTask
+    task: TTaskV4
     showDueDate: boolean
 }
 const DueTask = ({ task, showDueDate }: DueTaskProps) => {
@@ -45,8 +45,8 @@ const DueTask = ({ task, showDueDate }: DueTaskProps) => {
             isSelected={false}
             isCompact={true}
             onClick={() => {
-                if (task.isSubtask && task.parent_task_id) {
-                    navigateToTask(task.parent_task_id)
+                if (task.id_parent) {
+                    navigateToTask(task.id_parent)
                 } else {
                     navigateToTask(task.id)
                 }
@@ -54,7 +54,7 @@ const DueTask = ({ task, showDueDate }: DueTaskProps) => {
             ref={drag}
         >
             <TaskDue>
-                <Icon icon={logos[task.source.logo_v2]} />
+                <Icon icon={logos[task.source.logo]} />
                 <TaskTitle title={task.title}>{task.title}</TaskTitle>
             </TaskDue>
             {showDueDate && <TaskDueDate>{DateTime.fromISO(task.due_date).toFormat('MMM dd')}</TaskDueDate>}
