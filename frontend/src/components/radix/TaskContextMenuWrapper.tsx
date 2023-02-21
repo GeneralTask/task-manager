@@ -3,13 +3,8 @@ import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_SECTION_ID, EMPTY_MONGO_OBJECT_ID, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
 import { useGetFolders } from '../../services/api/folders.hooks'
-import {
-    useCreateTask,
-    useGetTasks,
-    useMarkTaskDoneOrDeleted,
-    useModifyTask,
-    useReorderTask,
-} from '../../services/api/tasks.hooks'
+import { useCreateTask, useMarkTaskDoneOrDeleted, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
+import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { icons, linearStatus } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
 import GTDatePicker from '../molecules/GTDatePicker'
@@ -36,7 +31,7 @@ interface TaskContextMenuProps {
     onOpenChange: (open: boolean) => void
 }
 const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMenuProps) => {
-    const { data: allTasks } = useGetTasks(false)
+    const { data: allTasks } = useGetTasksV4(false)
     const { data: folders } = useGetFolders(false)
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderTask } = useReorderTask()
