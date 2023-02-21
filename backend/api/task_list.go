@@ -37,8 +37,9 @@ type externalPriority struct {
 }
 
 type MeetingPreparationParams struct {
-	DatetimeStart string `json:"datetime_start"`
-	DatetimeEnd   string `json:"datetime_end"`
+	DatetimeStart       string `json:"datetime_start"`
+	DatetimeEnd         string `json:"datetime_end"`
+	EventMovedOrDeleted bool   `json:"event_moved_or_deleted"`
 }
 
 type TaskResult struct {
@@ -382,8 +383,9 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 
 	if t.MeetingPreparationParams != nil && *t.MeetingPreparationParams != (database.MeetingPreparationParams{}) && t.IsMeetingPreparationTask {
 		taskResult.MeetingPreparationParams = &MeetingPreparationParams{
-			DatetimeStart: t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339),
-			DatetimeEnd:   t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339),
+			DatetimeStart:       t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339),
+			DatetimeEnd:         t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339),
+			EventMovedOrDeleted: t.MeetingPreparationParams.EventMovedOrDeleted,
 		}
 	}
 
