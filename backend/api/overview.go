@@ -40,6 +40,7 @@ type OverviewResult[T ViewItem] struct {
 	IsReorderable          bool               `json:"is_reorderable"`
 	IDOrdering             int                `json:"ordering_id"`
 	ViewItems              []*T               `json:"view_items"`
+	ViewItemIDs            []string           `json:"view_item_ids"`
 	HasTasksCompletedToday bool               `json:"has_tasks_completed_today"`
 }
 
@@ -220,6 +221,7 @@ func (api *API) GetTaskSectionOverviewResult(view database.View, userID primitiv
 		IsReorderable:          view.IsReorderable,
 		IDOrdering:             view.IDOrdering,
 		ViewItems:              usableTaskResults,
+		ViewItemIDs:            GetTaskSectionViewItemIDs(usableTaskResults),
 		HasTasksCompletedToday: taskCompletedInLastDay,
 	}, nil
 }
@@ -341,6 +343,7 @@ func (api *API) GetLinearOverviewResult(view database.View, userID primitive.Obj
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
 		ViewItems:     []*TaskResult{},
+		ViewItemIDs:   []string{},
 	}
 	if !view.IsLinked {
 		return &result, nil
@@ -362,6 +365,7 @@ func (api *API) GetLinearOverviewResult(view database.View, userID primitive.Obj
 
 	result.IsLinked = view.IsLinked
 	result.ViewItems = taskResults
+	result.ViewItemIDs = GetTaskSectionViewItemIDs(taskResults)
 	result.HasTasksCompletedToday = taskCompletedInLastDay
 	return &result, nil
 }
@@ -387,6 +391,7 @@ func (api *API) GetSlackOverviewResult(view database.View, userID primitive.Obje
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
 		ViewItems:     []*TaskResult{},
+		ViewItemIDs:   []string{},
 	}
 	if !view.IsLinked {
 		return &result, nil
@@ -408,6 +413,7 @@ func (api *API) GetSlackOverviewResult(view database.View, userID primitive.Obje
 
 	result.IsLinked = view.IsLinked
 	result.ViewItems = taskResults
+	result.ViewItemIDs = GetTaskSectionViewItemIDs(taskResults)
 	result.HasTasksCompletedToday = taskCompletedInLastDay
 	return &result, nil
 }
@@ -433,6 +439,7 @@ func (api *API) GetGithubOverviewResult(view database.View, userID primitive.Obj
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
 		ViewItems:     []*PullRequestResult{},
+		ViewItemIDs:   []string{},
 	}
 	if !view.IsLinked {
 		return &result, nil
@@ -469,6 +476,7 @@ func (api *API) GetGithubOverviewResult(view database.View, userID primitive.Obj
 
 	result.Name = fmt.Sprintf("GitHub PRs from %s", repository.FullName)
 	result.ViewItems = pullResults
+	result.ViewItemIDs = GetPullRequestViewItemsIDs(pullResults)
 	result.HasTasksCompletedToday = taskCompletedInLastDay
 	return &result, nil
 }
@@ -520,6 +528,7 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 		IsReorderable:          view.IsReorderable,
 		IDOrdering:             view.IDOrdering,
 		ViewItems:              result,
+		ViewItemIDs:            GetTaskSectionViewItemIDs(result),
 		HasTasksCompletedToday: taskCompletedInLastDay,
 	}, nil
 }
@@ -539,6 +548,7 @@ func (api *API) GetDueTodayOverviewResult(view database.View, userID primitive.O
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
 		ViewItems:     []*TaskResult{},
+		ViewItemIDs:   []string{},
 	}
 
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
@@ -578,6 +588,7 @@ func (api *API) GetDueTodayOverviewResult(view database.View, userID primitive.O
 
 	result.HasTasksCompletedToday = taskCompletedInLastDay
 	result.ViewItems = taskResults
+	result.ViewItemIDs = GetTaskSectionViewItemIDs(taskResults)
 	return &result, nil
 }
 

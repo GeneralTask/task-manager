@@ -1,8 +1,8 @@
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../../styles'
-import { emptyFunction, getHumanTimeSinceDateTime } from '../../../utils/utils'
-import GTTextField from '../../atoms/GTTextField'
+import { getHumanTimeSinceDateTime } from '../../../utils/utils'
+import MarkdownRenderer from '../../atoms/MarkdownRenderer'
 
 const CommentContainer = styled.div`
     display: flex;
@@ -44,19 +44,7 @@ const PullRequestComment = ({ author, body, lastUpdatedAt, isAuthorOfPR = false 
                 <GrayText>{getHumanTimeSinceDateTime(dateSent)}</GrayText>
             </TopContainer>
             <BodyContainer>
-                {body ? (
-                    <GTTextField
-                        key={lastUpdatedAt}
-                        type="markdown"
-                        value={body}
-                        onChange={emptyFunction}
-                        fontSize="small"
-                        readOnly
-                        disabled
-                    />
-                ) : (
-                    <GrayText>No comment</GrayText>
-                )}
+                {body ? <MarkdownRenderer>{body}</MarkdownRenderer> : <GrayText>No comment</GrayText>}
             </BodyContainer>
         </CommentContainer>
     )

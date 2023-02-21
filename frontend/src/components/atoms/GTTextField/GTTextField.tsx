@@ -1,6 +1,5 @@
 import { Suspense, forwardRef, lazy, useRef } from 'react'
 import styled from 'styled-components'
-import { usePreviewMode } from '../../../hooks'
 import { Border, Colors, Shadows } from '../../../styles'
 import { stopKeydownPropogation } from '../../../utils/utils'
 import Spinner from '../Spinner'
@@ -8,7 +7,6 @@ import PlainTextEditor from './PlainTextEditor'
 import { GTTextFieldProps } from './types'
 
 const AtlassianEditor = lazy(() => import('./AtlassianEditor'))
-const MarkdownEditor = lazy(() => import('./MarkdownEditor'))
 
 const PlainTextContainer = styled.div<{ hideUnfocusedOutline?: boolean; disabled?: boolean }>`
     border: ${Border.stroke.medium} solid
@@ -55,20 +53,14 @@ const Container = styled.div<{
 `
 
 const GTTextField = forwardRef((props: GTTextFieldProps, ref) => {
-    const { isPreviewMode } = usePreviewMode()
     const containerRef = useRef<HTMLDivElement>(null)
 
     const getEditor = () => {
         if (props.type === 'plaintext') {
             return <PlainTextEditor ref={ref} {...props} />
-        } else if (props.type === 'markdown') {
-            if (isPreviewMode) {
-                return <AtlassianEditor {...props} />
-            }
-            return <MarkdownEditor {...props} />
-        } else if (props.type === 'atlassian') {
+        } else if (props.type === 'markdown' || props.type === 'atlassian') {
             return <AtlassianEditor {...props} />
-        } else return null
+        }
     }
 
     if (props.type === 'plaintext') {
