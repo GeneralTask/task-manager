@@ -50,7 +50,7 @@ const SlackTasksView = () => {
 
     useEffect(() => {
         if (task) navigate(`/slack/${task.id}`)
-    }, [])
+    }, [allTasks, task])
 
     const onClick = (id: string) => {
         if (calendarType === 'week' && slackTaskId === id) {
