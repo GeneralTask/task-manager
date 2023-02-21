@@ -1,4 +1,4 @@
-import { useDeleteTaskSection } from '../../services/api/task-section.hooks'
+import { useDeleteTaskSection } from '../../services/api/folders.hooks'
 import { icons } from '../../styles/images'
 import { TTaskSection } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'

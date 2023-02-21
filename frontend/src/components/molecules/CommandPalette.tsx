@@ -7,8 +7,8 @@ import KEYBOARD_SHORTCUTS, { ShortcutCategories } from '../../constants/shortcut
 import useShortcutContext from '../../context/ShortcutContext'
 import { useKeyboardShortcut } from '../../hooks'
 import useNavigateToTask from '../../hooks/useNavigateToTask'
+import { useGetFolders } from '../../services/api/folders.hooks'
 import Log from '../../services/api/log'
-import { useGetSections } from '../../services/api/task-section.hooks'
 import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -131,7 +131,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
     const [searchValue, setSearchValue] = useState<string>()
 
     const { data: allTasks } = useGetTasksV4()
-    const { data: folders } = useGetSections()
+    const { data: folders } = useGetFolders()
     const navigateToTask = useNavigateToTask()
     const navigate = useNavigate()
 

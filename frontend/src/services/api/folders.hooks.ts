@@ -25,15 +25,15 @@ interface TModifyTaskSectionData {
     id_ordering?: number
 }
 
-export const useGetSections = (isEnabled = true) => {
-    return useQuery<TTaskSection[], void>('sections', getSections, { enabled: isEnabled, refetchOnMount: false })
+export const useGetFolders = (isEnabled = true) => {
+    return useQuery<TTaskSection[], void>('sections', getFolders, { enabled: isEnabled, refetchOnMount: false })
 }
-const getSections = async ({ signal }: QueryFunctionContext) => {
+const getFolders = async ({ signal }: QueryFunctionContext) => {
     try {
-        const res = await apiClient.get('/sections/', { signal })
+        const res = await apiClient.get('/sections/v2/', { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getTasks failed')
+        throw new Error('getFolders failed')
     }
 }
 
