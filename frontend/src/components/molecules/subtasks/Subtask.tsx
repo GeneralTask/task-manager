@@ -6,7 +6,7 @@ import styled, { css, keyframes } from 'styled-components'
 import { TASK_PRIORITIES } from '../../../constants'
 import { useNavigateToTask } from '../../../hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
-import { DropType, TTask, TTaskSourceV4, TTaskV4 } from '../../../utils/types'
+import { DropType, TSubtask, TTaskV4 } from '../../../utils/types'
 import Domino from '../../atoms/Domino'
 import DueDate from '../../atoms/DueDate'
 import { Icon } from '../../atoms/Icon'
@@ -75,10 +75,8 @@ const TitleSpan = styled.span<{ isDone: boolean; shouldAnimate: boolean }>`
         `}
 `
 
-export type TSubtask = TTaskV4 & Required<Pick<TTaskV4, 'id_parent'>>
-
 interface SubtaskProps {
-    subtask: TTaskV4 & Required<Pick<TTaskV4, 'id_parent'>>
+    subtask: TSubtask
 }
 const Subtask = ({ subtask }: SubtaskProps) => {
     const navigateToTask = useNavigateToTask()

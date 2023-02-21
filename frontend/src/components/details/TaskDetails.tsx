@@ -24,8 +24,8 @@ import {
 } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
-import { TRecurringTaskTemplate, TTask } from '../../utils/types'
-import { EMPTY_ARRAY, getFolderIdFromTask } from '../../utils/utils'
+import { TRecurringTaskTemplate, TTask, TTaskV4 } from '../../utils/types'
+import { EMPTY_ARRAY, getFolderIdFromTask, isTaskParentTask } from '../../utils/utils'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
@@ -232,6 +232,8 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
         }, [subtask])
     )
 
+    const currentTaskV4: TTaskV4 = currentTask as TTaskV4
+    if (folderId) currentTaskV4.id_folder = folderId
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
@@ -404,9 +406,9 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                         disabled={isInTrash}
                         nux_number_id={currentTask.nux_number_id}
                     />
-                    {SOURCES_ALLOWED_WITH_SUBTASKS.includes(currentTask.source?.name ?? '') && !isInTrash && (
-                        <SubtaskList parentTask={currentTask as TTask} subtasks={currentTask.sub_tasks ?? []} />
-                    )}
+                    {SOURCES_ALLOWED_WITH_SUBTASKS.includes(currentTask.source?.name ?? '') &&
+                        !isInTrash &&
+                        isTaskParentTask(currentTaskV4) && <SubtaskList parentTask={currentTaskV4} />}
                     {currentTask.external_status && currentTask.source && (
                         <CommentContainer>
                             <Divider color={Colors.border.extra_light} />

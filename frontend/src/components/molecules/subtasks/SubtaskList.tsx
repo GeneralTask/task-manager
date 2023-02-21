@@ -2,18 +2,17 @@ import { useCallback, useState } from 'react'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { useKeyboardShortcut } from '../../../hooks'
-import { useCreateTask, useGetTasks, useReorderTask } from '../../../services/api/tasks.hooks'
+import { useCreateTask, useReorderTask } from '../../../services/api/tasks.hooks'
 import { useGetTasksV4 } from '../../../services/api/tasksv4.hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
 import { icons } from '../../../styles/images'
-import { DropItem, DropType, TTask, TTaskV4 } from '../../../utils/types'
-import { getSectionFromTask } from '../../../utils/utils'
+import { DropItem, DropType, TParentTask, TSubtask } from '../../../utils/types'
 import Flex from '../../atoms/Flex'
 import { Icon } from '../../atoms/Icon'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import Tip from '../../radix/Tip'
 import CreateNewItemInput from '../CreateNewItemInput'
-import Subtask, { TSubtask } from './Subtask'
+import Subtask from './Subtask'
 
 const AddTaskbutton = styled.div`
     display: flex;
@@ -42,12 +41,11 @@ const TaskListContainer = styled.div`
 `
 
 interface SubtasksProps {
-    parentTask: TTaskV4 & Required<Pick<TTaskV4, 'id_folder'>>
+    parentTask: TParentTask
 }
 
 const SubtaskList = ({ parentTask }: SubtasksProps) => {
     const { data: allTasks } = useGetTasksV4()
-    // const sectionId = getSectionFromTask(taskSections ?? [], parentTask.id)?.id
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderMutate } = useReorderTask()
     const [showCreateNewSubtask, setShowCreateNewSubtask] = useState(false)
@@ -70,7 +68,7 @@ const SubtaskList = ({ parentTask }: SubtasksProps) => {
         [parentTask.id_folder, parentTask.id]
     )
 
-    const subtasks: TSubtask[] = allTasks?.filter((task): task is TSubtask => task.id_parent === parentTask.id) ?? []
+    const subtasks = allTasks?.filter((task): task is TSubtask => task.id_parent === parentTask.id) ?? []
     subtasks.sort((a, b) => a.id_ordering - b.id_ordering)
 
     return (
@@ -101,20 +99,17 @@ const SubtaskList = ({ parentTask }: SubtasksProps) => {
                         autoFocus
                     />
                 )}
-                {subtasks.map((subtask, index) => {
-                    if (!subtask.id_parent) return null
-                    return (
-                        <ReorderDropContainer
-                            key={subtask.id}
-                            index={index}
-                            acceptDropType={DropType.SUBTASK}
-                            onReorder={handleReorder}
-                            disabled={false}
-                        >
-                            <Subtask key={subtask.id} subtask={subtask} />
-                        </ReorderDropContainer>
-                    )
-                })}
+                {subtasks.map((subtask, index) => (
+                    <ReorderDropContainer
+                        key={subtask.id}
+                        index={index}
+                        acceptDropType={DropType.SUBTASK}
+                        onReorder={handleReorder}
+                        disabled={false}
+                    >
+                        <Subtask key={subtask.id} subtask={subtask} />
+                    </ReorderDropContainer>
+                ))}
             </TaskListContainer>
             <ReorderDropContainer
                 index={subtasks.length + 1}
