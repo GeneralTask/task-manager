@@ -88,6 +88,8 @@ export interface TTaskV4 {
     comments?: TComment[]
     external_status?: TExternalStatus
     recurring_task_template_id?: string
+    priority?: TExternalPriority
+    all_priorities?: TExternalPriority[]
 
     all_statuses?: TExternalStatus[] // Deprecated but still in response (will be moved to userInfo)
 }
