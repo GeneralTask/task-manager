@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"sort"
 	"testing"
 	"time"
 
@@ -44,6 +45,7 @@ func TestGetEvents(t *testing.T) {
 		userID := primitive.NewObjectID()
 		standardDBEvent := database.CalendarEvent{
 			IDExternal:    "standard_event",
+			CalendarID:    "exampleAccountID",
 			Deeplink:      "generaltask.com&authuser=exampleAccountID",
 			Title:         "Standard Event",
 			Location:      "Event Location",
@@ -141,6 +143,7 @@ func TestGetEvents(t *testing.T) {
 		userID := primitive.NewObjectID()
 		standardDBEvent := database.CalendarEvent{
 			IDExternal:      "standard_event",
+			CalendarID:      "exampleAccountID",
 			Deeplink:        "generaltask.com&authuser=exampleAccountID",
 			Title:           "Standard Event",
 			Location:        "old location",
@@ -220,6 +223,7 @@ func TestGetEvents(t *testing.T) {
 		userID := primitive.NewObjectID()
 		standardDBEvent := database.CalendarEvent{
 			IDExternal:      "standard_event",
+			CalendarID:      "exampleAccountID",
 			Deeplink:        "generaltask.com&authuser=exampleAccountID",
 			Title:           "Standard Event",
 			Location:        "Standard Location",
@@ -310,6 +314,7 @@ func TestGetEvents(t *testing.T) {
 		userID := primitive.NewObjectID()
 		standardDBEvent := database.CalendarEvent{
 			IDExternal:    "standard_event",
+			CalendarID:    "exampleAccountID",
 			Deeplink:      "generaltask.com&authuser=exampleAccountID",
 			Title:         "Standard Event",
 			Location:      "Standard Location",
@@ -380,20 +385,6 @@ func TestGetEvents(t *testing.T) {
 		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
 		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
 
-		userID := primitive.NewObjectID()
-		standardDBEvent := database.CalendarEvent{
-			IDExternal:    "standard_event",
-			Deeplink:      "generaltask.com&authuser=exampleAccountID",
-			Title:         "Standard Event",
-			Location:      "Event Location",
-			Body:          "event <strong>description</strong>",
-			SourceID:      TASK_SOURCE_ID_GCAL,
-			UserID:        userID,
-			CanModify:     true,
-			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
-			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
-		}
-
 		allDayEvent := calendar.Event{
 			Created:        "2021-02-25T17:53:01.000Z",
 			Summary:        "All day Event",
@@ -405,8 +396,22 @@ func TestGetEvents(t *testing.T) {
 		}
 
 		server := testutils.GetGcalFetchServer([]*calendar.Event{&standardEvent, &allDayEvent})
-
 		defer server.Close()
+
+		userID := primitive.NewObjectID()
+		standardDBEvent := database.CalendarEvent{
+			IDExternal:    "standard_event",
+			CalendarID:    "exampleAccountID",
+			Deeplink:      "generaltask.com&authuser=exampleAccountID",
+			Title:         "Standard Event",
+			Location:      "Event Location",
+			Body:          "event <strong>description</strong>",
+			SourceID:      TASK_SOURCE_ID_GCAL,
+			UserID:        userID,
+			CanModify:     true,
+			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
+			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
+		}
 
 		var calendarResult = make(chan CalendarResult)
 		googleCalendar := GoogleCalendarSource{
@@ -423,23 +428,32 @@ func TestGetEvents(t *testing.T) {
 		assert.Equal(t, "exampleAccountID", firstEvent.CalendarID)
 
 		secondEvent := result.CalendarEvents[1]
+		standardDBEvent.CalendarID = "testuser@gmail.com"
 		assertCalendarEventsEqual(t, &standardDBEvent, secondEvent)
 		assert.Equal(t, "testuser@gmail.com", secondEvent.CalendarID)
 
 		eventCollection := database.GetCalendarEventCollection(db)
 
-		var calendarEventFromDB database.CalendarEvent
-		err = eventCollection.FindOne(
+		var calendarEventsFromDB []database.CalendarEvent
+		cursor, err := eventCollection.Find(
 			context.Background(),
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
 				{"source_id": TASK_SOURCE_ID_GCAL},
 				{"user_id": userID},
 			}},
-		).Decode(&calendarEventFromDB)
+		)
+		err = cursor.All(context.Background(), &calendarEventsFromDB)
 		assert.NoError(t, err)
-		assertCalendarEventsEqual(t, &standardDBEvent, &calendarEventFromDB)
-		assert.Equal(t, "exampleAccountID", calendarEventFromDB.SourceAccountID)
+
+		assert.Equal(t, 2, len(calendarEventsFromDB))
+		sort.Slice(calendarEventsFromDB, func(i, j int) bool {
+			return calendarEventsFromDB[i].CalendarID < calendarEventsFromDB[j].CalendarID
+		})
+		standardDBEvent.CalendarID = "exampleAccountID"
+		assertCalendarEventsEqual(t, &standardDBEvent, &calendarEventsFromDB[0])
+		standardDBEvent.CalendarID = "testuser@gmail.com"
+		assertCalendarEventsEqual(t, &standardDBEvent, &calendarEventsFromDB[1])
 	})
 }
 
@@ -746,6 +760,7 @@ func assertCalendarEventsEqual(t *testing.T, a *database.CalendarEvent, b *datab
 	assert.Equal(t, a.DatetimeEnd, b.DatetimeEnd)
 	assert.Equal(t, a.Deeplink, b.Deeplink)
 	assert.Equal(t, a.IDExternal, b.IDExternal)
+	assert.Equal(t, a.CalendarID, b.CalendarID)
 	assert.Equal(t, a.Title, b.Title)
 	assert.Equal(t, a.Body, b.Body)
 	assert.Equal(t, a.Location, b.Location)
