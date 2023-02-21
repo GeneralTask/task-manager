@@ -235,7 +235,7 @@ const TaskSectionView = () => {
                                             }
                                         >
                                             <Task
-                                                task={task}
+                                                task={task as TTaskV4}
                                                 index={index}
                                                 sectionScrollingRef={sectionScrollingRef}
                                                 isSelected={task.id === params.task}
