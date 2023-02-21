@@ -96,6 +96,7 @@ export interface TTaskV4 {
     sub_tasks?: TTask[]
     parent_task_id?: string
     all_priorities?: TExternalPriority[]
+    priority?: TExternalPriority
 
     all_statuses?: TExternalStatus[] // Deprecated but still in response (will be moved to userInfo)
 }
