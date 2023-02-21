@@ -1,10 +1,10 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
 import { useNavigate } from 'react-router-dom'
 import produce, { castImmutable } from 'immer'
-import { DEFAULT_SECTION_ID } from '../../constants'
+import { DEFAULT_FOLDER_ID } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
-import { TRecurringTaskTemplate, TTaskSection } from '../../utils/types'
+import { TRecurringTaskTemplate, TTaskFolder, TTaskSection } from '../../utils/types'
 import { arrayMoveInPlace } from '../../utils/utils'
 import { useGTMutation, useGTQueryClient } from '../queryUtils'
 
@@ -26,7 +26,7 @@ interface TModifyTaskSectionData {
 }
 
 export const useGetFolders = (isEnabled = true) => {
-    return useQuery<TTaskSection[], void>('sections', getFolders, { enabled: isEnabled, refetchOnMount: false })
+    return useQuery<TTaskFolder[], void>('folders', getFolders, { enabled: isEnabled, refetchOnMount: false })
 }
 const getFolders = async ({ signal }: QueryFunctionContext) => {
     try {
@@ -113,7 +113,7 @@ export const useDeleteTaskSection = () => {
             const newTemplates = produce(templates, (draft) => {
                 draft.forEach((t) => {
                     if (t.id_task_section === id) {
-                        t.id_task_section = DEFAULT_SECTION_ID
+                        t.id_task_section = DEFAULT_FOLDER_ID
                     }
                 })
             })

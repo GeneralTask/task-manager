@@ -2,7 +2,7 @@ import { QueryFunctionContext, useQuery } from 'react-query'
 import { useNavigate } from 'react-router-dom'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
-import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TRASH_SECTION_ID } from '../../constants'
+import { DONE_FOLDER_ID, TASK_MARK_AS_DONE_TIMEOUT, TRASH_FOLDER_ID } from '../../constants'
 import useOverviewContext from '../../context/OverviewContextProvider'
 import useQueryContext from '../../context/QueryContext'
 import { useGTLocalStorage } from '../../hooks'
@@ -471,7 +471,7 @@ export const useMarkTaskDoneOrDeleted = () => {
                             if (data.isDeleted !== undefined) {
                                 subtask.is_deleted = data.isDeleted
                                 draft[sectionIndex].tasks[taskIndex].sub_tasks?.splice(subtaskIndex, 1)
-                                const trashSection = draft.find((section) => section.id === TRASH_SECTION_ID)
+                                const trashSection = draft.find((section) => section.id === TRASH_FOLDER_ID)
                                 trashSection?.tasks.unshift(subtask)
                             }
                         } else {
@@ -679,8 +679,8 @@ export const useReorderTask = () => {
                         dragSection.tasks.splice(dragTaskIndex, 1)
 
                         // change done/trash status if needed
-                        dragTask.is_done = data.dropSectionId === DONE_SECTION_ID
-                        dragTask.is_deleted = data.dropSectionId === TRASH_SECTION_ID
+                        dragTask.is_done = data.dropSectionId === DONE_FOLDER_ID
+                        dragTask.is_deleted = data.dropSectionId === TRASH_FOLDER_ID
 
                         // add task to new location
                         const dropSection = draft.find((section) => section.id === data.dropSectionId)
@@ -700,8 +700,8 @@ export const useReorderTask = () => {
                     if (!task) return
                     task.id_ordering = data.orderingId
                     task.id_folder = data.dropSectionId
-                    task.is_done = data.dropSectionId === DONE_SECTION_ID
-                    task.is_deleted = data.dropSectionId === TRASH_SECTION_ID
+                    task.is_done = data.dropSectionId === DONE_FOLDER_ID
+                    task.is_deleted = data.dropSectionId === TRASH_FOLDER_ID
                     const dropFolder = draft
                         .filter((task) => task.id_folder === data.dropSectionId && !task.id_parent)
                         .sort((a, b) => a.id_ordering - b.id_ordering)
@@ -757,10 +757,10 @@ export const reorderTask = async (data: TReorderTaskData) => {
         const requestBody: TReorderTaskRequestBody = {
             id_task_section: data.dropSectionId,
             id_ordering: data.orderingId,
-            is_completed: data.isSubtask ? undefined : data.dropSectionId === DONE_SECTION_ID,
+            is_completed: data.isSubtask ? undefined : data.dropSectionId === DONE_FOLDER_ID,
         }
         if (data.isJiraTask) {
-            requestBody.is_deleted = data.dropSectionId === TRASH_SECTION_ID
+            requestBody.is_deleted = data.dropSectionId === TRASH_FOLDER_ID
         }
         const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
         return castImmutable(res.data)

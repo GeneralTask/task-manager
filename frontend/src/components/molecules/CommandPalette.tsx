@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Command } from 'cmdk'
 import styled from 'styled-components'
-import { DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID } from '../../constants'
+import { DEFAULT_FOLDER_ID, DONE_FOLDER_ID, TRASH_FOLDER_ID } from '../../constants'
 import KEYBOARD_SHORTCUTS, { ShortcutCategories } from '../../constants/shortcuts'
 import useShortcutContext from '../../context/ShortcutContext'
 import { useKeyboardShortcut } from '../../hooks'
@@ -231,7 +231,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                     {searchValue && (
                         <CommandGroup heading={`Search for "${searchValue}"`}>
                             {folders
-                                ?.filter((f) => f.id !== DEFAULT_SECTION_ID)
+                                ?.filter((f) => f.id !== DEFAULT_FOLDER_ID)
                                 .map(({ name, id }) => (
                                     <CommandItem
                                         key={id}
@@ -245,9 +245,9 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                             <IconContainer>
                                                 <Icon
                                                     icon={
-                                                        id === TRASH_SECTION_ID
+                                                        id === TRASH_FOLDER_ID
                                                             ? icons.trash
-                                                            : id === DONE_SECTION_ID
+                                                            : id === DONE_FOLDER_ID
                                                             ? icons.checkbox_checked
                                                             : icons.folder
                                                     }

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { DEFAULT_SECTION_ID, TRASH_SECTION_ID } from '../../constants'
+import { DEFAULT_FOLDER_ID, TRASH_FOLDER_ID } from '../../constants'
 import {
     useCreateTask,
     useGetTasks,
@@ -50,7 +50,7 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
                                       createTask({
                                           title: `${task.title} (copy)`,
                                           body: task.body,
-                                          taskSectionId: sectionId || DEFAULT_SECTION_ID,
+                                          taskSectionId: sectionId || DEFAULT_FOLDER_ID,
                                           optimisticId,
                                       })
                                       modifyTask(
@@ -65,7 +65,7 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
                                       reorderTask(
                                           {
                                               id: optimisticId,
-                                              dropSectionId: sectionId || DEFAULT_SECTION_ID,
+                                              dropSectionId: sectionId || DEFAULT_FOLDER_ID,
                                               orderingId: task.id_ordering + 2,
                                           },
                                           optimisticId
@@ -75,13 +75,13 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
                           ]
                         : []),
                     {
-                        label: sectionId !== TRASH_SECTION_ID ? 'Delete task' : 'Restore task',
+                        label: sectionId !== TRASH_FOLDER_ID ? 'Delete task' : 'Restore task',
                         icon: icons.trash,
                         iconColor: 'red',
                         textColor: 'red',
                         onClick: () =>
                             markTaskDoneOrDeleted(
-                                { id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID },
+                                { id: task.id, isDeleted: sectionId !== TRASH_FOLDER_ID },
                                 task.optimisticId
                             ),
                     },

@@ -231,6 +231,14 @@ export interface TTaskSection {
     is_done: boolean
     is_trash: boolean
 }
+export interface TTaskFolder {
+    id: string
+    name: string
+    tasks_ids: string[]
+    is_done: boolean
+    is_trash: boolean
+    optimisticId?: string
+}
 
 export interface TSettingChoice {
     choice_key: string

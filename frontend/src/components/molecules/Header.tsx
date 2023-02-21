@@ -2,7 +2,7 @@ import { useLayoutEffect, useState } from 'react'
 import { useIsFetching } from 'react-query'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID } from '../../constants'
+import { DEFAULT_FOLDER_ID, DONE_FOLDER_ID, TRASH_FOLDER_ID } from '../../constants'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api/folders.hooks'
@@ -46,8 +46,8 @@ const HeaderText = styled.div<{ fontColor: TTextColor }>`
 
 const MAX_SECTION_NAME_LENGTH = 200
 
-const undeletableSectionIds = [DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID]
-const uneditableSectionIds = [DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID]
+const undeletableSectionIds = [DEFAULT_FOLDER_ID, DONE_FOLDER_ID, TRASH_FOLDER_ID]
+const uneditableSectionIds = [DEFAULT_FOLDER_ID, DONE_FOLDER_ID, TRASH_FOLDER_ID]
 const isDeletable = (id: string) => !undeletableSectionIds.includes(id)
 const isEditable = (id: string) => !uneditableSectionIds.includes(id)
 interface SectionHeaderProps {

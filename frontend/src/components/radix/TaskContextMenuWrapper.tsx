@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { DEFAULT_SECTION_ID, EMPTY_MONGO_OBJECT_ID, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
+import { DEFAULT_FOLDER_ID, EMPTY_MONGO_OBJECT_ID, TASK_PRIORITIES, TRASH_FOLDER_ID } from '../../constants'
 import { useGetFolders } from '../../services/api/folders.hooks'
 import { useCreateTask, useMarkTaskDoneOrDeleted, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
 import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
@@ -58,7 +58,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                                     .filter((folder) => !folder.is_done && !folder.is_trash)
                                     .map((folder) => ({
                                         label: folder.name,
-                                        icon: folder.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
+                                        icon: folder.id === DEFAULT_FOLDER_ID ? icons.inbox : icons.folder,
                                         selected: folder.id === task.id_folder,
                                         onClick: () => {
                                             reorderTask(
@@ -132,7 +132,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                           createTask({
                               title: `${task.title} (copy)`,
                               body: task.body,
-                              taskSectionId: task.id_folder || DEFAULT_SECTION_ID,
+                              taskSectionId: task.id_folder || DEFAULT_FOLDER_ID,
                               optimisticId,
                           })
                           modifyTask(
@@ -147,7 +147,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                           reorderTask(
                               {
                                   id: optimisticId,
-                                  dropSectionId: task.id_folder || DEFAULT_SECTION_ID,
+                                  dropSectionId: task.id_folder || DEFAULT_FOLDER_ID,
                                   orderingId: task.id_ordering + 2,
                               },
                               optimisticId
@@ -187,12 +187,12 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
             onClick: () => {
                 if (parentTask && task) {
                     markTaskDoneOrDeleted(
-                        { id: parentTask.id, isDeleted: task.id_folder !== TRASH_SECTION_ID, subtaskId: task?.id },
+                        { id: parentTask.id, isDeleted: task.id_folder !== TRASH_FOLDER_ID, subtaskId: task?.id },
                         task.optimisticId
                     )
                 } else {
                     markTaskDoneOrDeleted(
-                        { id: task.id, isDeleted: task.id_folder !== TRASH_SECTION_ID },
+                        { id: task.id, isDeleted: task.id_folder !== TRASH_FOLDER_ID },
                         task.optimisticId
                     )
                 }

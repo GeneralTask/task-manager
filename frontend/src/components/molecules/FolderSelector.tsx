@@ -1,15 +1,15 @@
 import { ReactNode, useCallback, useMemo, useState } from 'react'
-import { DEFAULT_SECTION_ID } from '../../constants'
+import { DEFAULT_FOLDER_ID } from '../../constants'
 import { useKeyboardShortcut } from '../../hooks'
 import { useGetFolders } from '../../services/api/folders.hooks'
 import { icons } from '../../styles/images'
-import { TTaskSection } from '../../utils/types'
+import { TTaskFolder } from '../../utils/types'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 
 interface FolderSelectorProps {
     value: string
     onChange: (value: string) => void
-    renderTrigger: (isOpen: boolean, setIsOpen: (isOpen: boolean) => void, selectedFolder?: TTaskSection) => ReactNode
+    renderTrigger: (isOpen: boolean, setIsOpen: (isOpen: boolean) => void, selectedFolder?: TTaskFolder) => ReactNode
     useTriggerWidth?: boolean
     fontStyle?: 'body' | 'bodySmall' | 'label'
     enableKeyboardShortcut?: boolean
@@ -49,7 +49,7 @@ const FolderSelector = ({
                           .filter((s) => !s.is_done && !s.is_trash)
                           .map((folder) => ({
                               label: folder.name,
-                              icon: folder.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
+                              icon: folder.id === DEFAULT_FOLDER_ID ? icons.inbox : icons.folder,
                               selected: folder.id === value,
                               onClick: () => onChange(folder.id),
                           }))
