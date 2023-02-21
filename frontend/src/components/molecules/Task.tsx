@@ -8,6 +8,7 @@ import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_SECTION
 import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
 import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
+import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { Spacing, Typography } from '../../styles'
 import { icons, linearStatus, logos } from '../../styles/images'
 import { DropType, TTask, TTaskV4 } from '../../utils/types'
@@ -206,6 +207,9 @@ const Task = ({
         },
     }
 
+    const { data: allTasks } = useGetTasksV4()
+    const subtasks = allTasks?.filter((t) => t.id_parent === task.id)
+
     return (
         <TaskContextMenuWrapper task={taskV4} onOpenChange={setContextMenuOpen}>
             <TaskTemplate
@@ -273,10 +277,10 @@ const Task = ({
                                     color={TASK_PRIORITIES[task.priority_normalized].color}
                                 />
                             )}
-                        {task.sub_tasks && task.sub_tasks.length > 0 && (
+                        {subtasks && subtasks.length > 0 && (
                             <Flex gap={Spacing._4}>
                                 <Icon icon={icons.subtask} />
-                                <Mini>{task.sub_tasks.length}</Mini>
+                                <Mini>{subtasks.length}</Mini>
                             </Flex>
                         )}
                         {meetingStartText ? (
