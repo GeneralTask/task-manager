@@ -2,13 +2,8 @@ import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_SECTION_ID, EMPTY_MONGO_OBJECT_ID, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
-import {
-    useCreateTask,
-    useGetTasks,
-    useMarkTaskDoneOrDeleted,
-    useModifyTask,
-    useReorderTask,
-} from '../../services/api/tasks.hooks'
+import { useGetFolders } from '../../services/api/folders.hooks'
+import { useCreateTask, useGetTasks, useMarkTaskDoneOrDeleted, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
 import { icons, linearStatus } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
 import GTDatePicker from '../molecules/GTDatePicker'
@@ -35,13 +30,14 @@ interface TaskContextMenuProps {
     onOpenChange: (open: boolean) => void
 }
 const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMenuProps) => {
-    const { data: taskSections } = useGetTasks(false)
+    const { data: allTasks } = useGetTasks()
+    const { data: folders } = useGetFolders()
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask } = useModifyTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const [isRecurringTaskTemplateModalOpen, setIsRecurringTaskTemplateModalOpen] = useState(false)
-    const { data: allTasks } = useGetTasks(true)
+
     const parentTask = allTasks?.find((t) => t.id === task.id_parent)
 
     const showRecurringTaskOption =
@@ -52,33 +48,33 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
     const contextMenuItems: GTMenuItem[] = [
         ...(task.id_folder
             ? [
-                  {
-                      label: 'Move to folder',
-                      icon: icons.folder,
-                      subItems: taskSections
-                          ? [
-                                ...taskSections
-                                    .filter((s) => !s.is_done && !s.is_trash)
-                                    .map((section) => ({
-                                        label: section.name,
-                                        icon: section.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
-                                        selected: section.id === task.id_folder,
-                                        onClick: () => {
-                                            reorderTask(
-                                                {
-                                                    id: task.id,
-                                                    dropSectionId: section.id,
-                                                    dragSectionId: task.id_folder,
-                                                    orderingId: 1,
-                                                },
-                                                task.optimisticId
-                                            )
-                                        },
-                                    })),
-                            ]
-                          : [],
-                  },
-              ]
+                {
+                    label: 'Move to folder',
+                    icon: icons.folder,
+                    subItems: folders
+                        ? [
+                            ...folders
+                                .filter((folder) => !folder.is_done && !folder.is_trash)
+                                .map((folder) => ({
+                                    label: folder.name,
+                                    icon: folder.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
+                                    selected: folder.id === task.id_folder,
+                                    onClick: () => {
+                                        reorderTask(
+                                            {
+                                                id: task.id,
+                                                dropSectionId: folder.id,
+                                                dragSectionId: task.id_folder,
+                                                orderingId: 1,
+                                            },
+                                            task.optimisticId
+                                        )
+                                    },
+                                })),
+                        ]
+                        : [],
+                },
+            ]
             : []),
         {
             label: 'Set due date',
@@ -127,60 +123,60 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
         },
         ...(!task.is_deleted && !task.is_done
             ? [
-                  {
-                      label: 'Duplicate task',
-                      icon: icons.clone,
-                      onClick: () => {
-                          const optimisticId = uuidv4()
-                          createTask({
-                              title: `${task.title} (copy)`,
-                              body: task.body,
-                              taskSectionId: task.id_folder || DEFAULT_SECTION_ID,
-                              optimisticId,
-                          })
-                          modifyTask(
-                              {
-                                  id: optimisticId,
-                                  priorityNormalized: task.priority_normalized || undefined,
-                                  dueDate: DateTime.fromISO(task.due_date).toISO() || undefined,
-                                  recurringTaskTemplateId: task.recurring_task_template_id || undefined,
-                              },
-                              optimisticId
-                          )
-                          reorderTask(
-                              {
-                                  id: optimisticId,
-                                  dropSectionId: task.id_folder || DEFAULT_SECTION_ID,
-                                  orderingId: task.id_ordering + 2,
-                              },
-                              optimisticId
-                          )
-                      },
-                  },
-              ]
+                {
+                    label: 'Duplicate task',
+                    icon: icons.clone,
+                    onClick: () => {
+                        const optimisticId = uuidv4()
+                        createTask({
+                            title: `${task.title} (copy)`,
+                            body: task.body,
+                            taskSectionId: task.id_folder || DEFAULT_SECTION_ID,
+                            optimisticId,
+                        })
+                        modifyTask(
+                            {
+                                id: optimisticId,
+                                priorityNormalized: task.priority_normalized || undefined,
+                                dueDate: DateTime.fromISO(task.due_date).toISO() || undefined,
+                                recurringTaskTemplateId: task.recurring_task_template_id || undefined,
+                            },
+                            optimisticId
+                        )
+                        reorderTask(
+                            {
+                                id: optimisticId,
+                                dropSectionId: task.id_folder || DEFAULT_SECTION_ID,
+                                orderingId: task.id_ordering + 2,
+                            },
+                            optimisticId
+                        )
+                    },
+                },
+            ]
             : []),
         ...(task.all_statuses && task.external_status
             ? [
-                  {
-                      label: 'Set status',
-                      icon: linearStatus[task.external_status.type],
-                      subItems: task.all_statuses.map((status) => ({
-                          label: status.state,
-                          onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
-                          icon: linearStatus[status.type],
-                          selected: status.state === task.external_status?.state,
-                      })),
-                  },
-              ]
+                {
+                    label: 'Set status',
+                    icon: linearStatus[task.external_status.type],
+                    subItems: task.all_statuses.map((status) => ({
+                        label: status.state,
+                        onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
+                        icon: linearStatus[status.type],
+                        selected: status.state === task.external_status?.state,
+                    })),
+                },
+            ]
             : []),
         ...(showRecurringTaskOption
             ? [
-                  {
-                      label: 'Create a recurring task',
-                      icon: icons.arrows_repeat,
-                      onClick: () => setIsRecurringTaskTemplateModalOpen(true),
-                  },
-              ]
+                {
+                    label: 'Create a recurring task',
+                    icon: icons.arrows_repeat,
+                    onClick: () => setIsRecurringTaskTemplateModalOpen(true),
+                },
+            ]
             : []),
         {
             label: getDeleteLabel(task, parentTask !== undefined),
