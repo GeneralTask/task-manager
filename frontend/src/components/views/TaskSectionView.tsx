@@ -84,6 +84,20 @@ const TaskSectionView = () => {
         })
     }, [section, selectedSort, selectedSortDirection, areSettingsLoading])
 
+    const sortedTasksV4 = useMemo(() => {
+        return sortedTasks.map((task) => {
+            const taskV4: TTaskV4 = {
+                ...task,
+                id_folder: section?.id,
+                source: {
+                    ...task.source,
+                    logo: task.source?.logo_v2,
+                },
+            }
+            return taskV4
+        })
+    }, [sortedTasks, section])
+
     const task = useMemo(() => sortedTasks.find(({ id }) => id === params.task), [sortedTasks, params.task])
     const subtask = useMemo(() => task?.sub_tasks?.find(({ id }) => id === params.subtaskId), [task, params.subtaskId])
 
@@ -208,40 +222,30 @@ const TaskSectionView = () => {
                                     />
                                 )}
                                 <TasksContainer ref={sectionViewRef}>
-                                    {sortedTasks.map((task, index) => {
-                                        const taskV4: TTaskV4 = {
-                                            ...task,
-                                            id_folder: section.id,
-                                            source: {
-                                                ...task.source,
-                                                logo: task.source?.logo_v2,
-                                            },
-                                        }
-                                        return (
-                                            <ReorderDropContainer
-                                                key={task.id}
+                                    {sortedTasksV4.map((task, index) => (
+                                        <ReorderDropContainer
+                                            key={task.id}
+                                            index={index}
+                                            acceptDropType={DropType.TASK}
+                                            onReorder={handleReorderTask}
+                                            disabled={
+                                                sortAndFilterSettings.selectedSort.id !== 'manual' ||
+                                                section.is_done ||
+                                                section.is_trash
+                                            }
+                                        >
+                                            <Task
+                                                task={task}
                                                 index={index}
-                                                acceptDropType={DropType.TASK}
-                                                onReorder={handleReorderTask}
-                                                disabled={
-                                                    sortAndFilterSettings.selectedSort.id !== 'manual' ||
-                                                    section.is_done ||
-                                                    section.is_trash
-                                                }
-                                            >
-                                                <Task
-                                                    task={taskV4}
-                                                    index={index}
-                                                    sectionScrollingRef={sectionScrollingRef}
-                                                    isSelected={task.id === params.task}
-                                                    link={`/tasks/${params.section}/${task.id}`}
-                                                    shouldScrollToTask={shouldScrollToTask}
-                                                    setShouldScrollToTask={setShouldScrollToTask}
-                                                    onMarkTaskDone={selectTaskAfterCompletion}
-                                                />
-                                            </ReorderDropContainer>
-                                        )
-                                    })}
+                                                sectionScrollingRef={sectionScrollingRef}
+                                                isSelected={task.id === params.task}
+                                                link={`/tasks/${params.section}/${task.id}`}
+                                                shouldScrollToTask={shouldScrollToTask}
+                                                setShouldScrollToTask={setShouldScrollToTask}
+                                                onMarkTaskDone={selectTaskAfterCompletion}
+                                            />
+                                        </ReorderDropContainer>
+                                    ))}
                                 </TasksContainer>
                                 <ReorderDropContainer
                                     index={sortedTasks.length + 1}
