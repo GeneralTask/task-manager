@@ -36,8 +36,8 @@ interface TaskContextMenuProps {
     onOpenChange: (open: boolean) => void
 }
 const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMenuProps) => {
-    const { data: allTasks } = useGetTasks(true)
-    const { data: folders } = useGetFolders()
+    const { data: allTasks } = useGetTasks(false)
+    const { data: folders } = useGetFolders(false)
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask } = useModifyTask()
