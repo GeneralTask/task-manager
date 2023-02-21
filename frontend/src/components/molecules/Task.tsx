@@ -10,7 +10,7 @@ import Log from '../../services/api/log'
 import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
 import { icons, linearStatus, logos } from '../../styles/images'
-import { DropType, TTask } from '../../utils/types'
+import { DropType, TTask, TTaskV4 } from '../../utils/types'
 import Domino from '../atoms/Domino'
 import DueDate from '../atoms/DueDate'
 import Flex from '../atoms/Flex'
@@ -197,8 +197,13 @@ const Task = ({
 
     const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(task.recurring_task_template_id)
 
+    const taskV4: TTaskV4 = {
+        ...task,
+        id_folder: sectionId,
+    }
+
     return (
-        <TaskContextMenuWrapper task={task} sectionId={sectionId} onOpenChange={setContextMenuOpen}>
+        <TaskContextMenuWrapper task={taskV4} onOpenChange={setContextMenuOpen}>
             <TaskTemplate
                 ref={elementRef}
                 isVisible={isVisible}

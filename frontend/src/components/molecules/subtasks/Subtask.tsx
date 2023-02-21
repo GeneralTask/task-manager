@@ -6,7 +6,7 @@ import styled, { css, keyframes } from 'styled-components'
 import { TASK_PRIORITIES } from '../../../constants'
 import { useNavigateToTask } from '../../../hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
-import { DropType, TTask } from '../../../utils/types'
+import { DropType, TTask, TTaskV4 } from '../../../utils/types'
 import Domino from '../../atoms/Domino'
 import DueDate from '../../atoms/DueDate'
 import { Icon } from '../../atoms/Icon'
@@ -104,9 +104,14 @@ const Subtask = ({ parentTask, subtask }: SubtaskProps) => {
     const [contextMenuOpen, setContextMenuOpen] = useState(false)
     const [shouldAnimate, setShouldAnimate] = useState(false)
 
+    const taskV4: TTaskV4 = {
+        ...subtask,
+        id_parent: parentTask.id,
+    }
+
     return (
         <SubtaskDropOffset>
-            <TaskContextMenuWrapper parentTask={parentTask} task={subtask} onOpenChange={setContextMenuOpen}>
+            <TaskContextMenuWrapper task={taskV4} onOpenChange={setContextMenuOpen}>
                 <SubtaskContainer
                     onClick={() => navigateToTask(parentTask.id, subtask.id)}
                     ref={drag}
