@@ -19,7 +19,6 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
     const { mutate: modifyTask } = useModifyTask()
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
-    // test
 
     const updatedAt = DateTime.fromISO(task.updated_at).toFormat(`MMM d 'at' h:mm a`)
     const createdAt = DateTime.fromISO(task.created_at).toFormat(`MMM d 'at' h:mm a`)
