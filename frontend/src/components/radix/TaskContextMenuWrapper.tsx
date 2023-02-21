@@ -10,13 +10,13 @@ import {
     useReorderTask,
 } from '../../services/api/tasks.hooks'
 import { icons, linearStatus } from '../../styles/images'
-import { TTask } from '../../utils/types'
+import { TTask, TTaskV4 } from '../../utils/types'
 import GTDatePicker from '../molecules/GTDatePicker'
 import RecurringTaskTemplateModal from '../molecules/recurring-tasks/RecurringTaskTemplateModal'
 import GTContextMenu from './GTContextMenu'
 import { GTMenuItem } from './RadixUIConstants'
 
-const getDeleteLabel = (task: TTask, isSubtask: boolean) => {
+const getDeleteLabel = (task: Pick<TTaskV4, 'is_deleted'>, isSubtask: boolean) => {
     if (isSubtask) {
         if (task.is_deleted) {
             return 'Restore subtask'
@@ -30,7 +30,7 @@ const getDeleteLabel = (task: TTask, isSubtask: boolean) => {
 }
 
 interface TaskContextMenuProps {
-    task: TTask
+    task: TTaskV4
     sectionId?: string
     parentTask?: TTask
     children: React.ReactNode
