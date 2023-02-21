@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { icons } from '../../../styles/images'
-import { TTask } from '../../../utils/types'
+import { TTask, TTaskV4 } from '../../../utils/types'
 import GTButton from '../../atoms/buttons/GTButton'
 import GTIconButton from '../../atoms/buttons/GTIconButton'
 import RecurringTaskTemplateModal from './RecurringTaskTemplateModal'
@@ -34,6 +34,17 @@ const RecurringTaskTemplateScheduleButton = ({
             onClick={() => setIsEditModalOpen(true)}
         />
     )
+
+    const taskV4: TTaskV4 | undefined = task
+        ? {
+              ...task,
+              source: {
+                  ...task.source,
+                  logo: task.source?.logo_v2,
+              },
+          }
+        : undefined
+
     return (
         <>
             {button}
@@ -41,7 +52,7 @@ const RecurringTaskTemplateScheduleButton = ({
                 <RecurringTaskTemplateModal
                     onClose={() => setIsEditModalOpen(false)}
                     initialRecurringTaskTemplate={recurringTaskTemplate}
-                    initialTask={task}
+                    initialTask={taskV4}
                     initialFolderId={folderId}
                 />
             )}
