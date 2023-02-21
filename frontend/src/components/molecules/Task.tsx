@@ -11,7 +11,7 @@ import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/task
 import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { Spacing, Typography } from '../../styles'
 import { icons, linearStatus, logos } from '../../styles/images'
-import { DropType, TTask, TTaskV4 } from '../../utils/types'
+import { DropType, TTaskV4 } from '../../utils/types'
 import Domino from '../atoms/Domino'
 import DueDate from '../atoms/DueDate'
 import Flex from '../atoms/Flex'
@@ -58,7 +58,7 @@ export const PositionedDomino = styled(Domino)`
 `
 
 interface TaskProps {
-    task: TTask
+    task: TTaskV4
     dragDisabled?: boolean
     dropType?: DropType
     index?: number

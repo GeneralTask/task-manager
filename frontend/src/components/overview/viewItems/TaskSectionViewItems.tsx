@@ -5,7 +5,7 @@ import { useCreateTask, useReorderTask } from '../../../services/api/tasks.hooks
 import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSelectors'
 import { TASK_SORT_AND_FILTER_CONFIG } from '../../../utils/sortAndFilter/tasks.config'
 import useSortAndFilterSettings from '../../../utils/sortAndFilter/useSortAndFilterSettings'
-import { DropItem, DropType, TTask } from '../../../utils/types'
+import { DropItem, DropType, TTask, TTaskV4 } from '../../../utils/types'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import CreateNewItemInput from '../../molecules/CreateNewItemInput'
 import Task from '../../molecules/Task'
@@ -78,7 +78,7 @@ const TaskSectionViewItems = forwardRef(
                             disabled={sortAndFilterSettings.selectedSort.id !== 'manual'}
                         >
                             <Task
-                                task={item as TTask}
+                                task={item as TTaskV4}
                                 dragDisabled={item.is_done}
                                 index={index}
                                 sectionId={sectionId}

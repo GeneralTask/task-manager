@@ -1,6 +1,6 @@
 import { Ref, forwardRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { TTask } from '../../../utils/types'
+import { TTaskV4 } from '../../../utils/types'
 import Task from '../../molecules/Task'
 import { ViewHeader, ViewName } from '../styles'
 import EmptyListMessage from './EmptyListMessage'
@@ -22,7 +22,7 @@ const DueTodayViewItems = forwardRef(
                         .map((item, index) => (
                             <Task
                                 key={item.id}
-                                task={item as TTask}
+                                task={item as TTaskV4}
                                 dragDisabled={true}
                                 index={index}
                                 isSelected={overviewViewId === view.id && overviewItemId === item.id}
