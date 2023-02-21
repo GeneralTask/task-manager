@@ -2,13 +2,9 @@ import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_SECTION_ID, EMPTY_MONGO_OBJECT_ID, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
-import {
-    useCreateTask,
-    useGetTasks,
-    useMarkTaskDoneOrDeleted,
-    useModifyTask,
-    useReorderTask,
-} from '../../services/api/tasks.hooks'
+import { useGetFolders } from '../../services/api/folders.hooks'
+import { useCreateTask, useMarkTaskDoneOrDeleted, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
+import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { icons, linearStatus } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
 import GTDatePicker from '../molecules/GTDatePicker'
@@ -35,13 +31,14 @@ interface TaskContextMenuProps {
     onOpenChange: (open: boolean) => void
 }
 const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMenuProps) => {
-    const { data: taskSections } = useGetTasks(false)
+    const { data: allTasks } = useGetTasksV4(false)
+    const { data: folders } = useGetFolders(false)
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask } = useModifyTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const [isRecurringTaskTemplateModalOpen, setIsRecurringTaskTemplateModalOpen] = useState(false)
-    const { data: allTasks } = useGetTasks(true)
+
     const parentTask = allTasks?.find((t) => t.id === task.id_parent)
 
     const showRecurringTaskOption =
@@ -55,19 +52,19 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                   {
                       label: 'Move to folder',
                       icon: icons.folder,
-                      subItems: taskSections
+                      subItems: folders
                           ? [
-                                ...taskSections
-                                    .filter((s) => !s.is_done && !s.is_trash)
-                                    .map((section) => ({
-                                        label: section.name,
-                                        icon: section.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
-                                        selected: section.id === task.id_folder,
+                                ...folders
+                                    .filter((folder) => !folder.is_done && !folder.is_trash)
+                                    .map((folder) => ({
+                                        label: folder.name,
+                                        icon: folder.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
+                                        selected: folder.id === task.id_folder,
                                         onClick: () => {
                                             reorderTask(
                                                 {
                                                     id: task.id,
-                                                    dropSectionId: section.id,
+                                                    dropSectionId: folder.id,
                                                     dragSectionId: task.id_folder,
                                                     orderingId: 1,
                                                 },
