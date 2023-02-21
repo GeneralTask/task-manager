@@ -16,7 +16,7 @@ import RecurringTaskTemplateModal from '../molecules/recurring-tasks/RecurringTa
 import GTContextMenu from './GTContextMenu'
 import { GTMenuItem } from './RadixUIConstants'
 
-const getDeleteLabel = (task: Pick<TTaskV4, 'is_deleted'>, isSubtask: boolean) => {
+const getDeleteLabel = (task: TTaskV4, isSubtask: boolean) => {
     if (isSubtask) {
         if (task.is_deleted) {
             return 'Restore subtask'
