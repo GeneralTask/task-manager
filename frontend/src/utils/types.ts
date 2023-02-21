@@ -317,6 +317,7 @@ export interface TOverviewView {
     is_reorderable: boolean
     logo: TLogoImage
     view_items: TOverviewItem[]
+    view_item_ids: string[]
     total_view_items?: number // the total number of items in the view without filters applied
     sources: TSourcesResult[]
     is_linked: boolean
