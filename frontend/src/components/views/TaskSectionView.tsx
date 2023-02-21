@@ -13,7 +13,7 @@ import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelec
 import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
 import { TASK_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/tasks.config'
 import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
-import { DropItem, DropType, TTask } from '../../utils/types'
+import { DropItem, DropType, TTask, TTaskV4 } from '../../utils/types'
 import { getTaskIndexFromSections } from '../../utils/utils'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import Spinner from '../atoms/Spinner'
@@ -221,7 +221,7 @@ const TaskSectionView = () => {
                                             }
                                         >
                                             <Task
-                                                task={task}
+                                                task={task as TTaskV4}
                                                 index={index}
                                                 sectionId={section.id}
                                                 sectionScrollingRef={sectionScrollingRef}

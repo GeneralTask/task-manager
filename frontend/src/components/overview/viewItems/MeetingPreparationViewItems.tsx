@@ -1,7 +1,7 @@
 import { Ref, forwardRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { useGetLinkedAccounts } from '../../../services/api/settings.hooks'
-import { TTask } from '../../../utils/types'
+import { TTaskV4 } from '../../../utils/types'
 import { isGoogleCalendarLinked } from '../../../utils/utils'
 import ConnectIntegration from '../../molecules/ConnectIntegration'
 import Task from '../../molecules/Task'
@@ -26,7 +26,7 @@ const MeetingPreparationViewItems = forwardRef(({ view, hideHeader }: ViewItemsP
                     view.view_items.map((item, index) => (
                         <Task
                             key={item.id}
-                            task={item as TTask}
+                            task={item as TTaskV4}
                             dragDisabled={true}
                             index={index}
                             isSelected={overviewViewId === view.id && overviewItemId === item.id}
