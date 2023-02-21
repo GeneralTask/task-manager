@@ -1,7 +1,7 @@
 import { ReactNode, useCallback, useMemo, useState } from 'react'
 import { DEFAULT_FOLDER_ID } from '../../constants'
 import { useKeyboardShortcut } from '../../hooks'
-import { useGetTasks } from '../../services/api/tasks.hooks'
+import { useGetFolders } from '../../services/api/folders.hooks'
 import { icons } from '../../styles/images'
 import { TTaskSection } from '../../utils/types'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
@@ -23,9 +23,9 @@ const FolderSelector = ({
     fontStyle,
 }: FolderSelectorProps) => {
     const [isOpen, setIsOpen] = useState(false)
-    const { data: taskSections } = useGetTasks(false)
+    const { data: folders } = useGetFolders(false)
 
-    const selectedFolder = useMemo(() => taskSections?.find((section) => section.id === value), [taskSections, value])
+    const selectedFolder = useMemo(() => folders?.find((folder) => folder.id === value), [folders, value])
 
     useKeyboardShortcut(
         'moveTaskToFolder',
@@ -44,14 +44,14 @@ const FolderSelector = ({
             useTriggerWidth={useTriggerWidth}
             unstyledTrigger
             items={
-                taskSections
-                    ? taskSections
+                folders
+                    ? folders
                           .filter((s) => !s.is_done && !s.is_trash)
-                          .map((section) => ({
-                              label: section.name,
-                              icon: section.id === DEFAULT_FOLDER_ID ? icons.inbox : icons.folder,
-                              selected: section.id === value,
-                              onClick: () => onChange(section.id),
+                          .map((folder) => ({
+                              label: folder.name,
+                              icon: folder.id === DEFAULT_FOLDER_ID ? icons.inbox : icons.folder,
+                              selected: folder.id === value,
+                              onClick: () => onChange(folder.id),
                           }))
                     : []
             }

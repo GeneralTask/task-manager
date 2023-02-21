@@ -1,6 +1,6 @@
 import { Ref, forwardRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { DropType, TTask } from '../../../utils/types'
+import { DropType, TTaskV4 } from '../../../utils/types'
 import Task from '../../molecules/Task'
 import { ViewHeader, ViewName } from '../styles'
 import EmptyListMessage from './EmptyListMessage'
@@ -22,7 +22,7 @@ const ExternalViewItems = forwardRef(
                     <Task
                         key={item.id}
                         dropType={DropType.NON_REORDERABLE_TASK}
-                        task={item as TTask}
+                        task={item as TTaskV4}
                         sectionScrollingRef={scrollRef}
                         isSelected={overviewViewId === view.id && overviewItemId === item.id}
                         link={`/overview/${view.id}/${item.id}`}
