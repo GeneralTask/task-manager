@@ -24,7 +24,7 @@ import {
 } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
-import { TRecurringTaskTemplate, TTask } from '../../utils/types'
+import { TRecurringTaskTemplate, TTask, TTaskV4 } from '../../utils/types'
 import { EMPTY_ARRAY, getFolderIdFromTask } from '../../utils/utils'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
@@ -292,7 +292,7 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                                     />
                                 )}
                                 {currentTask.deeplink && <ExternalLinkButton link={currentTask.deeplink} />}
-                                {!isRecurringTaskTemplate && <TaskActionsDropdown task={currentTask as TTask} />}
+                                {!isRecurringTaskTemplate && <TaskActionsDropdown task={currentTask as TTaskV4} />}
                                 {isRecurringTaskTemplate && (
                                     <DeleteRecurringTaskTemplateButton
                                         template={currentTask as TRecurringTaskTemplate}
