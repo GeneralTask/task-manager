@@ -51,7 +51,7 @@ const LinearView = () => {
 
     useEffect(() => {
         if (task) navigate(`/linear/${task.id}`)
-    }, [])
+    }, [allTasks, task])
 
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const isLinearIntegrationLinked = isLinearLinked(linkedAccounts || [])
