@@ -106,6 +106,7 @@ const Subtask = ({ parentTask, subtask }: SubtaskProps) => {
 
     const subtaskV4: TTaskV4 = {
         ...subtask,
+        id_parent: parentTask.id,
         source: {
             ...subtask.source,
             logo: subtask.source?.logo_v2,
@@ -114,7 +115,7 @@ const Subtask = ({ parentTask, subtask }: SubtaskProps) => {
 
     return (
         <SubtaskDropOffset>
-            <TaskContextMenuWrapper parentTask={parentTask} task={subtaskV4} onOpenChange={setContextMenuOpen}>
+            <TaskContextMenuWrapper task={subtaskV4} onOpenChange={setContextMenuOpen}>
                 <SubtaskContainer
                     onClick={() => navigateToTask(parentTask.id, subtask.id)}
                     ref={drag}

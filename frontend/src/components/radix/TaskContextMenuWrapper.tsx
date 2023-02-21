@@ -10,7 +10,7 @@ import {
     useReorderTask,
 } from '../../services/api/tasks.hooks'
 import { icons, linearStatus } from '../../styles/images'
-import { TTask, TTaskV4 } from '../../utils/types'
+import { TTaskV4 } from '../../utils/types'
 import GTDatePicker from '../molecules/GTDatePicker'
 import RecurringTaskTemplateModal from '../molecules/recurring-tasks/RecurringTaskTemplateModal'
 import GTContextMenu from './GTContextMenu'
@@ -31,18 +31,18 @@ const getDeleteLabel = (task: TTaskV4, isSubtask: boolean) => {
 
 interface TaskContextMenuProps {
     task: TTaskV4
-    sectionId?: string
-    parentTask?: TTask
     children: React.ReactNode
     onOpenChange: (open: boolean) => void
 }
-const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenChange }: TaskContextMenuProps) => {
+const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMenuProps) => {
     const { data: taskSections } = useGetTasks(false)
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask } = useModifyTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const [isRecurringTaskTemplateModalOpen, setIsRecurringTaskTemplateModalOpen] = useState(false)
+    const { data: allTasks } = useGetTasks(true)
+    const parentTask = allTasks?.find((t) => t.id === task.id_parent)
 
     const showRecurringTaskOption =
         task.source?.name === 'General Task' && // must be a native task
@@ -50,7 +50,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
         !parentTask
 
     const contextMenuItems: GTMenuItem[] = [
-        ...(sectionId
+        ...(task.id_folder
             ? [
                   {
                       label: 'Move to folder',
@@ -62,13 +62,13 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
                                     .map((section) => ({
                                         label: section.name,
                                         icon: section.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
-                                        selected: section.id === sectionId,
+                                        selected: section.id === task.id_folder,
                                         onClick: () => {
                                             reorderTask(
                                                 {
                                                     id: task.id,
                                                     dropSectionId: section.id,
-                                                    dragSectionId: sectionId,
+                                                    dragSectionId: task.id_folder,
                                                     orderingId: 1,
                                                 },
                                                 task.optimisticId
@@ -135,7 +135,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
                           createTask({
                               title: `${task.title} (copy)`,
                               body: task.body,
-                              taskSectionId: sectionId || DEFAULT_SECTION_ID,
+                              taskSectionId: task.id_folder || DEFAULT_SECTION_ID,
                               optimisticId,
                           })
                           modifyTask(
@@ -150,7 +150,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
                           reorderTask(
                               {
                                   id: optimisticId,
-                                  dropSectionId: sectionId || DEFAULT_SECTION_ID,
+                                  dropSectionId: task.id_folder || DEFAULT_SECTION_ID,
                                   orderingId: task.id_ordering + 2,
                               },
                               optimisticId
@@ -190,11 +190,14 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
             onClick: () => {
                 if (parentTask && task) {
                     markTaskDoneOrDeleted(
-                        { id: parentTask.id, isDeleted: sectionId !== TRASH_SECTION_ID, subtaskId: task?.id },
+                        { id: parentTask.id, isDeleted: task.id_folder !== TRASH_SECTION_ID, subtaskId: task?.id },
                         task.optimisticId
                     )
                 } else {
-                    markTaskDoneOrDeleted({ id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }, task.optimisticId)
+                    markTaskDoneOrDeleted(
+                        { id: task.id, isDeleted: task.id_folder !== TRASH_SECTION_ID },
+                        task.optimisticId
+                    )
                 }
             },
         },
@@ -205,7 +208,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
             {isRecurringTaskTemplateModalOpen && (
                 <RecurringTaskTemplateModal
                     initialTask={task}
-                    initialFolderId={sectionId}
+                    initialFolderId={task.id_folder}
                     onClose={() => setIsRecurringTaskTemplateModalOpen(false)}
                 />
             )}

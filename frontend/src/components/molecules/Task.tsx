@@ -199,6 +199,7 @@ const Task = ({
 
     const taskV4: TTaskV4 = {
         ...task,
+        id_folder: sectionId,
         source: {
             ...task.source,
             logo: task.source?.logo_v2,
@@ -206,7 +207,7 @@ const Task = ({
     }
 
     return (
-        <TaskContextMenuWrapper task={taskV4} sectionId={sectionId} onOpenChange={setContextMenuOpen}>
+        <TaskContextMenuWrapper task={taskV4} onOpenChange={setContextMenuOpen}>
             <TaskTemplate
                 ref={elementRef}
                 isVisible={isVisible}
