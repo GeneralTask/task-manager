@@ -83,11 +83,10 @@ export interface TTaskV4 {
     created_at: string
     updated_at: string
     id_folder: string
-    id_nux_number?: number
     id_parent?: string
     subtask_ids?: string[]
     meeting_preparation_params?: TMeetingPreparationParams
-    nux_number_id: number
+    nux_number_id?: number
     slack_message_params?: TSlackMessageParams
     comments?: TComment[]
     isSubtask?: boolean
