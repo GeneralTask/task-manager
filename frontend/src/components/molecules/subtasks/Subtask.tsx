@@ -6,7 +6,7 @@ import styled, { css, keyframes } from 'styled-components'
 import { TASK_PRIORITIES } from '../../../constants'
 import { useNavigateToTask } from '../../../hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
-import { DropType, TTask, TTaskV4 } from '../../../utils/types'
+import { DropType, TTask, TTaskSourceV4, TTaskV4 } from '../../../utils/types'
 import Domino from '../../atoms/Domino'
 import DueDate from '../../atoms/DueDate'
 import { Icon } from '../../atoms/Icon'
@@ -75,11 +75,12 @@ const TitleSpan = styled.span<{ isDone: boolean; shouldAnimate: boolean }>`
         `}
 `
 
+export type TSubtask = TTaskV4 & Required<Pick<TTaskV4, 'id_parent'>>
+
 interface SubtaskProps {
-    parentTask: TTask
-    subtask: TTask
+    subtask: TTaskV4 & Required<Pick<TTaskV4, 'id_parent'>>
 }
-const Subtask = ({ parentTask, subtask }: SubtaskProps) => {
+const Subtask = ({ subtask }: SubtaskProps) => {
     const navigateToTask = useNavigateToTask()
     const [isVisible, setIsVisible] = useState(false)
     const dueDate = DateTime.fromISO(subtask.due_date)
@@ -106,7 +107,7 @@ const Subtask = ({ parentTask, subtask }: SubtaskProps) => {
 
     const subtaskV4: TTaskV4 = {
         ...subtask,
-        id_parent: parentTask.id,
+        id_parent: subtask.id_parent,
         source: {
             ...subtask.source,
             logo: subtask.source?.logo_v2,
@@ -117,7 +118,7 @@ const Subtask = ({ parentTask, subtask }: SubtaskProps) => {
         <SubtaskDropOffset>
             <TaskContextMenuWrapper task={subtaskV4} onOpenChange={setContextMenuOpen}>
                 <SubtaskContainer
-                    onClick={() => navigateToTask(parentTask.id, subtask.id)}
+                    onClick={() => navigateToTask(subtask.id_parent, subtask.id)}
                     ref={drag}
                     {...visibilityToggle}
                     forceHoverStyle={contextMenuOpen}
@@ -126,7 +127,7 @@ const Subtask = ({ parentTask, subtask }: SubtaskProps) => {
                     <Domino isVisible={isVisible} />
                     <MarkTaskDoneButton
                         isDone={subtask.is_done}
-                        taskId={parentTask.id}
+                        taskId={subtask.id_parent}
                         subtaskId={subtask.id}
                         isSelected={false}
                         onMarkComplete={() => setShouldAnimate(true)}
