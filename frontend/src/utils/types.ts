@@ -13,7 +13,13 @@ export interface TTaskSource {
     is_completable: boolean
     is_replyable: boolean
 }
-
+export interface TTaskSourceV4 {
+    name: TTaskSourceName
+    logo: TLogoImage
+    logo_v2: TLogoImage
+    is_completable: boolean
+    is_replyable: boolean
+}
 export interface TConferenceCall {
     platform: string
     logo: TLogoImage | EmptyString
@@ -73,7 +79,7 @@ export interface TTaskV4 {
     body: string
     priority_normalized: number
     due_date: string
-    source: TTaskSource
+    source: TTaskSourceV4
     sender: string
     is_done: boolean
     is_deleted: boolean
