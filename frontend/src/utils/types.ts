@@ -288,7 +288,7 @@ export enum DropType {
 export interface DropItem {
     id: string
     sectionId?: string
-    task?: TTask
+    task?: TTaskV4
     event?: TEvent
     folder?: TTaskSection
     view?: TOverviewView
