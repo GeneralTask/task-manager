@@ -209,7 +209,7 @@ const TaskSectionView = () => {
                                 )}
                                 <TasksContainer ref={sectionViewRef}>
                                     {sortedTasks.map((task, index) => {
-                                        const newTask: TTaskV4 = {
+                                        const taskV4: TTaskV4 = {
                                             ...task,
                                             id_folder: section.id,
                                             source: {
@@ -230,7 +230,7 @@ const TaskSectionView = () => {
                                                 }
                                             >
                                                 <Task
-                                                    task={newTask}
+                                                    task={taskV4}
                                                     index={index}
                                                     sectionScrollingRef={sectionScrollingRef}
                                                     isSelected={task.id === params.task}

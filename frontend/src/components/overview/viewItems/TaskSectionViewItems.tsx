@@ -70,7 +70,7 @@ const TaskSectionViewItems = forwardRef(
                 {sectionId && <CreateNewItemInput placeholder="Create new task" onSubmit={onCreateNewTaskSubmit} />}
                 {view.view_items.length > 0 ? (
                     view.view_items.slice(0, visibleItemsCount).map((item, index) => {
-                        const newTask: TTaskV4 = {
+                        const taskV4: TTaskV4 = {
                             ...item,
                             id_folder: sectionId,
                             source: {
@@ -87,7 +87,7 @@ const TaskSectionViewItems = forwardRef(
                                 disabled={sortAndFilterSettings.selectedSort.id !== 'manual'}
                             >
                                 <Task
-                                    task={newTask}
+                                    task={taskV4}
                                     dragDisabled={item.is_done}
                                     index={index}
                                     sectionScrollingRef={scrollRef}
