@@ -3,13 +3,13 @@ import { DEFAULT_FOLDER_ID } from '../../constants'
 import { useKeyboardShortcut } from '../../hooks'
 import { useGetFolders } from '../../services/api/folders.hooks'
 import { icons } from '../../styles/images'
-import { TTaskSection } from '../../utils/types'
+import { TTaskFolder } from '../../utils/types'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 
 interface FolderSelectorProps {
     value: string
     onChange: (value: string) => void
-    renderTrigger: (isOpen: boolean, setIsOpen: (isOpen: boolean) => void, selectedFolder?: TTaskSection) => ReactNode
+    renderTrigger: (isOpen: boolean, setIsOpen: (isOpen: boolean) => void, selectedFolder?: TTaskFolder) => ReactNode
     useTriggerWidth?: boolean
     fontStyle?: 'body' | 'bodySmall' | 'label'
     enableKeyboardShortcut?: boolean
