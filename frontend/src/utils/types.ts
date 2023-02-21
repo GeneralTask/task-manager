@@ -71,12 +71,15 @@ export interface TTaskV4 {
     title: string
     deeplink: string
     body: string
+    sent_at: string
     priority_normalized: number
+    time_allocated: number
     due_date: string
     source: TTaskSource
     sender: string
     is_done: boolean
     is_deleted: boolean
+    is_meeting_preparation_task: boolean
     created_at: string
     updated_at: string
     id_folder: string
@@ -84,10 +87,15 @@ export interface TTaskV4 {
     id_parent?: string
     subtask_ids?: string[]
     meeting_preparation_params?: TMeetingPreparationParams
+    nux_number_id: number
     slack_message_params?: TSlackMessageParams
     comments?: TComment[]
+    isSubtask?: boolean
     external_status?: TExternalStatus
     recurring_task_template_id?: string
+    sub_tasks?: TTask[]
+    parent_task_id?: string
+    all_priorities?: TExternalPriority[]
 
     all_statuses?: TExternalStatus[] // Deprecated but still in response (will be moved to userInfo)
 }
