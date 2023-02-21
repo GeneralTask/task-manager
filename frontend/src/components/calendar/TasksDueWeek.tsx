@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { scrollbarWidth } from '@xobotyi/scrollbar-width'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { useGetTasks } from '../../services/api/tasks.hooks'
+import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import { Border, Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
@@ -39,19 +39,18 @@ interface TasksDueWeekProps {
     date: DateTime
 }
 const TasksDueWeek = ({ date }: TasksDueWeekProps) => {
-    const { data: taskSections } = useGetTasks()
+    const { data: activeTasks } = useGetActiveTasks()
     const { isTasksDueViewCollapsed, setIsTasksDueViewCollapsed } = useCalendarContext()
     const caretIcon = isTasksDueViewCollapsed ? icons.caret_right : icons.caret_down
 
     const tasksDueWeek = useMemo(() => {
-        const allTasks = taskSections?.flatMap((section) => section.tasks) ?? []
-        const nonDeletedTasks = allTasks.filter((task) => !task.is_deleted)
-        return [...Array(7)].map((_, offset) =>
-            nonDeletedTasks.filter((task) =>
-                DateTime.fromISO(task.due_date).hasSame(date.plus({ days: offset }), 'day')
-            )
+        return [...Array(7)].map(
+            (_, offset) =>
+                activeTasks?.filter((task) =>
+                    DateTime.fromISO(task.due_date).hasSame(date.plus({ days: offset }), 'day')
+                ) || []
         )
-    }, [taskSections, date])
+    }, [activeTasks, date])
 
     const anyTasksDueThisWeek = tasksDueWeek.some((tasks) => tasks.length > 0)
     if (!anyTasksDueThisWeek) return null

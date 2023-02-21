@@ -2,9 +2,9 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
+import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import Log from '../../services/api/log'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
@@ -25,15 +25,12 @@ const BodyHeader = styled.div`
 `
 
 const SlackTasksView = () => {
-    const { data: allTasks } = useGetTasksV4()
+    const { data: activeTasks } = useGetActiveTasks()
     const { slackTaskId } = useParams()
     const navigate = useNavigate()
     const { calendarType, setCalendarType, setDate, dayViewDate } = useCalendarContext()
 
-    const slackTasks = useMemo(
-        () => allTasks?.filter((task) => task.source.name === 'Slack' && !task.is_done && !task.is_deleted) || [],
-        [allTasks]
-    )
+    const slackTasks = useMemo(() => activeTasks?.filter((task) => task.source.name === 'Slack') || [], [activeTasks])
 
     const { data: linkedAccounts } = useGetLinkedAccounts()
 
@@ -46,11 +43,11 @@ const SlackTasksView = () => {
             if (task.id === slackTaskId) return { task }
         }
         return { task: slackTasks[0] }
-    }, [allTasks, slackTaskId])
+    }, [activeTasks, slackTaskId])
 
     useEffect(() => {
         if (task) navigate(`/slack/${task.id}`)
-    }, [allTasks, task])
+    }, [activeTasks, task])
 
     const onClick = (id: string) => {
         if (calendarType === 'week' && slackTaskId === id) {

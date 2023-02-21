@@ -200,6 +200,10 @@ const Task = ({
     const taskV4: TTaskV4 = {
         ...task,
         id_folder: sectionId,
+        source: {
+            ...task.source,
+            logo: task.source?.logo_v2,
+        },
     }
 
     return (
