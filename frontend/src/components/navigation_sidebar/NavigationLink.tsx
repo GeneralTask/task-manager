@@ -3,13 +3,13 @@ import { useDrag, useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
-import { TASK_SECTION_DEFAULT_ID } from '../../constants'
+import { TASK_FOLDER_DEFAULT_ID } from '../../constants'
 import Log from '../../services/api/log'
 import { useMarkTaskDoneOrDeleted, useReorderTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { TIconColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
-import { DropItem, DropType, TTaskSection } from '../../utils/types'
+import { DropItem, DropType, TTaskFolder } from '../../utils/types'
 import { countWithOverflow } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import { useCalendarContext } from '../calendar/CalendarContext'
@@ -50,7 +50,7 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
         mix-blend-mode: inherit;
     }
 `
-const SectionTitle = styled.span`
+const FolderTitle = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -58,7 +58,7 @@ const SectionTitle = styled.span`
     user-select: none;
     ${Typography.bodySmall};
 `
-const SectionTitleItemCount = styled.span`
+const FolderTitleItemCount = styled.span`
     margin-left: auto;
     user-select: none;
     ${Typography.bodySmall};
@@ -77,7 +77,7 @@ interface NavigationLinkProps {
     title: string
     icon?: IconProp | string
     iconColor?: TIconColor
-    taskSection?: TTaskSection
+    taskFolder?: TTaskFolder
     count?: number
     needsRelinking?: boolean
     draggable?: boolean
@@ -90,7 +90,7 @@ const NavigationLink = ({
     title,
     icon,
     iconColor,
-    taskSection,
+    taskFolder,
     count,
     needsRelinking = false,
     draggable = false,
@@ -104,15 +104,15 @@ const NavigationLink = ({
 
     const onDrop = useCallback(
         (item: DropItem) => {
-            if (!taskSection || !droppable || !item.task) return
-            if (taskSection.id === item.sectionId) return
-            if (taskSection?.is_done || taskSection?.is_trash) {
+            if (!taskFolder || !droppable || !item.task) return
+            if (taskFolder.id === item.sectionId) return
+            if (taskFolder?.is_done || taskFolder?.is_trash) {
                 markTaskDoneOrDeleted(
                     {
                         id: item.id,
-                        isDone: taskSection?.is_done,
-                        isDeleted: taskSection?.is_trash,
-                        sectionId: taskSection.id,
+                        isDone: taskFolder?.is_done,
+                        isDeleted: taskFolder?.is_trash,
+                        sectionId: taskFolder.id,
                     },
                     item.task.optimisticId
                 )
@@ -121,38 +121,38 @@ const NavigationLink = ({
                     {
                         id: item.id,
                         orderingId: 1,
-                        dropSectionId: taskSection.id,
+                        dropSectionId: taskFolder.id,
                         dragSectionId: item.sectionId,
                     },
                     item.task.optimisticId
                 )
             }
         },
-        [taskSection]
+        [taskFolder]
     )
 
     const [, drag] = useDrag(
         () => ({
             type: DropType.FOLDER,
-            item: { id: taskSection?.id },
+            item: { id: taskFolder?.id },
             canDrag: draggable,
             collect: (monitor) => monitor.isDragging(),
         }),
-        [taskSection, draggable]
+        [taskFolder, draggable]
     )
 
     const [isOver, drop] = useDrop(
         () => ({
             accept: [DropType.TASK],
-            collect: (monitor) => Boolean(taskSection && droppable && monitor.isOver()),
+            collect: (monitor) => Boolean(taskFolder && droppable && monitor.isOver()),
             drop: onDrop,
-            canDrop: () => !!(taskSection && droppable),
+            canDrop: () => !!(taskFolder && droppable),
         }),
-        [taskSection, onDrop]
+        [taskFolder, onDrop]
     )
 
     const onClickHandler = (e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>) => {
-        if (taskSection?.id === TASK_SECTION_DEFAULT_ID) e.preventDefault()
+        if (taskFolder?.id === TASK_FOLDER_DEFAULT_ID) e.preventDefault()
         if (!showTaskToCalSidebar && calendarType === 'week') {
             setShowTaskToCalSidebar(true)
         }
@@ -172,13 +172,13 @@ const NavigationLink = ({
         <NavigationLinkTemplate ref={drop} onClick={onClickHandler}>
             <LinkContainer ref={drag} isSelected={isCurrentPage} isOver={isOver}>
                 {icon && <Icon icon={icon} color={iconColor} />}
-                <SectionTitle>{title}</SectionTitle>
+                <FolderTitle>{title}</FolderTitle>
                 {needsRelinking && (
                     <Tip content="Account needs to be re-linked in settings">
                         <Icon icon={icons.warning} color="red" />
                     </Tip>
                 )}
-                <SectionTitleItemCount>{count && countWithOverflow(count)}</SectionTitleItemCount>
+                <FolderTitleItemCount>{count && countWithOverflow(count)}</FolderTitleItemCount>
             </LinkContainer>
         </NavigationLinkTemplate>
     )

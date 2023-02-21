@@ -1,4 +1,4 @@
-import { DEFAULT_SECTION_ID } from '../../../../constants'
+import { DEFAULT_FOLDER_ID } from '../../../../constants'
 import { useGetTasks } from '../../../../services/api/tasks.hooks'
 import GTSelect from '../../../radix/GTSelect'
 
@@ -17,7 +17,7 @@ const TemplateFolderSelector = ({ value, useTriggerWidth, onChange }: TemplateFo
                     .map((folder) => ({
                         value: folder.id,
                         label: folder.name,
-                        icon: folder.id === DEFAULT_SECTION_ID ? 'inbox' : 'folder',
+                        icon: folder.id === DEFAULT_FOLDER_ID ? 'inbox' : 'folder',
                     })) ?? []
             }
             value={value}

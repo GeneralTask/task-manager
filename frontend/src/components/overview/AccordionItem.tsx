@@ -1,6 +1,6 @@
 import { useLayoutEffect } from 'react'
 import styled from 'styled-components'
-import { DEFAULT_SECTION_ID } from '../../constants'
+import { DEFAULT_FOLDER_ID } from '../../constants'
 import useOverviewContext from '../../context/OverviewContextProvider'
 import useGetViewItems from '../../hooks/useGetViewItems'
 import useGetVisibleItemCount from '../../hooks/useGetVisibleItemCount'
@@ -39,7 +39,7 @@ const ListContent = styled.div`
 
 export const getOverviewAccordionHeaderIcon = (logo: TLogoImage, sectionId?: string) => {
     if (logo !== 'generaltask') return logos[logo]
-    return sectionId === DEFAULT_SECTION_ID ? icons.inbox : icons.folder
+    return sectionId === DEFAULT_FOLDER_ID ? icons.inbox : icons.folder
 }
 
 interface AccordionItemProps {

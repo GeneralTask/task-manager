@@ -1,5 +1,5 @@
 import { ReactNode, useCallback, useMemo, useState } from 'react'
-import { DEFAULT_SECTION_ID } from '../../constants'
+import { DEFAULT_FOLDER_ID } from '../../constants'
 import { useKeyboardShortcut } from '../../hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
@@ -49,7 +49,7 @@ const FolderSelector = ({
                           .filter((s) => !s.is_done && !s.is_trash)
                           .map((section) => ({
                               label: section.name,
-                              icon: section.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
+                              icon: section.id === DEFAULT_FOLDER_ID ? icons.inbox : icons.folder,
                               selected: section.id === value,
                               onClick: () => onChange(section.id),
                           }))

@@ -11,7 +11,7 @@ import {
     SINGLE_SECOND_INTERVAL,
     SLACK_SOURCE_NAME,
     SYNC_MESSAGES,
-    TRASH_SECTION_ID,
+    TRASH_FOLDER_ID,
 } from '../../constants'
 import { useInterval, useKeyboardShortcut } from '../../hooks'
 import { useModifyRecurringTask } from '../../services/api/recurring-tasks.hooks'
@@ -221,7 +221,7 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
 
     const { data: folders } = useGetTasks()
     const folderId = getFolderIdFromTask(folders ?? [], currentTask.id)
-    const isInTrash = folderId === TRASH_SECTION_ID
+    const isInTrash = folderId === TRASH_FOLDER_ID
 
     useKeyboardShortcut(
         'backToParentTask',

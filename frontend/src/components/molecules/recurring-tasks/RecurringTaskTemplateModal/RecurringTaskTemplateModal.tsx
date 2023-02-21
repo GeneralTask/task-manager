@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
-import { DEFAULT_SECTION_ID } from '../../../../constants'
+import { DEFAULT_FOLDER_ID } from '../../../../constants'
 import { useCreateRecurringTask, useModifyRecurringTask } from '../../../../services/api/recurring-tasks.hooks'
 import { Border, Colors, Spacing } from '../../../../styles'
 import { RecurrenceRate } from '../../../../utils/enums'
@@ -55,7 +55,7 @@ const RecurringTaskTemplateModal = ({
         initialRecurringTaskTemplate?.recurrence_rate ?? RecurrenceRate.WEEKLY
     )
     const [folder, setFolder] = useState(
-        initialRecurringTaskTemplate?.id_task_section ?? initialFolderId ?? DEFAULT_SECTION_ID
+        initialRecurringTaskTemplate?.id_task_section ?? initialFolderId ?? DEFAULT_FOLDER_ID
     )
     const [selectedDate, setSelectedDate] = useState<DateTime>(() =>
         getInitialSelectedDate(initialRecurringTaskTemplate)
