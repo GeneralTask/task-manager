@@ -208,31 +208,40 @@ const TaskSectionView = () => {
                                     />
                                 )}
                                 <TasksContainer ref={sectionViewRef}>
-                                    {sortedTasks.map((task, index) => (
-                                        <ReorderDropContainer
-                                            key={task.id}
-                                            index={index}
-                                            acceptDropType={DropType.TASK}
-                                            onReorder={handleReorderTask}
-                                            disabled={
-                                                sortAndFilterSettings.selectedSort.id !== 'manual' ||
-                                                section.is_done ||
-                                                section.is_trash
-                                            }
-                                        >
-                                            <Task
-                                                task={task as TTaskV4}
+                                    {sortedTasks.map((task, index) => {
+                                        const newTask: TTaskV4 = {
+                                            ...task,
+                                            id_folder: section.id,
+                                            source: {
+                                                ...task.source,
+                                                logo: task.source?.logo_v2,
+                                            },
+                                        }
+                                        return (
+                                            <ReorderDropContainer
+                                                key={task.id}
                                                 index={index}
-                                                sectionId={section.id}
-                                                sectionScrollingRef={sectionScrollingRef}
-                                                isSelected={task.id === params.task}
-                                                link={`/tasks/${params.section}/${task.id}`}
-                                                shouldScrollToTask={shouldScrollToTask}
-                                                setShouldScrollToTask={setShouldScrollToTask}
-                                                onMarkTaskDone={selectTaskAfterCompletion}
-                                            />
-                                        </ReorderDropContainer>
-                                    ))}
+                                                acceptDropType={DropType.TASK}
+                                                onReorder={handleReorderTask}
+                                                disabled={
+                                                    sortAndFilterSettings.selectedSort.id !== 'manual' ||
+                                                    section.is_done ||
+                                                    section.is_trash
+                                                }
+                                            >
+                                                <Task
+                                                    task={newTask}
+                                                    index={index}
+                                                    sectionScrollingRef={sectionScrollingRef}
+                                                    isSelected={task.id === params.task}
+                                                    link={`/tasks/${params.section}/${task.id}`}
+                                                    shouldScrollToTask={shouldScrollToTask}
+                                                    setShouldScrollToTask={setShouldScrollToTask}
+                                                    onMarkTaskDone={selectTaskAfterCompletion}
+                                                />
+                                            </ReorderDropContainer>
+                                        )
+                                    })}
                                 </TasksContainer>
                                 <ReorderDropContainer
                                     index={sortedTasks.length + 1}

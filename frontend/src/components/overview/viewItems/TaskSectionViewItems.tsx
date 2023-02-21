@@ -69,25 +69,34 @@ const TaskSectionViewItems = forwardRef(
                 {view.total_view_items !== 0 && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
                 {sectionId && <CreateNewItemInput placeholder="Create new task" onSubmit={onCreateNewTaskSubmit} />}
                 {view.view_items.length > 0 ? (
-                    view.view_items.slice(0, visibleItemsCount).map((item, index) => (
-                        <ReorderDropContainer
-                            key={item.id}
-                            index={index}
-                            acceptDropType={DropType.TASK}
-                            onReorder={handleReorderTask}
-                            disabled={sortAndFilterSettings.selectedSort.id !== 'manual'}
-                        >
-                            <Task
-                                task={item as TTaskV4}
-                                dragDisabled={item.is_done}
+                    view.view_items.slice(0, visibleItemsCount).map((item, index) => {
+                        const newTask: TTaskV4 = {
+                            ...item,
+                            id_folder: sectionId,
+                            source: {
+                                ...item.source,
+                                logo: item.source?.logo_v2,
+                            },
+                        }
+                        return (
+                            <ReorderDropContainer
+                                key={item.id}
                                 index={index}
-                                sectionId={sectionId}
-                                sectionScrollingRef={scrollRef}
-                                isSelected={overviewViewId === view.id && overviewItemId === item.id}
-                                link={`/overview/${view.id}/${item.id}`}
-                            />
-                        </ReorderDropContainer>
-                    ))
+                                acceptDropType={DropType.TASK}
+                                onReorder={handleReorderTask}
+                                disabled={sortAndFilterSettings.selectedSort.id !== 'manual'}
+                            >
+                                <Task
+                                    task={newTask}
+                                    dragDisabled={item.is_done}
+                                    index={index}
+                                    sectionScrollingRef={scrollRef}
+                                    isSelected={overviewViewId === view.id && overviewItemId === item.id}
+                                    link={`/overview/${view.id}/${item.id}`}
+                                />
+                            </ReorderDropContainer>
+                        )
+                    })
                 ) : (
                     <ReorderDropContainer
                         index={0}
