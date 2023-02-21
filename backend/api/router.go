@@ -108,11 +108,15 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.PATCH("/user_info/", handlers.UserInfoUpdate)
 
 	router.GET("/sections/", handlers.SectionList)
+	router.GET("/sections/v2/", handlers.SectionListV2)
 	router.POST("/sections/create/", handlers.SectionAdd)
 	router.PATCH("/sections/modify/:section_id/", handlers.SectionModify)
 	router.DELETE("/sections/delete/:section_id/", handlers.SectionDelete)
 
+	// Currently frontend is using endpoint with trailing slash, so we need to support both
+	router.GET("/overview/views", handlers.OverviewViewsList)
 	router.GET("/overview/views/", handlers.OverviewViewsList)
+
 	router.POST("/overview/views/", handlers.OverviewViewAdd)
 	router.PATCH("/overview/views/bulk_modify/", handlers.OverviewViewBulkModify)
 	router.PATCH("/overview/views/:view_id/", handlers.OverviewViewModify)

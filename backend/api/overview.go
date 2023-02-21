@@ -62,7 +62,27 @@ type SupportedView struct {
 	Views            []SupportedViewItem `json:"views"`
 }
 
+func GetShowMovedOrDeletedQueryParam(c *gin.Context) (bool, error) {
+	params := c.Request.URL.Query()
+	showMovedOrDeletedParams := params[constants.ShowMovedOrDeleted]
+	if len(showMovedOrDeletedParams) == 0 {
+		return false, nil
+	}
+	if showMovedOrDeletedParams[0] == "true" {
+		return true, nil
+	} else if showMovedOrDeletedParams[0] == "false" {
+		return false, nil
+	}
+	return false, errors.New("invalid or missing parameter")
+}
+
 func (api *API) OverviewViewsList(c *gin.Context) {
+	showMovedOrDeleted, err := GetShowMovedOrDeletedQueryParam(c)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
 	timezoneOffset, err := GetTimezoneOffsetFromHeader(c)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -103,7 +123,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		return
 	}
 
-	result, err := api.GetOverviewResults(views, userID, timezoneOffset)
+	result, err := api.GetOverviewResults(views, userID, timezoneOffset, showMovedOrDeleted)
 	if err != nil {
 		log.Print("failed to get results")
 		api.Logger.Error().Err(err).Msg("failed to load views")
@@ -113,11 +133,10 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	sort.SliceStable(result, func(i, j int) bool {
 		return result[i].GetOrderingID() < result[j].GetOrderingID()
 	})
-
 	c.JSON(200, result)
 }
 
-func (api *API) GetOverviewResults(views []database.View, userID primitive.ObjectID, timezoneOffset time.Duration) ([]OrderingIDGetter, error) {
+func (api *API) GetOverviewResults(views []database.View, userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool) ([]OrderingIDGetter, error) {
 	result := []OrderingIDGetter{}
 	for _, view := range views {
 		var singleOverviewResult OrderingIDGetter
@@ -132,7 +151,7 @@ func (api *API) GetOverviewResults(views []database.View, userID primitive.Objec
 		case string(constants.ViewGithub):
 			singleOverviewResult, err = api.GetGithubOverviewResult(view, userID, timezoneOffset)
 		case string(constants.ViewMeetingPreparation):
-			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
+			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, showMovedOrDeleted)
 		case string(constants.ViewDueToday):
 			singleOverviewResult, err = api.GetDueTodayOverviewResult(view, userID, timezoneOffset)
 		default:
@@ -481,7 +500,7 @@ func (api *API) GetGithubOverviewResult(view database.View, userID primitive.Obj
 	return &result, nil
 }
 
-func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
+func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
@@ -503,13 +522,30 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 		return nil, err
 	}
 
+	if showMovedOrDeleted {
+		// Sync existing Meeting prep tasks with their events
+		err = api.SyncMeetingTasksWithEvents(meetingTasks, userID, timezoneOffset)
+		if err != nil {
+			return nil, err
+		}
+		meetingTasks, err = database.GetMeetingPreparationTasks(api.DB, userID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	// Sort by datetime_start
 	sort.Slice(*meetingTasks, func(i, j int) bool {
 		return (*meetingTasks)[i].MeetingPreparationParams.DatetimeStart <= (*meetingTasks)[j].MeetingPreparationParams.DatetimeStart
 	})
 
 	// Create result of meeting prep tasks
-	result, err := api.GetMeetingPrepTaskResult(userID, timeNow, meetingTasks)
+	var result []*TaskResult
+	if showMovedOrDeleted {
+		result, err = api.GetMeetingPrepTaskResult(userID, timeNow, meetingTasks)
+		} else {
+			result, err = api.GetMeetingPrepTaskResultWithAutocompletion(userID, timeNow, meetingTasks)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -685,6 +721,7 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 				DatetimeStart:                 event.DatetimeStart,
 				DatetimeEnd:                   event.DatetimeEnd,
 				HasBeenAutomaticallyCompleted: false,
+				EventMovedOrDeleted:           false,
 			},
 		})
 		if err != nil {
@@ -694,8 +731,63 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 	return nil
 }
 
+func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID primitive.ObjectID, timezoneOffset time.Duration) error {
+	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
+	taskCollection := database.GetTaskCollection(api.DB)
+	for _, task := range *meetingTasks {
+		event, err := database.GetCalendarEventByExternalId(api.DB, task.MeetingPreparationParams.IDExternal, userID)
+		eventMovedOrDeleted := task.MeetingPreparationParams.EventMovedOrDeleted
+
+		if err != nil && err != mongo.ErrNoDocuments {
+			return err
+		}
+
+		// Do nothing if event time has not changed
+		if event != nil && !(task.MeetingPreparationParams.DatetimeStart.Time().Equal(event.DatetimeStart.Time()) && task.MeetingPreparationParams.DatetimeEnd.Time().Equal(event.DatetimeEnd.Time())) {
+			// if event has been moved to different day, update event_moved_or_deleted
+			localZone := time.FixedZone("", int(-1*timezoneOffset.Seconds()))
+			if event.DatetimeStart.Time().In(localZone).Day() != task.MeetingPreparationParams.DatetimeStart.Time().In(localZone).Day() {
+				eventMovedOrDeleted = true
+			}
+			task.MeetingPreparationParams.DatetimeStart = event.DatetimeStart
+			task.MeetingPreparationParams.DatetimeEnd = event.DatetimeEnd
+			task.MeetingPreparationParams.EventMovedOrDeleted = eventMovedOrDeleted
+		}
+
+		if event == nil {
+			task.MeetingPreparationParams.EventMovedOrDeleted = true
+		} else if task.MeetingPreparationParams.DatetimeEnd.Time().Before(timeNow) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
+			isCompleted := true
+			task.IsCompleted = &isCompleted
+			task.CompletedAt = primitive.NewDateTimeFromTime(time.Now())
+			task.MeetingPreparationParams.HasBeenAutomaticallyCompleted = true
+			task.MeetingPreparationParams.EventMovedOrDeleted = true
+		}
+
+		_, err = taskCollection.UpdateOne(context.Background(),
+			bson.M{"$and": []bson.M{
+				{"_id": task.ID},
+				{"user_id": userID},
+			}},
+			bson.M{"$set": bson.M{
+				"is_completed": task.IsCompleted,
+				"completed_at": task.CompletedAt,
+				"meeting_preparation_params.datetime_start":                   task.MeetingPreparationParams.DatetimeStart,
+				"meeting_preparation_params.datetime_end":                     task.MeetingPreparationParams.DatetimeEnd,
+				"meeting_preparation_params.event_moved_or_deleted":           task.MeetingPreparationParams.EventMovedOrDeleted,
+				"meeting_preparation_params.has_been_automatically_completed": task.MeetingPreparationParams.HasBeenAutomaticallyCompleted,
+			}},
+		)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // GetMeetingPrepTaskResult returns a result of meeting prep tasks for a user, and auto-completes tasks that have ended
-func (api *API) GetMeetingPrepTaskResult(userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
+func (api *API) GetMeetingPrepTaskResultWithAutocompletion(userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
 	eventCollection := database.GetCalendarEventCollection(api.DB)
 	taskCollection := database.GetTaskCollection(api.DB)
 	result := []*TaskResult{}
@@ -720,6 +812,19 @@ func (api *API) GetMeetingPrepTaskResult(userID primitive.ObjectID, expirationTi
 			if err != nil {
 				return nil, err
 			}
+			continue
+		}
+		// for implicit memory aliasing
+		tempTask := task
+		result = append(result, api.taskBaseToTaskResult(&tempTask, userID))
+	}
+	return result, nil
+}
+
+func (api *API) GetMeetingPrepTaskResult(userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
+	result := []*TaskResult{}
+	for _, task := range *tasks {
+		if task.IsCompleted != nil && *task.IsCompleted {
 			continue
 		}
 		// for implicit memory aliasing

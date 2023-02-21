@@ -27,3 +27,5 @@ const (
 const (
 	MAX_OVERVIEW_SUGGESTION int = 5
 )
+
+const ShowMovedOrDeleted = "show_moved_or_deleted"

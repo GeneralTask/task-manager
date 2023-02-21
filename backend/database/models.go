@@ -238,6 +238,7 @@ type MeetingPreparationParams struct {
 	DatetimeStart                 primitive.DateTime `bson:"datetime_start,omitempty"`
 	DatetimeEnd                   primitive.DateTime `bson:"datetime_end,omitempty"`
 	HasBeenAutomaticallyCompleted bool               `bson:"has_been_automatically_completed,omitempty"`
+	EventMovedOrDeleted           bool               `bson:"event_moved_or_deleted,omitempty"`
 }
 
 type JIRATaskParams struct {
