@@ -4,8 +4,8 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { SINGLE_SECOND_INTERVAL } from '../../constants'
 import { useInterval, useSetting } from '../../hooks'
+import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import { useGetCalendars } from '../../services/api/events.hooks'
-import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { Border, Colors, Spacing } from '../../styles'
 import { useCalendarContext } from './CalendarContext'
 import TaskDueBody from './TaskDueBody'
@@ -43,7 +43,7 @@ interface TasksDueProps {
 }
 const TasksDue = ({ date }: TasksDueProps) => {
     const { isTasksDueViewCollapsed, isTasksOverdueViewCollapsed, setDate } = useCalendarContext()
-    const { data: allTasks } = useGetTasksV4()
+    const { data: activeTasks } = useGetActiveTasks()
     const [currentTime, setCurrentTime] = useState(DateTime.local())
 
     useInterval(
@@ -60,28 +60,24 @@ const TasksDue = ({ date }: TasksDueProps) => {
         }
     }, [currentTime])
 
-    const incompleteTasks = useMemo(() => {
-        return allTasks?.filter((task) => !task.is_done && !task.is_deleted) || []
-    }, [allTasks])
-
     const tasksDueToday = useMemo(
         () =>
-            incompleteTasks.filter(
+            activeTasks?.filter(
                 (task) =>
                     DateTime.fromISO(task.due_date).hasSame(date, 'day') ||
                     (task.meeting_preparation_params &&
                         DateTime.fromISO(task.meeting_preparation_params.datetime_start).hasSame(date, 'day'))
-            ),
-        [incompleteTasks, date]
+            ) || [],
+        [activeTasks, date]
     )
 
     const tasksOverdue = useMemo(
         () =>
-            incompleteTasks.filter(
+            activeTasks?.filter(
                 (task) =>
                     !DateTime.fromISO(task.due_date).hasSame(date, 'day') && DateTime.fromISO(task.due_date) < date
-            ),
-        [incompleteTasks, date]
+            ) || [],
+        [activeTasks, date]
     )
 
     const hasTopBorder = useHasTopBorder()
