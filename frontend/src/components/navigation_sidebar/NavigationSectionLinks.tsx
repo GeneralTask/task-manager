@@ -156,7 +156,7 @@ const NavigationSectionLinks = () => {
                         icon={icons.inbox}
                         isCurrentPage={sectionId === defaultFolder.id}
                         taskFolder={defaultFolder}
-                        count={defaultFolder.task_ids.length}
+                        count={defaultFolder.tasks_ids.length}
                         droppable
                     />
                 </Tip>
@@ -184,7 +184,7 @@ const NavigationSectionLinks = () => {
                                     icon={icons.folder}
                                     isCurrentPage={sectionId === section.id}
                                     taskFolder={section}
-                                    count={section.task_ids.length}
+                                    count={section.tasks_ids.length}
                                     draggable
                                     droppable
                                 />
@@ -248,7 +248,7 @@ const NavigationSectionLinks = () => {
                                 title={doneFolder.name}
                                 icon={icons.checkbox_checked}
                                 isCurrentPage={sectionId === doneFolder.id}
-                                count={doneFolder.task_ids.length}
+                                count={doneFolder.tasks_ids.length}
                                 taskFolder={doneFolder}
                                 droppable
                             />

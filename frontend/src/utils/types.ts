@@ -234,7 +234,7 @@ export interface TTaskSection {
 export interface TTaskFolder {
     id: string
     name: string
-    task_ids: string[]
+    tasks_ids: string[]
     is_done: boolean
     is_trash: boolean
     optimisticId?: string
