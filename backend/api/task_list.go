@@ -75,6 +75,7 @@ type TaskSection struct {
 	ID      primitive.ObjectID `json:"id"`
 	Name    string             `json:"name"`
 	Tasks   []*TaskResult      `json:"tasks"`
+	TaskIDs []string           `json:"tasks_ids"`
 	IsDone  bool               `json:"is_done"`
 	IsTrash bool               `json:"is_trash"`
 }
