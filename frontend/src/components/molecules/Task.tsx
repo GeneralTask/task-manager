@@ -62,7 +62,6 @@ interface TaskProps {
     dragDisabled?: boolean
     dropType?: DropType
     index?: number
-    sectionId?: string
     sectionScrollingRef?: MutableRefObject<HTMLDivElement | null>
     isSelected: boolean
     link: string
@@ -77,7 +76,6 @@ const Task = ({
     dragDisabled,
     dropType = DropType.TASK,
     index,
-    sectionId,
     sectionScrollingRef,
     isSelected,
     link,
@@ -169,10 +167,10 @@ const Task = ({
     const [, drag, dragPreview] = useDrag(
         () => ({
             type: dropType,
-            item: { id: task.id, sectionId, task },
+            item: { id: task.id, sectionId: task.id_folder, task },
             canDrag: !dragDisabled,
         }),
-        [task, index, sectionId, dragDisabled]
+        [task, index, dragDisabled]
     )
 
     // hide default drag preview
@@ -182,9 +180,9 @@ const Task = ({
 
     const [isVisible, setIsVisible] = useState(true)
     const taskFadeOut = useCallback(() => {
-        if (sectionId !== DONE_SECTION_ID) setIsVisible(task.is_done)
+        if (task.id_folder && task.id_folder !== DONE_SECTION_ID) setIsVisible(task.is_done)
         onMarkTaskDone?.(task.id)
-    }, [task.is_done, sectionId, onMarkTaskDone])
+    }, [task.is_done, task.id_folder, onMarkTaskDone])
 
     const dueDate = DateTime.fromISO(task.due_date)
     const [contextMenuOpen, setContextMenuOpen] = useState(false)
@@ -200,7 +198,6 @@ const Task = ({
 
     const taskV4: TTaskV4 = {
         ...task,
-        id_folder: sectionId,
         source: {
             ...task.source,
             logo: task.source?.logo_v2,
@@ -231,7 +228,7 @@ const Task = ({
                     {task.source?.name !== 'Jira' &&
                         (task.external_status && task.all_statuses ? (
                             <GTDropdownMenu
-                                disabled={sectionId === TRASH_SECTION_ID}
+                                disabled={task.id_folder === TRASH_SECTION_ID}
                                 items={task.all_statuses.map((status) => ({
                                     label: status.state,
                                     onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
@@ -250,10 +247,10 @@ const Task = ({
                         ) : (
                             <MarkTaskDoneButton
                                 taskId={task.id}
-                                sectionId={sectionId}
+                                sectionId={task.id_folder}
                                 isDone={task.is_done}
                                 isSelected={isSelected}
-                                isDisabled={!!task.optimisticId || sectionId === TRASH_SECTION_ID}
+                                isDisabled={!!task.optimisticId || task.id_folder === TRASH_SECTION_ID}
                                 onMarkComplete={taskFadeOut}
                                 optimsticId={task.optimisticId}
                             />
