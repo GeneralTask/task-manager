@@ -6,7 +6,7 @@ import { DEFAULT_SECTION_ID } from '../../../../constants'
 import { useCreateRecurringTask, useModifyRecurringTask } from '../../../../services/api/recurring-tasks.hooks'
 import { Border, Colors, Spacing } from '../../../../styles'
 import { RecurrenceRate } from '../../../../utils/enums'
-import { TRecurringTaskTemplate, TTask } from '../../../../utils/types'
+import { TRecurringTaskTemplate, TTaskV4 } from '../../../../utils/types'
 import { stopKeydownPropogation } from '../../../../utils/utils'
 import Flex from '../../../atoms/Flex'
 import GTButton from '../../../atoms/buttons/GTButton'
@@ -37,7 +37,7 @@ interface RecurringTaskTemplateModalProps {
     onClose: () => void
     initialTitle?: string // takes precedence over initialTask
     initialRecurringTaskTemplate?: TRecurringTaskTemplate // takes precedence over initial fields below
-    initialTask?: TTask
+    initialTask?: TTaskV4
     initialFolderId?: string
 }
 const RecurringTaskTemplateModal = ({
