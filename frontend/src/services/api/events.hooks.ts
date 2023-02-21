@@ -8,7 +8,7 @@ import useQueryContext from '../../context/QueryContext'
 import { useGTLocalStorage } from '../../hooks'
 import { TLogoImage } from '../../styles/images'
 import apiClient from '../../utils/api'
-import { TCalendar, TCalendarAccount, TEvent, TOverviewView, TPullRequest, TTask } from '../../utils/types'
+import { TCalendar, TCalendarAccount, TEvent, TOverviewView, TPullRequest, TTaskV4 } from '../../utils/types'
 import { getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 
 interface TEventAttendee {
@@ -45,7 +45,7 @@ interface TModifyEventPayload {
 interface TCreateEventParams {
     createEventPayload: TCreateEventPayload
     date: DateTime
-    linkedTask?: TTask
+    linkedTask?: TTaskV4
     linkedView?: TOverviewView
     linkedPullRequest?: TPullRequest
     optimisticId: string

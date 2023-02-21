@@ -105,10 +105,10 @@ const useCalendarDrop = ({ date, eventsContainerRef }: CalendarDropArgs) => {
                     const converter = new showdown.Converter()
                     let description
 
-                    if (item.task?.nux_number_id) {
+                    if (item.task?.id_nux_number) {
                         // if this is a nux task, override body
                         description = renderToString(
-                            <NuxTaskBodyStatic nux_number_id={item.task.nux_number_id} renderSettingsModal={false} />
+                            <NuxTaskBodyStatic nux_number_id={item.task.id_nux_number} renderSettingsModal={false} />
                         )
                     } else {
                         description = converter.makeHtml(droppableItem.body)
