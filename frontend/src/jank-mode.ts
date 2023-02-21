@@ -20,7 +20,6 @@ const suppressConsoleErrors = () => {
         if (message && messagesToSuppress.some((msg) => message.includes(msg))) {
             return
         } else {
-            console.log('uhh', message)
             backupConsoleError(message, ...optionalParams)
         }
     }
