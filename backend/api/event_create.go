@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
@@ -92,7 +93,10 @@ func (api *API) EventCreate(c *gin.Context) {
 		externalEventID.Hex(),
 		sourceID,
 		event,
-		nil,
+		&[]bson.M{
+			{"source_account_id": eventCreateObject.AccountID},
+			{"calendar_id": eventCreateObject.CalendarID},
+		},
 	)
 
 	if err != nil {
