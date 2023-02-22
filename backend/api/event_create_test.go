@@ -59,7 +59,7 @@ func TestEventCreate(t *testing.T) {
 		dbEvent, err := database.GetCalendarEvent(api.DB, eventID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, eventID, dbEvent.ID)
-		checkEventMatchesCreateObject(t, *dbEvent, defaultEventCreateObject)
+		checkEventMatchesCreateObject(t, *dbEvent, eventCreateObj)
 	})
 	t.Run("SuccessLinkedView", func(t *testing.T) {
 		viewCollection := database.GetViewCollection(db)
