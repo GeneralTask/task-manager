@@ -4,11 +4,11 @@ import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { useKeyboardShortcut } from '../../hooks'
 import { useNavigateToTask } from '../../hooks'
+import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import { useGetFolders } from '../../services/api/folders.hooks'
 import Log from '../../services/api/log'
 import { useCreateTask, useFetchExternalTasks, useReorderTask } from '../../services/api/tasks.hooks'
-import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
@@ -61,8 +61,7 @@ const TaskSectionView = () => {
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
     const { calendarType } = useCalendarContext()
-    // const { data: taskSections, isLoading: isLoadingTasks } = useGetTasks()
-    const { data: allTasks, isLoading: isLoadingTasks } = useGetTasksV4()
+    const { data: allTasks, isLoading: isLoadingTasks } = useGetActiveTasks()
     const { data: folders } = useGetFolders()
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderTask } = useReorderTask()
@@ -72,7 +71,6 @@ const TaskSectionView = () => {
     const params = useParams()
     const navigateToTask = useNavigateToTask()
 
-    // const section = useMemo(() => taskSections?.find(({ id }) => id === params.section), [taskSections, params.section])
     const folder = useMemo(() => folders?.find(({ id }) => id === params.section), [folders, params.section])
     const tasks = useMemo(() => {
         if (!folder) return []
@@ -96,20 +94,6 @@ const TaskSectionView = () => {
             tieBreakerField: TASK_SORT_AND_FILTER_CONFIG.tieBreakerField,
         })
     }, [folder, tasks, selectedSort, selectedSortDirection, areSettingsLoading])
-
-    const sortedTasksV4 = useMemo(() => {
-        return sortedTasks.map((task) => {
-            const taskV4: TTaskV4 = {
-                ...task,
-                id_folder: folder?.id,
-                source: {
-                    ...task.source,
-                    logo: task.source?.logo_v2,
-                },
-            }
-            return taskV4
-        })
-    }, [sortedTasks, folder])
 
     const task = useMemo(
         () =>
@@ -256,7 +240,7 @@ const TaskSectionView = () => {
                                     />
                                 )}
                                 <TasksContainer ref={sectionViewRef}>
-                                    {sortedTasksV4.map((task, index) => (
+                                    {sortedTasks.map((task, index) => (
                                         <ReorderDropContainer
                                             key={task.id}
                                             index={index}
@@ -269,7 +253,7 @@ const TaskSectionView = () => {
                                             }
                                         >
                                             <Task
-                                                task={task as TTaskV4}
+                                                task={task}
                                                 index={index}
                                                 sectionScrollingRef={sectionScrollingRef}
                                                 isSelected={task.id === params.task}
