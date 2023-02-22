@@ -1,11 +1,11 @@
-import { Ref, forwardRef, useCallback } from 'react'
+import { Ref, forwardRef, useCallback, useMemo } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 import { useCreateTask, useReorderTask } from '../../../services/api/tasks.hooks'
 import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSelectors'
 import { TASK_SORT_AND_FILTER_CONFIG } from '../../../utils/sortAndFilter/tasks.config'
 import useSortAndFilterSettings from '../../../utils/sortAndFilter/useSortAndFilterSettings'
-import { DropItem, DropType, TTask, TTaskV4 } from '../../../utils/types'
+import { DropItem, DropType, TTask } from '../../../utils/types'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import CreateNewItemInput from '../../molecules/CreateNewItemInput'
 import Task from '../../molecules/Task'
@@ -59,6 +59,21 @@ const TaskSectionViewItems = forwardRef(
             }
         }
 
+        const viewItemsV4 = useMemo(
+            () =>
+                view.view_items.map((item) => {
+                    return {
+                        ...item,
+                        id_folder: sectionId,
+                        source: {
+                            ...item.source,
+                            logo: item.source?.logo_v2,
+                        },
+                    }
+                }),
+            [view.view_items]
+        )
+
         return (
             <>
                 {!hideHeader && (
@@ -68,35 +83,25 @@ const TaskSectionViewItems = forwardRef(
                 )}
                 {view.total_view_items !== 0 && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
                 {sectionId && <CreateNewItemInput placeholder="Create new task" onSubmit={onCreateNewTaskSubmit} />}
-                {view.view_items.length > 0 ? (
-                    view.view_items.slice(0, visibleItemsCount).map((item, index) => {
-                        const taskV4: TTaskV4 = {
-                            ...item,
-                            id_folder: sectionId,
-                            source: {
-                                ...item.source,
-                                logo: item.source?.logo_v2,
-                            },
-                        }
-                        return (
-                            <ReorderDropContainer
-                                key={item.id}
+                {viewItemsV4.length > 0 ? (
+                    viewItemsV4.slice(0, visibleItemsCount).map((item, index) => (
+                        <ReorderDropContainer
+                            key={item.id}
+                            index={index}
+                            acceptDropType={DropType.TASK}
+                            onReorder={handleReorderTask}
+                            disabled={sortAndFilterSettings.selectedSort.id !== 'manual'}
+                        >
+                            <Task
+                                task={item}
+                                dragDisabled={item.is_done}
                                 index={index}
-                                acceptDropType={DropType.TASK}
-                                onReorder={handleReorderTask}
-                                disabled={sortAndFilterSettings.selectedSort.id !== 'manual'}
-                            >
-                                <Task
-                                    task={taskV4}
-                                    dragDisabled={item.is_done}
-                                    index={index}
-                                    sectionScrollingRef={scrollRef}
-                                    isSelected={overviewViewId === view.id && overviewItemId === item.id}
-                                    link={`/overview/${view.id}/${item.id}`}
-                                />
-                            </ReorderDropContainer>
-                        )
-                    })
+                                sectionScrollingRef={scrollRef}
+                                isSelected={overviewViewId === view.id && overviewItemId === item.id}
+                                link={`/overview/${view.id}/${item.id}`}
+                            />
+                        </ReorderDropContainer>
+                    ))
                 ) : (
                     <ReorderDropContainer
                         index={0}
