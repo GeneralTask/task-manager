@@ -17,15 +17,14 @@ import { useInterval, useKeyboardShortcut } from '../../hooks'
 import { useModifyRecurringTask } from '../../services/api/recurring-tasks.hooks'
 import {
     TModifyTaskData,
-    useGetTasks,
     useMarkTaskDoneOrDeleted,
     useModifyTask,
     useReorderTask,
 } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
-import { TRecurringTaskTemplate, TTaskV4 } from '../../utils/types'
-import { EMPTY_ARRAY, getFolderIdFromTask, isTaskParentTask } from '../../utils/utils'
+import { TParentTask, TRecurringTaskTemplate, TTaskV4 } from '../../utils/types'
+import { EMPTY_ARRAY, isTaskParentTask } from '../../utils/utils'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
@@ -229,9 +228,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
         useCallback(() => titleRef.current?.select(), [])
     )
 
-    const { data: folders } = useGetTasks()
-    const folderId = getFolderIdFromTask(folders ?? [], task.id)
-    const isInTrash = folderId === TRASH_FOLDER_ID
+    const isInTrash = task.id_folder === TRASH_FOLDER_ID
 
     useKeyboardShortcut(
         'backToParentTask',
@@ -242,10 +239,6 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
         }, [isSubtask])
     )
 
-    const currentTaskV4: TTaskV4 = {
-        ...(task as TTaskV4),
-        id_folder: folderId,
-    }
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
@@ -279,15 +272,15 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                                         size="small"
                                     />
                                 )}
-                                {!isMeetingPreparationTask && !isRecurringTaskTemplate && folderId && (
+                                {!isMeetingPreparationTask && !isRecurringTaskTemplate && task.id_folder && (
                                     <FolderSelector
-                                        value={folderId}
+                                        value={task.id_folder}
                                         onChange={(newFolderId) =>
                                             reorderTask(
                                                 {
                                                     id: task.id,
                                                     dropSectionId: newFolderId,
-                                                    dragSectionId: folderId,
+                                                    dragSectionId: task.id_folder,
                                                     orderingId: 1,
                                                 },
                                                 task.optimisticId
@@ -367,8 +360,8 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                     task.id_parent === undefined && (
                         <RecurringTaskTemplateScheduleButton
                             templateId={task.recurring_task_template_id}
-                            task={currentTaskV4}
-                            folderId={folderId}
+                            task={task as TTaskV4}
+                            folderId={task.id_folder}
                         />
                     )
                 )}
@@ -376,10 +369,10 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                     {!isRecurringTaskTemplate && task.external_status && task.all_statuses && (
                         <>
                             {task.source?.name === 'Linear' && (
-                                <LinearStatusDropdown task={currentTaskV4} disabled={isInTrash} />
+                                <LinearStatusDropdown task={task as TTaskV4} disabled={isInTrash} />
                             )}
                             {task.source?.name === 'Jira' && (
-                                <JiraStatusDropdown task={currentTaskV4} disabled={isInTrash} />
+                                <JiraStatusDropdown task={task as TTaskV4} disabled={isInTrash} />
                             )}
                         </>
                     )}
@@ -393,7 +386,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                     {!isRecurringTaskTemplate &&
                         task.recurring_task_template_id &&
                         task.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID &&
-                        folderId && <RecurringTaskDetailsBanner templateId={task.recurring_task_template_id} />}
+                        task.id_folder && <RecurringTaskDetailsBanner templateId={task.recurring_task_template_id} />}
                     {isRecurringTaskTemplate && task.id_task_section && (
                         <RecurringTaskTemplateDetailsBanner id={task.id} folderId={task.id_task_section} />
                     )}
@@ -407,7 +400,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                     />
                     {SOURCES_ALLOWED_WITH_SUBTASKS.includes(task.source?.name ?? '') &&
                         !isInTrash &&
-                        isTaskParentTask(currentTaskV4) && <SubtaskList parentTask={currentTaskV4} />}
+                        isTaskParentTask(task as TTaskV4) && <SubtaskList parentTask={task as TParentTask} />}
                     {task.external_status && task.source && (
                         <CommentContainer>
                             <Divider color={Colors.border.extra_light} />
