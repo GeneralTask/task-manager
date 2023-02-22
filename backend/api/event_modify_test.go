@@ -160,6 +160,11 @@ func TestEventModify(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "new summary 2", event.Title)
 		assert.Equal(t, "new description 2", event.Body)
+
+		event, err = database.GetCalendarEvent(api.DB, eventWithCalendarID.InsertedID.(primitive.ObjectID), userID)
+		assert.NoError(t, err)
+		assert.Equal(t, "new summary", event.Title)
+		assert.Equal(t, "new description", event.Body)
 	})
 	t.Run("NoBody", func(t *testing.T) {
 		ServeRequest(t, authToken, "PATCH", validUrl, nil, http.StatusBadRequest, nil)
