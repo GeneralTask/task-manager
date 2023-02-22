@@ -24,7 +24,7 @@ import {
 } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
-import { TRecurringTaskTemplate, TTask, TTaskV4 } from '../../utils/types'
+import { TRecurringTaskTemplate, TTaskV4 } from '../../utils/types'
 import { EMPTY_ARRAY, getFolderIdFromTask, isTaskParentTask } from '../../utils/utils'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
@@ -110,12 +110,10 @@ const BackButtonText = styled(Label)`
 const SOURCES_ALLOWED_WITH_SUBTASKS = [GENERAL_TASK_SOURCE_NAME, SLACK_SOURCE_NAME]
 
 interface TaskDetailsProps {
-    task: Partial<TTask> & Partial<TRecurringTaskTemplate> & { id: string; title: string }
-    subtask?: TTask
+    task: Partial<TTaskV4> & Partial<TRecurringTaskTemplate> & { id: string; title: string }
     isRecurringTaskTemplate?: boolean
 }
-const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProps) => {
-    const currentTask = subtask || task
+const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
 
@@ -129,9 +127,12 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
     const navigate = useNavigate()
 
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
-    const { is_meeting_preparation_task, meeting_preparation_params } = currentTask
+    const { meeting_preparation_params } = task
     const dateTimeStart = DateTime.fromISO(meeting_preparation_params?.datetime_start || '')
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
+
+    const isMeetingPreparationTask = !!meeting_preparation_params
+    const isSubtask = task.id_parent != null
 
     const titleRef = useRef<HTMLTextAreaElement>(null)
 
@@ -195,22 +196,31 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                         title,
                         body,
                     },
-                    currentTask.optimisticId
+                    task.optimisticId
                 )
             } else {
-                modifyTask({ id, title, body, subtaskId }, currentTask.optimisticId)
+                modifyTask({ id, title, body, subtaskId }, task.optimisticId)
             }
         },
-        [currentTask.id, modifyTask]
+        [task.id, modifyTask]
     )
 
-    const onEdit = ({ id, title, body, subtaskId }: TModifyTaskData) => {
+    const onEdit = ({ id, title, body, idParent }: TModifyTaskData & { idParent: string | undefined }) => {
+        let subtaskId: string | undefined = undefined
+        let mainId = ''
+        if (idParent) {
+            subtaskId = id
+            mainId = idParent
+        } else {
+            mainId = id
+        }
+
         setIsEditing(true)
         const timerId = id + subtaskId + (title === undefined ? 'body' : 'title') // we're only modifying the body or title, one at a time
         if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
         timers.current[timerId] = {
-            timeout: setTimeout(() => syncDetails({ id, title, body, subtaskId }), DETAILS_SYNC_TIMEOUT),
-            callback: () => syncDetails({ id, title, body, subtaskId }),
+            timeout: setTimeout(() => syncDetails({ id: mainId, title, body, subtaskId }), DETAILS_SYNC_TIMEOUT),
+            callback: () => syncDetails({ id: mainId, title, body, subtaskId }),
         }
     }
 
@@ -220,67 +230,67 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
     )
 
     const { data: folders } = useGetTasks()
-    const folderId = getFolderIdFromTask(folders ?? [], currentTask.id)
+    const folderId = getFolderIdFromTask(folders ?? [], task.id)
     const isInTrash = folderId === TRASH_FOLDER_ID
 
     useKeyboardShortcut(
         'backToParentTask',
         useCallback(() => {
-            if (subtask) {
+            if (isSubtask) {
                 navigate('..', { relative: 'path' })
             }
-        }, [subtask])
+        }, [isSubtask])
     )
 
     const currentTaskV4: TTaskV4 = {
-        ...(currentTask as TTaskV4),
+        ...(task as TTaskV4),
         id_folder: folderId,
     }
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
                 <DetailItem>
-                    {subtask ? (
+                    {isSubtask ? (
                         <BackButtonContainer to=".." relative="path">
                             <Icon icon={icons.caret_left} color="purple" />
                             <BackButtonText>Return to parent task</BackButtonText>
                         </BackButtonContainer>
                     ) : (
-                        <Icon icon={logos[currentTask?.source?.logo_v2 ?? 'generaltask']} />
+                        <Icon icon={logos[task?.source?.logo_v2 ?? 'generaltask']} />
                     )}
                 </DetailItem>
-                {!currentTask.optimisticId && (
+                {!task.optimisticId && (
                     <>
                         <DetailItem>
                             <Label color="light">{syncIndicatorText}</Label>
                         </DetailItem>
-                        {!subtask && (
+                        {!isSubtask && (
                             <MarginLeftAuto>
                                 {isInTrash && (
                                     <GTButton
                                         value="Restore Task"
                                         onClick={() =>
                                             markTaskDoneOrDeleted(
-                                                { id: currentTask.id, isDeleted: false },
-                                                currentTask.optimisticId && currentTask.id
+                                                { id: task.id, isDeleted: false },
+                                                task.optimisticId && task.id
                                             )
                                         }
                                         styleType="secondary"
                                         size="small"
                                     />
                                 )}
-                                {!is_meeting_preparation_task && !isRecurringTaskTemplate && folderId && (
+                                {!isMeetingPreparationTask && !isRecurringTaskTemplate && folderId && (
                                     <FolderSelector
                                         value={folderId}
                                         onChange={(newFolderId) =>
                                             reorderTask(
                                                 {
-                                                    id: currentTask.id,
+                                                    id: task.id,
                                                     dropSectionId: newFolderId,
                                                     dragSectionId: folderId,
                                                     orderingId: 1,
                                                 },
-                                                currentTask.optimisticId
+                                                task.optimisticId
                                             )
                                         }
                                         renderTrigger={(isOpen, setIsOpen) => (
@@ -295,12 +305,10 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                                         enableKeyboardShortcut
                                     />
                                 )}
-                                {currentTask.deeplink && <ExternalLinkButton link={currentTask.deeplink} />}
-                                {!isRecurringTaskTemplate && <TaskActionsDropdown task={currentTask as TTaskV4} />}
+                                {task.deeplink && <ExternalLinkButton link={task.deeplink} />}
+                                {!isRecurringTaskTemplate && <TaskActionsDropdown task={task as TTaskV4} />}
                                 {isRecurringTaskTemplate && (
-                                    <DeleteRecurringTaskTemplateButton
-                                        template={currentTask as TRecurringTaskTemplate}
-                                    />
+                                    <DeleteRecurringTaskTemplateButton template={task as TRecurringTaskTemplate} />
                                 )}
                             </MarginLeftAuto>
                         )}
@@ -311,15 +319,10 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                 <GTTextField
                     type="plaintext"
                     ref={titleRef}
-                    key={currentTask.id}
-                    value={isInTrash ? `${currentTask.title} (deleted)` : currentTask.title}
-                    disabled={
-                        !!currentTask.optimisticId ||
-                        is_meeting_preparation_task ||
-                        !!currentTask.nux_number_id ||
-                        isInTrash
-                    }
-                    onChange={(val) => onEdit({ id: task.id, title: val, subtaskId: subtask?.id })}
+                    key={task.id}
+                    value={isInTrash ? `${task.title} (deleted)` : task.title}
+                    disabled={!!task.optimisticId || isMeetingPreparationTask || !!task.id_nux_number || isInTrash}
+                    onChange={(val) => onEdit({ id: task.id, title: val, idParent: task.id_parent })}
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
                     hideUnfocusedOutline
@@ -341,25 +344,19 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                     />
                 ) : (
                     <PriorityDropdown
-                        value={currentTask.priority_normalized ?? 0}
+                        value={task.priority_normalized ?? 0}
                         onChange={(priority) =>
                             isRecurringTaskTemplate
-                                ? modifyRecurringTask(
-                                      { id: currentTask.id, priority_normalized: priority },
-                                      currentTask.optimisticId
-                                  )
-                                : modifyTask(
-                                      { id: task.id, priorityNormalized: priority, subtaskId: subtask?.id },
-                                      currentTask.optimisticId
-                                  )
+                                ? modifyRecurringTask({ id: task.id, priority_normalized: priority }, task.optimisticId)
+                                : modifyTask({ id: task.id, priorityNormalized: priority }, task.optimisticId)
                         }
                         disabled={isInTrash}
                     />
                 )}
                 {!isRecurringTaskTemplate && (
                     <GTDatePicker
-                        initialDate={DateTime.fromISO(currentTask.due_date ?? '')}
-                        setDate={(date) => modifyTask({ id: task.id, dueDate: date, subtaskId: subtask?.id })}
+                        initialDate={DateTime.fromISO(task.due_date ?? '')}
+                        setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
                         disabled={isInTrash}
                     />
                 )}
@@ -367,9 +364,9 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                     <RecurringTaskTemplateScheduleButton templateId={task.id} />
                 ) : (
                     task.source?.name === 'General Task' &&
-                    subtask === undefined && (
+                    task.id_parent === undefined && (
                         <RecurringTaskTemplateScheduleButton
-                            templateId={currentTask.recurring_task_template_id}
+                            templateId={task.recurring_task_template_id}
                             task={currentTaskV4}
                             folderId={folderId}
                         />
@@ -388,46 +385,40 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                     )}
                 </MarginLeftAuto>
             </TaskStatusContainer>
-            {currentTask.optimisticId ? (
+            {task.optimisticId ? (
                 <Spinner />
             ) : (
                 <>
                     {/* TODO: remove empty ObjectId check once backend stops giving us empty object ids */}
                     {!isRecurringTaskTemplate &&
-                        currentTask.recurring_task_template_id &&
-                        currentTask.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID &&
-                        folderId && <RecurringTaskDetailsBanner templateId={currentTask.recurring_task_template_id} />}
+                        task.recurring_task_template_id &&
+                        task.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID &&
+                        folderId && <RecurringTaskDetailsBanner templateId={task.recurring_task_template_id} />}
                     {isRecurringTaskTemplate && task.id_task_section && (
                         <RecurringTaskTemplateDetailsBanner id={task.id} folderId={task.id_task_section} />
                     )}
                     <TaskBody
-                        id={currentTask.id}
-                        body={currentTask.body ?? ''}
-                        contentType={currentTask.source?.name === 'Jira' ? 'atlassian' : 'markdown'}
-                        onChange={(val) => onEdit({ id: task.id, body: val, subtaskId: subtask?.id })}
+                        id={task.id}
+                        body={task.body ?? ''}
+                        contentType={task.source?.name === 'Jira' ? 'atlassian' : 'markdown'}
+                        onChange={(val) => onEdit({ id: task.id, body: val, idParent: task.id_parent })}
                         disabled={isInTrash}
-                        nux_number_id={currentTask.nux_number_id}
+                        nux_number_id={task.id_nux_number}
                     />
-                    {SOURCES_ALLOWED_WITH_SUBTASKS.includes(currentTask.source?.name ?? '') &&
+                    {SOURCES_ALLOWED_WITH_SUBTASKS.includes(task.source?.name ?? '') &&
                         !isInTrash &&
                         isTaskParentTask(currentTaskV4) && <SubtaskList parentTask={currentTaskV4} />}
-                    {currentTask.external_status && currentTask.source && (
+                    {task.external_status && task.source && (
                         <CommentContainer>
                             <Divider color={Colors.border.extra_light} />
-                            <CommentList
-                                comments={currentTask.comments ?? EMPTY_ARRAY}
-                                sourceName={currentTask.source.name}
-                            />
+                            <CommentList comments={task.comments ?? EMPTY_ARRAY} sourceName={task.source.name} />
                         </CommentContainer>
                     )}
-                    {currentTask.source?.name !== 'Jira' && currentTask.external_status && !isInTrash && (
-                        <CreateLinearComment taskId={currentTask.id} numComments={currentTask.comments?.length ?? 0} />
+                    {task.source?.name !== 'Jira' && task.external_status && !isInTrash && (
+                        <CreateLinearComment taskId={task.id} numComments={task.comments?.length ?? 0} />
                     )}
-                    {currentTask.slack_message_params && currentTask.sender && (
-                        <SlackMessage
-                            sender={currentTask.sender}
-                            slack_message_params={currentTask.slack_message_params}
-                        />
+                    {task.slack_message_params && task.sender && (
+                        <SlackMessage sender={task.sender} slack_message_params={task.slack_message_params} />
                     )}
                 </>
             )}

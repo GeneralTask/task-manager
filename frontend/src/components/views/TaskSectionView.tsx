@@ -100,6 +100,17 @@ const TaskSectionView = () => {
 
     const task = useMemo(() => sortedTasks.find(({ id }) => id === params.task), [sortedTasks, params.task])
     const subtask = useMemo(() => task?.sub_tasks?.find(({ id }) => id === params.subtaskId), [task, params.subtaskId])
+    const subtaskV4 = useMemo<TTaskV4 | undefined>(() => {
+        if (!subtask) return undefined
+        return {
+            ...subtask,
+            id_parent: task?.id,
+            source: {
+                ...subtask.source,
+                logo: subtask.source?.logo_v2,
+            },
+        }
+    }, [subtask, task])
 
     const [taskIndex, setTaskIndex] = useState(0)
 
@@ -268,7 +279,7 @@ const TaskSectionView = () => {
             {calendarType === 'day' && (
                 <>
                     {task && section ? (
-                        <TaskDetails task={task} subtask={subtask} />
+                        <TaskDetails task={(subtaskV4 || task) as TTaskV4} />
                     ) : (
                         <EmptyDetails icon={icons.check} text="You have no tasks" />
                     )}

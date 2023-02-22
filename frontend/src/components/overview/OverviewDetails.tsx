@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom'
 import { icons } from '../../styles/images'
-import { TPullRequest, TTask } from '../../utils/types'
+import { TPullRequest, TTaskV4 } from '../../utils/types'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import TaskDetails from '../details/TaskDetails'
@@ -21,7 +21,7 @@ const OverviewDetails = () => {
     } else if (selectedList.type === 'github') return <PullRequestDetails pullRequest={selectedItem as TPullRequest} />
     else {
         const subtask = selectedItem?.sub_tasks?.find((subtask) => subtask.id === subtaskId)
-        return <TaskDetails task={selectedItem as TTask} subtask={subtask} />
+        return <TaskDetails task={(subtask || selectedItem) as TTaskV4} />
     }
 }
 
