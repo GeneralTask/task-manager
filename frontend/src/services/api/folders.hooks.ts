@@ -56,7 +56,7 @@ export const useAddFolder = () => {
                 name: data.name,
                 is_done: false,
                 is_trash: false,
-                tasks_ids: [],
+                task_ids: [],
             }
             const newFolders = produce(folders, (draft) => {
                 draft.splice(folders.length - 1, 0, newFolder)
