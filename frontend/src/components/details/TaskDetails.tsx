@@ -129,7 +129,7 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
     const navigate = useNavigate()
 
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
-    const { is_meeting_preparation_task, meeting_preparation_params } = currentTask as TTask
+    const { is_meeting_preparation_task, meeting_preparation_params } = currentTask
     const dateTimeStart = DateTime.fromISO(meeting_preparation_params?.datetime_start || '')
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
 
@@ -368,7 +368,7 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                     subtask === undefined && (
                         <RecurringTaskTemplateScheduleButton
                             templateId={currentTask.recurring_task_template_id}
-                            task={currentTask as TTask}
+                            task={currentTaskV4}
                             folderId={folderId}
                         />
                     )
@@ -377,10 +377,10 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                     {!isRecurringTaskTemplate && task.external_status && task.all_statuses && (
                         <>
                             {task.source?.name === 'Linear' && (
-                                <LinearStatusDropdown task={currentTask as TTask} disabled={isInTrash} />
+                                <LinearStatusDropdown task={currentTaskV4} disabled={isInTrash} />
                             )}
                             {task.source?.name === 'Jira' && (
-                                <JiraStatusDropdown task={currentTask as TTask} disabled={isInTrash} />
+                                <JiraStatusDropdown task={currentTaskV4} disabled={isInTrash} />
                             )}
                         </>
                     )}
