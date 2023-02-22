@@ -88,7 +88,6 @@ const TaskSectionView = () => {
         if (folder && (folder.is_done || folder.is_trash)) return tasks
         if (!folder || areSettingsLoading) return []
 
-        console.log('reached soring part')
         return sortAndFilterItems<TTaskV4>({
             items: tasks,
             sort: selectedSort,
@@ -107,18 +106,6 @@ const TaskSectionView = () => {
             }),
         [sortedTasks, params.task]
     )
-    // const subtask = useMemo(() => task?.sub_tasks?.find(({ id }) => id === params.subtaskId), [task, params.subtaskId])
-    // const subtaskV4 = useMemo<TTaskV4 | undefined>(() => {
-    //     if (!subtask) return undefined
-    //     return {
-    //         ...subtask,
-    //         id_parent: task?.id,
-    //         source: {
-    //             ...subtask.source,
-    //             logo: subtask.source?.logo_v2,
-    //         },
-    //     }
-    // }, [subtask, task])
 
     const [taskIndex, setTaskIndex] = useState(0)
 
