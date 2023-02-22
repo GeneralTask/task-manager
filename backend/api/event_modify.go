@@ -4,6 +4,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -74,7 +75,10 @@ func (api *API) updateEventInDB(modifyParams external.EventModifyObject, event *
 		event.DatetimeEnd = primitive.NewDateTimeFromTime(*modifyParams.DatetimeEnd)
 	}
 
-	_, err := database.UpdateOrCreateCalendarEvent(api.DB, userID, event.IDExternal, event.SourceID, event, nil)
+	_, err := database.UpdateOrCreateCalendarEvent(api.DB, userID, event.IDExternal, event.SourceID, event, &[]bson.M{
+		{"source_account_id": event.SourceAccountID},
+		{"calendar_id": event.CalendarID},
+	})
 	if err != nil {
 		return err
 	}
