@@ -61,7 +61,7 @@ const TaskSectionView = () => {
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
     const { calendarType } = useCalendarContext()
-    const { data: allTasks, isLoading: isLoadingTasks } = useGetActiveTasks()
+    const { data: activeTasks, isLoading: isLoadingTasks } = useGetActiveTasks()
     const { data: folders } = useGetFolders()
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderTask } = useReorderTask()
@@ -74,13 +74,13 @@ const TaskSectionView = () => {
     const folder = useMemo(() => folders?.find(({ id }) => id === params.section), [folders, params.section])
     const tasks = useMemo(() => {
         if (!folder) return []
-        return allTasks?.filter(({ id_folder }) => id_folder === folder.id) || []
-    }, [allTasks, folder])
+        return activeTasks?.filter(({ id_folder }) => id_folder === folder.id) || []
+    }, [activeTasks, folder])
 
     const folderTasks = useMemo(() => {
         if (!folder) return []
-        return allTasks?.filter(({ id_folder }) => id_folder === folder.id) || []
-    }, [allTasks, folder])
+        return activeTasks?.filter(({ id_folder }) => id_folder === folder.id) || []
+    }, [activeTasks, folder])
 
     const sortAndFilterSettings = useSortAndFilterSettings<TTaskV4>(TASK_SORT_AND_FILTER_CONFIG, folder?.id, '_main')
     const { selectedSort, selectedSortDirection, isLoading: areSettingsLoading } = sortAndFilterSettings
@@ -98,13 +98,13 @@ const TaskSectionView = () => {
 
     const task = useMemo(
         () =>
-            allTasks?.find(({ id }) => {
+            activeTasks?.find(({ id }) => {
                 if (params.subtaskId) {
                     return id === params.subtaskId
                 }
                 return id === params.task
             }),
-        [allTasks, params.task, params.subtaskId]
+        [activeTasks, params.task, params.subtaskId]
     )
 
     const [taskIndex, setTaskIndex] = useState(0)
