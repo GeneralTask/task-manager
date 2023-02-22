@@ -754,6 +754,7 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 			task.MeetingPreparationParams.DatetimeStart = event.DatetimeStart
 			task.MeetingPreparationParams.DatetimeEnd = event.DatetimeEnd
 			task.MeetingPreparationParams.EventMovedOrDeleted = eventMovedOrDeleted
+			task.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
 		}
 
 		if event == nil {
@@ -774,6 +775,7 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 			bson.M{"$set": bson.M{
 				"is_completed": task.IsCompleted,
 				"completed_at": task.CompletedAt,
+				"updated_at":   task.UpdatedAt,
 				"meeting_preparation_params.datetime_start":                   task.MeetingPreparationParams.DatetimeStart,
 				"meeting_preparation_params.datetime_end":                     task.MeetingPreparationParams.DatetimeEnd,
 				"meeting_preparation_params.event_moved_or_deleted":           task.MeetingPreparationParams.EventMovedOrDeleted,
