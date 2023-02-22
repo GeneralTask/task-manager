@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
