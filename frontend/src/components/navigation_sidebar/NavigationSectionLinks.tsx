@@ -43,8 +43,8 @@ const InputContainer = styled.div`
 const NavigationSectionLinks = () => {
     const [isAddSectionInputVisible, setIsAddSectionInputVisible] = useState(false)
     const [sectionName, setSectionName] = useState('')
-    const { mutate: addTaskSection } = useAddFolder()
-    const { mutate: modifyTaskSection } = useModifyFolder()
+    const { mutate: addFolder } = useAddFolder()
+    const { mutate: modifyFolder } = useModifyFolder()
 
     const { data: folders, isLoading: isFoldersLoading } = useGetFolders()
     const { section: sectionId } = useParams()
@@ -56,7 +56,7 @@ const NavigationSectionLinks = () => {
         e.stopPropagation()
         if (e.key === 'Enter' && sectionName.trim() !== '') {
             setSectionName('')
-            addTaskSection({ optimisticId: uuidv4(), name: sectionName, id_ordering: folders?.length })
+            addFolder({ optimisticId: uuidv4(), name: sectionName, id_ordering: folders?.length })
             setIsAddSectionInputVisible(false)
         } else if (e.key === 'Escape' && inputRef.current) {
             setSectionName('')
@@ -65,7 +65,7 @@ const NavigationSectionLinks = () => {
     }
     const onBlurHandler = () => {
         if (sectionName.trim() !== '') {
-            addTaskSection({ optimisticId: uuidv4(), name: sectionName, id_ordering: folders?.length })
+            addFolder({ optimisticId: uuidv4(), name: sectionName, id_ordering: folders?.length })
         }
         setIsAddSectionInputVisible(false)
         setSectionName('')
@@ -100,7 +100,7 @@ const NavigationSectionLinks = () => {
     }, [])
 
     const handleReorder = useCallback((item: DropItem, dropIndex: number) => {
-        modifyTaskSection(
+        modifyFolder(
             {
                 id: item.id,
                 id_ordering: dropIndex,
@@ -124,7 +124,7 @@ const NavigationSectionLinks = () => {
         if (e.key === 'Enter' && updatedSectionName.trim() !== '') {
             setSectionBeingEdited(null)
             setUpdatedSectionName('')
-            modifyTaskSection(
+            modifyFolder(
                 {
                     id: sectionBeingEdited.id,
                     name: updatedSectionName,

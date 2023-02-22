@@ -55,8 +55,8 @@ interface SectionHeaderProps {
     taskSectionId?: string
 }
 export const SectionHeader = (props: SectionHeaderProps) => {
-    const { mutate: deleteTaskSection } = useDeleteFolder()
-    const { mutate: modifyTaskSection } = useModifyFolder()
+    const { mutate: deleteFolder } = useDeleteFolder()
+    const { mutate: modifyFolder } = useModifyFolder()
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [isHovering, setIsHovering] = useState(false)
     const [sectionName, setSectionName] = useState(props.sectionName)
@@ -71,14 +71,14 @@ export const SectionHeader = (props: SectionHeaderProps) => {
 
     const handleDelete = async (id: string | undefined) => {
         if (id && confirm('Are you sure you want to delete this folder?')) {
-            deleteTaskSection({ id })
+            deleteFolder({ id })
             navigate('/tasks')
         }
     }
     const handleChangeSectionName = (id: string | undefined, name: string) => {
         const trimmedName = name.trim()
         if (id && trimmedName.length > 0) {
-            modifyTaskSection({ id, name: trimmedName })
+            modifyFolder({ id, name: trimmedName })
             setSectionName(trimmedName)
         } else {
             setSectionName(props.sectionName)

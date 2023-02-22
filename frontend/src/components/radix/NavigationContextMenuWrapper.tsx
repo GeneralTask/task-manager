@@ -15,7 +15,7 @@ const NavigationContextMenuWrapper = ({
     folder,
     setSectionBeingEdited,
 }: NavigationContextMenuWrapperProps) => {
-    const { mutate: deleteSection } = useDeleteFolder()
+    const { mutate: deleteFolder } = useDeleteFolder()
     const items: GTMenuItem[] = [
         {
             label: 'Rename Folder',
@@ -30,7 +30,7 @@ const NavigationContextMenuWrapper = ({
             icon: icons.trash,
             iconColor: 'red',
             onClick: () => {
-                deleteSection({ id: folder.id }, folder.optimisticId)
+                deleteFolder({ id: folder.id }, folder.optimisticId)
             },
         },
     ]
