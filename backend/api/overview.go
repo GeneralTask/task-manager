@@ -543,8 +543,8 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 	var result []*TaskResult
 	if showMovedOrDeleted {
 		result, err = api.GetMeetingPrepTaskResult(userID, timeNow, meetingTasks)
-		} else {
-			result, err = api.GetMeetingPrepTaskResultWithAutocompletion(userID, timeNow, meetingTasks)
+	} else {
+		result, err = api.GetMeetingPrepTaskResultWithAutocompletion(userID, timeNow, meetingTasks)
 	}
 	if err != nil {
 		return nil, err
@@ -714,8 +714,8 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 			IsCompleted:              &isCompleted,
 			IsDeleted:                &isDeleted,
 			SourceID:                 event.SourceID,
-			CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now()),
-			UpdatedAt:         primitive.NewDateTimeFromTime(time.Now()),
+			CreatedAtExternal:        primitive.NewDateTimeFromTime(time.Now()),
+			UpdatedAt:                primitive.NewDateTimeFromTime(time.Now()),
 			IsMeetingPreparationTask: true,
 			MeetingPreparationParams: &database.MeetingPreparationParams{
 				CalendarEventID:               event.ID,
