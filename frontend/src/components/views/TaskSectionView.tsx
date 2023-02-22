@@ -77,11 +77,6 @@ const TaskSectionView = () => {
         return activeTasks?.filter(({ id_folder }) => id_folder === folder.id) || []
     }, [activeTasks, folder])
 
-    const folderTasks = useMemo(() => {
-        if (!folder) return []
-        return activeTasks?.filter(({ id_folder }) => id_folder === folder.id) || []
-    }, [activeTasks, folder])
-
     const sortAndFilterSettings = useSortAndFilterSettings<TTaskV4>(TASK_SORT_AND_FILTER_CONFIG, folder?.id, '_main')
     const { selectedSort, selectedSortDirection, isLoading: areSettingsLoading } = sortAndFilterSettings
     const sortedTasks = useMemo(() => {
@@ -162,13 +157,13 @@ const TaskSectionView = () => {
     useKeyboardShortcut(
         'moveTaskDown',
         useCallback(() => {
-            if (!task || !folder || taskIndex === folderTasks.length - 1) return
+            if (!task || !folder || taskIndex === tasks.length - 1) return
             reorderTask({
                 id: task.id,
                 orderingId: task.id_ordering + 2,
                 dropSectionId: folder.id,
             })
-        }, [task, folder, sortedTasks, taskIndex, folderTasks]),
+        }, [task, folder, sortedTasks, taskIndex, tasks]),
         selectedSort.id !== 'manual'
     )
     useKeyboardShortcut(
@@ -189,11 +184,11 @@ const TaskSectionView = () => {
             if (!folders) return
             if (params.task !== taskId) return
             const folderIndex = folders.findIndex(({ id }) => id === params.section)
-            const taskIndex = folderTasks.findIndex(({ id }) => id === taskId)
+            const taskIndex = tasks.findIndex(({ id }) => id === taskId)
             if (folderIndex == null || taskIndex == null) return
 
-            if (folders.length === 0 || folderTasks.length === 0) return
-            const previousTask = folderTasks[taskIndex - 1]
+            if (folders.length === 0 || tasks.length === 0) return
+            const previousTask = tasks[taskIndex - 1]
             if (!previousTask) return
             navigateToTask(previousTask.id)
         },
