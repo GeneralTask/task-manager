@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { DEFAULT_FOLDER_ID, DONE_FOLDER_ID, TRASH_FOLDER_ID } from '../../constants'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
-import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api/folders.hooks'
+import { useDeleteFolder, useModifyFolder } from '../../services/api/folders.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
@@ -55,8 +55,8 @@ interface SectionHeaderProps {
     taskSectionId?: string
 }
 export const SectionHeader = (props: SectionHeaderProps) => {
-    const { mutate: deleteTaskSection } = useDeleteTaskSection()
-    const { mutate: modifyTaskSection } = useModifyTaskSection()
+    const { mutate: deleteFolder } = useDeleteFolder()
+    const { mutate: modifyFolder } = useModifyFolder()
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [isHovering, setIsHovering] = useState(false)
     const [sectionName, setSectionName] = useState(props.sectionName)
@@ -70,15 +70,15 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     }, [props.sectionName])
 
     const handleDelete = async (id: string | undefined) => {
-        if (id && confirm('Are you sure you want to delete this section?')) {
-            deleteTaskSection({ id })
+        if (id && confirm('Are you sure you want to delete this folder?')) {
+            deleteFolder({ id })
             navigate('/tasks')
         }
     }
     const handleChangeSectionName = (id: string | undefined, name: string) => {
         const trimmedName = name.trim()
         if (id && trimmedName.length > 0) {
-            modifyTaskSection({ id, name: trimmedName })
+            modifyFolder({ id, name: trimmedName })
             setSectionName(trimmedName)
         } else {
             setSectionName(props.sectionName)

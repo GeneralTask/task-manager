@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_FOLDER_ID } from '../../constants'
 import { useKeyboardShortcut } from '../../hooks'
-import { useAddTaskSection, useGetFolders, useModifyTaskSection } from '../../services/api/folders.hooks'
+import { useAddFolder, useGetFolders, useModifyFolder } from '../../services/api/folders.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { DropItem, DropType, TTaskFolder } from '../../utils/types'
@@ -43,8 +43,8 @@ const InputContainer = styled.div`
 const NavigationSectionLinks = () => {
     const [isAddSectionInputVisible, setIsAddSectionInputVisible] = useState(false)
     const [sectionName, setSectionName] = useState('')
-    const { mutate: addTaskSection } = useAddTaskSection()
-    const { mutate: modifyTaskSection } = useModifyTaskSection()
+    const { mutate: addFolder } = useAddFolder()
+    const { mutate: modifyFolder } = useModifyFolder()
 
     const { data: folders, isLoading: isFoldersLoading } = useGetFolders()
     const { section: sectionId } = useParams()
@@ -56,7 +56,7 @@ const NavigationSectionLinks = () => {
         e.stopPropagation()
         if (e.key === 'Enter' && sectionName.trim() !== '') {
             setSectionName('')
-            addTaskSection({ optimisticId: uuidv4(), name: sectionName, id_ordering: folders?.length })
+            addFolder({ optimisticId: uuidv4(), name: sectionName, id_ordering: folders?.length })
             setIsAddSectionInputVisible(false)
         } else if (e.key === 'Escape' && inputRef.current) {
             setSectionName('')
@@ -65,7 +65,7 @@ const NavigationSectionLinks = () => {
     }
     const onBlurHandler = () => {
         if (sectionName.trim() !== '') {
-            addTaskSection({ optimisticId: uuidv4(), name: sectionName, id_ordering: folders?.length })
+            addFolder({ optimisticId: uuidv4(), name: sectionName, id_ordering: folders?.length })
         }
         setIsAddSectionInputVisible(false)
         setSectionName('')
@@ -100,7 +100,7 @@ const NavigationSectionLinks = () => {
     }, [])
 
     const handleReorder = useCallback((item: DropItem, dropIndex: number) => {
-        modifyTaskSection(
+        modifyFolder(
             {
                 id: item.id,
                 id_ordering: dropIndex,
@@ -124,7 +124,7 @@ const NavigationSectionLinks = () => {
         if (e.key === 'Enter' && updatedSectionName.trim() !== '') {
             setSectionBeingEdited(null)
             setUpdatedSectionName('')
-            modifyTaskSection(
+            modifyFolder(
                 {
                     id: sectionBeingEdited.id,
                     name: updatedSectionName,

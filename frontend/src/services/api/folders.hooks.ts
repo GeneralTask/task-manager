@@ -4,22 +4,22 @@ import produce, { castImmutable } from 'immer'
 import { DEFAULT_FOLDER_ID } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
-import { TRecurringTaskTemplate, TTaskFolder, TTaskSection } from '../../utils/types'
+import { TRecurringTaskTemplate, TTaskFolder } from '../../utils/types'
 import { arrayMoveInPlace } from '../../utils/utils'
 import { useGTMutation, useGTQueryClient } from '../queryUtils'
 
-interface TAddTaskSectionData {
+interface TAddFolderData {
     optimisticId: string
     name: string
     id_ordering?: number
 }
-interface TAddTaskSectionResponse {
+interface TAddFolderResponse {
     id: string
 }
-interface TDeleteSectionData {
+interface TDeleteFolderData {
     id: string
 }
-interface TModifyTaskSectionData {
+interface TModifyFolderData {
     id: string
     name?: string
     id_ordering?: number
@@ -37,79 +37,77 @@ const getFolders = async ({ signal }: QueryFunctionContext) => {
     }
 }
 
-export const useAddTaskSection = () => {
+export const useAddFolder = () => {
     const queryClient = useGTQueryClient()
     const { setOptimisticId } = useQueryContext()
     const navigate = useNavigate()
 
-    return useGTMutation((data: TAddTaskSectionData) => addTaskSection(data), {
-        tag: 'tasks',
-        invalidateTagsOnSettled: ['tasks', 'settings', 'overview-supported-views'],
+    return useGTMutation((data: TAddFolderData) => addFolder(data), {
+        tag: 'folders',
+        invalidateTagsOnSettled: ['folders', 'settings', 'overview-supported-views'],
         onMutate: async (data) => {
-            await queryClient.cancelQueries('tasks')
+            await queryClient.cancelQueries('folders')
 
-            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-            if (!sections) return
-            const newSection: TTaskSection = {
+            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('folders')
+            if (!folders) return
+            const newFolder: TTaskFolder = {
                 id: data.optimisticId,
                 optimisticId: data.optimisticId,
                 name: data.name,
                 is_done: false,
                 is_trash: false,
-                tasks: [],
+                task_ids: [],
             }
-            const newSections = produce(sections, (draft) => {
-                draft.splice(sections.length - 1, 0, newSection)
+            const newFolders = produce(folders, (draft) => {
+                draft.splice(folders.length - 1, 0, newFolder)
             })
-            queryClient.setQueryData('tasks', newSections)
+            queryClient.setQueryData('folders', newFolders)
         },
-        onSuccess: ({ id }: TAddTaskSectionResponse, { optimisticId }) => {
+        onSuccess: ({ id }: TAddFolderResponse, { optimisticId }) => {
             setOptimisticId(optimisticId, id)
-            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-            if (!sections) return
-            const newSections = produce(sections, (draft) => {
-                const section = draft.find((section) => section.optimisticId === optimisticId)
-                if (!section) return
-                section.id = id
-                section.optimisticId = undefined
+            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('folders')
+            if (!folders) return
+            const newFolders = produce(folders, (draft) => {
+                const folder = draft.find((folder) => folder.optimisticId === optimisticId)
+                if (!folder) return
+                folder.id = id
+                folder.optimisticId = undefined
             })
-            queryClient.setQueryData('tasks', newSections)
+            queryClient.setQueryData('folders', newFolders)
             if (window.location.pathname.includes(`tasks/${optimisticId}`)) {
                 navigate(window.location.pathname.replace(optimisticId, id), { replace: true })
             }
         },
     })
 }
-const addTaskSection = async (data: TAddTaskSectionData) => {
+const addFolder = async (data: TAddFolderData) => {
     try {
         const res = await apiClient.post('/sections/create/', data)
         return castImmutable(res.data)
     } catch {
-        throw new Error('addTaskSection failed')
+        throw new Error('addFolder failed')
     }
 }
 
-export const useDeleteTaskSection = () => {
+export const useDeleteFolder = () => {
     const queryClient = useGTQueryClient()
-    return useGTMutation(({ id }: TDeleteSectionData) => deleteTaskSection(id), {
-        tag: 'tasks',
-        invalidateTagsOnSettled: ['tasks', 'recurring-tasks'],
+    return useGTMutation(({ id }: TDeleteFolderData) => deleteFolder(id), {
+        tag: 'folders',
+        invalidateTagsOnSettled: ['folders', 'settings', 'overview-supported-views', 'recurring-tasks'],
         onMutate: async ({ id }) => {
-            await Promise.all([queryClient.cancelQueries('tasks'), queryClient.cancelQueries('recurring-tasks')])
+            await Promise.all([queryClient.cancelQueries('folders'), queryClient.cancelQueries('recurring-tasks')])
 
-            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-            if (!sections) return
-
-            const newSections = produce(sections, (draft) => {
-                const sectionIdx = draft.findIndex((s) => s.id === id)
-                if (sectionIdx === -1) return
-                draft.splice(sectionIdx, 1)
+            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('folders')
+            if (!folders) return
+            const newFolders = produce(folders, (draft) => {
+                const folderIndex = draft.findIndex((folder) => folder.id === id)
+                if (folderIndex === -1) return
+                draft.splice(folderIndex, 1)
             })
-            queryClient.setQueryData('tasks', newSections)
+            queryClient.setQueryData('folders', newFolders)
 
             const templates = queryClient.getImmutableQueryData<TRecurringTaskTemplate[]>('recurring-tasks')
             if (!templates) return
-
             const newTemplates = produce(templates, (draft) => {
                 draft.forEach((t) => {
                     if (t.id_task_section === id) {
@@ -121,44 +119,43 @@ export const useDeleteTaskSection = () => {
         },
     })
 }
-const deleteTaskSection = async (id: string) => {
+const deleteFolder = async (id: string) => {
     try {
         const res = await apiClient.delete(`/sections/delete/${id}/`)
         return castImmutable(res.data)
     } catch {
-        throw new Error('deleteTaskSection failed')
+        throw new Error('deleteFolder failed')
     }
 }
 
-export const useModifyTaskSection = () => {
+export const useModifyFolder = () => {
     const queryClient = useGTQueryClient()
-    return useGTMutation((data: TModifyTaskSectionData) => modifyTaskSection(data), {
-        tag: 'tasks',
-        invalidateTagsOnSettled: ['tasks'],
-        onMutate: async (data: TModifyTaskSectionData) => {
-            // cancel all current getTasks queries
-            await queryClient.cancelQueries('tasks')
+    return useGTMutation((data: TModifyFolderData) => modifyFolder(data), {
+        tag: 'folders',
+        invalidateTagsOnSettled: ['folders', 'overview-supported-views'],
+        onMutate: async (data: TModifyFolderData) => {
+            await queryClient.cancelQueries('folders')
 
-            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-            if (!sections) return
+            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('folders')
+            if (!folders) return
 
-            const newSections = produce(sections, (draft) => {
-                const sectionIndex = draft.findIndex((s) => s.id === data.id)
-                if (sectionIndex === -1) return
-                if (data.name) draft[sectionIndex].name = data.name
+            const newFolders = produce(folders, (draft) => {
+                const folderIndex = draft.findIndex((folder) => folder.id === data.id)
+                if (folderIndex === -1) return
+                if (data.name) draft[folderIndex].name = data.name
                 if (data.id_ordering) {
                     let endIndex = data.id_ordering
-                    if (sectionIndex < endIndex) {
+                    if (folderIndex < endIndex) {
                         endIndex -= 1
                     }
-                    arrayMoveInPlace(draft, sectionIndex, endIndex)
+                    arrayMoveInPlace(draft, folderIndex, endIndex)
                 }
             })
-            queryClient.setQueryData('tasks', newSections)
+            queryClient.setQueryData('folders', newFolders)
         },
     })
 }
-const modifyTaskSection = async ({ id, name, id_ordering }: TModifyTaskSectionData) => {
+const modifyFolder = async ({ id, name, id_ordering }: TModifyFolderData) => {
     try {
         const res = await apiClient.patch(`/sections/modify/${id}/`, {
             name,
@@ -166,6 +163,6 @@ const modifyTaskSection = async ({ id, name, id_ordering }: TModifyTaskSectionDa
         })
         return castImmutable(res.data)
     } catch {
-        throw new Error('modifyTaskSection failed')
+        throw new Error('modifyFolder failed')
     }
 }
