@@ -1,5 +1,5 @@
 import { DEFAULT_FOLDER_ID } from '../../../../constants'
-import { useGetTasks } from '../../../../services/api/tasks.hooks'
+import { useGetFolders } from '../../../../services/api/folders.hooks'
 import GTSelect from '../../../radix/GTSelect'
 
 interface TemplateFolderSelectorProps {
@@ -8,12 +8,12 @@ interface TemplateFolderSelectorProps {
     onChange: (value: string) => void
 }
 const TemplateFolderSelector = ({ value, useTriggerWidth, onChange }: TemplateFolderSelectorProps) => {
-    const { data: folders } = useGetTasks()
+    const { data: folders } = useGetFolders()
     return (
         <GTSelect
             items={
                 folders
-                    ?.filter((s) => !s.is_done && !s.is_trash)
+                    ?.filter((f) => !f.is_done && !f.is_trash)
                     .map((folder) => ({
                         value: folder.id,
                         label: folder.name,
