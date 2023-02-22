@@ -22,10 +22,11 @@ type TaskSource struct {
 }
 
 type externalStatus struct {
-	IDExternal string `json:"external_id,omitempty"`
-	State      string `json:"state,omitempty"`
-	Type       string `json:"type,omitempty"`
-	Color      string `json:"color,omitempty"`
+	IDExternal        string `json:"external_id,omitempty"`
+	State             string `json:"state,omitempty"`
+	Type              string `json:"type,omitempty"`
+	Color             string `json:"color,omitempty"`
+	IsValidTransition bool   `json:"is_valid_transition,omitempty"`
 }
 
 type externalPriority struct {
@@ -363,10 +364,11 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 		allStatuses := []*externalStatus{}
 		for _, status := range t.AllStatuses {
 			allStatuses = append(allStatuses, &externalStatus{
-				IDExternal: status.ExternalID,
-				State:      status.State,
-				Type:       status.Type,
-				Color:      status.Color,
+				IDExternal:        status.ExternalID,
+				State:             status.State,
+				Type:              status.Type,
+				Color:             status.Color,
+				IsValidTransition: status.IsValidTransition,
 			})
 		}
 		taskResult.AllStatuses = allStatuses

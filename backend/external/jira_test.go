@@ -73,6 +73,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		statusServer := getStatusServerForJIRA(t, http.StatusOK, false)
 		fieldsServer := getJIRAFieldsServer(t, http.StatusOK, []byte(`{"fields":{}}`))
 		commentsServer := getJIRACommentsServer(t, http.StatusOK, []byte(`{"comments": [{"id": "10000","author":{"accountId": "example-id-1", "displayName": "test"}},{"id": "10001","author":{"accountId": "example-id-2", "displayName": "test2"}}]}`))
+		transitionServer := getTransitionServerForJIRA(t, 200, false)
 
 		// ensure external API token values updated
 		var externalJIRAToken database.ExternalAPIToken
@@ -141,7 +142,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		}
 
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL, StatusListURL: &statusServer.URL, CommentsListURL: &commentsServer.URL, FieldsListURL: &fieldsServer.URL}}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL, StatusListURL: &statusServer.URL, CommentsListURL: &commentsServer.URL, FieldsListURL: &fieldsServer.URL, TransitionURL: &transitionServer.URL}}}}
 		go JIRA.GetTasks(db, *userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
@@ -149,6 +150,8 @@ func TestLoadJIRATasks(t *testing.T) {
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 		assert.Equal(t, false, *result.Tasks[0].JIRATaskParams.HasDueDateField)
 		assert.Equal(t, false, *result.Tasks[0].JIRATaskParams.HasPriorityField)
+		assert.Equal(t, 2, len(result.Tasks[0].AllStatuses))
+		assert.Equal(t, true, result.Tasks[0].AllStatuses[0].IsValidTransition)
 
 		var taskFromDB database.Task
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
