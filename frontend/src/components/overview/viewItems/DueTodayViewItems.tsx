@@ -11,9 +11,7 @@ const DueTodayViewItems = forwardRef(
     ({ view, visibleItemsCount, scrollRef, hideHeader }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
         const { overviewViewId, overviewItemId } = useParams()
         const { data: activeTasks } = useGetActiveTasks()
-        const dueTodayTasks = view.view_item_ids
-            .map((id) => activeTasks?.find((task) => task.id === id))
-            .filter(Boolean) as TTaskV4[]
+        const dueTodayTasks = activeTasks?.filter((task) => view.view_item_ids.includes(task.id)) || []
         return (
             <>
                 {!hideHeader && (
