@@ -72,7 +72,7 @@ const TaskSectionView = () => {
     const navigateToTask = useNavigateToTask()
 
     const folder = useMemo(() => folders?.find(({ id }) => id === params.section), [folders, params.section])
-    const tasks = useMemo(() => {
+    const folderTasks = useMemo(() => {
         if (!folder) return []
         return activeTasks?.filter(({ id_folder }) => id_folder === folder.id) || []
     }, [activeTasks, folder])
@@ -80,22 +80,22 @@ const TaskSectionView = () => {
     const sortAndFilterSettings = useSortAndFilterSettings<TTaskV4>(TASK_SORT_AND_FILTER_CONFIG, folder?.id, '_main')
     const { selectedSort, selectedSortDirection, isLoading: areSettingsLoading } = sortAndFilterSettings
     const sortedTasks = useMemo(() => {
-        if (folder && (folder.is_done || folder.is_trash)) return tasks
+        if (folder && (folder.is_done || folder.is_trash)) return folderTasks
         if (!folder || areSettingsLoading) return []
 
         return sortAndFilterItems<TTaskV4>({
-            items: tasks,
+            items: folderTasks,
             sort: selectedSort,
             sortDirection: selectedSortDirection,
             tieBreakerField: TASK_SORT_AND_FILTER_CONFIG.tieBreakerField,
         })
-    }, [folder, tasks, selectedSort, selectedSortDirection, areSettingsLoading])
+    }, [folder, folderTasks, selectedSort, selectedSortDirection, areSettingsLoading])
 
     const task = useMemo(() => {
-        const subtask = activeTasks?.find(({ id }) => id === params.subtaskId)
-        const task = activeTasks?.find(({ id }) => id === params.task)
+        const subtask = sortedTasks?.find(({ id }) => id === params.subtaskId)
+        const task = sortedTasks?.find(({ id }) => id === params.task)
         return subtask || task
-    }, [activeTasks, params.task, params.subtaskId])
+    }, [sortedTasks, params.task, params.subtaskId])
 
     const [taskIndex, setTaskIndex] = useState(0)
 
@@ -152,13 +152,13 @@ const TaskSectionView = () => {
     useKeyboardShortcut(
         'moveTaskDown',
         useCallback(() => {
-            if (!task || !folder || taskIndex === tasks.length - 1) return
+            if (!task || !folder || taskIndex === sortedTasks.length - 1) return
             reorderTask({
                 id: task.id,
                 orderingId: task.id_ordering + 2,
                 dropSectionId: folder.id,
             })
-        }, [task, folder, sortedTasks, taskIndex, tasks]),
+        }, [task, folder, sortedTasks, taskIndex, sortedTasks]),
         selectedSort.id !== 'manual'
     )
     useKeyboardShortcut(
@@ -179,11 +179,11 @@ const TaskSectionView = () => {
             if (!folders) return
             if (params.task !== taskId) return
             const folderIndex = folders.findIndex(({ id }) => id === params.section)
-            const taskIndex = tasks.findIndex(({ id }) => id === taskId)
+            const taskIndex = sortedTasks.findIndex(({ id }) => id === taskId)
             if (folderIndex == null || taskIndex == null) return
 
-            if (folders.length === 0 || tasks.length === 0) return
-            const previousTask = tasks[taskIndex - 1]
+            if (folders.length === 0 || sortedTasks.length === 0) return
+            const previousTask = sortedTasks[taskIndex - 1]
             if (!previousTask) return
             navigateToTask(previousTask.id)
         },
