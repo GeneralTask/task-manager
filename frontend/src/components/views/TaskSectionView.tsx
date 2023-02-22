@@ -22,7 +22,7 @@ import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import CreateNewItemInput from '../molecules/CreateNewItemInput'
-import { SectionHeader } from '../molecules/Header'
+import { Header } from '../molecules/Header'
 import Task from '../molecules/Task'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
@@ -199,7 +199,7 @@ const TaskSectionView = () => {
                             <Spinner />
                         ) : (
                             <>
-                                <SectionHeader sectionName={folder.name} taskSectionId={folder.id} />
+                                <Header folderName={folder.name} folderId={folder.id} />
                                 {!folder.is_done && !folder.is_trash && (
                                     <ActionsContainer>
                                         <SortAndFilterSelectors settings={sortAndFilterSettings} />

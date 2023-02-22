@@ -17,7 +17,7 @@ import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import RefreshSpinner from '../atoms/buttons/RefreshSpinner'
 import { useCalendarContext } from '../calendar/CalendarContext'
 
-const SectionHeaderContainer = styled.div`
+const HeaderContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -44,30 +44,30 @@ const HeaderText = styled.div<{ fontColor: TTextColor }>`
     ${Typography.title};
 `
 
-const MAX_SECTION_NAME_LENGTH = 200
+const MAX_FOLDER_NAME_LENGTH = 200
 
-const undeletableSectionIds = [DEFAULT_FOLDER_ID, DONE_FOLDER_ID, TRASH_FOLDER_ID]
-const uneditableSectionIds = [DEFAULT_FOLDER_ID, DONE_FOLDER_ID, TRASH_FOLDER_ID]
-const isDeletable = (id: string) => !undeletableSectionIds.includes(id)
-const isEditable = (id: string) => !uneditableSectionIds.includes(id)
-interface SectionHeaderProps {
-    sectionName: string
-    taskSectionId?: string
+const undeletableFolderIds = [DEFAULT_FOLDER_ID, DONE_FOLDER_ID, TRASH_FOLDER_ID]
+const uneditableFolderIds = [DEFAULT_FOLDER_ID, DONE_FOLDER_ID, TRASH_FOLDER_ID]
+const isDeletable = (id: string) => !undeletableFolderIds.includes(id)
+const isEditable = (id: string) => !uneditableFolderIds.includes(id)
+interface HeaderProps {
+    folderName: string
+    folderId?: string
 }
-export const SectionHeader = (props: SectionHeaderProps) => {
+export const Header = (props: HeaderProps) => {
     const { mutate: deleteFolder } = useDeleteFolder()
     const { mutate: modifyFolder } = useModifyFolder()
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [isHovering, setIsHovering] = useState(false)
-    const [sectionName, setSectionName] = useState(props.sectionName)
+    const [folderName, setFolderName] = useState(props.folderName)
     const navigate = useNavigate()
     const refetchStaleQueries = useRefetchStaleQueries()
     const isFetching = useIsFetching() !== 0
     const { calendarType, setShowTaskToCalSidebar } = useCalendarContext()
 
     useLayoutEffect(() => {
-        setSectionName(props.sectionName)
-    }, [props.sectionName])
+        setFolderName(props.folderName)
+    }, [props.folderName])
 
     const handleDelete = async (id: string | undefined) => {
         if (id && confirm('Are you sure you want to delete this folder?')) {
@@ -75,13 +75,13 @@ export const SectionHeader = (props: SectionHeaderProps) => {
             navigate('/tasks')
         }
     }
-    const handleChangeSectionName = (id: string | undefined, name: string) => {
+    const handleChangeFolderName = (id: string | undefined, name: string) => {
         const trimmedName = name.trim()
         if (id && trimmedName.length > 0) {
             modifyFolder({ id, name: trimmedName })
-            setSectionName(trimmedName)
+            setFolderName(trimmedName)
         } else {
-            setSectionName(props.sectionName)
+            setFolderName(props.folderName)
         }
         setIsEditingTitle(false)
     }
@@ -91,7 +91,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     const showRefreshButton = (isHovering || isFetching) && !isEditingTitle
 
     return (
-        <SectionHeaderContainer>
+        <HeaderContainer>
             <HeaderButton
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={() => setIsHovering(false)}
@@ -100,16 +100,16 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                 {isEditingTitle ? (
                     <GTTextField
                         type="plaintext"
-                        value={sectionName}
+                        value={folderName}
                         fontSize="large"
-                        onChange={(val) => setSectionName(val.substring(0, MAX_SECTION_NAME_LENGTH))}
-                        onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
+                        onChange={(val) => setFolderName(val.substring(0, MAX_FOLDER_NAME_LENGTH))}
+                        onBlur={() => handleChangeFolderName(props.folderId, folderName)}
                         enterBehavior="blur"
                         autoSelect
                     />
                 ) : (
                     <>
-                        <HeaderText fontColor={isHovering ? 'purple' : 'black'}>{sectionName}</HeaderText>
+                        <HeaderText fontColor={isHovering ? 'purple' : 'black'}>{folderName}</HeaderText>
                         <RefreshSpinner isRefreshing={isFetching} style={{ opacity: showRefreshButton ? 1 : 0 }}>
                             <Icon icon={icons.spinner} color={isHovering ? 'purple' : 'black'} />
                         </RefreshSpinner>
@@ -117,15 +117,15 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                 )}
             </HeaderButton>
             <MarginLeftAutoFlex>
-                {props.taskSectionId && isDeletable(props.taskSectionId) && !isEditingTitle && (
+                {props.folderId && isDeletable(props.folderId) && !isEditingTitle && (
                     <GTIconButton
-                        onClick={() => handleDelete(props.taskSectionId)}
+                        onClick={() => handleDelete(props.folderId)}
                         tooltipText="Delete folder"
                         icon={icons.trash}
                         iconColor="red"
                     />
                 )}
-                {props.taskSectionId && isEditable(props.taskSectionId) && !isEditingTitle && (
+                {props.folderId && isEditable(props.folderId) && !isEditingTitle && (
                     <GTIconButton
                         tooltipText="Edit folder name"
                         onClick={() => setIsEditingTitle(true)}
@@ -149,6 +149,6 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                     />
                 )}
             </MarginLeftAutoFlex>
-        </SectionHeaderContainer>
+        </HeaderContainer>
     )
 }
