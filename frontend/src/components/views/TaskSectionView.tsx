@@ -92,10 +92,10 @@ const TaskSectionView = () => {
     }, [folder, folderTasks, selectedSort, selectedSortDirection, areSettingsLoading])
 
     const task = useMemo(() => {
-        const subtask = sortedTasks?.find(({ id }) => id === params.subtaskId)
-        const task = sortedTasks?.find(({ id }) => id === params.task)
+        const subtask = activeTasks?.find(({ id }) => id === params.subtaskId)
+        const task = activeTasks?.find(({ id }) => id === params.task)
         return subtask || task
-    }, [sortedTasks, params.task, params.subtaskId])
+    }, [activeTasks, params.task, params.subtaskId])
 
     const [taskIndex, setTaskIndex] = useState(0)
 
