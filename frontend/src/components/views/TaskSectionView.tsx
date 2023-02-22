@@ -98,13 +98,13 @@ const TaskSectionView = () => {
 
     const task = useMemo(
         () =>
-            sortedTasks.find(({ id }) => {
+            allTasks?.find(({ id }) => {
                 if (params.subtaskId) {
                     return id === params.subtaskId
                 }
                 return id === params.task
             }),
-        [sortedTasks, params.task]
+        [allTasks, params.task, params.subtaskId]
     )
 
     const [taskIndex, setTaskIndex] = useState(0)
