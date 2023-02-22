@@ -1,5 +1,6 @@
 import { Ref, forwardRef } from 'react'
 import { useParams } from 'react-router-dom'
+import useGetActiveTasks from '../../../hooks/useGetActiveTasks'
 import { TTaskV4 } from '../../../utils/types'
 import Task from '../../molecules/Task'
 import { ViewHeader, ViewName } from '../styles'
@@ -9,6 +10,10 @@ import { ViewItemsProps } from './viewItems.types'
 const DueTodayViewItems = forwardRef(
     ({ view, visibleItemsCount, scrollRef, hideHeader }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
         const { overviewViewId, overviewItemId } = useParams()
+        const { data: activeTasks } = useGetActiveTasks()
+        const dueTodayTasks = view.view_item_ids
+            .map((id) => activeTasks?.find((task) => task.id === id))
+            .filter(Boolean) as TTaskV4[]
         return (
             <>
                 {!hideHeader && (
@@ -16,8 +21,8 @@ const DueTodayViewItems = forwardRef(
                         <ViewName>{view.name}</ViewName>
                     </ViewHeader>
                 )}
-                {view.view_items.length > 0 ? (
-                    view.view_items
+                {dueTodayTasks.length > 0 ? (
+                    dueTodayTasks
                         .slice(0, visibleItemsCount)
                         .map((item, index) => (
                             <Task
