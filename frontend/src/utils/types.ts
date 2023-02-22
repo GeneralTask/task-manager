@@ -312,7 +312,7 @@ export interface TTaskCreateParams {
     id_task_section?: string
 }
 
-export type TOverviewItem = TTask & TPullRequest // TODO: change this to more general type
+export type TOverviewItem = TTaskV4 & TTask & TPullRequest // TODO: change this to more general type
 
 export type TOverviewViewType = 'github' | 'task_section' | 'linear' | 'slack' | 'meeting_preparation' | 'due_today'
 

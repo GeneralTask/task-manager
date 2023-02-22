@@ -5,7 +5,7 @@ import { useCreateTask, useReorderTask } from '../../../services/api/tasks.hooks
 import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSelectors'
 import { TASK_SORT_AND_FILTER_CONFIG } from '../../../utils/sortAndFilter/tasks.config'
 import useSortAndFilterSettings from '../../../utils/sortAndFilter/useSortAndFilterSettings'
-import { DropItem, DropType, TTask } from '../../../utils/types'
+import { DropItem, DropType, TTaskV4 } from '../../../utils/types'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import CreateNewItemInput from '../../molecules/CreateNewItemInput'
 import Task from '../../molecules/Task'
@@ -24,7 +24,7 @@ const TaskSectionViewItems = forwardRef(
         const navigate = useNavigate()
         const location = useLocation()
 
-        const sortAndFilterSettings = useSortAndFilterSettings<TTask>(
+        const sortAndFilterSettings = useSortAndFilterSettings<TTaskV4>(
             TASK_SORT_AND_FILTER_CONFIG,
             view.task_section_id,
             '_overview'
