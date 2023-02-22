@@ -714,6 +714,8 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 			IsCompleted:              &isCompleted,
 			IsDeleted:                &isDeleted,
 			SourceID:                 event.SourceID,
+			CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now()),
+			UpdatedAt:         primitive.NewDateTimeFromTime(time.Now()),
 			IsMeetingPreparationTask: true,
 			MeetingPreparationParams: &database.MeetingPreparationParams{
 				CalendarEventID:               event.ID,
