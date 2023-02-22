@@ -178,9 +178,6 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
 
     const syncDetails = useCallback(
         ({ id, title, body, subtaskId }: TModifyTaskData) => {
-            console.log('mainID:', id)
-            console.log('subtaskID:', subtaskId)
-
             setIsEditing(false)
             const isEditingTitle = title !== undefined
             if (isEditingTitle && title === '' && titleRef.current) {
@@ -202,7 +199,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                     task.optimisticId
                 )
             } else {
-                modifyTask({ id, title, body }, task.optimisticId)
+                modifyTask({ id, title, body, subtaskId }, task.optimisticId)
             }
         },
         [task.id, modifyTask]
