@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_FOLDER_ID } from '../../constants'
 import { useKeyboardShortcut } from '../../hooks'
-import { useAddTaskSection, useGetFolders, useModifyTaskSection } from '../../services/api/folders.hooks'
+import { useAddFolder, useGetFolders, useModifyFolder } from '../../services/api/folders.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { DropItem, DropType, TTaskFolder } from '../../utils/types'
@@ -43,8 +43,8 @@ const InputContainer = styled.div`
 const NavigationSectionLinks = () => {
     const [isAddSectionInputVisible, setIsAddSectionInputVisible] = useState(false)
     const [sectionName, setSectionName] = useState('')
-    const { mutate: addTaskSection } = useAddTaskSection()
-    const { mutate: modifyTaskSection } = useModifyTaskSection()
+    const { mutate: addTaskSection } = useAddFolder()
+    const { mutate: modifyTaskSection } = useModifyFolder()
 
     const { data: folders, isLoading: isFoldersLoading } = useGetFolders()
     const { section: sectionId } = useParams()

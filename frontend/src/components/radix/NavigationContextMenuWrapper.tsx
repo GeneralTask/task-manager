@@ -1,4 +1,4 @@
-import { useDeleteTaskSection } from '../../services/api/folders.hooks'
+import { useDeleteFolder } from '../../services/api/folders.hooks'
 import { icons } from '../../styles/images'
 import { TTaskFolder } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
@@ -15,7 +15,7 @@ const NavigationContextMenuWrapper = ({
     folder,
     setSectionBeingEdited,
 }: NavigationContextMenuWrapperProps) => {
-    const { mutate: deleteSection } = useDeleteTaskSection()
+    const { mutate: deleteSection } = useDeleteFolder()
     const items: GTMenuItem[] = [
         {
             label: 'Rename Folder',
