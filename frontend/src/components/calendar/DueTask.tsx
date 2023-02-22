@@ -44,13 +44,7 @@ const DueTask = ({ task, showDueDate }: DueTaskProps) => {
             key={task.id}
             isSelected={false}
             isCompact={true}
-            onClick={() => {
-                if (task.id_parent) {
-                    navigateToTask(task.id_parent)
-                } else {
-                    navigateToTask(task.id)
-                }
-            }}
+            onClick={() => navigateToTask(task.id)}
             ref={drag}
         >
             <TaskDue>
