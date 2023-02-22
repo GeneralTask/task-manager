@@ -132,7 +132,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
 
     const isMeetingPreparationTask = !!meeting_preparation_params
-    const isSubtask = task.id_parent != null
+    const isSubtask = !!task.id_parent
 
     const titleRef = useRef<HTMLTextAreaElement>(null)
 
