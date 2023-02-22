@@ -161,7 +161,7 @@ func TestEventModify(t *testing.T) {
 		assert.Equal(t, "new summary 2", event.Title)
 		assert.Equal(t, "new description 2", event.Body)
 
-		event, err = database.GetCalendarEvent(api.DB, eventWithCalendarID.InsertedID.(primitive.ObjectID), userID)
+		event, err = database.GetCalendarEvent(api.DB, eventObjectID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, "new summary", event.Title)
 		assert.Equal(t, "new description", event.Body)
