@@ -232,8 +232,10 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
         }, [subtask])
     )
 
-    const currentTaskV4: TTaskV4 = currentTask as TTaskV4
-    if (folderId) currentTaskV4.id_folder = folderId
+    const currentTaskV4: TTaskV4 = {
+        ...(currentTask as TTaskV4),
+        id_folder: folderId,
+    }
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
