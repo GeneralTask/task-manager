@@ -543,8 +543,8 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 	var result []*TaskResult
 	if showMovedOrDeleted {
 		result, err = api.GetMeetingPrepTaskResult(userID, timeNow, meetingTasks)
-		} else {
-			result, err = api.GetMeetingPrepTaskResultWithAutocompletion(userID, timeNow, meetingTasks)
+	} else {
+		result, err = api.GetMeetingPrepTaskResultWithAutocompletion(userID, timeNow, meetingTasks)
 	}
 	if err != nil {
 		return nil, err
@@ -714,6 +714,8 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 			IsCompleted:              &isCompleted,
 			IsDeleted:                &isDeleted,
 			SourceID:                 event.SourceID,
+			CreatedAtExternal:        primitive.NewDateTimeFromTime(time.Now()),
+			UpdatedAt:                primitive.NewDateTimeFromTime(time.Now()),
 			IsMeetingPreparationTask: true,
 			MeetingPreparationParams: &database.MeetingPreparationParams{
 				CalendarEventID:               event.ID,
@@ -752,6 +754,7 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 			task.MeetingPreparationParams.DatetimeStart = event.DatetimeStart
 			task.MeetingPreparationParams.DatetimeEnd = event.DatetimeEnd
 			task.MeetingPreparationParams.EventMovedOrDeleted = eventMovedOrDeleted
+			task.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
 		}
 
 		if event == nil {
@@ -772,6 +775,7 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 			bson.M{"$set": bson.M{
 				"is_completed": task.IsCompleted,
 				"completed_at": task.CompletedAt,
+				"updated_at":   task.UpdatedAt,
 				"meeting_preparation_params.datetime_start":                   task.MeetingPreparationParams.DatetimeStart,
 				"meeting_preparation_params.datetime_end":                     task.MeetingPreparationParams.DatetimeEnd,
 				"meeting_preparation_params.event_moved_or_deleted":           task.MeetingPreparationParams.EventMovedOrDeleted,

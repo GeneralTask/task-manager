@@ -556,7 +556,7 @@ background:white'>Changes to this Privacy Policy</span></b></p>
 					href="mailto:privacy@generaltask.com"><span style='font-family:"Calibri",sans-serif;
 color:#1155CC'>privacy@generaltask.com</span></a></span><span lang=EN style='font-family:"Calibri",sans-serif'> or
 				write to us at General Task, Inc.,
-				616 Ramona Street, Suite 26, Palo Alto, CA 94301.</span></p>
+				255 Shoreline Drive, Suite 145, Redwood City, CA 94065.</span></p>
 
 		<p class=MsoNormal align=left style='text-align:left;text-indent:0in'><span lang=EN
 				style='font-family:"Calibri",sans-serif'>&nbsp;</span></p>
