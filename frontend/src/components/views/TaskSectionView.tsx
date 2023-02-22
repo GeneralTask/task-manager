@@ -134,9 +134,9 @@ const TaskSectionView = () => {
     // deal with invalid routes
     useEffect(() => {
         if (folders && folders.length > 0 && (!folder || !task)) {
-            const firstSectionId = folders[0].id
+            const firstFolderId = folders[0].id
             if (!folder) {
-                navigate(`/tasks/${firstSectionId}/`, { replace: true })
+                navigate(`/tasks/${firstFolderId}/`, { replace: true })
             } else if (!task && sortedTasks.length > taskIndex) {
                 navigate(`/tasks/${folder.id}/${sortedTasks[taskIndex].id}`, { replace: true })
             } else if (!task && sortedTasks.length === taskIndex && taskIndex > 0) {
