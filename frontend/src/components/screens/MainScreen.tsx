@@ -5,8 +5,9 @@ import { DateTime } from 'luxon'
 import { OverviewContextProvider } from '../../context/OverviewContextProvider'
 import { useEventBanners, usePageFocus } from '../../hooks'
 import { useGetFolders } from '../../services/api/folders.hooks'
+import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
-import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
+import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
 import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { focusModeBackground, noteBackground } from '../../styles/images'
@@ -25,8 +26,8 @@ const MainScreen = () => {
     const location = useLocation()
     useGetUserInfo()
     useGetTasksV4()
-    useGetTasks()
     useGetFolders()
+    useGetOverviewViews()
     useFetchPullRequests()
     useFetchExternalTasks()
     useEventBanners(DateTime.now())
