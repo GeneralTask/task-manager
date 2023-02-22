@@ -90,6 +90,16 @@ spec:
                   key: HOME_URL
                   optional: false
 
+            - name: JIRA_OAUTH_CLIENT_ID
+              value: y86GV794HPeNmsyIodonW9wFvKK4MaOK
+
+            - name: JIRA_OAUTH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: core-secrets
+                  key: JIRA_OAUTH_CLIENT_SECRET
+                  optional: false
+
             - name: LINEAR_OAUTH_CLIENT_ID
               valueFrom:
                 secretKeyRef:
