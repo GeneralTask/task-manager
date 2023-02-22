@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useModifyTask } from '../../services/api/tasks.hooks'
-import { TTask } from '../../utils/types'
+import { TTaskV4 } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
 import GTDropdownMenu from './GTDropdownMenu'
 
 interface JiraStatusDropdownProps {
-    task: TTask
+    task: TTaskV4
     disabled?: boolean
 }
 
