@@ -3,7 +3,7 @@ import { DateTime, Duration, DurationUnit } from 'luxon'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../constants'
 import KEYBOARD_SHORTCUTS from '../constants/shortcuts'
 import { TIconColor, TTextColor } from '../styles/colors'
-import { TLinkedAccount, TLinkedAccountName, TTask, TTaskSection } from './types'
+import { TLinkedAccount, TLinkedAccountName, TParentTask, TTask, TTaskSection, TTaskV4 } from './types'
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -257,3 +257,7 @@ export const getFormattedDuration = (duration: Duration, maxUnits?: number) => {
 }
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+export const isTaskParentTask = (task: TTaskV4): task is TParentTask => {
+    return task.id_folder != null
+}

@@ -412,3 +412,7 @@ export interface TCalendarAccount {
     has_multical_scopes: boolean
     has_primary_calendar_scopes: boolean
 }
+
+export type TParentTask = TTaskV4 & Required<Pick<TTaskV4, 'id_folder'>>
+
+export type TSubtask = TTaskV4 & Required<Pick<TTaskV4, 'id_parent'>>
