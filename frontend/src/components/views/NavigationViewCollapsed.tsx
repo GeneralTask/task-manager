@@ -109,7 +109,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
 
     const items: GTMenuItem[] =
         filteredFolders?.map((folder) => ({
-            label: `${folder.name} (${folder.tasks_ids.length})`,
+            label: `${folder.name} (${folder.task_ids.length})`,
             onClick: () => {
                 if (!showTaskToCalSidebar && calendarType === 'week') {
                     setShowTaskToCalSidebar(true)
@@ -157,7 +157,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                                 icon={icons.inbox}
                                 isCurrentPage={sectionId === DEFAULT_FOLDER_ID}
                                 taskFolder={DEFAULT_FOLDER}
-                                count={DEFAULT_FOLDER.tasks_ids.length}
+                                count={DEFAULT_FOLDER.task_ids.length}
                                 isCollapsed
                                 droppable
                             />
@@ -185,7 +185,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             icon={icons.checkbox_checked}
                             isCurrentPage={sectionId === DONE_FOLDER_ID}
                             taskFolder={DONE_FOLDER}
-                            count={DONE_FOLDER.tasks_ids.length}
+                            count={DONE_FOLDER.task_ids.length}
                             isCollapsed
                             droppable
                         />
@@ -197,7 +197,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             icon={icons.trash}
                             isCurrentPage={sectionId === TRASH_FOLDER_ID}
                             taskFolder={TRASH_FOLDER}
-                            count={TRASH_FOLDER.tasks_ids.length}
+                            count={TRASH_FOLDER.task_ids.length}
                             isCollapsed
                             droppable
                         />
