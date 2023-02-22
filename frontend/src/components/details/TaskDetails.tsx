@@ -23,7 +23,7 @@ import {
 } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
-import { TParentTask, TRecurringTaskTemplate, TTaskV4 } from '../../utils/types'
+import { TRecurringTaskTemplate, TTaskV4 } from '../../utils/types'
 import { EMPTY_ARRAY, isTaskParentTask } from '../../utils/utils'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
@@ -239,6 +239,8 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
         }, [isSubtask])
     )
 
+    const taskv4 = task as TTaskV4
+
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
@@ -299,7 +301,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                                     />
                                 )}
                                 {task.deeplink && <ExternalLinkButton link={task.deeplink} />}
-                                {!isRecurringTaskTemplate && <TaskActionsDropdown task={task as TTaskV4} />}
+                                {!isRecurringTaskTemplate && <TaskActionsDropdown task={taskv4} />}
                                 {isRecurringTaskTemplate && (
                                     <DeleteRecurringTaskTemplateButton template={task as TRecurringTaskTemplate} />
                                 )}
@@ -360,7 +362,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                     task.id_parent === undefined && (
                         <RecurringTaskTemplateScheduleButton
                             templateId={task.recurring_task_template_id}
-                            task={task as TTaskV4}
+                            task={taskv4}
                             folderId={task.id_folder}
                         />
                     )
@@ -369,11 +371,9 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                     {!isRecurringTaskTemplate && task.external_status && task.all_statuses && (
                         <>
                             {task.source?.name === 'Linear' && (
-                                <LinearStatusDropdown task={task as TTaskV4} disabled={isInTrash} />
+                                <LinearStatusDropdown task={taskv4} disabled={isInTrash} />
                             )}
-                            {task.source?.name === 'Jira' && (
-                                <JiraStatusDropdown task={task as TTaskV4} disabled={isInTrash} />
-                            )}
+                            {task.source?.name === 'Jira' && <JiraStatusDropdown task={taskv4} disabled={isInTrash} />}
                         </>
                     )}
                 </MarginLeftAuto>
@@ -400,7 +400,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                     />
                     {SOURCES_ALLOWED_WITH_SUBTASKS.includes(task.source?.name ?? '') &&
                         !isInTrash &&
-                        isTaskParentTask(task as TTaskV4) && <SubtaskList parentTask={task as TParentTask} />}
+                        isTaskParentTask(taskv4) && <SubtaskList parentTask={taskv4} />}
                     {task.external_status && task.source && (
                         <CommentContainer>
                             <Divider color={Colors.border.extra_light} />
