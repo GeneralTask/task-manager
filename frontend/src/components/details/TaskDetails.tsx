@@ -24,7 +24,7 @@ import {
 } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
-import { TRecurringTaskTemplate, TTask, TTaskV4 } from '../../utils/types'
+import { TRecurringTaskTemplate, TTaskV4 } from '../../utils/types'
 import { EMPTY_ARRAY, getFolderIdFromTask, isTaskParentTask } from '../../utils/utils'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
@@ -110,12 +110,11 @@ const BackButtonText = styled(Label)`
 const SOURCES_ALLOWED_WITH_SUBTASKS = [GENERAL_TASK_SOURCE_NAME, SLACK_SOURCE_NAME]
 
 interface TaskDetailsProps {
-    task: Partial<TTask> & Partial<TRecurringTaskTemplate> & { id: string; title: string }
-    subtask?: TTask
+    task: Partial<TTaskV4> & Partial<TRecurringTaskTemplate> & { id: string; title: string }
     isRecurringTaskTemplate?: boolean
 }
-const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProps) => {
-    const currentTask = subtask || task
+const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
+    const currentTask = task
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
 
@@ -129,9 +128,12 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
     const navigate = useNavigate()
 
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
-    const { is_meeting_preparation_task, meeting_preparation_params } = currentTask
+    const { meeting_preparation_params } = currentTask
     const dateTimeStart = DateTime.fromISO(meeting_preparation_params?.datetime_start || '')
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
+
+    const isMeetingPreparationTask = !!meeting_preparation_params
+    const isSubtask = currentTask.id_parent != null
 
     const titleRef = useRef<HTMLTextAreaElement>(null)
 
@@ -198,19 +200,28 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                     currentTask.optimisticId
                 )
             } else {
-                modifyTask({ id, title, body, subtaskId }, currentTask.optimisticId)
+                modifyTask({ id, title, body }, currentTask.optimisticId)
             }
         },
         [currentTask.id, modifyTask]
     )
 
-    const onEdit = ({ id, title, body, subtaskId }: TModifyTaskData) => {
+    const onEdit = ({ id, title, body, idParent }: TModifyTaskData & { idParent: string | undefined }) => {
+        let subtaskId: string | undefined = undefined
+        let mainId = ''
+        if (idParent) {
+            subtaskId = id
+            mainId = idParent
+        } else {
+            mainId = id
+        }
+
         setIsEditing(true)
         const timerId = id + subtaskId + (title === undefined ? 'body' : 'title') // we're only modifying the body or title, one at a time
         if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
         timers.current[timerId] = {
-            timeout: setTimeout(() => syncDetails({ id, title, body, subtaskId }), DETAILS_SYNC_TIMEOUT),
-            callback: () => syncDetails({ id, title, body, subtaskId }),
+            timeout: setTimeout(() => syncDetails({ id: mainId, title, body, subtaskId }), DETAILS_SYNC_TIMEOUT),
+            callback: () => syncDetails({ id: mainId, title, body, subtaskId }),
         }
     }
 
@@ -226,10 +237,10 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
     useKeyboardShortcut(
         'backToParentTask',
         useCallback(() => {
-            if (subtask) {
+            if (isSubtask) {
                 navigate('..', { relative: 'path' })
             }
-        }, [subtask])
+        }, [isSubtask])
     )
 
     const currentTaskV4: TTaskV4 = {
@@ -240,7 +251,7 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
         <DetailsViewTemplate>
             <DetailsTopContainer>
                 <DetailItem>
-                    {subtask ? (
+                    {isSubtask ? (
                         <BackButtonContainer to=".." relative="path">
                             <Icon icon={icons.caret_left} color="purple" />
                             <BackButtonText>Return to parent task</BackButtonText>
@@ -254,7 +265,7 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                         <DetailItem>
                             <Label color="light">{syncIndicatorText}</Label>
                         </DetailItem>
-                        {!subtask && (
+                        {!isSubtask && (
                             <MarginLeftAuto>
                                 {isInTrash && (
                                     <GTButton
@@ -269,7 +280,7 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                                         size="small"
                                     />
                                 )}
-                                {!is_meeting_preparation_task && !isRecurringTaskTemplate && folderId && (
+                                {!isMeetingPreparationTask && !isRecurringTaskTemplate && folderId && (
                                     <FolderSelector
                                         value={folderId}
                                         onChange={(newFolderId) =>
@@ -315,11 +326,11 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                     value={isInTrash ? `${currentTask.title} (deleted)` : currentTask.title}
                     disabled={
                         !!currentTask.optimisticId ||
-                        is_meeting_preparation_task ||
-                        !!currentTask.nux_number_id ||
+                        isMeetingPreparationTask ||
+                        !!currentTask.id_nux_number ||
                         isInTrash
                     }
-                    onChange={(val) => onEdit({ id: task.id, title: val, subtaskId: subtask?.id })}
+                    onChange={(val) => onEdit({ id: task.id, title: val, idParent: task.id_parent })}
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
                     hideUnfocusedOutline
@@ -348,10 +359,7 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                                       { id: currentTask.id, priority_normalized: priority },
                                       currentTask.optimisticId
                                   )
-                                : modifyTask(
-                                      { id: task.id, priorityNormalized: priority, subtaskId: subtask?.id },
-                                      currentTask.optimisticId
-                                  )
+                                : modifyTask({ id: task.id, priorityNormalized: priority }, currentTask.optimisticId)
                         }
                         disabled={isInTrash}
                     />
@@ -359,7 +367,7 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                 {!isRecurringTaskTemplate && (
                     <GTDatePicker
                         initialDate={DateTime.fromISO(currentTask.due_date ?? '')}
-                        setDate={(date) => modifyTask({ id: task.id, dueDate: date, subtaskId: subtask?.id })}
+                        setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
                         disabled={isInTrash}
                     />
                 )}
@@ -367,7 +375,7 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                     <RecurringTaskTemplateScheduleButton templateId={task.id} />
                 ) : (
                     task.source?.name === 'General Task' &&
-                    subtask === undefined && (
+                    task.id_parent === undefined && (
                         <RecurringTaskTemplateScheduleButton
                             templateId={currentTask.recurring_task_template_id}
                             task={currentTaskV4}
@@ -404,9 +412,9 @@ const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProp
                         id={currentTask.id}
                         body={currentTask.body ?? ''}
                         contentType={currentTask.source?.name === 'Jira' ? 'atlassian' : 'markdown'}
-                        onChange={(val) => onEdit({ id: task.id, body: val, subtaskId: subtask?.id })}
+                        onChange={(val) => onEdit({ id: task.id, body: val, idParent: task.id_parent })}
                         disabled={isInTrash}
-                        nux_number_id={currentTask.nux_number_id}
+                        nux_number_id={currentTask.id_nux_number}
                     />
                     {SOURCES_ALLOWED_WITH_SUBTASKS.includes(currentTask.source?.name ?? '') &&
                         !isInTrash &&
