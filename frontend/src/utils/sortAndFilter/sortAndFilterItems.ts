@@ -1,3 +1,4 @@
+import { TTaskV4 } from '../types'
 import { SORT_DIRECTION, SortAndFilterItemsArgs } from './types'
 
 const sortAndFilterItems = <T>({ items, sort, sortDirection, filter, tieBreakerField }: SortAndFilterItemsArgs<T>) => {
@@ -6,6 +7,9 @@ const sortAndFilterItems = <T>({ items, sort, sortDirection, filter, tieBreakerF
         sortedAndFiltered.sort((a, b) => {
             const sortDirectionMultiplier = (sort.forceDirection ?? sortDirection) === SORT_DIRECTION.ASC ? 1 : -1
             let result = 0
+            console.log((a as TTaskV4).title, (b as TTaskV4).title)
+            console.log(a[sort.field], b[sort.field])
+            console.log(sortDirectionMultiplier)
             if (a[sort.field] === b[sort.field]) {
                 if (
                     !sort.secondaryField ||

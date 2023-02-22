@@ -87,6 +87,8 @@ const TaskSectionView = () => {
     const sortedTasks = useMemo(() => {
         if (folder && (folder.is_done || folder.is_trash)) return tasks
         if (!folder || areSettingsLoading) return []
+
+        console.log('reached soring part')
         return sortAndFilterItems<TTaskV4>({
             items: tasks,
             sort: selectedSort,

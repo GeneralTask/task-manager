@@ -283,7 +283,7 @@ const Task = ({
                         {meetingStartText ? (
                             <MeetingStartText isTextColored={isMeetingTextColored}>{meetingStartText}</MeetingStartText>
                         ) : (
-                            <Icon icon={logos[task.source.logo_v2]} />
+                            <Icon icon={logos[task.source.logo]} />
                         )}
                     </RightContainer>
                 </ItemContainer>
