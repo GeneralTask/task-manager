@@ -14,7 +14,7 @@ import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
-import { SectionHeader } from '../molecules/Header'
+import { Header } from '../molecules/Header'
 import SlackTask from '../molecules/SlackTask'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
@@ -68,7 +68,7 @@ const SlackTasksView = () => {
         <>
             <Flex>
                 <ScrollableListTemplate>
-                    <SectionHeader sectionName="Slack Messages" />
+                    <Header folderName="Slack Messages" />
                     {doesNeedRelinking && <ConnectIntegration type="slack" reconnect />}
                     {isSlackIntegrationLinked ? (
                         <>

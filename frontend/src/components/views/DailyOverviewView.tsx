@@ -8,7 +8,7 @@ import Flex from '../atoms/Flex'
 import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
-import { SectionHeader } from '../molecules/Header'
+import { Header } from '../molecules/Header'
 import AccordionItem from '../overview/AccordionItem'
 import EditModal from '../overview/EditModal'
 import OverviewDetails from '../overview/OverviewDetails'
@@ -71,7 +71,7 @@ const DailyOverviewView = () => {
         <>
             <Flex>
                 <ScrollableListTemplate>
-                    <SectionHeader sectionName="Daily Overview" />
+                    <Header folderName="Daily Overview" />
                     <ActionsContainer>
                         <BannerButton
                             styleType="simple"

@@ -14,7 +14,7 @@ import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
-import { SectionHeader } from '../molecules/Header'
+import { Header } from '../molecules/Header'
 import LinearTask from '../molecules/LinearTask'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
@@ -58,7 +58,7 @@ const LinearView = () => {
         <>
             <Flex>
                 <ScrollableListTemplate>
-                    <SectionHeader sectionName="Linear Issues" />
+                    <Header folderName="Linear Issues" />
                     {doesNeedRelinking && <ConnectIntegration type="linear" reconnect />}
                     {isLinearIntegrationLinked ? (
                         <>
