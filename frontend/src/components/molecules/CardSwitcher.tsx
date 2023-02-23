@@ -45,7 +45,7 @@ const CardSwitcher = ({ viewId }: CardSwitcherProps) => {
     useEffect(() => {
         const view = views?.find(({ id }) => id === viewId)
         if (view == null) return
-        if (cardIndex >= view.view_items.length) {
+        if (cardIndex >= view.view_item_ids.length) {
             setCardIndex(0)
             setCard(view.view_items[0])
         } else {
@@ -54,18 +54,20 @@ const CardSwitcher = ({ viewId }: CardSwitcherProps) => {
     }, [cardIndex, viewId, views])
 
     const view = views?.find(({ id }) => id === viewId)
-    if (!view || view.view_items.length === 0) return null
+    if (!view || view.view_item_ids.length === 0) return null
     if (card == null) return null
     return (
         <div>
             <Header>
-                <SwitchText onClick={() => setCardIndex(mod(cardIndex - 1, view.view_items.length))}>
+                <SwitchText onClick={() => setCardIndex(mod(cardIndex - 1, view.view_item_ids.length))}>
                     Previous
                 </SwitchText>
                 <div>
-                    Task {cardIndex + 1} of {view.view_items.length}
+                    Task {cardIndex + 1} of {view.view_item_ids.length}
                 </div>
-                <SwitchText onClick={() => setCardIndex(mod(cardIndex + 1, view.view_items.length))}>Next</SwitchText>
+                <SwitchText onClick={() => setCardIndex(mod(cardIndex + 1, view.view_item_ids.length))}>
+                    Next
+                </SwitchText>
             </Header>
             <GTShadowContainer>
                 <CardHeader>
