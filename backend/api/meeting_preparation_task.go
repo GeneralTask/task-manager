@@ -26,10 +26,7 @@ func (api *API) MeetingPreparationTasksList(c *gin.Context) {
 		Handle500(c)
 	}
 
-	meetingTaskResult := make([]TaskResult, len(*meetingTasks))
-	for i, task := range *meetingTasks {
-		meetingTaskResult[i] = *api.taskBaseToTaskResult(&task, userID)
-	}
+	meetingTaskResult := api.taskListToTaskResultListV4(meetingTasks, userID)
 
 	c.JSON(200, meetingTaskResult)
 }
