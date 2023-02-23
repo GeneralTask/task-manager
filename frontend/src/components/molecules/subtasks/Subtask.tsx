@@ -125,8 +125,7 @@ const Subtask = ({ subtask }: SubtaskProps) => {
                     <Domino isVisible={isVisible} />
                     <MarkTaskDoneButton
                         isDone={subtask.is_done}
-                        taskId={subtask.id_parent}
-                        subtaskId={subtask.id}
+                        taskId={subtask.id}
                         isSelected={false}
                         onMarkComplete={() => setShouldAnimate(true)}
                     />

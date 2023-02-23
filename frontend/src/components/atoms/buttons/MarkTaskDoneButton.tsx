@@ -6,7 +6,6 @@ import GTCheckbox from '../GTCheckbox'
 interface MarkTaskDoneButtonProps {
     isDone: boolean
     taskId: string
-    subtaskId?: string
     isSelected: boolean
     sectionId?: string
     isDisabled?: boolean
@@ -16,7 +15,6 @@ interface MarkTaskDoneButtonProps {
 const MarkTaskDoneButton = ({
     isDone,
     taskId,
-    subtaskId,
     isSelected,
     sectionId,
     isDisabled,
@@ -29,8 +27,6 @@ const MarkTaskDoneButton = ({
         markTaskDoneOrDeleted(
             {
                 id: taskId,
-                sectionId: sectionId,
-                subtaskId: subtaskId,
                 isDone: !isDone,
                 waitForAnimation: true,
             },
@@ -39,7 +35,6 @@ const MarkTaskDoneButton = ({
         Log({
             taskId: taskId,
             sectionId: sectionId,
-            subtaskId: subtaskId,
             isDone: !isDone,
         })
     }, [taskId, sectionId, isDone, onMarkComplete])

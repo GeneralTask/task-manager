@@ -112,7 +112,6 @@ const NavigationLink = ({
                         id: item.id,
                         isDone: taskFolder?.is_done,
                         isDeleted: taskFolder?.is_trash,
-                        sectionId: taskFolder.id,
                     },
                     item.task.optimisticId
                 )
