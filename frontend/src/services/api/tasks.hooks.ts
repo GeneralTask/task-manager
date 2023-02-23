@@ -104,18 +104,6 @@ export interface TPostCommentData {
     optimisticId: string
 }
 
-export const useGetTasks = (isEnabled = true) => {
-    return useQuery<TTaskSection[], void>('tasks', getTasks, { enabled: isEnabled, refetchOnMount: false })
-}
-const getTasks = async ({ signal }: QueryFunctionContext) => {
-    try {
-        const res = await apiClient.get('/tasks/v3/', { signal })
-        return castImmutable(res.data)
-    } catch {
-        throw new Error('getTasks failed')
-    }
-}
-
 export const useFetchExternalTasks = () => {
     const queryClient = useGTQueryClient()
     return useQuery('tasksExternal', fetchExternalTasks, {
