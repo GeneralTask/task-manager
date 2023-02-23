@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useGetMeetingPreparationTasks } from '../../../services/api/meeting-preparation-tasks.hooks'
 import { useGetLinkedAccounts } from '../../../services/api/settings.hooks'
 import { isGoogleCalendarLinked } from '../../../utils/utils'
-import Spinner from '../../atoms/Spinner'
+import Skeleton from '../../atoms/Skeleton'
 import ConnectIntegration from '../../molecules/ConnectIntegration'
 import Task from '../../molecules/Task'
 import { ViewHeader, ViewName } from '../styles'
@@ -24,7 +24,7 @@ const MeetingPreparationViewItems = forwardRef(({ view, hideHeader }: ViewItemsP
                 </ViewHeader>
             )}
             {isMeetingTasksLoading ? (
-                <Spinner />
+                <Skeleton />
             ) : (
                 <>
                     {isGoogleLinked ? (
