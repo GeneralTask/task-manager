@@ -5,6 +5,7 @@ import { DateTime } from 'luxon'
 import { OverviewContextProvider } from '../../context/OverviewContextProvider'
 import { useEventBanners, usePageFocus } from '../../hooks'
 import { useGetFolders } from '../../services/api/folders.hooks'
+import { useGetMeetingPreparationTasks } from '../../services/api/meeting-preparation-tasks.hooks'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
@@ -32,6 +33,7 @@ const MainScreen = () => {
     useFetchExternalTasks()
     useEventBanners(DateTime.now())
     usePageFocus(true)
+    useGetMeetingPreparationTasks()
 
     const currentPage = () => {
         switch (location.pathname.split('/')[1]) {
