@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"golang.org/x/exp/slices"
 	"sort"
 	"time"
 
@@ -1355,7 +1356,7 @@ func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.Ob
 		return api.getView(db, userID, viewType, &[]bson.M{
 			{"task_section_id": view.TaskSectionID},
 		})
-	} else if viewType == constants.ViewJira || viewType == constants.ViewLinear || viewType == constants.ViewSlack || viewType == constants.ViewMeetingPreparation || viewType == constants.ViewDueToday {
+	} else if slices.Contains([]constants.ViewType{constants.ViewJira, constants.ViewLinear, constants.ViewSlack, constants.ViewMeetingPreparation, constants.ViewDueToday}, viewType) {
 		return api.getView(db, userID, viewType, nil)
 	} else if viewType == constants.ViewGithub {
 		return api.getView(db, userID, viewType, &[]bson.M{
