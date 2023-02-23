@@ -63,15 +63,15 @@ const AccordionHeader = ({ list, isOpen }: AccordionHeaderProps) => {
             <TriggerTitle>
                 <Icon
                     icon={getOverviewAccordionHeaderIcon(list.logo, list.task_section_id)}
-                    color={list.view_items.length === 0 ? 'gray' : 'black'}
+                    color={list.view_item_ids.length === 0 ? 'gray' : 'black'}
                 />
-                <ListTitle isComplete={list.view_items.length === 0 && list.is_linked}>{list.name}</ListTitle>
+                <ListTitle isComplete={list.view_item_ids.length === 0 && list.is_linked}>{list.name}</ListTitle>
             </TriggerTitle>
             <TriggerRightContainer>
-                {list.view_items.length > 0 && (
-                    <ItemsRemainingText>{list.view_items.length} remaining</ItemsRemainingText>
+                {list.view_item_ids.length > 0 && (
+                    <ItemsRemainingText>{list.view_item_ids.length} remaining</ItemsRemainingText>
                 )}
-                {list.view_items.length === 0 && list.is_linked && list.has_tasks_completed_today !== undefined && (
+                {list.view_item_ids.length === 0 && list.is_linked && list.has_tasks_completed_today !== undefined && (
                     <StatusLabel
                         status={list.has_tasks_completed_today ? 'List complete' : 'Empty'}
                         color={list.has_tasks_completed_today ? 'green' : 'gray'}
