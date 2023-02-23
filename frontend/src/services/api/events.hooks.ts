@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 import { useCalendarContext } from '../../components/calendar/CalendarContext'
 import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
-import { useGTLocalStorage } from '../../hooks'
+import { useGTLocalStorage, useSetting } from '../../hooks'
 import { TLogoImage } from '../../styles/images'
 import apiClient from '../../utils/api'
 import { TCalendar, TCalendarAccount, TEvent, TOverviewView, TPullRequest, TTask } from '../../utils/types'
@@ -336,6 +336,8 @@ export const useSelectedCalendars = () => {
         [],
         true
     )
+    const { field_value: taskToCalAccount } = useSetting('calendar_account_id_for_new_tasks')
+    const { field_value: taskToCalCalendar } = useSetting('calendar_calendar_id_for_new_tasks')
 
     // update selected calendars when calendar accounts are added/removed
     useEffect(() => {
@@ -363,6 +365,7 @@ export const useSelectedCalendars = () => {
                     calendar.has_multical_scopes !== selectedCalendar.has_multical_scopes
                 )
             })
+
             if (!newAccounts.length && !removedAccounts.length) {
                 hasChanged = false
                 return
@@ -416,6 +419,18 @@ export const useSelectedCalendars = () => {
         },
         [selectedCalendars]
     )
+
+    // ensure that task-to-cal calendar is always selected
+    useEffect(() => {
+        if (!isCalendarSelected(taskToCalAccount, taskToCalCalendar)) {
+            const calendar = calendars
+                ?.find((account) => account.account_id === taskToCalAccount)
+                ?.calendars.find((calendar) => calendar.calendar_id === taskToCalCalendar)
+            if (calendar) {
+                toggleCalendarSelection(taskToCalAccount, calendar)
+            }
+        }
+    }, [calendars, isCalendarSelected, taskToCalAccount, taskToCalCalendar, toggleCalendarSelection])
 
     return { selectedCalendars, isCalendarSelected, toggleCalendarSelection }
 }

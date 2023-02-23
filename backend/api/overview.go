@@ -500,10 +500,7 @@ func (api *API) GetGithubOverviewResult(view database.View, userID primitive.Obj
 	return &result, nil
 }
 
-func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool) (*OverviewResult[TaskResult], error) {
-	if view.UserID != userID {
-		return nil, errors.New("invalid user")
-	}
+func (api *API) CreateMeetingPreparationTaskList(userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool) (*[]database.Task, error) {
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
 	events, err := database.GetEventsUntilEndOfDay(api.DB, userID, timeNow)
 	if err != nil {
@@ -538,13 +535,25 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 	sort.Slice(*meetingTasks, func(i, j int) bool {
 		return (*meetingTasks)[i].MeetingPreparationParams.DatetimeStart <= (*meetingTasks)[j].MeetingPreparationParams.DatetimeStart
 	})
+	return meetingTasks, nil
+}
 
+func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool) (*OverviewResult[TaskResult], error) {
+	if view.UserID != userID {
+		return nil, errors.New("invalid user")
+	}
+	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
+	meetingTasks, err := api.CreateMeetingPreparationTaskList(userID, timezoneOffset, showMovedOrDeleted)
+	if err != nil {
+		return nil, err
+	}
+	
 	// Create result of meeting prep tasks
 	var result []*TaskResult
 	if showMovedOrDeleted {
 		result, err = api.GetMeetingPrepTaskResult(userID, timeNow, meetingTasks)
-		} else {
-			result, err = api.GetMeetingPrepTaskResultWithAutocompletion(userID, timeNow, meetingTasks)
+	} else {
+		result, err = api.GetMeetingPrepTaskResultWithAutocompletion(userID, timeNow, meetingTasks)
 	}
 	if err != nil {
 		return nil, err
@@ -714,6 +723,8 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 			IsCompleted:              &isCompleted,
 			IsDeleted:                &isDeleted,
 			SourceID:                 event.SourceID,
+			CreatedAtExternal:        primitive.NewDateTimeFromTime(time.Now()),
+			UpdatedAt:                primitive.NewDateTimeFromTime(time.Now()),
 			IsMeetingPreparationTask: true,
 			MeetingPreparationParams: &database.MeetingPreparationParams{
 				CalendarEventID:               event.ID,
@@ -752,6 +763,7 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 			task.MeetingPreparationParams.DatetimeStart = event.DatetimeStart
 			task.MeetingPreparationParams.DatetimeEnd = event.DatetimeEnd
 			task.MeetingPreparationParams.EventMovedOrDeleted = eventMovedOrDeleted
+			task.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
 		}
 
 		if event == nil {
@@ -772,6 +784,7 @@ func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID
 			bson.M{"$set": bson.M{
 				"is_completed": task.IsCompleted,
 				"completed_at": task.CompletedAt,
+				"updated_at":   task.UpdatedAt,
 				"meeting_preparation_params.datetime_start":                   task.MeetingPreparationParams.DatetimeStart,
 				"meeting_preparation_params.datetime_end":                     task.MeetingPreparationParams.DatetimeEnd,
 				"meeting_preparation_params.event_moved_or_deleted":           task.MeetingPreparationParams.EventMovedOrDeleted,

@@ -2,7 +2,7 @@ import { QueryFunctionContext, useMutation, useQuery } from 'react-query'
 import * as Sentry from '@sentry/browser'
 import produce, { castImmutable } from 'immer'
 import apiClient from '../../utils/api'
-import { TLinkedAccount, TSetting, TSupportedType } from '../../utils/types'
+import { TCalendarAccount, TLinkedAccount, TSetting, TSupportedType } from '../../utils/types'
 import { useGTMutation, useGTQueryClient } from '../queryUtils'
 
 export type GHSortPreference = `${string}github_sorting_preference${string}`
@@ -123,13 +123,26 @@ export const useDeleteLinkedAccount = () => {
         invalidateTagsOnSettled: ['linked_accounts'],
         onMutate: ({ id }: { id: string }) => {
             const linkedAccounts = queryClient.getQueryData<TLinkedAccount[]>('linked_accounts')
-            if (!linkedAccounts) return
+            const calendars = queryClient.getQueryData<TCalendarAccount[]>('calendars')
+
+            const linkedAccountIdx = linkedAccounts?.findIndex((linkedAccount) => linkedAccount.id === id)
+            if (linkedAccountIdx === -1 || linkedAccountIdx === undefined || !linkedAccounts) return
+
             const newLinkedAccounts = produce(linkedAccounts, (draft) => {
-                const idx = draft.findIndex((linkedAccount) => linkedAccount.id === id)
-                if (idx === -1) return
-                draft.splice(idx, 1)
+                draft.splice(linkedAccountIdx, 1)
             })
-            queryClient.setQueriesData('linked_accounts', newLinkedAccounts)
+            queryClient.setQueryData('linked_accounts', newLinkedAccounts)
+
+            if (calendars) {
+                const newCalendars = produce(calendars, (draft) => {
+                    const calendarIdx = draft.findIndex(
+                        (calendar) => calendar.account_id === linkedAccounts[linkedAccountIdx].display_id
+                    )
+                    if (calendarIdx === -1) return
+                    draft.splice(calendarIdx, 1)
+                })
+                queryClient.setQueryData('calendars', newCalendars)
+            }
         },
         onSettled: () => {
             queryClient.invalidateQueries('linked_accounts')

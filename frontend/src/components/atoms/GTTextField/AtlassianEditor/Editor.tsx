@@ -57,7 +57,16 @@ const EditorContainer = styled.div<{ isMarkdown: boolean }>`
     .assistive {
         display: none;
     }
-    ${({ isMarkdown }) => isMarkdown && `u { text-decoration: none; } `}/* remove underline if in markdown mode */
+    ${({ isMarkdown }) => isMarkdown && `u { text-decoration: none; } `} /* remove underline if in markdown mode */
+    
+    /* hide quick insert menu and text coloring */
+    [aria-label="Popup"] {
+        display: none;
+    }
+    [aria-label='On quickInsertTypeAhead'],
+    [aria-label='On quickInsertTypeAhead'] * {
+        color: ${Colors.text.black} !important;
+    }
 `
 interface EditorProps extends RichTextEditorProps {
     editorActions: EditorActions
@@ -103,6 +112,8 @@ const Editor = ({
                     allowResizing: true,
                 }}
                 contentTransformerProvider={isMarkdown ? (schema) => new MarkdownTransformer(schema) : undefined}
+                allowHelpDialog={false}
+                quickInsert={false}
             />
         </EditorContainer>
     )
