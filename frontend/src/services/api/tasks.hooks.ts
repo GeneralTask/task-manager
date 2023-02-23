@@ -325,12 +325,12 @@ export const createTask = async (data: TCreateTaskData) => {
 export const useModifyTask = () => {
     const queryClient = useGTQueryClient()
     return useGTMutation((data: TModifyTaskData) => modifyTask(data), {
-        tag: 'tasks',
+        tag: 'tasks_v4',
         invalidateTagsOnSettled: ['tasks_v4', 'overview'],
         onMutate: async (data: TModifyTaskData) => {
             await Promise.all([queryClient.cancelQueries('overview'), queryClient.cancelQueries('tasks_v4')])
 
-            const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks')
+            const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
             if (tasks) {
                 const updatedTasks = produce(tasks, (draft) => {
                     const task = draft.find((task) => task.id === data.id)
@@ -353,7 +353,7 @@ export const useModifyTask = () => {
                     }
                     task.updated_at = DateTime.utc().toISO()
                 })
-                queryClient.setQueryData('tasks', updatedTasks)
+                queryClient.setQueryData('tasks_v4', updatedTasks)
             }
         },
     })
