@@ -28,9 +28,6 @@ export const createNewTaskV4Helper = (data: Partial<TTaskV4> & { optimisticId: s
         source: data.source ?? {
             name: 'General Task',
             logo: 'generaltask',
-            logo_v2: 'generaltask',
-            is_completable: false,
-            is_replyable: false,
         },
         sender: data.sender ?? '',
         is_done: data.is_done ?? false,

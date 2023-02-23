@@ -242,7 +242,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                             <BackButtonText>Return to parent task</BackButtonText>
                         </BackButtonContainer>
                     ) : (
-                        <Icon icon={logos[task?.source?.logo_v2 ?? 'generaltask']} />
+                        <Icon icon={logos[task?.source?.logo ?? 'generaltask']} />
                     )}
                 </DetailItem>
                 {!task.optimisticId && (

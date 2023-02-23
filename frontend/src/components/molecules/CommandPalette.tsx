@@ -270,7 +270,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                 >
                                     <FlexWidth100 alignItems="center">
                                         <IconContainer>
-                                            <Icon icon={logos[source.logo_v2]} />
+                                            <Icon icon={logos[source.logo]} />
                                         </IconContainer>
                                         <TruncatedTitle
                                             strike={is_done || is_deleted}
