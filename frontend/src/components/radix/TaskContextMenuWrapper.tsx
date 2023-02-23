@@ -86,16 +86,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                     renderer: () => (
                         <GTDatePicker
                             initialDate={DateTime.fromISO(task.due_date)}
-                            setDate={(date) => {
-                                if (parentTask && task) {
-                                    modifyTask(
-                                        { id: parentTask.id, dueDate: date, subtaskId: task.id },
-                                        task.optimisticId
-                                    )
-                                } else {
-                                    modifyTask({ id: task.id, dueDate: date }, task.optimisticId)
-                                }
-                            }}
+                            setDate={(date) => modifyTask({ id: task.id, dueDate: date }, task.optimisticId)}
                             onlyCalendar
                         />
                     ),
@@ -110,16 +101,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                 icon: priority.icon,
                 selected: val === task.priority_normalized,
                 iconColor: priority.color,
-                onClick: () => {
-                    if (parentTask && task) {
-                        modifyTask(
-                            { id: parentTask.id, priorityNormalized: val, subtaskId: task.id },
-                            task.optimisticId
-                        )
-                    } else {
-                        modifyTask({ id: task.id, priorityNormalized: val }, task.optimisticId)
-                    }
-                },
+                onClick: () => modifyTask({ id: task.id, priorityNormalized: val }, task.optimisticId),
             })),
         },
         ...(!task.is_deleted && !task.is_done
