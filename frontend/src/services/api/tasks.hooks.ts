@@ -12,7 +12,6 @@ import { TExternalStatus, TOverviewView, TTask, TTaskFolder, TTaskSection, TTask
 import {
     arrayMoveInPlace,
     getTaskFromSections,
-    getTaskIndexFromSections,
     resetOrderingIds,
     sleep,
 } from '../../utils/utils'
@@ -596,39 +595,16 @@ export const reorderTask = async (data: TReorderTaskData) => {
 export const usePostComment = () => {
     const queryClient = useGTQueryClient()
     return useGTMutation((data: TPostCommentData) => postComment(data), {
-        tag: 'tasks',
-        invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
+        tag: 'tasks_v4',
+        invalidateTagsOnSettled: ['tasks_v4'],
         onMutate: async (data: TPostCommentData) => {
-            const userInfo = queryClient.getImmutableQueryData<TUserInfo>('user_info')
-            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-            const tasks_v4 = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
-            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-            await Promise.all([
-                queryClient.cancelQueries('tasks'),
-                queryClient.cancelQueries('tasks_v4'),
-                queryClient.cancelQueries('overview'),
-            ])
-            if (sections) {
-                const newSections = produce(sections, (draft) => {
-                    const task = getTaskFromSections(draft, data.id)
-                    if (task) {
-                        task.comments?.unshift({
-                            body: data.body,
-                            created_at: DateTime.local().toISO(),
-                            user: {
-                                DisplayName: userInfo?.linear_display_name ?? 'You',
-                                Email: '',
-                                ExternalID: data.optimisticId,
-                                Name: userInfo?.linear_name ?? 'You',
-                            },
-                        })
-                    }
-                })
+            await queryClient.cancelQueries('tasks_v4')
 
-                queryClient.setQueryData('tasks', newSections)
-            }
-            if (tasks_v4) {
-                const updatedTasks = produce(tasks_v4, (draft) => {
+            const userInfo = queryClient.getImmutableQueryData<TUserInfo>('user_info')
+
+            const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
+            if (tasks) {
+                const updatedTasks = produce(tasks, (draft) => {
                     const task = draft.find((task) => task.id === data.id)
                     if (!task) return
                     task.comments?.unshift({
@@ -644,30 +620,6 @@ export const usePostComment = () => {
                 })
 
                 queryClient.setQueryData('tasks_v4', updatedTasks)
-            }
-            if (views) {
-                const newViews = produce(views, (draft) => {
-                    const sections = views.map((view) => ({
-                        id: view.task_section_id,
-                        tasks: view.view_items,
-                    }))
-                    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.id)
-                    if (sectionIndex !== undefined && taskIndex !== undefined) {
-                        const task = draft[sectionIndex].view_items[taskIndex]
-                        task.comments?.unshift({
-                            body: data.body,
-                            created_at: DateTime.local().toISO(),
-                            user: {
-                                DisplayName: userInfo?.linear_display_name ?? 'You',
-                                Email: '',
-                                ExternalID: data.optimisticId,
-                                Name: userInfo?.linear_name ?? 'You',
-                            },
-                        })
-                    }
-                })
-
-                queryClient.setQueryData('overview', newViews)
             }
         },
     })
