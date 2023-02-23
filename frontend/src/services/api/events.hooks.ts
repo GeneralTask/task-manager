@@ -144,8 +144,8 @@ export const useCreateEvent = () => {
                 ?.calendars[0]
 
             let logo: TLogoImage
-            if (linkedTask?.source.logo_v2) {
-                logo = linkedTask?.source.logo_v2
+            if (linkedTask?.source.logo) {
+                logo = linkedTask?.source.logo
             } else if (linkedPullRequest) {
                 logo = 'github'
             } else {

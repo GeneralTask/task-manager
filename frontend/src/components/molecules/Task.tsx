@@ -196,19 +196,11 @@ const Task = ({
 
     const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(task.recurring_task_template_id)
 
-    const taskV4: TTaskV4 = {
-        ...task,
-        source: {
-            ...task.source,
-            logo: task.source?.logo_v2,
-        },
-    }
-
     const { data: allTasks } = useGetTasksV4()
     const subtasks = allTasks?.filter((t) => t.id_parent === task.id)
 
     return (
-        <TaskContextMenuWrapper task={taskV4} onOpenChange={setContextMenuOpen}>
+        <TaskContextMenuWrapper task={task} onOpenChange={setContextMenuOpen}>
             <TaskTemplate
                 ref={elementRef}
                 isVisible={isVisible}
