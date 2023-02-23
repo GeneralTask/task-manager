@@ -90,8 +90,7 @@ const SubtaskList = ({ parentTask }: SubtasksProps) => {
                         onSubmit={(title) =>
                             createTask({
                                 title: title,
-                                parent_task_id: parentTask.id,
-                                taskSectionId: parentTask.id_folder,
+                                id_parent: parentTask.id,
                                 optimisticId: uuidv4(),
                             })
                         }

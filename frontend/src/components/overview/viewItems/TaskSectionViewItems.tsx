@@ -52,7 +52,7 @@ const TaskSectionViewItems = forwardRef(
             const optimisticId = uuidv4()
             createTask({
                 title: title,
-                taskSectionId: sectionId,
+                id_folder: sectionId,
                 optimisticId: optimisticId,
             })
             const allListsEmpty = lists?.every((list) => list.view_item_ids.length === 0)

@@ -108,7 +108,8 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                           createTask({
                               title: `${task.title} (copy)`,
                               body: task.body,
-                              taskSectionId: task.id_folder || DEFAULT_FOLDER_ID,
+                              id_folder: task.id_folder,
+                              id_parent: task.id_parent,
                               optimisticId,
                           })
                           modifyTask(

@@ -107,7 +107,7 @@ const Subtask = ({ subtask }: SubtaskProps) => {
         <SubtaskDropOffset>
             <TaskContextMenuWrapper task={subtask} onOpenChange={setContextMenuOpen}>
                 <SubtaskContainer
-                    onClick={() => navigateToTask(subtask.id)}
+                    onClick={() => navigateToTask({ taskId: subtask.id })}
                     ref={drag}
                     {...visibilityToggle}
                     forceHoverStyle={contextMenuOpen}
