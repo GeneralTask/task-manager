@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -53,7 +52,8 @@ func TestMeetingPreparationTask(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := io.ReadAll(recorder.Body)
-		expectedBody := fmt.Sprintf(`[{"ID":"[a-z0-9]{24}","UserID":"%s","ParentTaskID":"000000000000000000000000","RecurringTaskTemplateID":"000000000000000000000000","IDExternal":"","IDOrdering":0,"IDTaskSection":"000000000000000000000000","IsCompleted":false,"IsDeleted":false,"Sender":"","SourceID":"gcal","SourceAccountID":"","Deeplink":"","Title":"Event1","Body":null,"HasBeenReordered":false,"DueDate":null,"TimeAllocation":null,"CreatedAtExternal":"(.*?)","UpdatedAt":"(.*?)","CompletedAt":"(.*?)","DeletedAt":"(.*?)","PriorityNormalized":null,"TaskNumber":null,"Comments":null,"ExternalPriority":null,"AllExternalPriorities":null,"NUXNumber":0,"Status":null,"PreviousStatus":null,"CompletedStatus":null,"AllStatuses":null,"SlackMessageParams":null,"JIRATaskParams":null,"MeetingPreparationParams":{"CalendarEventID":"[a-z0-9]{24}","IDExternal":"[a-z0-9]{24}","DatetimeStart":"(.*?)","DatetimeEnd":"(.*?)","HasBeenAutomaticallyCompleted":false,"EventMovedOrDeleted":false},"IsMeetingPreparationTask":true}]`, userID.Hex())
+
+		expectedBody := `[{"id":"[a-z0-9]{24}","id_ordering":0,"id_folder":"000000000000000000000000","id_parent":"","source":{"name":"Google Calendar","logo":"gcal"},"deeplink":"","title":"Event1","body":"","due_date":"","priority_normalized":0,"is_done":false,"is_deleted":false,"recurring_task_template_id":"000000000000000000000000","meeting_preparation_params":{"datetime_start":"(.*?)","datetime_end":"(.*?)","event_moved_or_deleted":false},"created_at":"(.*?)","updated_at":"(.*?)"}]`
 		assert.Regexp(t, expectedBody, string(body))
 		assert.NoError(t, err)
 	})

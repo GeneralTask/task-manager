@@ -12,13 +12,7 @@ import RecurringTaskTemplateModal from '../molecules/recurring-tasks/RecurringTa
 import GTContextMenu from './GTContextMenu'
 import { GTMenuItem } from './RadixUIConstants'
 
-const getDeleteLabel = (task: TTaskV4, isSubtask: boolean) => {
-    if (isSubtask) {
-        if (task.is_deleted) {
-            return 'Restore subtask'
-        }
-        return 'Delete subtask'
-    }
+const getDeleteLabel = (task: TTaskV4) => {
     if (task.is_deleted) {
         return 'Restore task'
     }
@@ -86,16 +80,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                     renderer: () => (
                         <GTDatePicker
                             initialDate={DateTime.fromISO(task.due_date)}
-                            setDate={(date) => {
-                                if (parentTask && task) {
-                                    modifyTask(
-                                        { id: parentTask.id, dueDate: date, subtaskId: task.id },
-                                        task.optimisticId
-                                    )
-                                } else {
-                                    modifyTask({ id: task.id, dueDate: date }, task.optimisticId)
-                                }
-                            }}
+                            setDate={(date) => modifyTask({ id: task.id, dueDate: date }, task.optimisticId)}
                             onlyCalendar
                         />
                     ),
@@ -110,16 +95,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                 icon: priority.icon,
                 selected: val === task.priority_normalized,
                 iconColor: priority.color,
-                onClick: () => {
-                    if (parentTask && task) {
-                        modifyTask(
-                            { id: parentTask.id, priorityNormalized: val, subtaskId: task.id },
-                            task.optimisticId
-                        )
-                    } else {
-                        modifyTask({ id: task.id, priorityNormalized: val }, task.optimisticId)
-                    }
-                },
+                onClick: () => modifyTask({ id: task.id, priorityNormalized: val }, task.optimisticId),
             })),
         },
         ...(!task.is_deleted && !task.is_done
@@ -181,22 +157,12 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
               ]
             : []),
         {
-            label: getDeleteLabel(task, parentTask !== undefined),
+            label: getDeleteLabel(task),
             icon: icons.trash,
             iconColor: 'red',
             textColor: 'red',
             onClick: () => {
-                if (parentTask && task) {
-                    markTaskDoneOrDeleted(
-                        { id: parentTask.id, isDeleted: task.id_folder !== TRASH_FOLDER_ID, subtaskId: task?.id },
-                        task.optimisticId
-                    )
-                } else {
-                    markTaskDoneOrDeleted(
-                        { id: task.id, isDeleted: task.id_folder !== TRASH_FOLDER_ID },
-                        task.optimisticId
-                    )
-                }
+                markTaskDoneOrDeleted({ id: task.id, isDeleted: task.id_folder !== TRASH_FOLDER_ID }, task.optimisticId)
             },
         },
     ]

@@ -26,5 +26,7 @@ func (api *API) MeetingPreparationTasksList(c *gin.Context) {
 		Handle500(c)
 	}
 
-	c.JSON(200, meetingTasks)
+	meetingTaskResult := api.taskListToTaskResultListV4(meetingTasks, userID)
+
+	c.JSON(200, meetingTaskResult)
 }
