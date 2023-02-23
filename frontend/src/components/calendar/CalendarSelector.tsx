@@ -80,6 +80,11 @@ const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSele
                             selected: isCalendarChecked(account, calendar),
                             onClick: () => handleCalendarClick(account, calendar),
                             keepOpenOnSelect: mode === 'cal-selection',
+                            // disable task-to-cal calendar from being deselected in cal-selection mode
+                            disabled:
+                                mode === 'cal-selection' &&
+                                taskToCalAccount === account.account_id &&
+                                taskToCalCalendar === calendar.calendar_id,
                         })),
                 ]) ?? EMPTY_ARRAY,
         [calendars, isCalendarChecked, handleCalendarClick, mode]
