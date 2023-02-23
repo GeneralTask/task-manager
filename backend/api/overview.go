@@ -341,6 +341,54 @@ func (api *API) UpdateViewsLinkedStatus(views *[]database.View, userID primitive
 	return nil
 }
 
+func (api *API) GetJiraOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
+	if view.UserID != userID {
+		return nil, errors.New("invalid user")
+	}
+	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_ATLASSIAN)
+	result := OverviewResult[TaskResult]{
+		ID:       view.ID,
+		Name:     constants.ViewJiraName,
+		Logo:     external.TaskServiceAtlassian.LogoV2,
+		Type:     constants.ViewJira,
+		IsLinked: view.IsLinked,
+		Sources: []SourcesResult{
+			{
+				Name:             constants.ViewJiraSourceName,
+				AuthorizationURL: &authURL,
+			},
+		},
+		TaskSectionID: view.TaskSectionID,
+		IsReorderable: view.IsReorderable,
+		IDOrdering:    view.IDOrdering,
+		ViewItems:     []*TaskResult{},
+		ViewItemIDs:   []string{},
+	}
+	if !view.IsLinked {
+		return &result, nil
+	}
+
+	jiraTasks, err := database.GetTasks(api.DB, userID, &[]bson.M{
+		{"is_completed": false},
+		{"is_deleted": bson.M{"$ne": true}},
+		{"source_id": external.TASK_SOURCE_ID_JIRA},
+	}, nil)
+	if err != nil {
+		return nil, err
+	}
+	taskResults := api.taskListToTaskResultList(jiraTasks, userID)
+
+	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
+	timeStartOfDay := time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 0, 0, 0, 0, time.FixedZone("", 0))
+	taskCompletedInLastDay := api.getCompletedInLastDay(database.GetTaskCollection(api.DB), userID, timeStartOfDay, &[]bson.M{{"source_id": external.TASK_SOURCE_ID_JIRA}})
+
+	result.IsLinked = view.IsLinked
+	result.ViewItems = taskResults
+	result.ViewItemIDs = GetTaskSectionViewItemIDs(taskResults)
+	result.HasTasksCompletedToday = taskCompletedInLastDay
+	return &result, nil
+}
+
 func (api *API) GetLinearOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
@@ -543,8 +591,8 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 	var result []*TaskResult
 	if showMovedOrDeleted {
 		result, err = api.GetMeetingPrepTaskResult(userID, timeNow, meetingTasks)
-		} else {
-			result, err = api.GetMeetingPrepTaskResultWithAutocompletion(userID, timeNow, meetingTasks)
+	} else {
+		result, err = api.GetMeetingPrepTaskResultWithAutocompletion(userID, timeNow, meetingTasks)
 	}
 	if err != nil {
 		return nil, err
