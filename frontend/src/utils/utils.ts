@@ -3,7 +3,7 @@ import { DateTime, Duration, DurationUnit } from 'luxon'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../constants'
 import KEYBOARD_SHORTCUTS from '../constants/shortcuts'
 import { TIconColor, TTextColor } from '../styles/colors'
-import { TLinkedAccount, TLinkedAccountName, TParentTask, TTask, TTaskSection, TTaskV4 } from './types'
+import { TLinkedAccount, TLinkedAccountName, TParentTask, TTask, TTaskV4 } from './types'
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -142,23 +142,6 @@ export const getTaskFromSections = (
     }
     if (!subtaskId !== undefined) {
         return sections[sectionIndex].tasks[taskIndex]
-    }
-    return undefined
-}
-
-export const getSectionFromTask = (sections: TTaskSection[], taskId: string): TTaskSection | undefined => {
-    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, taskId)
-    if (taskIndex === undefined || sectionIndex === undefined) return undefined
-    return sections[sectionIndex]
-}
-
-export const getFolderIdFromTask = (folders: TTaskSection[], taskId: string): string | undefined => {
-    for (const folder of folders) {
-        for (const task of folder.tasks) {
-            if (task.id === taskId) {
-                return folder.id
-            }
-        }
     }
     return undefined
 }
