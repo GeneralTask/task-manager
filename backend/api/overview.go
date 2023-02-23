@@ -1146,6 +1146,11 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
+	isJiraLinked, err := api.IsServiceLinked(api.DB, userID, external.TASK_SERVICE_ID_ATLASSIAN)
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	isLinearLinked, err := api.IsServiceLinked(api.DB, userID, external.TASK_SERVICE_ID_LINEAR)
 	if err != nil {
 		Handle500(c)
@@ -1158,10 +1163,14 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 	}
 
 	var githubAuthURL string
+	var jiraAuthURL string
 	var linearAuthURL string
 	var slackAuthURL string
 	if !isGithubLinked {
 		githubAuthURL = config.GetAuthorizationURL(external.TASK_SERVICE_ID_GITHUB)
+	}
+	if !isJiraLinked {
+		jiraAuthURL = config.GetAuthorizationURL(external.TASK_SERVICE_ID_ATLASSIAN)
 	}
 	if !isLinearLinked {
 		linearAuthURL = config.GetAuthorizationURL(external.TASK_SERVICE_ID_LINEAR)
@@ -1204,6 +1213,20 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			IsNested: true,
 			IsLinked: true,
 			Views:    supportedTaskSectionViews,
+		},
+		{
+			Type:             constants.ViewJira,
+			Name:             "Jira",
+			Logo:             "jira",
+			IsNested:         false,
+			IsLinked:         isJiraLinked,
+			AuthorizationURL: jiraAuthURL,
+			Views: []SupportedViewItem{
+				{
+					Name:    "Jira View",
+					IsAdded: true,
+				},
+			},
 		},
 		{
 			Type:             constants.ViewLinear,
