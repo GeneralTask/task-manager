@@ -212,7 +212,7 @@ const TaskSectionView = () => {
                                         onSubmit={(title) =>
                                             createTask({
                                                 title: title,
-                                                taskSectionId: folder.id,
+                                                id_folder: folder.id,
                                                 optimisticId: uuidv4(),
                                             })
                                         }

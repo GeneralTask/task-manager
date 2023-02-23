@@ -93,7 +93,7 @@ export const useDeleteFolder = () => {
     const queryClient = useGTQueryClient()
     return useGTMutation(({ id }: TDeleteFolderData) => deleteFolder(id), {
         tag: 'folders',
-        invalidateTagsOnSettled: ['folders', 'settings', 'overview-supported-views', 'recurring-tasks'],
+        invalidateTagsOnSettled: ['folders', 'tasks', 'settings', 'overview-supported-views', 'recurring-tasks'],
         onMutate: async ({ id }) => {
             await Promise.all([queryClient.cancelQueries('folders'), queryClient.cancelQueries('recurring-tasks')])
 

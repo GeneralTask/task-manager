@@ -29,8 +29,6 @@ const MarkTaskDoneButton = ({
         markTaskDoneOrDeleted(
             {
                 id: taskId,
-                sectionId: sectionId,
-                subtaskId: subtaskId,
                 isDone: !isDone,
                 waitForAnimation: true,
             },

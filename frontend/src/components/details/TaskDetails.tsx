@@ -176,7 +176,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
     }, [])
 
     const syncDetails = useCallback(
-        ({ id, title, body, subtaskId }: TModifyTaskData) => {
+        ({ id, title, body }: TModifyTaskData) => {
             setIsEditing(false)
             const isEditingTitle = title !== undefined
             if (isEditingTitle && title === '' && titleRef.current) {
@@ -186,7 +186,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                     titleRef.current.select()
                 }
             }
-            const timerId = id + subtaskId + (title === undefined ? 'body' : 'title')
+            const timerId = id + (title === undefined ? 'body' : 'title')
             if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
             if (isRecurringTaskTemplate) {
                 modifyRecurringTask(
@@ -198,28 +198,19 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                     task.optimisticId
                 )
             } else {
-                modifyTask({ id, title, body, subtaskId }, task.optimisticId)
+                modifyTask({ id, title, body }, task.optimisticId)
             }
         },
         [task.id, modifyTask]
     )
 
-    const onEdit = ({ id, title, body, idParent }: TModifyTaskData & { idParent: string | undefined }) => {
-        let subtaskId: string | undefined = undefined
-        let mainId = ''
-        if (idParent) {
-            subtaskId = id
-            mainId = idParent
-        } else {
-            mainId = id
-        }
-
+    const onEdit = ({ id, title, body }: TModifyTaskData) => {
         setIsEditing(true)
-        const timerId = id + subtaskId + (title === undefined ? 'body' : 'title') // we're only modifying the body or title, one at a time
+        const timerId = id + (title === undefined ? 'body' : 'title') // we're only modifying the body or title, one at a time
         if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
         timers.current[timerId] = {
-            timeout: setTimeout(() => syncDetails({ id: mainId, title, body, subtaskId }), DETAILS_SYNC_TIMEOUT),
-            callback: () => syncDetails({ id: mainId, title, body, subtaskId }),
+            timeout: setTimeout(() => syncDetails({ id, title, body }), DETAILS_SYNC_TIMEOUT),
+            callback: () => syncDetails({ id, title, body }),
         }
     }
 
@@ -317,7 +308,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                     key={task.id}
                     value={isInTrash ? `${task.title} (deleted)` : task.title}
                     disabled={!!task.optimisticId || isMeetingPreparationTask || !!task.id_nux_number || isInTrash}
-                    onChange={(val) => onEdit({ id: task.id, title: val, idParent: task.id_parent })}
+                    onChange={(val) => onEdit({ id: task.id, title: val })}
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
                     hideUnfocusedOutline
@@ -394,7 +385,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                         id={task.id}
                         body={task.body ?? ''}
                         contentType={task.source?.name === 'Jira' ? 'atlassian' : 'markdown'}
-                        onChange={(val) => onEdit({ id: task.id, body: val, idParent: task.id_parent })}
+                        onChange={(val) => onEdit({ id: task.id, body: val })}
                         disabled={isInTrash}
                         nux_number_id={task.id_nux_number}
                     />
