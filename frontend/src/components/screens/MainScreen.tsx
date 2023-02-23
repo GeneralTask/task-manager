@@ -33,7 +33,6 @@ const MainScreen = () => {
     useFetchExternalTasks()
     useEventBanners(DateTime.now())
     usePageFocus(true)
-    useGetMeetingPreparationTasks()
 
     const currentPage = () => {
         switch (location.pathname.split('/')[1]) {
