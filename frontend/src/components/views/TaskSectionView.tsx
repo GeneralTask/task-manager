@@ -9,6 +9,7 @@ import useItemSelectionController from '../../hooks/useItemSelectionController'
 import { useGetFolders } from '../../services/api/folders.hooks'
 import Log from '../../services/api/log'
 import { useCreateTask, useFetchExternalTasks, useReorderTask } from '../../services/api/tasks.hooks'
+import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
@@ -61,7 +62,7 @@ const TaskSectionView = () => {
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
     const { calendarType } = useCalendarContext()
-    const { data: activeTasks, isLoading: isLoadingTasks } = useGetActiveTasks()
+    const { data: allTasks, isLoading: isLoadingTasks } = useGetTasksV4()
     const { data: folders } = useGetFolders()
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderTask } = useReorderTask()
@@ -74,8 +75,8 @@ const TaskSectionView = () => {
     const folder = useMemo(() => folders?.find(({ id }) => id === params.section), [folders, params.section])
     const folderTasks = useMemo(() => {
         if (!folder) return []
-        return activeTasks?.filter(({ id_folder }) => id_folder === folder.id) || []
-    }, [activeTasks, folder])
+        return allTasks?.filter(({ id_folder }) => id_folder === folder.id) || []
+    }, [allTasks, folder])
 
     const sortAndFilterSettings = useSortAndFilterSettings<TTaskV4>(TASK_SORT_AND_FILTER_CONFIG, folder?.id, '_main')
     const { selectedSort, selectedSortDirection, isLoading: areSettingsLoading } = sortAndFilterSettings
@@ -92,10 +93,10 @@ const TaskSectionView = () => {
     }, [folder, folderTasks, selectedSort, selectedSortDirection, areSettingsLoading])
 
     const task = useMemo(() => {
-        const subtask = activeTasks?.find(({ id }) => id === params.subtaskId)
-        const task = activeTasks?.find(({ id }) => id === params.task)
+        const subtask = allTasks?.find(({ id }) => id === params.subtaskId)
+        const task = allTasks?.find(({ id }) => id === params.task)
         return subtask || task
-    }, [activeTasks, params.task, params.subtaskId])
+    }, [allTasks, params.task, params.subtaskId])
 
     const [taskIndex, setTaskIndex] = useState(0)
 
