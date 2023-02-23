@@ -61,23 +61,6 @@ const TaskSectionViewItems = forwardRef(
             }
         }
 
-        const { data: activeTasks } = useGetActiveTasks()
-
-        const viewItems =
-            useMemo(
-                () => activeTasks?.filter((task) => view.view_item_ids.includes(task.id)),
-                [activeTasks, view.view_item_ids]
-            ) ?? []
-
-        const sortedViewItems = useMemo(() => {
-            return sortAndFilterItems<TTaskV4>({
-                items: viewItems,
-                sort: sortAndFilterSettings.selectedSort,
-                sortDirection: sortAndFilterSettings.selectedSortDirection,
-                tieBreakerField: TASK_SORT_AND_FILTER_CONFIG.tieBreakerField,
-            })
-        }, [viewItems, sortAndFilterSettings])
-
         return (
             <>
                 {!hideHeader && (
@@ -87,8 +70,8 @@ const TaskSectionViewItems = forwardRef(
                 )}
                 {view.total_view_items !== 0 && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
                 {sectionId && <CreateNewItemInput placeholder="Create new task" onSubmit={onCreateNewTaskSubmit} />}
-                {sortedViewItems.length > 0 ? (
-                    sortedViewItems.slice(0, visibleItemsCount).map((item, index) => (
+                {view.view_items.length > 0 ? (
+                    view.view_items.slice(0, visibleItemsCount).map((item, index) => (
                         <ReorderDropContainer
                             key={item.id}
                             index={index}

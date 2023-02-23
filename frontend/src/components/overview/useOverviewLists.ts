@@ -1,8 +1,10 @@
 import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGTLocalStorage, useItemSelectionController } from '../../hooks'
+import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import Log from '../../services/api/log'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
+import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetSettings } from '../../services/api/settings.hooks'
 import getSortAndFilterSettings from '../../utils/sortAndFilter/getSortAndFilterSettings'
 import { PR_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/pull-requests.config'
@@ -19,8 +21,20 @@ const useOverviewLists = () => {
     const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
     const navigate = useNavigate()
 
+    const { data: activeTasks, isLoading: isActiveTasksLoading } = useGetActiveTasks()
+    const { data: repositories, isLoading: isRepositoriesLoading } = useGetPullRequests()
+    const pullRequests = useMemo(() => repositories?.flatMap((repo) => repo.pull_requests), [repositories])
+
     const sortedAndFilteredLists = useMemo(() => {
-        if (areListsLoading || areSettingsLoading || !lists || !settings) return []
+        if (
+            areListsLoading ||
+            areSettingsLoading ||
+            isActiveTasksLoading ||
+            isRepositoriesLoading ||
+            !lists ||
+            !settings
+        )
+            return []
         const sortedAndFiltered = lists?.map((list) => {
             if (list.type === 'task_section') {
                 const { selectedSort, selectedSortDirection, selectedFilter } = getSortAndFilterSettings(
@@ -29,8 +43,10 @@ const useOverviewLists = () => {
                     list.task_section_id,
                     '_overview'
                 )
+                const viewItems = (activeTasks?.filter((task) => list.view_item_ids.includes(task.id)) ??
+                    []) as TOverviewItem[]
                 const sortedAndFiltered = sortAndFilterItems({
-                    items: list.view_items,
+                    items: viewItems,
                     sort: selectedSort,
                     sortDirection: selectedSortDirection,
                     filter: selectedFilter,
@@ -43,8 +59,10 @@ const useOverviewLists = () => {
                     PR_SORT_AND_FILTER_CONFIG,
                     list.id
                 )
+                const viewItems = (pullRequests?.filter((pr) => list.view_item_ids.includes(pr.id)) ??
+                    []) as TOverviewItem[]
                 const sortedAndFiltered = sortAndFilterItems({
-                    items: list.view_items,
+                    items: viewItems,
                     sort: selectedSort,
                     sortDirection: selectedSortDirection,
                     filter: selectedFilter,
@@ -62,7 +80,17 @@ const useOverviewLists = () => {
             })
         }
         return sortedAndFiltered
-    }, [lists, areListsLoading, settings, areSettingsLoading, overviewAutomaticEmptySort])
+    }, [
+        lists,
+        areListsLoading,
+        settings,
+        areSettingsLoading,
+        isRepositoriesLoading,
+        overviewAutomaticEmptySort,
+        activeTasks,
+        pullRequests,
+        isActiveTasksLoading,
+    ])
 
     // adds listId to the item so we know which list to navigate to
     const flattenedLists: TOverviewItemWithListId[] = useMemo(
