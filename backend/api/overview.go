@@ -1355,7 +1355,7 @@ func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.Ob
 		return api.getView(db, userID, viewType, &[]bson.M{
 			{"task_section_id": view.TaskSectionID},
 		})
-	} else if viewType == constants.ViewLinear || viewType == constants.ViewSlack || viewType == constants.ViewMeetingPreparation || viewType == constants.ViewDueToday {
+	} else if viewType == constants.ViewJira || viewType == constants.ViewLinear || viewType == constants.ViewSlack || viewType == constants.ViewMeetingPreparation || viewType == constants.ViewDueToday {
 		return api.getView(db, userID, viewType, nil)
 	} else if viewType == constants.ViewGithub {
 		return api.getView(db, userID, viewType, &[]bson.M{
