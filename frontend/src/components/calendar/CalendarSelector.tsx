@@ -37,11 +37,6 @@ const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSele
             if (mode === 'task-to-cal') {
                 setTaskToCalAccount(account.account_id)
                 setTaskToCalCalendar(calendar.calendar_id)
-                if (!isCalendarSelected(account.account_id, calendar.calendar_id)) {
-                    toggleCalendarSelection(account.account_id, calendar)
-                }
-            } else {
-                toggleCalendarSelection(account.account_id, calendar)
             }
         },
         [mode, setTaskToCalAccount, setTaskToCalCalendar, isCalendarSelected, toggleCalendarSelection]
