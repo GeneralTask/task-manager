@@ -18,7 +18,7 @@ const useGetVisibleItemCount = (list: TOverviewView, listID: string) => {
                 list.id === overviewViewId ? list.view_item_ids.findIndex((id) => id === overviewItemId) + 1 : 0
             )
         )
-    }, [list.is_linked, list.view_item_ids, listID, overviewItemId])
+    }, [list, listID, overviewItemId])
     return [visibleItemsCount, setVisibleItemsCount] as const
 }
 
