@@ -77,8 +77,12 @@ const TaskSectionView = () => {
         if (!folder) return []
         return (
             allTasks?.filter(({ id_folder, is_deleted, is_done }) => {
-                if (folder.id === DONE_FOLDER_ID && is_done) return true
-                if (folder.id === TRASH_FOLDER_ID && is_deleted) return true
+                if (folder.id === TRASH_FOLDER_ID && is_deleted) {
+                    return folder.id === TRASH_FOLDER_ID
+                }
+                if (is_done) {
+                    return folder.id === DONE_FOLDER_ID
+                }
                 return id_folder === folder.id
             }) || []
         )
