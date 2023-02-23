@@ -73,7 +73,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		statusServer := getStatusServerForJIRA(t, http.StatusOK, false)
 		fieldsServer := getJIRAFieldsServer(t, http.StatusOK, []byte(`{"fields":{}}`))
 		commentsServer := getJIRACommentsServer(t, http.StatusOK, []byte(`{"comments": [{"id": "10000","author":{"accountId": "example-id-1", "displayName": "test"}},{"id": "10001","author":{"accountId": "example-id-2", "displayName": "test2"}}]}`))
-		transitionServer := getTransitionServerForJIRA(t, 200, false)
+		transitionServer := getTransitionServerForJIRA(t, 200, false, true)
 
 		// ensure external API token values updated
 		var externalJIRAToken database.ExternalAPIToken
@@ -151,7 +151,8 @@ func TestLoadJIRATasks(t *testing.T) {
 		assert.Equal(t, false, *result.Tasks[0].JIRATaskParams.HasDueDateField)
 		assert.Equal(t, false, *result.Tasks[0].JIRATaskParams.HasPriorityField)
 		assert.Equal(t, 2, len(result.Tasks[0].AllStatuses))
-		assert.Equal(t, true, result.Tasks[0].AllStatuses[0].IsValidTransition)
+		assert.Equal(t, false, result.Tasks[0].AllStatuses[0].IsValidTransition)
+		assert.Equal(t, true, result.Tasks[0].AllStatuses[1].IsValidTransition)
 
 		var taskFromDB database.Task
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -669,12 +670,35 @@ func getStatusServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 	}))
 }
 
-func getTransitionServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.Server {
+func getTransitionServerForJIRA(t *testing.T, statusCode int, empty bool, partial bool) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(statusCode)
 		var result []byte
 		if empty {
 			result = []byte(``)
+		} else if partial {
+			resultTemp, err := json.Marshal(JIRATransitionList{
+				Transitions: []JIRATransition{
+					{
+						ID: "101",
+						ToStatus: JIRAStatus{
+							ID:      "10003",
+							Name:    "Done",
+							IconURL: "https://example.com",
+							Category: JIRAStatusCategory{
+								Key: "done",
+							},
+							Scope: JIRAScope{
+								Project: JIRAProject{
+									ID: "10000",
+								},
+							},
+						},
+					},
+				},
+			})
+			assert.NoError(t, err)
+			result = resultTemp
 		} else {
 			resultTemp, err := json.Marshal(JIRATransitionList{
 				Transitions: []JIRATransition{
@@ -791,7 +815,7 @@ func TestModifyJIRATask(t *testing.T) {
 	})
 	t.Run("UpdateStatusOnlySuccess", func(t *testing.T) {
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
-		transitionServer := getTransitionServerForJIRA(t, 200, false)
+		transitionServer := getTransitionServerForJIRA(t, 200, false, false)
 		defer transitionServer.Close()
 		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{TransitionURL: &transitionServer.URL, TokenURL: &tokenServer.URL}}}}
 
@@ -833,7 +857,7 @@ func TestModifyJIRATask(t *testing.T) {
 	t.Run("UpdateTitleStatusSuccess", func(t *testing.T) {
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		taskUpdateServer := testutils.GetMockAPIServer(t, 204, "")
-		transitionServer := getTransitionServerForJIRA(t, 200, false)
+		transitionServer := getTransitionServerForJIRA(t, 200, false, false)
 		defer taskUpdateServer.Close()
 		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{TransitionURL: &transitionServer.URL, IssueUpdateURL: &taskUpdateServer.URL, TokenURL: &tokenServer.URL}}}}
 
