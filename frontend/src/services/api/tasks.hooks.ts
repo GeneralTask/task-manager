@@ -8,7 +8,7 @@ import useQueryContext from '../../context/QueryContext'
 import { useGTLocalStorage, useNavigateToTask } from '../../hooks'
 import apiClient from '../../utils/api'
 import navigateToNextItemAfterOverviewCompletion from '../../utils/navigateToNextItemAfterOverviewCompletion'
-import { TExternalStatus, TOverviewView, TTask, TTaskFolder, TTaskSection, TTaskV4, TUserInfo } from '../../utils/types'
+import { TExternalStatus, TOverviewView, TTaskFolder, TTaskSection, TTaskV4, TUserInfo } from '../../utils/types'
 import { arrayMoveInPlace, resetOrderingIds, sleep } from '../../utils/utils'
 import { GTQueryClient, getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 import { createNewTaskV4Helper } from './tasksv4.hooks'
@@ -625,34 +625,5 @@ const postComment = async (data: TPostCommentData) => {
         return castImmutable(res.data)
     } catch {
         throw new Error('postComment failed')
-    }
-}
-
-export const createNewTaskHelper = (data: Partial<TTask> & { optimisticId: string; title: string }): TTask => {
-    return {
-        id: data.optimisticId,
-        optimisticId: data.optimisticId,
-        id_ordering: data.id_ordering ?? 0.5,
-        title: data.title,
-        body: data.body ?? '',
-        deeplink: data.deeplink ?? '',
-        sent_at: data.sent_at ?? '',
-        priority_normalized: data.priority_normalized ?? 0,
-        time_allocated: data.time_allocated ?? 0,
-        due_date: data.due_date ?? '',
-        source: data.source ?? {
-            name: 'General Task',
-            logo: '',
-            logo_v2: 'generaltask',
-            is_completable: false,
-            is_replyable: false,
-        },
-        sender: data.sender ?? '',
-        is_done: data.is_done ?? false,
-        is_deleted: data.is_deleted ?? false,
-        is_meeting_preparation_task: data.is_meeting_preparation_task ?? false,
-        nux_number_id: data.nux_number_id ?? 0,
-        created_at: data.created_at ?? '',
-        updated_at: data.updated_at ?? '',
     }
 }
