@@ -95,6 +95,7 @@ export interface TTaskV4 {
 export interface TMeetingPreparationParams {
     datetime_start: string
     datetime_end: string
+    event_moved_or_deleted: boolean
 }
 
 export interface TSlackMessageParams {
@@ -153,6 +154,7 @@ export interface TEvent {
     conference_call: TConferenceCall
     linked_task_id: string
     linked_view_id: string
+    linked_pull_request_id: string
 }
 
 export interface TMeetingBanner {
@@ -272,6 +274,7 @@ export enum DropType {
     OVERVIEW_VIEW = 'overview-view',
     FOLDER = 'folder',
     OVERVIEW_VIEW_HEADER = 'overview-view-header',
+    PULL_REQUEST = 'pull-request',
 }
 
 export interface DropItem {
@@ -281,6 +284,7 @@ export interface DropItem {
     event?: TEvent
     folder?: TTaskSection
     view?: TOverviewView
+    pullRequest?: TPullRequest
 }
 
 export interface TTaskCreateParams {

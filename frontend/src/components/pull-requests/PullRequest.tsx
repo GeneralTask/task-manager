@@ -1,9 +1,10 @@
 import { useCallback } from 'react'
+import { useDrag } from 'react-dnd'
 import { useNavigate, useParams } from 'react-router-dom'
 import Log from '../../services/api/log'
 import { Colors } from '../../styles'
 import { PULL_REQUEST_ACTIONS } from '../../utils/sortAndFilter/pull-requests.config'
-import { TPullRequest } from '../../utils/types'
+import { DropType, TPullRequest } from '../../utils/types'
 import CommentCount from '../atoms/CommentCount'
 import { EdgeHighlight } from '../atoms/SelectableContainer'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
@@ -21,6 +22,11 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
     const navigate = useNavigate()
     const { calendarType, setCalendarType, setDate, dayViewDate } = useCalendarContext()
 
+    const [, drag] = useDrag(() => ({
+        type: DropType.PULL_REQUEST,
+        item: { id: pullRequest.id, sectionId: undefined, pullRequest },
+    }))
+
     const { title, status, num_comments, deeplink } = pullRequest
 
     const onClickHandler = useCallback(() => {
@@ -35,7 +41,7 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
     const statusDescription = PULL_REQUEST_ACTIONS.find((action) => action.text === status.text)?.description
 
     return (
-        <PullRequestRow onClick={onClickHandler} isSelected={isSelected}>
+        <PullRequestRow onClick={onClickHandler} isSelected={isSelected} ref={drag}>
             {isSelected && <EdgeHighlight color={Colors.gtColor.orange} />}
             <TitleContainer>{title}</TitleContainer>
             <Column>

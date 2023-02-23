@@ -91,19 +91,24 @@ func (api *API) mergeTasksV3(
 	})
 
 	sections, err := api.extractSectionTasksV3(db, userID, activeTasks)
+	for _, section := range sections {
+		section.TaskIDs = GetTaskIDs(section.Tasks)
+	}
 	if err != nil {
 		return []*TaskSection{}, err
 	}
 	sections = append(sections, &TaskSection{
-		ID:     constants.IDTaskSectionDone,
-		Name:   constants.TaskSectionNameDone,
-		Tasks:  completedTaskResults,
-		IsDone: true,
+		ID:      constants.IDTaskSectionDone,
+		Name:    constants.TaskSectionNameDone,
+		Tasks:   completedTaskResults,
+		TaskIDs: GetTaskIDs(completedTaskResults),
+		IsDone:  true,
 	})
 	sections = append(sections, &TaskSection{
 		ID:      constants.IDTaskSectionTrash,
 		Name:    constants.TaskSectionNameTrash,
 		Tasks:   deletedTaskResults,
+		TaskIDs: GetTaskIDs(deletedTaskResults),
 		IsTrash: true,
 	})
 	return sections, nil

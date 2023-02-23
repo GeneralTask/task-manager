@@ -29,6 +29,7 @@ func TestEventModify(t *testing.T) {
 	event, err := eventCollection.InsertOne(context.Background(), database.CalendarEvent{
 		UserID:          userID,
 		SourceAccountID: accountID,
+		CalendarID:      "first_calendar_id",
 		IDExternal:      "id_external_1",
 		SourceID:        external.TASK_SOURCE_ID_GCAL,
 		Title:           "initial summary",
@@ -42,6 +43,18 @@ func TestEventModify(t *testing.T) {
 		SourceAccountID: accountID,
 		IDExternal:      "id_external_2",
 		CalendarID:      "calendar_id",
+		SourceID:        external.TASK_SOURCE_ID_GCAL,
+		Title:           "initial summary",
+		Body:            "initial description",
+		DatetimeStart:   primitive.DateTime(1609559200000),
+		DatetimeEnd:     primitive.DateTime(1609459200000),
+	})
+	assert.NoError(t, err)
+	eventWithSameExternalID, err := eventCollection.InsertOne(context.Background(), database.CalendarEvent{
+		UserID:          userID,
+		SourceAccountID: accountID,
+		IDExternal:      "id_external_2",
+		CalendarID:      "different_calendar_id",
 		SourceID:        external.TASK_SOURCE_ID_GCAL,
 		Title:           "initial summary",
 		Body:            "initial description",
@@ -128,6 +141,30 @@ func TestEventModify(t *testing.T) {
 		assert.Equal(t, "new description", event.Body)
 		assert.Equal(t, primitive.DateTime(1577836800000), event.DatetimeStart)
 		assert.Equal(t, primitive.DateTime(1580515200000), event.DatetimeEnd)
+
+		body = bytes.NewBuffer([]byte(`{
+			"account_id": "duck@duck.com",
+			"summary": "new summary 2",
+			"description": "new description 2"
+		}`))
+		request, _ = http.NewRequest(
+			"PATCH",
+			"/events/modify/"+eventWithSameExternalID.InsertedID.(primitive.ObjectID).Hex()+"/",
+			body)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder = httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		event, err = database.GetCalendarEvent(api.DB, eventWithSameExternalID.InsertedID.(primitive.ObjectID), userID)
+		assert.NoError(t, err)
+		assert.Equal(t, "new summary 2", event.Title)
+		assert.Equal(t, "new description 2", event.Body)
+
+		event, err = database.GetCalendarEvent(api.DB, eventObjectID, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, "new summary", event.Title)
+		assert.Equal(t, "new description", event.Body)
 	})
 	t.Run("NoBody", func(t *testing.T) {
 		ServeRequest(t, authToken, "PATCH", validUrl, nil, http.StatusBadRequest, nil)

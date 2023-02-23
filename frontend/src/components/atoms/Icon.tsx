@@ -22,6 +22,11 @@ const ImageContainer = styled.img`
     width: 100%;
     aspect-ratio: 1;
 `
+const StyledFontAwesomeIcon = styled(FontAwesomeIcon)<{ height: string; hidden?: boolean }>`
+    height: ${({ height }) => height};
+    visibility: ${({ hidden }) => (hidden ? 'hidden' : 'visible')};
+    aspect-ratio: 1;
+`
 interface IconProps {
     icon: TIconType
     size?: TIconSize
@@ -35,20 +40,20 @@ export const Icon = ({ icon, size = 'default', color, colorHex, className, hidde
     // priority is color -> colorHex -> black
     const iconColor = color ? Colors.icon[color] : colorHex ?? Colors.icon.black
 
-    if (hidden) return null
     if (typeof icon === 'string')
         return (
             <IconContainer size={dimension} className={className}>
-                <ImageContainer src={icon} />
+                {!hidden && <ImageContainer src={icon} />}
             </IconContainer>
         )
     return (
         <Flex>
-            <FontAwesomeIcon
+            <StyledFontAwesomeIcon
                 icon={icon}
                 color={iconColor}
                 className={className}
-                style={{ height: dimension, aspectRatio: 1 }}
+                height={dimension}
+                hidden={hidden}
             />
         </Flex>
     )

@@ -2,13 +2,12 @@ package api
 
 import (
 	"context"
-	"sort"
-
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"sort"
 )
 
 type SectionCreateParams struct {
@@ -25,6 +24,59 @@ type SectionResult struct {
 	ID         primitive.ObjectID `json:"id"`
 	IDOrdering int                `json:"id_ordering"`
 	Name       string             `json:"name"`
+}
+
+func GetTaskIDs(tasks []*TaskResult) []string {
+	ids := make([]string, len(tasks))
+	for i, item := range tasks {
+		ids[i] = item.ID.Hex()
+	}
+	return ids
+}
+
+func (api *API) SectionListV2(c *gin.Context) {
+	userID := getUserIDFromContext(c)
+	var userObject database.User
+	userCollection := database.GetUserCollection(api.DB)
+	err := userCollection.FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
+
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to find user")
+		Handle500(c)
+		return
+	}
+
+	activeTasks, err := database.GetActiveTasks(api.DB, userID)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	completedTasks, err := database.GetCompletedTasks(api.DB, userID)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	deletedTasks, err := database.GetDeletedTasks(api.DB, userID)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+
+	allTasks, err := api.mergeTasksV3(
+		api.DB,
+		activeTasks,
+		completedTasks,
+		deletedTasks,
+		userID,
+	)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	for _, sections := range allTasks {
+		sections.Tasks = []*TaskResult{}
+	}
+	c.JSON(200, allTasks)
 }
 
 func (api *API) SectionList(c *gin.Context) {

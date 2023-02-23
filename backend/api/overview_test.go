@@ -25,6 +25,40 @@ func TestOverview(t *testing.T) {
 	defer dbCleanup()
 	router := GetRouter(api)
 	UnauthorizedTest(t, "GET", "/overview/views/", nil)
+	t.Run("InvalidShowMovedOrDeletedQueryParam", func(t *testing.T) {
+		request, _ := http.NewRequest("GET", "/overview/views/?show_moved_or_deleted=invalid", nil)
+		request.Header.Set("Authorization", "Bearer "+authtoken)
+		request.Header.Set("Timezone-Offset", "420")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := io.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, `{"error":"invalid or missing parameter"}`, string(body))
+	})
+	t.Run("ValidShowMovedOrDeletedQueryParam", func(t *testing.T) {
+		// True
+		request, _ := http.NewRequest("GET", "/overview/views/?show_moved_or_deleted=true", nil)
+		request.Header.Set("Authorization", "Bearer "+authtoken)
+		request.Header.Set("Timezone-Offset", "420")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		_, err := io.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+
+		// False
+		request, _ = http.NewRequest("GET", "/overview/views/?show_moved_or_deleted=false", nil)
+		request.Header.Set("Authorization", "Bearer "+authtoken)
+		request.Header.Set("Timezone-Offset", "420")
+
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		_, err = io.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+	})
 	t.Run("SuccessGetViews", func(t *testing.T) {
 		request, _ := http.NewRequest("GET", "/overview/views/", nil)
 		request.Header.Set("Authorization", "Bearer "+authtoken)
@@ -35,7 +69,7 @@ func TestOverview(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		regex := `\[{"id":"[a-z0-9]{24}","name":"Task Inbox","type":"task_section","logo":"generaltask","is_linked":true,"sources":\[\],"task_section_id":"000000000000000000000001","is_reorderable":true,"ordering_id":1,"view_items":\[{"id":"[a-z0-9]{24}","id_ordering":1,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"🗓 Drag tasks onto your calendar","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":1,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":2,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"🔎 Shut out distractions with Focus Mode","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":2,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":3,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"⚙️ Connect your services to see things in one place","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":3,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":4,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"💬 Create tasks out of Slack Messages","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":5,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":5,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"A sincere thank you from the team","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":4,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"}],"has_tasks_completed_today":false},{"id":"[a-z0-9]{24}","name":"Linear Issues","type":"linear","logo":"linear","is_linked":false,"sources":\[{"name":"Linear","authorization_url":"http://localhost:8080/link/linear/"}],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":2,"view_items":\[\],"has_tasks_completed_today":false},{"id":"[a-z0-9]{24}","name":"Slack Messages","type":"slack","logo":"slack","is_linked":false,"sources":\[{"name":"Slack","authorization_url":"http://localhost:8080/link/slack/"}\],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":3,"view_items":\[\],"has_tasks_completed_today":false}]`
+		regex := `\[{"id":"[a-z0-9]{24}","name":"Task Inbox","type":"task_section","logo":"generaltask","is_linked":true,"sources":\[\],"task_section_id":"000000000000000000000001","is_reorderable":true,"ordering_id":1,"view_items":\[{"id":"[a-z0-9]{24}","id_ordering":1,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"🗓 Drag tasks onto your calendar","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":1,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":2,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"🔎 Shut out distractions with Focus Mode","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":2,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":3,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"⚙️ Connect your services to see things in one place","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":3,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":4,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"💬 Create tasks out of Slack Messages","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":5,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":5,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"A sincere thank you from the team","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":4,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"}],"view_item_ids":\["[a-z0-9]{24}","[a-z0-9]{24}","[a-z0-9]{24}","[a-z0-9]{24}","[a-z0-9]{24}"\],"has_tasks_completed_today":false},{"id":"[a-z0-9]{24}","name":"Linear Issues","type":"linear","logo":"linear","is_linked":false,"sources":\[{"name":"Linear","authorization_url":"http://localhost:8080/link/linear/"}],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":2,"view_items":\[\],"view_item_ids":\[\],"has_tasks_completed_today":false},{"id":"[a-z0-9]{24}","name":"Slack Messages","type":"slack","logo":"slack","is_linked":false,"sources":\[{"name":"Slack","authorization_url":"http://localhost:8080/link/slack/"}\],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":3,"view_items":\[\],"view_item_ids":\[\],"has_tasks_completed_today":false}]`
 		assert.Regexp(t, regex, string(body))
 	})
 	t.Run("NoViews", func(t *testing.T) {
@@ -67,6 +101,7 @@ func TestOverview(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, `{"error":"Timezone-Offset header is required"}`, string(body))
 	})
+
 }
 
 func TestGetOverviewResults(t *testing.T) {
@@ -74,7 +109,7 @@ func TestGetOverviewResults(t *testing.T) {
 	defer dbCleanup()
 
 	t.Run("NoViews", func(t *testing.T) {
-		result, err := api.GetOverviewResults([]database.View{}, primitive.NewObjectID(), 0)
+		result, err := api.GetOverviewResults([]database.View{}, primitive.NewObjectID(), 0, true)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, 0, len(result))
@@ -82,7 +117,7 @@ func TestGetOverviewResults(t *testing.T) {
 	t.Run("InvalidViewType", func(t *testing.T) {
 		result, err := api.GetOverviewResults([]database.View{{
 			Type: "invalid",
-		}}, primitive.NewObjectID(), 0)
+		}}, primitive.NewObjectID(), 0, true)
 		assert.Error(t, err)
 		assert.Equal(t, "invalid view type", err.Error())
 		assert.Nil(t, result)
@@ -118,7 +153,7 @@ func TestGetOverviewResults(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		result, err := api.GetOverviewResults(views, userID, 0)
+		result, err := api.GetOverviewResults(views, userID, 0, true)
 		expectedViewResult := OverviewResult[TaskResult]{
 			ID:            views[0].ID,
 			Name:          taskSectionName,
@@ -132,6 +167,7 @@ func TestGetOverviewResults(t *testing.T) {
 			ViewItems: []*TaskResult{{
 				ID: taskResult.InsertedID.(primitive.ObjectID),
 			}},
+			ViewItemIDs: []string{taskResult.InsertedID.(primitive.ObjectID).Hex()},
 		}
 		assert.NoError(t, err)
 		assert.Len(t, result, 1)
@@ -250,6 +286,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 				IDOrdering: 3,
 			},
 		}
+		expectedViewResult.ViewItemIDs = []string{secondTaskID.Hex(), thirdTaskID.Hex(), firstTaskID.Hex()}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("InvalidUser", func(t *testing.T) {
@@ -310,6 +347,7 @@ func TestGetLinearOverviewResult(t *testing.T) {
 		assert.NotNil(t, result)
 		expectedViewResult.ViewItems = []*TaskResult{}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+		assert.Zero(t, len(result.ViewItemIDs))
 	})
 	t.Run("SingleLinearViewItem", func(t *testing.T) {
 		taskCollection := database.GetTaskCollection(api.DB)
@@ -370,6 +408,7 @@ func TestGetLinearOverviewResult(t *testing.T) {
 				ID: taskID,
 			},
 		}
+		expectedViewResult.ViewItemIDs = []string{taskID.Hex()}
 		expectedViewResult.HasTasksCompletedToday = true
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
@@ -386,6 +425,7 @@ func TestGetLinearOverviewResult(t *testing.T) {
 		assert.NotNil(t, result)
 		expectedViewResult.IsLinked = false
 		expectedViewResult.ViewItems = []*TaskResult{}
+		expectedViewResult.ViewItemIDs = []string{}
 		expectedViewResult.HasTasksCompletedToday = false
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
@@ -495,6 +535,7 @@ func TestGetSlackOverviewResult(t *testing.T) {
 				ID: taskID,
 			},
 		}
+		expectedViewResult.ViewItemIDs = []string{taskID.Hex()}
 		expectedViewResult.HasTasksCompletedToday = true
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
@@ -511,6 +552,7 @@ func TestGetSlackOverviewResult(t *testing.T) {
 		assert.NotNil(t, result)
 		expectedViewResult.IsLinked = false
 		expectedViewResult.ViewItems = []*TaskResult{}
+		expectedViewResult.ViewItemIDs = []string{}
 		expectedViewResult.HasTasksCompletedToday = false
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
@@ -678,6 +720,7 @@ func TestGetGithubOverviewResult(t *testing.T) {
 			{ID: pullRequestID3.Hex()},
 			{ID: pullRequestID2.Hex()},
 		}
+		expectedViewResult.ViewItemIDs = []string{pullRequestID.Hex(), pullRequestID3.Hex(), pullRequestID2.Hex()}
 		expectedViewResult.HasTasksCompletedToday = true
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 		assert.Equal(t, expectedViewResult.ViewItems[0].Body, result.ViewItems[0].Body)
@@ -697,6 +740,7 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		expectedViewResult.IsLinked = false
 		expectedViewResult.Name = "Github PRs"
 		expectedViewResult.ViewItems = []*PullRequestResult{}
+		expectedViewResult.ViewItemIDs = []string{}
 		expectedViewResult.HasTasksCompletedToday = false
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
@@ -738,13 +782,13 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 	assert.NoError(t, err)
 
 	t.Run("InvalidUser", func(t *testing.T) {
-		res, err := api.GetMeetingPreparationOverviewResult(view, primitive.NewObjectID(), timezoneOffset)
+		res, err := api.GetMeetingPreparationOverviewResult(view, primitive.NewObjectID(), timezoneOffset, true)
 		assert.Error(t, err)
 		assert.Equal(t, "invalid user", err.Error())
 		assert.Nil(t, res)
 	})
 	t.Run("NoEvents", func(t *testing.T) {
-		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
+		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, true)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 		assert.Equal(t, 0, len(res.ViewItems))
@@ -752,7 +796,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 	t.Run("EventStartTimeHasPassed", func(t *testing.T) {
 		_, err := createTestEvent(calendarEventCollection, userID, "coffee", primitive.NewObjectID().Hex(), timeOneHourAgo, timeOneHourLater, primitive.NilObjectID, "acctid", "calid")
 		assert.NoError(t, err)
-		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
+		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, true)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 		assert.Equal(t, 0, len(res.ViewItems))
@@ -762,7 +806,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.NoError(t, err)
 		_, err = createTestEvent(calendarEventCollection, userID, "chat", primitive.NewObjectID().Hex(), timeEarlyTomorrow, timeEarlyTomorrow, primitive.NilObjectID, "acctid", "calid")
 		assert.NoError(t, err)
-		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
+		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, true)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 		assert.Equal(t, 0, len(res.ViewItems))
@@ -773,7 +817,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		// shouldn't show task to cal events
 		_, err = createTestEvent(calendarEventCollection, userID, "EventTask", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NewObjectID(), "acctid", "calid")
 		assert.NoError(t, err)
-		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
+		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, true)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 		assert.Equal(t, 1, len(res.ViewItems))
@@ -789,7 +833,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		_, err = createTestMeetingPreparationTask(taskCollection, userID, "Event2", idExternal, false, timeTwoHoursLater, timeOneDayLater, insertResult.InsertedID.(primitive.ObjectID))
 		assert.NoError(t, err)
 
-		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
+		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, true)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 		assert.Equal(t, 2, len(res.ViewItems))
@@ -799,10 +843,15 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, "", res.ViewItems[0].Body)
 	})
 	t.Run("MeetingHasEnded", func(t *testing.T) {
-		insertResult, err := createTestMeetingPreparationTask(taskCollection, userID, "reticulate splines", primitive.NewObjectID().Hex(), false, timeZero, timeZero, primitive.NilObjectID)
+		idExternal := primitive.NewObjectID().Hex()
+
+		_, err := createTestEvent(calendarEventCollection, userID, "Event4", idExternal, timeOneHourAgo, timeOneHourAgo, primitive.NilObjectID, "acctid", "calid")
 		assert.NoError(t, err)
 
-		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
+		insertResult, err := createTestMeetingPreparationTask(taskCollection, userID, "reticulate splines", idExternal, false, timeZero, timeZero, primitive.NilObjectID)
+		assert.NoError(t, err)
+
+		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, true)
 		assert.NoError(t, err)
 
 		var item database.Task
@@ -820,7 +869,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		insertResult, err := createTestMeetingPreparationTask(taskCollection, userID, "to the moon", primitive.NewObjectID().Hex(), true, timeZero, timeZero, primitive.NilObjectID)
 		assert.NoError(t, err)
 
-		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
+		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, true)
 		assert.NoError(t, err)
 
 		var item database.Task
@@ -838,7 +887,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		insertResult, err := createTestMeetingPreparationTask(taskCollection, userID, "Event3", idExternal, false, timeTwoHoursLater, timeOneDayLater, primitive.NewObjectID())
 		assert.NoError(t, err)
 
-		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
+		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, false)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 		// Event3 shouldn't be included in the results
@@ -853,6 +902,28 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.NotEqual(t, primitive.DateTime(0), item.CompletedAt)
 		assert.Equal(t, true, item.MeetingPreparationParams.HasBeenAutomaticallyCompleted)
 	})
+	t.Run("TaskWithMissingEvent", func(t *testing.T) {
+		idExternal := primitive.NewObjectID().Hex()
+		insertResult, err := createTestMeetingPreparationTask(taskCollection, userID, "Event3", idExternal, false, timeTwoHoursLater, timeOneDayLater, primitive.NewObjectID())
+		assert.NoError(t, err)
+
+		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, true)
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+
+		assert.Equal(t, 3, len(res.ViewItems))
+		assert.Equal(t, "Event1", res.ViewItems[0].Title)
+		assert.Equal(t, "Event3", res.ViewItems[1].Title)
+		assert.Equal(t, "Event2", res.ViewItems[2].Title)
+
+		var item database.Task
+		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertResult.InsertedID.(primitive.ObjectID)}).Decode(&item)
+		assert.NoError(t, err)
+		assert.False(t, *item.IsCompleted)
+		assert.Equal(t, primitive.DateTime(0), item.CompletedAt)
+		assert.False(t, item.MeetingPreparationParams.HasBeenAutomaticallyCompleted)
+		assert.True(t, item.MeetingPreparationParams.EventMovedOrDeleted)
+	})
 	t.Run("EventIsNotOnOwnedCalendar", func(t *testing.T) {
 		idExternal := primitive.NewObjectID().Hex()
 		insertResult, err := createTestEvent(calendarEventCollection, userID, "Event2", idExternal, timeTwoHoursLater, timeOneDayLater, primitive.NilObjectID, "acctid", "other_calid")
@@ -864,6 +935,26 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		var item database.Task
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertResult.InsertedID.(primitive.ObjectID)}).Decode(&item)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
+	})
+	t.Run("EventHasMovedToAnotherDay", func(t *testing.T) {
+		idExternal := primitive.NewObjectID().Hex()
+		insertResult, err := createTestEvent(calendarEventCollection, userID, "Event2", idExternal, timeTwoHoursLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
+		assert.NoError(t, err)
+
+		insertTaskResult, err := createTestMeetingPreparationTask(taskCollection, userID, "Event2", idExternal, false, timeTwoHoursLater, timeOneDayLater, insertResult.InsertedID.(primitive.ObjectID))
+		assert.NoError(t, err)
+
+		_, err = calendarEventCollection.UpdateOne(context.Background(), bson.M{"_id": insertResult.InsertedID.(primitive.ObjectID)}, bson.M{"$set": bson.M{"datetime_start": primitive.NewDateTimeFromTime(timeOneDayLater)}})
+		assert.NoError(t, err)
+
+		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, true)
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+
+		var item database.Task
+		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertTaskResult.InsertedID.(primitive.ObjectID)}).Decode(&item)
+		assert.NoError(t, err)
+		assert.True(t, item.MeetingPreparationParams.EventMovedOrDeleted)
 	})
 }
 
@@ -890,10 +981,11 @@ func createTestMeetingPreparationTask(taskCollection *mongo.Collection, userID p
 		IsCompleted:              &isCompleted,
 		IsMeetingPreparationTask: true,
 		MeetingPreparationParams: &database.MeetingPreparationParams{
-			CalendarEventID: eventID,
-			IDExternal:      IDExternal,
-			DatetimeStart:   primitive.NewDateTimeFromTime(dateTimeStart),
-			DatetimeEnd:     primitive.NewDateTimeFromTime(dateTimeEnd),
+			CalendarEventID:     eventID,
+			IDExternal:          IDExternal,
+			DatetimeStart:       primitive.NewDateTimeFromTime(dateTimeStart),
+			DatetimeEnd:         primitive.NewDateTimeFromTime(dateTimeEnd),
+			EventMovedOrDeleted: false,
 		},
 	})
 }
@@ -1070,6 +1162,7 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 				IDOrdering: 3,
 			},
 		}
+		expectedViewResult.ViewItemIDs = []string{secondTaskID.Hex(), thirdTaskID.Hex(), firstTaskID.Hex()}
 		expectedViewResult.HasTasksCompletedToday = true
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
@@ -1839,11 +1932,15 @@ func assertOverviewViewResultEqual[T ViewItem](t *testing.T, expected OverviewRe
 	assert.Equal(t, expected.IsReorderable, actual.IsReorderable)
 	assert.Equal(t, expected.IDOrdering, actual.IDOrdering)
 	assert.Equal(t, len(expected.ViewItems), len(actual.ViewItems))
+	assert.Equal(t, len(expected.ViewItemIDs), len(actual.ViewItemIDs))
 	assert.Equal(t, expected.HasTasksCompletedToday, actual.HasTasksCompletedToday)
 	for i := range expected.ViewItems {
 		expectedViewItem := *(expected.ViewItems[i])
 		actualViewItem := *(actual.ViewItems[i])
 		assert.Equal(t, expectedViewItem.GetID(), actualViewItem.GetID())
+	}
+	for i := range expected.ViewItemIDs {
+		assert.Equal(t, expected.ViewItemIDs[i], actual.ViewItemIDs[i])
 	}
 }
 

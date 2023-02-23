@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
@@ -76,6 +75,7 @@ func (api *API) EventCreate(c *gin.Context) {
 		IDExternal:          externalEventID.Hex(),
 		SourceID:            sourceID,
 		SourceAccountID:     eventCreateObject.AccountID,
+		CalendarID:          eventCreateObject.CalendarID,
 		Title:               eventCreateObject.Summary,
 		Body:                eventCreateObject.Description,
 		DatetimeEnd:         primitive.NewDateTimeFromTime(*eventCreateObject.DatetimeEnd),

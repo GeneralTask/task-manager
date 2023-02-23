@@ -1,7 +1,9 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import Lottie, { LottieRef } from 'lottie-react'
 import styled from 'styled-components'
 import checkbox from '../../../public/animations/checkbox.json'
+import { TShortcutName } from '../../constants/shortcuts'
+import { useKeyboardShortcut } from '../../hooks'
 import { checkboxSize } from '../../styles/dimensions'
 import NoStyleButton from './buttons/NoStyleButton'
 
@@ -34,8 +36,10 @@ interface GTCheckboxProps {
     onChange: (checked: boolean) => void
     disabled?: boolean
     animated?: boolean
+    shortcutName?: TShortcutName
+    shortcutDisabled?: boolean
 }
-const GTCheckbox = ({ isChecked, onChange, disabled, animated }: GTCheckboxProps) => {
+const GTCheckbox = ({ isChecked, onChange, disabled, animated, shortcutName, shortcutDisabled }: GTCheckboxProps) => {
     const animRef: LottieRef = useRef(null)
 
     useEffect(() => {
@@ -44,25 +48,30 @@ const GTCheckbox = ({ isChecked, onChange, disabled, animated }: GTCheckboxProps
         }
     }, [isChecked])
 
-    const onClickHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.stopPropagation()
-        onChange(!isChecked)
-        if (!isChecked) {
-            if (animated) {
-                animRef.current?.play()
+    const onClickHandler = useCallback(
+        (e?: React.MouseEvent<HTMLButtonElement>) => {
+            e?.stopPropagation()
+            onChange(!isChecked)
+            if (!isChecked) {
+                if (animated) {
+                    animRef.current?.play()
+                } else {
+                    animRef.current?.goToAndStop(ANIM_END_FRAME, true)
+                }
             } else {
-                animRef.current?.goToAndStop(ANIM_END_FRAME, true)
+                animRef.current?.goToAndStop(ANIM_START_FRAME, true)
             }
-        } else {
-            animRef.current?.goToAndStop(ANIM_START_FRAME, true)
-        }
-    }
+        },
+        [isChecked, onChange, animated]
+    )
 
     useEffect(() => {
         if (!animRef.current) return
         animRef.current.goToAndStop(isChecked ? ANIM_TOTAL_FRAMES : ANIM_START_FRAME, true)
         animRef.current.setSpeed(ANIM_SPEED)
     }, [])
+
+    useKeyboardShortcut(shortcutName, onClickHandler, shortcutDisabled)
 
     return (
         <FixedSizeButton onClick={onClickHandler} disabled={disabled}>
