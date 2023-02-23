@@ -134,7 +134,7 @@ export const useCreateTask = () => {
     const navigateToTask = useNavigateToTask()
 
     return useGTMutation((data: TCreateTaskData) => createTask(data), {
-        tag: 'tasks',
+        tag: 'tasks_v4',
         invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
         onMutate: async (data: TCreateTaskData) => {
             await Promise.all([
