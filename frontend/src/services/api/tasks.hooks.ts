@@ -180,41 +180,41 @@ export const useCreateTask = () => {
             setOptimisticId(createData.optimisticId, response.task_id)
 
             const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
-            if (tasks) {
-                const updatedTasks = produce(tasks, (draft) => {
-                    const task = draft.find((task) => task.id === createData.optimisticId)
-                    if (!task) return
-                    task.id = response.task_id
-                    task.optimisticId = undefined
-                })
-                queryClient.setQueryData('tasks_v4', updatedTasks)
-            }
+            const updatedTasks = produce(tasks, (draft) => {
+                const task = draft?.find((task) => task.id === createData.optimisticId)
+                if (!task) return
+                task.id = response.task_id
+                task.optimisticId = undefined
+            })
+            if (updatedTasks) queryClient.setQueryData('tasks_v4', updatedTasks)
 
             const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('folders')
-            if (folders) {
-                const updatedFolders = produce(folders, (draft) => {
-                    const folder = draft.find((folder) => folder.id === createData.id_folder)
-                    if (!folder) return
-                    const taskIdIndex = folder.task_ids.indexOf(createData.optimisticId)
-                    if (taskIdIndex === -1) return
-                    folder.task_ids[taskIdIndex] = response.task_id
-                })
-                queryClient.setQueryData('folders', updatedFolders)
-            }
+            const updatedFolders = produce(folders, (draft) => {
+                const folder = draft?.find((folder) => folder.id === createData.id_folder)
+                if (!folder) return
+                const taskIdIndex = folder.task_ids.indexOf(createData.optimisticId)
+                if (taskIdIndex === -1) return
+                folder.task_ids[taskIdIndex] = response.task_id
+            })
+            if (updatedFolders) queryClient.setQueryData('folders', updatedFolders)
 
             const lists = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-            if (lists) {
-                const updatedLists = produce(lists, (draft) => {
-                    const list = draft.find((view) => view.task_section_id === createData.id_folder)
-                    if (!list) return
-                    const taskIdIndex = list.view_item_ids.indexOf(createData.optimisticId)
-                    if (taskIdIndex === -1) return
-                    list.view_item_ids[taskIdIndex] = response.task_id
-                })
-                queryClient.setQueryData('overview', updatedLists)
-            }
+            const updatedLists = produce(lists, (draft) => {
+                const list = draft?.find((view) => view.task_section_id === createData.id_folder)
+                if (!list) return
+                const taskIdIndex = list.view_item_ids.indexOf(createData.optimisticId)
+                if (taskIdIndex === -1) return
+                list.view_item_ids[taskIdIndex] = response.task_id
+            })
+            if (lists) queryClient.setQueryData('overview', updatedLists)
+
             if (window.location.pathname.includes(createData.optimisticId)) {
-                navigateToTask(response.task_id)
+                navigateToTask({
+                    taskId: response.task_id,
+                    tasks: updatedTasks as TTaskV4[],
+                    folders: updatedFolders as TTaskFolder[],
+                    views: updatedLists as TOverviewView[],
+                })
             }
         },
     })

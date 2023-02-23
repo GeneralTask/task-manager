@@ -185,7 +185,7 @@ const TaskSectionView = () => {
             if (folders.length === 0 || sortedTasks.length === 0) return
             const previousTask = sortedTasks[taskIndex - 1]
             if (!previousTask) return
-            navigateToTask(previousTask.id)
+            navigateToTask({ taskId: previousTask.id })
         },
         [folders, params.task]
     )

@@ -148,7 +148,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                         fitContent={false}
                         onClick={() => {
                             setIsOpen(false)
-                            navigateToTask(event.linked_task_id)
+                            navigateToTask({ taskId: event.linked_task_id })
                         }}
                     />
                 )}

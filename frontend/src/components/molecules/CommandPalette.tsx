@@ -264,7 +264,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                     key={id}
                                     onSelect={() => {
                                         setShowCommandPalette(false)
-                                        navigateToTask(id)
+                                        navigateToTask({ taskId: id })
                                     }}
                                     value={`${title} ${id}`}
                                 >
