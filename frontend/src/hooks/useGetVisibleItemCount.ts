@@ -10,7 +10,7 @@ const useGetVisibleItemCount = (list: TOverviewView, listID: string) => {
     useLayoutEffect(() => {
         setVisibleItemsCount(
             Math.max(
-                // Ensure that visibleItemsCount <= view.view_items.length, and that we do not decrease the number of visible items when selecting a new item
+                // Ensure that visibleItemsCount <= view.view_item_ids.length, and that we do not decrease the number of visible items when selecting a new item
                 Math.min(visibleItemsCount, list.view_item_ids.length),
                 // If view.view_item_ids.length drops below PAGE_SIZE, set visibleItemsCount to view.view_item_ids.length
                 Math.min(list.view_item_ids.length, INITIAL_PAGE_SIZE),
@@ -18,7 +18,7 @@ const useGetVisibleItemCount = (list: TOverviewView, listID: string) => {
                 list.id === overviewViewId ? list.view_item_ids.findIndex((id) => id === overviewItemId) + 1 : 0
             )
         )
-    }, [list.is_linked, list.view_items, listID, overviewItemId])
+    }, [list.is_linked, list.view_item_ids, listID, overviewItemId])
     return [visibleItemsCount, setVisibleItemsCount] as const
 }
 
