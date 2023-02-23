@@ -161,7 +161,7 @@ export const useCreateTask = () => {
                 const updatedFolders = produce(folders, (draft) => {
                     const folder = draft.find((folder) => folder.id === data.id_folder)
                     if (!folder) return
-                    folder.task_ids = [data.optimisticId, ...folder.task_ids]
+                    folder.task_ids.unshift(data.optimisticId)
                 })
                 queryClient.setQueryData('folders', updatedFolders)
             }
@@ -171,7 +171,7 @@ export const useCreateTask = () => {
                 const updatedLists = produce(lists, (draft) => {
                     const list = draft.find((view) => view.task_section_id === data.id_folder)
                     if (!list) return
-                    list.view_item_ids = [data.optimisticId, ...list.view_item_ids]
+                    list.view_item_ids.unshift(data.optimisticId)
                 })
                 queryClient.setQueryData('overview', updatedLists)
             }
@@ -213,7 +213,6 @@ export const useCreateTask = () => {
                 })
                 queryClient.setQueryData('overview', updatedLists)
             }
-
             if (window.location.pathname.includes(createData.optimisticId)) {
                 navigateToTask(response.task_id)
             }
