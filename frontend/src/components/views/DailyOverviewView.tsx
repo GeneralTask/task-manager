@@ -40,7 +40,7 @@ const useSelectFirstItemOnFirstLoad = () => {
 
     useEffect(() => {
         if (!isFirstSuccess.current || lists?.length === 0) return
-        const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
+        const firstNonEmptyView = lists?.find((list) => list.view_item_ids.length > 0)
         if (firstNonEmptyView) {
             setOpenListIds((ids) => {
                 if (!ids.includes(firstNonEmptyView.id)) {
@@ -48,7 +48,7 @@ const useSelectFirstItemOnFirstLoad = () => {
                 }
                 return ids
             })
-            navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
+            navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_item_ids[0]}`, { replace: true })
         } else {
             navigate(`/overview`, { replace: true })
         }
