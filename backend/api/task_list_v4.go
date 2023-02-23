@@ -20,7 +20,7 @@ type TaskSourceV4 struct {
 type TaskResultV4 struct {
 	ID                       primitive.ObjectID           `json:"id"`
 	IDOrdering               int                          `json:"id_ordering"`
-	IDFolder                 string                       `json:"id_folder"`
+	IDFolder                 string                       `json:"id_folder,omitempty"`
 	IDParent                 string                       `json:"id_parent,omitempty"`
 	Source                   TaskSourceV4                 `json:"source"`
 	Deeplink                 string                       `json:"deeplink"`
