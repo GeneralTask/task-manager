@@ -61,10 +61,11 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		body := "example body"
 		priority := 3.0
 		externalStatus := database.ExternalTaskStatus{
-			ExternalID: "example ID",
-			State:      "example state",
-			Type:       "example type",
-			Color:      "#ffffff",
+			ExternalID:        "example ID",
+			State:             "example state",
+			Type:              "example type",
+			Color:             "#ffffff",
+			IsValidTransition: true,
 		}
 		slackMessageParams := database.SlackMessageParams{
 			Channel: database.SlackChannel{
@@ -112,6 +113,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		assert.Equal(t, 1, len(result.AllStatuses))
 		assert.Equal(t, externalStatus.Type, result.AllStatuses[0].Type)
 		assert.Equal(t, externalStatus.Color, result.AllStatuses[0].Color)
+		assert.Equal(t, externalStatus.IsValidTransition, result.AllStatuses[0].IsValidTransition)
 		assert.Equal(t, 1, len(result.AllExternalPriorities))
 		assert.Equal(t, externalPriority.Name, result.AllExternalPriorities[0].Name)
 		assert.Equal(t, externalPriority.PriorityNormalized, result.AllExternalPriorities[0].PriorityNormalized)

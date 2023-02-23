@@ -207,10 +207,11 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 		allStatuses := []*externalStatus{}
 		for _, status := range t.AllStatuses {
 			allStatuses = append(allStatuses, &externalStatus{
-				IDExternal: status.ExternalID,
-				State:      status.State,
-				Type:       status.Type,
-				Color:      status.Color,
+				IDExternal:        status.ExternalID,
+				State:             status.State,
+				Type:              status.Type,
+				Color:             status.Color,
+				IsValidTransition: status.IsValidTransition,
 			})
 		}
 		taskResult.AllStatuses = allStatuses
