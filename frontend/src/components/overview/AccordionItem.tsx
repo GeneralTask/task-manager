@@ -57,11 +57,11 @@ const AccordionItem = ({ list }: AccordionItemProps) => {
 
     useLayoutEffect(() => {
         //close if no view items
-        if (list.view_items.length === 0) setOpenListIds(openListIds.filter((id) => id !== list.id))
-    }, [list.view_items.length])
+        if (list.view_item_ids.length === 0) setOpenListIds(openListIds.filter((id) => id !== list.id))
+    }, [list.view_item_ids.length])
 
     const [visibleItemsCount, setVisibleItemsCount] = useGetVisibleItemCount(list, list.id)
-    const nextPageLength = Math.min(list.view_items.length - visibleItemsCount, PAGE_SIZE)
+    const nextPageLength = Math.min(list.view_item_ids.length - visibleItemsCount, PAGE_SIZE)
 
     return (
         <AccordionContainer>
@@ -73,7 +73,7 @@ const AccordionItem = ({ list }: AccordionItemProps) => {
                     {list.is_linked ? (
                         <>
                             <ViewItems view={list} visibleItemsCount={visibleItemsCount} hideHeader />
-                            {visibleItemsCount < list.view_items.length && (
+                            {visibleItemsCount < list.view_item_ids.length && (
                                 <PaginateTextButton
                                     onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}
                                 >
