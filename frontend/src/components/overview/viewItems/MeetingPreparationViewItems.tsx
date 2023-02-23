@@ -14,7 +14,6 @@ const MeetingPreparationViewItems = forwardRef(({ view, hideHeader }: ViewItemsP
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const isGoogleLinked = isGoogleCalendarLinked(linkedAccounts || [])
     const { data: meetingTasks } = useGetMeetingPreparationTasks()
-    const viewItems = meetingTasks?.filter((item) => view.view_item_ids.includes(item.id)) || []
 
     return (
         <>
@@ -24,8 +23,8 @@ const MeetingPreparationViewItems = forwardRef(({ view, hideHeader }: ViewItemsP
                 </ViewHeader>
             )}
             {isGoogleLinked ? (
-                viewItems.length > 0 ? (
-                    viewItems.map((item, index) => (
+                meetingTasks && meetingTasks?.length > 0 ? (
+                    meetingTasks?.map((item, index) => (
                         <Task
                             key={item.id}
                             task={item}
