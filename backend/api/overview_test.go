@@ -303,6 +303,134 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	})
 }
 
+func TestGetJiraOverviewResult(t *testing.T) {
+	userID := primitive.NewObjectID()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
+	_, err := externalAPITokenCollection.InsertOne(context.Background(), database.ExternalAPIToken{
+		UserID:    userID,
+		Token:     "testtoken",
+		ServiceID: external.TaskServiceAtlassian.ID,
+	})
+	assert.NoError(t, err)
+	view := database.View{
+		UserID:     userID,
+		IDOrdering: 1,
+		Type:       "jira",
+		IsLinked:   true,
+	}
+	viewCollection := database.GetViewCollection(api.DB)
+	_, err = viewCollection.InsertOne(context.Background(), view)
+	assert.NoError(t, err)
+
+	authURL := "http://localhost:8080/link/atlassian/"
+	expectedViewResult := OverviewResult[TaskResult]{
+		ID:            view.ID,
+		Name:          "Jira Issues",
+		Type:          constants.ViewJira,
+		Logo:          "jira",
+		IsLinked:      true,
+		IsReorderable: false,
+		Sources: []SourcesResult{
+			{
+				Name:             "Jira",
+				AuthorizationURL: &authURL,
+			},
+		},
+		IDOrdering:    1,
+		TaskSectionID: primitive.NilObjectID,
+	}
+	t.Run("EmptyViewItems", func(t *testing.T) {
+		result, err := api.GetJiraOverviewResult(view, userID, 0)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.ViewItems = []*TaskResult{}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+		assert.Zero(t, len(result.ViewItemIDs))
+	})
+	t.Run("SingleJiraViewItem", func(t *testing.T) {
+		taskCollection := database.GetTaskCollection(api.DB)
+		notCompleted := false
+		completed := true
+		taskResult, err := taskCollection.InsertOne(context.Background(), database.Task{
+			UserID:        userID,
+			IsCompleted:   &notCompleted,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_JIRA,
+		})
+		assert.NoError(t, err)
+
+		// Insert completed Jira task. This task should not be in the view result.
+		_, err = taskCollection.InsertOne(context.Background(), database.Task{
+			UserID:        userID,
+			IsCompleted:   &completed,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_JIRA,
+			CompletedAt:   primitive.NewDateTimeFromTime(time.Now()),
+		})
+		assert.NoError(t, err)
+
+		// Insert completed Jira subtask. This task should not be in the view result.
+		_, err = taskCollection.InsertOne(context.Background(), database.Task{
+			UserID:        userID,
+			IsCompleted:   &completed,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_JIRA,
+			ParentTaskID:  primitive.NewObjectID(),
+		})
+		assert.NoError(t, err)
+
+		// Insert task with different source. This task should not be in the view result.
+		_, err = taskCollection.InsertOne(context.Background(), database.Task{
+			UserID:        userID,
+			IsCompleted:   &notCompleted,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      "randomSource",
+		})
+		assert.NoError(t, err)
+
+		// Insert Jira task with different UserID. This task should not be in the view result.
+		_, err = taskCollection.InsertOne(context.Background(), database.Task{
+			UserID:        primitive.NewObjectID(),
+			IsCompleted:   &notCompleted,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_JIRA,
+		})
+		assert.NoError(t, err)
+
+		taskID := taskResult.InsertedID.(primitive.ObjectID)
+		result, err := api.GetJiraOverviewResult(view, userID, 0)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.ViewItems = []*TaskResult{
+			{
+				ID: taskID,
+			},
+		}
+		expectedViewResult.ViewItemIDs = []string{taskID.Hex()}
+		expectedViewResult.HasTasksCompletedToday = true
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+	t.Run("InvalidUser", func(t *testing.T) {
+		result, err := api.GetJiraOverviewResult(view, primitive.NewObjectID(), 0)
+		assert.Error(t, err)
+		assert.Equal(t, "invalid user", err.Error())
+		assert.Nil(t, result)
+	})
+	t.Run("ViewNotLinked", func(t *testing.T) {
+		view.IsLinked = false
+		result, err := api.GetJiraOverviewResult(view, userID, 0)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.IsLinked = false
+		expectedViewResult.ViewItems = []*TaskResult{}
+		expectedViewResult.ViewItemIDs = []string{}
+		expectedViewResult.HasTasksCompletedToday = false
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+}
+
 func TestGetLinearOverviewResult(t *testing.T) {
 	userID := primitive.NewObjectID()
 	api, dbCleanup := GetAPIWithDBCleanup()

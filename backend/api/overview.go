@@ -144,6 +144,8 @@ func (api *API) GetOverviewResults(views []database.View, userID primitive.Objec
 		switch view.Type {
 		case string(constants.ViewTaskSection):
 			singleOverviewResult, err = api.GetTaskSectionOverviewResult(view, userID, timezoneOffset)
+		case string(constants.ViewJira):
+			singleOverviewResult, err = api.GetJiraOverviewResult(view, userID, timezoneOffset)
 		case string(constants.ViewLinear):
 			singleOverviewResult, err = api.GetLinearOverviewResult(view, userID, timezoneOffset)
 		case string(constants.ViewSlack):
