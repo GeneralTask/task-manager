@@ -117,6 +117,8 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/overview/views", handlers.OverviewViewsList)
 	router.GET("/overview/views/", handlers.OverviewViewsList)
 
+	router.GET("/meeting_preparation_tasks/", handlers.MeetingPreparationTasksList)
+
 	router.POST("/overview/views/", handlers.OverviewViewAdd)
 	router.PATCH("/overview/views/bulk_modify/", handlers.OverviewViewBulkModify)
 	router.PATCH("/overview/views/:view_id/", handlers.OverviewViewModify)
