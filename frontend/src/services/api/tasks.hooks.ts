@@ -9,12 +9,7 @@ import { useGTLocalStorage, useNavigateToTask } from '../../hooks'
 import apiClient from '../../utils/api'
 import navigateToNextItemAfterOverviewCompletion from '../../utils/navigateToNextItemAfterOverviewCompletion'
 import { TExternalStatus, TOverviewView, TTask, TTaskFolder, TTaskSection, TTaskV4, TUserInfo } from '../../utils/types'
-import {
-    arrayMoveInPlace,
-    getTaskFromSections,
-    resetOrderingIds,
-    sleep,
-} from '../../utils/utils'
+import { arrayMoveInPlace, resetOrderingIds, sleep } from '../../utils/utils'
 import { GTQueryClient, getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 import { createNewTaskV4Helper } from './tasksv4.hooks'
 
