@@ -55,7 +55,7 @@ const TaskSectionViewItems = forwardRef(
                 taskSectionId: sectionId,
                 optimisticId: optimisticId,
             })
-            const allListsEmpty = lists?.every((list) => list.view_items.length === 0)
+            const allListsEmpty = lists?.every((list) => list.view_item_ids.length === 0)
             if (allListsEmpty && location.pathname.includes('overview')) {
                 navigate(`/overview/${view.id}/${optimisticId}/`)
             }
