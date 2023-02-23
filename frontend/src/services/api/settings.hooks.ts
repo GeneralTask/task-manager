@@ -131,7 +131,7 @@ export const useDeleteLinkedAccount = () => {
             const newLinkedAccounts = produce(linkedAccounts, (draft) => {
                 draft.splice(linkedAccountIdx, 1)
             })
-            queryClient.setQueriesData('linked_accounts', newLinkedAccounts)
+            queryClient.setQueryData('linked_accounts', newLinkedAccounts)
 
             if (calendars) {
                 const newCalendars = produce(calendars, (draft) => {
@@ -141,7 +141,7 @@ export const useDeleteLinkedAccount = () => {
                     if (calendarIdx === -1) return
                     draft.splice(calendarIdx, 1)
                 })
-                queryClient.setQueriesData('calendars', newCalendars)
+                queryClient.setQueryData('calendars', newCalendars)
             }
         },
         onSettled: () => {
