@@ -13,6 +13,7 @@ import {
     TOverviewItem,
     TOverviewView,
     TTask,
+    TTaskFolder,
     TTaskSection,
     TTaskV4,
     TUserInfo,
@@ -71,8 +72,6 @@ interface TTaskModifyRequestBody {
 
 export interface TMarkTaskDoneOrDeletedData {
     id: string
-    sectionId?: string
-    subtaskId?: string
     isDone?: boolean
     isDeleted?: boolean
     waitForAnimation?: boolean
@@ -440,98 +439,74 @@ export const useMarkTaskDoneOrDeleted = () => {
 
     return useGTMutation((data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data), {
         tag: 'tasks',
-        invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
+        invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
         onMutate: async (data: TMarkTaskDoneOrDeletedData) => {
             await Promise.all([
-                queryClient.cancelQueries('tasks'),
                 queryClient.cancelQueries('tasks_v4'),
+                queryClient.cancelQueries('folders'),
                 queryClient.cancelQueries('overview'),
             ])
-            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-            const tasks_v4 = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
-            const lists = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-
-            const updateSections = async () => {
-                if (sections) {
-                    const newSections = produce(sections, (draft) => {
-                        const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(
-                            draft,
-                            data.id,
-                            undefined,
-                            data.subtaskId
-                        )
-                        if (taskIndex === undefined || sectionIndex === undefined) return
-
-                        const task = draft[sectionIndex].tasks[taskIndex]
-                        if (data.subtaskId !== undefined) {
-                            if (subtaskIndex === undefined) return
-                            const subtask = task.sub_tasks?.[subtaskIndex]
-                            if (!subtask) return
-                            if (data.isDone !== undefined) subtask.is_done = data.isDone
-                            if (data.isDeleted !== undefined) {
-                                subtask.is_deleted = data.isDeleted
-                                draft[sectionIndex].tasks[taskIndex].sub_tasks?.splice(subtaskIndex, 1)
-                                const trashSection = draft.find((section) => section.id === TRASH_FOLDER_ID)
-                                trashSection?.tasks.unshift(subtask)
-                            }
-                        } else {
-                            if (data.isDone !== undefined) task.is_done = data.isDone
-                            if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
-                            if (data.isDeleted) draft.find((s) => s.is_trash)?.tasks.unshift(task)
-                            if (data.isDone) draft.find((s) => s.is_done)?.tasks.unshift(task)
-                            draft[sectionIndex].tasks.splice(taskIndex, 1)
-                        }
-                    })
-                    if (data.waitForAnimation) {
-                        await sleep(TASK_MARK_AS_DONE_TIMEOUT)
-                    }
-                    queryClient.setQueryData('tasks', newSections)
-                }
-            }
+            const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
             const updateTasks = async () => {
-                if (tasks_v4) {
-                    const updatedTasks = produce(tasks_v4, (draft) => {
-                        const task = draft.find((task) => task.id === data.id)
-                        if (!task) return
-                        if (data.isDone !== undefined) task.is_done = data.isDone
-                        if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
-                    })
-                    if (data.waitForAnimation) {
-                        await sleep(TASK_MARK_AS_DONE_TIMEOUT)
-                    }
-                    queryClient.setQueryData('tasks_v4', updatedTasks)
+                if (!tasks) return
+                const updatedTasks = produce(tasks, (draft) => {
+                    const task = draft.find((task) => task.id === data.id)
+                    if (!task) return
+                    if (data.isDone !== undefined) task.is_done = data.isDone
+                    if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
+                })
+                if (data.waitForAnimation) {
+                    await sleep(TASK_MARK_AS_DONE_TIMEOUT)
                 }
+                queryClient.setQueryData('tasks_v4', updatedTasks)
             }
-            const updateOverviewPage = async () => {
-                if (!lists) return
-                const newLists = produce(lists, (draft) => {
-                    const sections = lists.map((view) => ({
-                        id: view.task_section_id,
-                        tasks: view.view_items,
-                    }))
-                    const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(
-                        sections,
-                        data.id,
-                        data.sectionId,
-                        data.subtaskId
-                    )
-                    if (sectionIndex === undefined || taskIndex === undefined) return
-                    const task = draft[sectionIndex].view_items[taskIndex]
-                    if (data.subtaskId) {
-                        if (subtaskIndex === undefined) return
-                        if (!task.sub_tasks) return
-                        if (data.isDone !== undefined) task.sub_tasks[subtaskIndex].is_done = data.isDone
-                        if (data.isDeleted !== undefined) {
-                            task.sub_tasks[subtaskIndex].is_deleted = data.isDeleted
-                            draft[sectionIndex].view_items[taskIndex].sub_tasks?.splice(subtaskIndex, 1)
+
+            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('folders')
+            const updateFolders = async () => {
+                if (!folders) return
+                const updatedFolders = produce(folders, (draft) => {
+                    const currentFolder = draft.find((folder) => folder.task_ids.includes(data.id))
+                    const doneFolder = draft.find((folder) => folder.id === DONE_FOLDER_ID)
+                    const trashFolder = draft.find((folder) => folder.id === TRASH_FOLDER_ID)
+                    if (!currentFolder || !doneFolder || !trashFolder) return
+                    if (data.isDone !== undefined) {
+                        if (data.isDone && !currentFolder.is_done) {
+                            currentFolder.task_ids = currentFolder.task_ids.filter((id) => id !== data.id)
+                            doneFolder.task_ids.unshift(data.id)
+                        } else if (!data.isDone && currentFolder.is_done) {
+                            doneFolder.task_ids = doneFolder.task_ids.filter((id) => id !== data.id)
+                            currentFolder.task_ids.unshift(data.id)
                         }
-                    } else {
-                        if (data.isDone !== undefined) task.is_done = data.isDone
-                        if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
-                        draft[sectionIndex].view_items.splice(taskIndex, 1)
                     }
-                    if (draft[sectionIndex].view_items.length === 0) {
-                        draft[sectionIndex].has_tasks_completed_today = true
+                    if (data.isDeleted !== undefined) {
+                        if (data.isDeleted && !currentFolder.is_trash) {
+                            currentFolder.task_ids = currentFolder.task_ids.filter((id) => id !== data.id)
+                            trashFolder.task_ids.unshift(data.id)
+                        } else if (!data.isDeleted && currentFolder.is_trash) {
+                            trashFolder.task_ids = trashFolder.task_ids.filter((id) => id !== data.id)
+                            currentFolder.task_ids.unshift(data.id)
+                        }
+                    }
+                })
+                if (data.waitForAnimation) {
+                    await sleep(TASK_MARK_AS_DONE_TIMEOUT)
+                }
+                queryClient.setQueryData('tasks', updatedFolders)
+            }
+
+            const lists = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+            const updateLists = async () => {
+                if (!lists) return
+                const updatedLists = produce(lists, (draft) => {
+                    const currentLists = draft.filter((list) => list.view_item_ids.includes(data.id))
+                    if (!currentLists) return
+                    if (data.isDone || data.isDeleted) {
+                        for (const list of currentLists) {
+                            list.view_item_ids = list.view_item_ids.filter((id) => id !== data.id)
+                            if (list.view_item_ids.length === 0) {
+                                list.has_tasks_completed_today = true
+                            }
+                        }
                     }
                     if (overviewAutomaticEmptySort) {
                         draft.sort((a, b) => {
@@ -545,22 +520,22 @@ export const useMarkTaskDoneOrDeleted = () => {
                     await sleep(TASK_MARK_AS_DONE_TIMEOUT)
                 }
 
-                queryClient.setQueryData('overview', newLists)
+                queryClient.setQueryData('overview', updatedLists)
 
                 if (window.location.pathname.split('/')[1] !== 'overview') return
-                if (data.subtaskId) return
+                if (!lists.some((list) => list.view_item_ids.includes(data.id))) return
                 navigateToNextItemAfterOverviewCompletion(
                     lists as TOverviewView[],
-                    newLists as TOverviewView[],
+                    updatedLists as TOverviewView[],
                     data.id,
                     navigate,
                     setOpenListIds
                 )
             }
             // execute in parallel if waiting for animation delay
-            updateSections()
+            updateFolders()
             updateTasks()
-            updateOverviewPage()
+            updateLists()
         },
     })
 }
@@ -569,11 +544,10 @@ export const markTaskDoneOrDeleted = async (data: TMarkTaskDoneOrDeletedData) =>
     if (data.isDone !== undefined) requestBody.is_completed = data.isDone
     if (data.isDeleted !== undefined) requestBody.is_deleted = data.isDeleted
     try {
-        const updateTaskId = data.subtaskId ?? data.id
-        const res = await apiClient.patch(`/tasks/modify/${updateTaskId}/`, requestBody)
+        const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
         return castImmutable(res.data)
     } catch {
-        throw new Error('markTaskDone failed')
+        throw new Error('markTaskDoneOrDeleted failed')
     }
 }
 
