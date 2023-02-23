@@ -160,6 +160,7 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 	// fetch the comments in tandem to avoid too much latency for tasks fetch endpoint
 	fieldChannelList := []chan JIRAFieldsResult{}
 	commentChannelList := []chan JIRACommentResult{}
+	transitionChannelList := []chan JIRATransitionList{}
 	for _, jiraTask := range jiraTasks.Issues {
 		commentsChan := make(chan JIRACommentResult)
 		go jira.GetListOfComments(siteConfiguration, userID, jiraTask.ID, authToken.AccessToken, commentsChan)
@@ -168,6 +169,10 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 		fieldsChan := make(chan JIRAFieldsResult)
 		go jira.GetListOfFields(siteConfiguration, userID, jiraTask.ID, authToken.AccessToken, fieldsChan)
 		fieldChannelList = append(fieldChannelList, fieldsChan)
+
+		transitionChan := make(chan JIRATransitionList)
+		go jira.getTransitionList(siteConfiguration, jiraTask.ID, authToken.AccessToken, transitionChan)
+		transitionChannelList = append(transitionChannelList, transitionChan)
 	}
 
 	var tasks []*database.Task
@@ -213,6 +218,24 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 			task.JIRATaskParams = &fieldsOutput.JIRATaskParams
 		}
 
+		transitionListResult := transitionChannelList[idx]
+		transitionList := <-transitionListResult
+		allStatuses, exists := statusMap[jiraTask.Fields.Project.ID]
+		if exists {
+			task.AllStatuses = allStatuses
+			for _, status := range task.AllStatuses {
+				for _, transition := range transitionList.Transitions {
+					if transition.ToStatus.ID == status.ExternalID {
+						status.IsValidTransition = true
+					}
+				}
+				// if no results returned, allow frontend to show all statuses
+				if len(transitionList.Transitions) == 0 {
+					status.IsValidTransition = true
+				}
+			}
+		}
+
 		dueDate, err := time.Parse(constants.YEAR_MONTH_DAY_FORMAT, jiraTask.Fields.DueDate)
 		if err == nil {
 			primDueDate := primitive.NewDateTimeFromTime(dueDate)
@@ -227,10 +250,6 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 		if err == nil {
 			primUpdatedAt := primitive.NewDateTimeFromTime(updatedAt)
 			task.UpdatedAt = primUpdatedAt
-		}
-		allStatuses, exists := statusMap[jiraTask.Fields.Project.ID]
-		if exists {
-			task.AllStatuses = allStatuses
 		}
 		if jiraTask.Fields.Priority.ID != "" && len(priorityList) > 0 {
 			priorityLength := len(priorityList)
@@ -584,14 +603,12 @@ func (jira JIRASource) handleJIRAIssueDelete(siteConfiguration *database.Atlassi
 }
 
 func (jira JIRASource) handleJIRATransitionUpdate(siteConfiguration *database.AtlassianSiteConfiguration, token *AtlassianAuthToken, issueID string, updateFields *database.Task) error {
-	apiBaseURL := jira.getJIRABaseURL(siteConfiguration, jira.Atlassian.Config.ConfigValues.TransitionURL)
-
-	finalTransitionID := jira.getTransitionID(apiBaseURL, token.AccessToken, issueID, *updateFields.Status)
+	finalTransitionID := jira.getTransitionID(siteConfiguration, issueID, token.AccessToken, *updateFields.Status)
 	if finalTransitionID == nil {
 		return errors.New("transition not found")
 	}
 
-	return jira.executeTransition(apiBaseURL, token.AccessToken, issueID, *finalTransitionID)
+	return jira.executeTransition(siteConfiguration, token.AccessToken, issueID, *finalTransitionID)
 }
 
 type JIRAUpdateRequestWithDueDate struct {
@@ -664,35 +681,10 @@ func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.Atlassi
 	return jira.executeFieldUpdate(apiBaseURL, token.AccessToken, issueID, updateRequestBytes)
 }
 
-func (jira JIRASource) getTransitionID(apiBaseURL string, AtlassianAuthToken string, jiraCloudID string, status database.ExternalTaskStatus) *string {
-	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + jiraCloudID + "/transitions"
-
-	req, _ := http.NewRequest("GET", transitionsURL, nil)
-	req = addJIRARequestHeaders(req, AtlassianAuthToken)
-
-	resp, err := http.DefaultClient.Do(req)
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to request transitions")
-		return nil
-	}
-
-	responseBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to read http response body")
-		return nil
-	}
-
-	var transitionList JIRATransitionList
-	err = json.Unmarshal(responseBytes, &transitionList)
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to parse JIRA transition list")
-		return nil
-	}
-	if len(transitionList.Transitions) == 0 {
-		logger.Error().Err(err).Msg("no JIRA transitions found in list")
-		return nil
-	}
+func (jira JIRASource) getTransitionID(siteConfiguration *database.AtlassianSiteConfiguration, issueID string, authToken string, status database.ExternalTaskStatus) *string {
+	transitionChan := make(chan JIRATransitionList)
+	go jira.getTransitionList(siteConfiguration, issueID, authToken, transitionChan)
+	transitionList := <-transitionChan
 
 	for _, transition := range transitionList.Transitions {
 		if transition.ToStatus.ID == status.ExternalID {
@@ -700,11 +692,51 @@ func (jira JIRASource) getTransitionID(apiBaseURL string, AtlassianAuthToken str
 		}
 	}
 
+	logger := logging.GetSentryLogger()
+
+	err := errors.New("unable to fetch transition")
 	logger.Error().Err(err).Msg("no matching JIRA transitions found")
 	return nil
 }
 
-func (jira JIRASource) executeTransition(apiBaseURL string, AtlassianAuthToken string, issueID string, newTransitionID string) error {
+func (jira JIRASource) getTransitionList(siteConfiguration *database.AtlassianSiteConfiguration, issueID string, authToken string, result chan<- JIRATransitionList) {
+	apiBaseURL := jira.getJIRABaseURL(siteConfiguration, jira.Atlassian.Config.ConfigValues.TransitionURL)
+	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + issueID + "/transitions"
+
+	req, _ := http.NewRequest("GET", transitionsURL, nil)
+	req = addJIRARequestHeaders(req, authToken)
+
+	resp, err := http.DefaultClient.Do(req)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to request transitions")
+		result <- JIRATransitionList{}
+	}
+
+	responseBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to read http response body")
+		result <- JIRATransitionList{}
+	}
+
+	var transitionList JIRATransitionList
+	err = json.Unmarshal(responseBytes, &transitionList)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to parse JIRA transition list")
+		result <- JIRATransitionList{}
+
+	}
+	if len(transitionList.Transitions) == 0 {
+		err := errors.New("no JIRA transitions found in list")
+		logger.Error().Err(err).Msg("no JIRA transitions found in list")
+		result <- JIRATransitionList{}
+	}
+
+	result <- transitionList
+}
+
+func (jira JIRASource) executeTransition(siteConfiguration *database.AtlassianSiteConfiguration, AtlassianAuthToken string, issueID string, newTransitionID string) error {
+	apiBaseURL := jira.getJIRABaseURL(siteConfiguration, jira.Atlassian.Config.ConfigValues.TransitionURL)
 	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + issueID + "/transitions"
 	params := []byte(`{"transition": {"id": "` + newTransitionID + `"}}`)
 	req, _ := http.NewRequest("POST", transitionsURL, bytes.NewBuffer(params))
