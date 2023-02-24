@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useGetTasksV4 } from '../services/api/tasksv4.hooks'
+import { useGetTasksV4 } from '../services/api/tasks.hooks'
 
 const useGetActiveTasks = (isEnabled = true) => {
     const { data, ...rest } = useGetTasksV4(isEnabled)

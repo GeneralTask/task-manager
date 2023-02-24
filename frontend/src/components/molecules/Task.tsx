@@ -8,7 +8,7 @@ import { DONE_FOLDER_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_FOLDER_I
 import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
 import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
-import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
+import { useGetTasksV4 } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
 import { icons, linearStatus, logos } from '../../styles/images'
 import { DropType, TTaskV4 } from '../../utils/types'
