@@ -132,12 +132,14 @@ func TestGetSettingsOptions(t *testing.T) {
 		assert.Equal(t, []SettingChoice{
 			{Key: "a", Name: "oof 1"},
 			{Key: "b", Name: "oof 2"},
+			{Key: "", Name: ""},
 		}, calendarSetting.Choices)
 		calendarIDSetting := (*settings)[27]
 		assert.Equal(t, constants.SettingFieldCalendarIDForNewTasks, calendarIDSetting.FieldKey)
 		assert.Equal(t, []SettingChoice{
 			{Key: "cal1", Name: "title1"},
 			{Key: "cal2", Name: "title2"},
+			{Key: "", Name: ""},
 		}, calendarIDSetting.Choices)
 	})
 }
