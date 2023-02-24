@@ -412,11 +412,7 @@ export const useReorderTask = () => {
         tag: 'tasks_v4',
         invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
         onMutate: async (data: TReorderTaskData) => {
-            await Promise.all([
-                queryClient.cancelQueries('tasks'),
-                queryClient.cancelQueries('folders'),
-                queryClient.cancelQueries('overview'),
-            ])
+            await queryClient.cancelQueries('tasks')
 
             const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
             if (tasks) {
