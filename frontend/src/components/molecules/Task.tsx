@@ -247,7 +247,7 @@ const Task = ({
                                 optimsticId={task.optimisticId}
                             />
                         ))}
-                    <Title title={task.title}>{`(${task.id_ordering}) ${task.title}`}</Title>
+                    <Title title={task.title}>{task.title}</Title>
                     <RightContainer>
                         {recurringTaskTemplate && <Icon icon={icons.arrows_repeat} />}
                         <DueDate date={dueDate} isDoneOrDeleted={task.is_done || task.is_deleted} />
