@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { checkboxSize } from '../../styles/dimensions'
 import { TOverviewItem } from '../../utils/types'
 import GTShadowContainer from '../atoms/GTShadowContainer'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
+import useOverviewLists from '../overview/useOverviewLists'
 
 const Header = styled.div`
     display: flex;
@@ -38,34 +38,34 @@ interface CardSwitcherProps {
 }
 
 const CardSwitcher = ({ viewId }: CardSwitcherProps) => {
-    const { data: views } = useGetOverviewViews()
+    const { lists } = useOverviewLists()
     const [cardIndex, setCardIndex] = useState(0)
     const [card, setCard] = useState<TOverviewItem | null>(null)
 
     useEffect(() => {
-        const view = views?.find(({ id }) => id === viewId)
-        if (view == null) return
-        if (cardIndex >= view.view_item_ids.length) {
+        const list = lists?.find(({ id }) => id === viewId)
+        if (list == null) return
+        if (cardIndex >= list.view_item_ids.length) {
             setCardIndex(0)
-            setCard(view.view_items[0])
+            setCard(list.view_items[0])
         } else {
-            setCard(view.view_items[cardIndex])
+            setCard(list.view_items[cardIndex])
         }
-    }, [cardIndex, viewId, views])
+    }, [cardIndex, viewId, lists])
 
-    const view = views?.find(({ id }) => id === viewId)
-    if (!view || view.view_item_ids.length === 0) return null
+    const list = lists?.find(({ id }) => id === viewId)
+    if (!list || list.view_item_ids.length === 0) return null
     if (card == null) return null
     return (
         <div>
             <Header>
-                <SwitchText onClick={() => setCardIndex(mod(cardIndex - 1, view.view_item_ids.length))}>
+                <SwitchText onClick={() => setCardIndex(mod(cardIndex - 1, list.view_item_ids.length))}>
                     Previous
                 </SwitchText>
                 <div>
-                    Task {cardIndex + 1} of {view.view_item_ids.length}
+                    Task {cardIndex + 1} of {list.view_item_ids.length}
                 </div>
-                <SwitchText onClick={() => setCardIndex(mod(cardIndex + 1, view.view_item_ids.length))}>
+                <SwitchText onClick={() => setCardIndex(mod(cardIndex + 1, list.view_item_ids.length))}>
                     Next
                 </SwitchText>
             </Header>
