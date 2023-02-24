@@ -1,9 +1,8 @@
-import { Immutable } from 'immer'
 import { DateTime, Duration, DurationUnit } from 'luxon'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../constants'
 import KEYBOARD_SHORTCUTS from '../constants/shortcuts'
 import { TIconColor, TTextColor } from '../styles/colors'
-import { TLinkedAccount, TLinkedAccountName, TParentTask, TTask, TTaskV4 } from './types'
+import { TLinkedAccount, TLinkedAccountName, TParentTask, TTaskV4 } from './types'
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -86,47 +85,6 @@ export const countWithOverflow = (count: number, max = 99) => {
         return `${max}+`
     }
     return `${count}`
-}
-
-interface TGetTaskIndexFromSectionsReturnType {
-    taskIndex?: number
-    sectionIndex?: number
-    subtaskIndex?: number
-}
-export const getTaskIndexFromSections = (
-    sections: Immutable<{ id?: string; tasks: TTask[] }[]>,
-    taskId: string,
-    sectionId?: string,
-    subtaskId?: string
-): TGetTaskIndexFromSectionsReturnType => {
-    const invalidResult = { taskIndex: undefined, sectionIndex: undefined }
-    if (sectionId) {
-        const sectionIndex = sections.findIndex((section) => section.id === sectionId)
-        if (sectionIndex === -1) return invalidResult
-        const taskIndex = sections[sectionIndex].tasks.findIndex((task) => task.id === taskId)
-        if (taskIndex === -1) return invalidResult
-        const subtaskIndex = sections[sectionIndex].tasks[taskIndex]?.sub_tasks?.findIndex(
-            (subtask) => subtask.id === subtaskId
-        )
-        return { taskIndex, sectionIndex, subtaskIndex }
-    } else {
-        for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
-            const section = sections[sectionIndex]
-            for (let taskIndex = 0; taskIndex < section.tasks.length; taskIndex++) {
-                const task = section.tasks[taskIndex]
-                if (task.id === taskId) {
-                    if (subtaskId) {
-                        const subtaskIndex = sections[sectionIndex].tasks[taskIndex]?.sub_tasks?.findIndex(
-                            (subtask) => subtask.id === subtaskId
-                        )
-                        return { taskIndex, sectionIndex, subtaskIndex }
-                    }
-                    return { taskIndex, sectionIndex }
-                }
-            }
-        }
-    }
-    return invalidResult
 }
 
 export const getKeyCode = (e: KeyboardEvent | React.KeyboardEvent): string => {
