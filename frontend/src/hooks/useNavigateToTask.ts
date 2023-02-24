@@ -4,7 +4,7 @@ import { useCalendarContext } from '../components/calendar/CalendarContext'
 import { useGetFolders } from '../services/api/folders.hooks'
 import Log from '../services/api/log'
 import { useGetOverviewViews } from '../services/api/overview.hooks'
-import { useGetTasksV4 } from '../services/api/tasksv4.hooks'
+import { useGetTasksV4 } from '../services/api/tasks.hooks'
 import { TOverviewView, TTaskFolder, TTaskV4 } from '../utils/types'
 
 export interface TNavigateToTaskParams {
