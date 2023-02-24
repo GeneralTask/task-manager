@@ -16,24 +16,19 @@ type TOverviewItemWithListId = TOverviewItem & { listId: string }
 
 // returns overview lists with view items sorted and filtered
 const useOverviewLists = () => {
-    const { data: lists, isLoading: areListsLoading, isSuccess } = useGetOverviewViews()
-    const { data: settings, isLoading: areSettingsLoading } = useGetSettings()
-    const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
-    const navigate = useNavigate()
-
+    const { data: lists, isLoading: isListsLoading, isSuccess } = useGetOverviewViews()
+    const { data: settings, isLoading: isSettingsLoading } = useGetSettings()
     const { data: activeTasks, isLoading: isActiveTasksLoading } = useGetActiveTasks()
     const { data: repositories, isLoading: isRepositoriesLoading } = useGetPullRequests()
+    const navigate = useNavigate()
+
+    const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
+
     const pullRequests = useMemo(() => repositories?.flatMap((repo) => repo.pull_requests), [repositories])
+    const isLoading = isListsLoading || isSettingsLoading || isActiveTasksLoading || isRepositoriesLoading
 
     const sortedAndFilteredLists = useMemo(() => {
-        if (
-            areListsLoading ||
-            areSettingsLoading ||
-            isActiveTasksLoading ||
-            isRepositoriesLoading ||
-            !lists ||
-            !settings
-        )
+        if (isListsLoading || isSettingsLoading || isActiveTasksLoading || isRepositoriesLoading || !lists || !settings)
             return []
         const sortedAndFiltered = lists?.map((list) => {
             if (list.type === 'task_section') {
@@ -80,17 +75,7 @@ const useOverviewLists = () => {
             })
         }
         return sortedAndFiltered
-    }, [
-        lists,
-        areListsLoading,
-        settings,
-        areSettingsLoading,
-        isRepositoriesLoading,
-        overviewAutomaticEmptySort,
-        activeTasks,
-        pullRequests,
-        isActiveTasksLoading,
-    ])
+    }, [lists, isLoading, settings, overviewAutomaticEmptySort, activeTasks, pullRequests])
 
     // adds listId to the item so we know which list to navigate to
     const flattenedLists: TOverviewItemWithListId[] = useMemo(
@@ -103,7 +88,7 @@ const useOverviewLists = () => {
     }, [])
     useItemSelectionController(flattenedLists, selectItem)
 
-    return { lists: sortedAndFilteredLists, isLoading: areListsLoading, isSuccess: isSuccess, flattenedLists }
+    return { lists: sortedAndFilteredLists, isLoading: isLoading, isSuccess: isSuccess, flattenedLists }
 }
 
 export default useOverviewLists
