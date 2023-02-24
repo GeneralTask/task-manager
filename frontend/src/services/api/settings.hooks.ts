@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/browser'
 import produce, { castImmutable } from 'immer'
 import { useSetting } from '../../hooks'
 import apiClient from '../../utils/api'
-import { TLinkedAccount, TSetting, TSupportedType } from '../../utils/types'
+import { TCalendarAccount, TLinkedAccount, TSetting, TSupportedType } from '../../utils/types'
 import { useGTMutation, useGTQueryClient } from '../queryUtils'
 
 export type GHSortPreference = `${string}github_sorting_preference${string}`
@@ -131,22 +131,38 @@ export const useDeleteLinkedAccount = () => {
         invalidateTagsOnSettled: ['linked_accounts', 'calendars', 'events', 'settings'],
         onMutate: ({ id }: { id: string }) => {
             const linkedAccounts = queryClient.getQueryData<TLinkedAccount[]>('linked_accounts')
-            if (!linkedAccounts) return
-            const idx = linkedAccounts.findIndex((linkedAccount) => linkedAccount.id === id)
-            if (idx === -1) return
-            const accountId = linkedAccounts[idx].display_id
+            const calendars = queryClient.getQueryData<TCalendarAccount[]>('calendars')
+
+            const linkedAccountIdx = linkedAccounts?.findIndex((linkedAccount) => linkedAccount.id === id)
+            if (linkedAccountIdx === -1 || linkedAccountIdx === undefined || !linkedAccounts) return
 
             const newLinkedAccounts = produce(linkedAccounts, (draft) => {
-                draft.splice(idx, 1)
+                draft.splice(linkedAccountIdx, 1)
             })
             queryClient.setQueryData('linked_accounts', newLinkedAccounts)
 
+            if (calendars) {
+                const newCalendars = produce(calendars, (draft) => {
+                    const calendarIdx = draft.findIndex(
+                        (calendar) => calendar.account_id === linkedAccounts[linkedAccountIdx].display_id
+                    )
+                    if (calendarIdx === -1) return
+                    draft.splice(calendarIdx, 1)
+                })
+                queryClient.setQueryData('calendars', newCalendars)
+            }
+            
             if (taskToCalAccount === accountId) {
                 const newAccount = taskToCalAccountChoices.find((choice) => choice.choice_key !== accountId)
                 if (!newAccount) return
                 setTaskToCalAccount(newAccount.choice_key)
                 setTaskToCalCalendar(newAccount.choice_key)
             }
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('linked_accounts')
+            queryClient.invalidateQueries('calendars')
+            queryClient.invalidateQueries('events')
         },
     })
 }

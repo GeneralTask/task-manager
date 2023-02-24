@@ -500,10 +500,7 @@ func (api *API) GetGithubOverviewResult(view database.View, userID primitive.Obj
 	return &result, nil
 }
 
-func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool) (*OverviewResult[TaskResult], error) {
-	if view.UserID != userID {
-		return nil, errors.New("invalid user")
-	}
+func (api *API) CreateMeetingPreparationTaskList(userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool) (*[]database.Task, error) {
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
 	events, err := database.GetEventsUntilEndOfDay(api.DB, userID, timeNow)
 	if err != nil {
@@ -538,7 +535,19 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 	sort.Slice(*meetingTasks, func(i, j int) bool {
 		return (*meetingTasks)[i].MeetingPreparationParams.DatetimeStart <= (*meetingTasks)[j].MeetingPreparationParams.DatetimeStart
 	})
+	return meetingTasks, nil
+}
 
+func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool) (*OverviewResult[TaskResult], error) {
+	if view.UserID != userID {
+		return nil, errors.New("invalid user")
+	}
+	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
+	meetingTasks, err := api.CreateMeetingPreparationTaskList(userID, timezoneOffset, showMovedOrDeleted)
+	if err != nil {
+		return nil, err
+	}
+	
 	// Create result of meeting prep tasks
 	var result []*TaskResult
 	if showMovedOrDeleted {
