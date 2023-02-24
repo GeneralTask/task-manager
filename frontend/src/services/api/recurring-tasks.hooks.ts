@@ -5,7 +5,7 @@ import { BACKFILL_RECURRING_TASKS_INTERVAL } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
 import { RecurrenceRate } from '../../utils/enums'
-import { TRecurringTaskTemplate, TTaskSection } from '../../utils/types'
+import { TRecurringTaskTemplate, TTaskSection, TTaskV4 } from '../../utils/types'
 import { getTaskFromSections } from '../../utils/utils'
 import { getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 import { useModifyTask } from './tasks.hooks'
@@ -88,17 +88,16 @@ export const useCreateRecurringTask = () => {
             })
             queryClient.setQueryData('recurring-tasks', newRecurringTasks)
 
-            const taskId = payload.task_id
-            if (taskId) {
-                const folders = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-                if (!folders) return
+            if (payload.task_id) {
+                const allTasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
+                if (!allTasks) return
 
-                const updatedFolders = produce(folders, (draft) => {
-                    const task = getTaskFromSections(draft, taskId)
+                const updatedTasks = produce(allTasks, (draft) => {
+                    const task = draft.find((t) => t.id === payload.task_id)
                     if (!task) return
                     task.recurring_task_template_id = payload.optimisticId
                 })
-                queryClient.setQueryData('tasks', updatedFolders)
+                queryClient.setQueryData('tasks_v4', updatedTasks)
             }
         },
         onSuccess: (response: TCreateRecurringTaskResponse, payload) => {
