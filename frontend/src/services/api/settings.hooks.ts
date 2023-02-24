@@ -152,10 +152,7 @@ export const useDeleteLinkedAccount = () => {
                 queryClient.setQueryData('calendars', newCalendars)
             }
 
-            if (
-                taskToCalAccount === linkedAccounts[linkedAccountIdx].display_id ||
-                (taskToCalAccount === '' && calendars?.length !== 0)
-            ) {
+            if (taskToCalAccount === linkedAccounts[linkedAccountIdx].display_id) {
                 const newAccount = taskToCalAccountChoices.find(
                     (choice) => choice.choice_key !== linkedAccounts[linkedAccountIdx].display_id
                 )
