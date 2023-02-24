@@ -379,7 +379,10 @@ export const useSelectedCalendars = () => {
             })
             // when a new account is added, select all calendars
             newAccounts.forEach((account) => {
-                draft.push(account)
+                draft.push({
+                    ...account,
+                    calendars: account.calendars.filter((calendar) => calendar.access_role === 'owner'),
+                })
             })
         })
         if (hasChanged) {
