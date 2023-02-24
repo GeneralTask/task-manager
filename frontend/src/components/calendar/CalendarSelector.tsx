@@ -34,7 +34,6 @@ const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSele
 
     const handleCalendarClick = useCallback(
         (account: TCalendarAccount, calendar: TCalendar) => {
-            console.log('ah')
             if (mode === 'task-to-cal') {
                 setTaskToCalAccount(account.account_id)
                 setTaskToCalCalendar(calendar.calendar_id)
