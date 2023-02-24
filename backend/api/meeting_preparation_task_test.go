@@ -18,7 +18,7 @@ func TestMeetingPreparationTask(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 	userID := getUserIDFromAuthToken(t, db, authtoken)
-	
+
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	testTime := time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
@@ -53,7 +53,7 @@ func TestMeetingPreparationTask(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := io.ReadAll(recorder.Body)
 
-		expectedBody := `[{"id":"[a-z0-9]{24}","id_ordering":0,"id_folder":"000000000000000000000000","id_parent":"","source":{"name":"Google Calendar","logo":"gcal"},"deeplink":"","title":"Event1","body":"","due_date":"","priority_normalized":0,"is_done":false,"is_deleted":false,"recurring_task_template_id":"000000000000000000000000","meeting_preparation_params":{"datetime_start":"(.*?)","datetime_end":"(.*?)","event_moved_or_deleted":false},"created_at":"(.*?)","updated_at":"(.*?)"}]`
+		expectedBody := `[{"id":"[a-z0-9]{24}","id_ordering":0,"id_folder":"000000000000000000000000","source":{"name":"Google Calendar","logo":"gcal"},"deeplink":"","title":"Event1","body":"","due_date":"","priority_normalized":0,"is_done":false,"is_deleted":false,"recurring_task_template_id":"000000000000000000000000","meeting_preparation_params":{"datetime_start":"(.*?)","datetime_end":"(.*?)","event_moved_or_deleted":false},"created_at":"(.*?)","updated_at":"(.*?)"}]`
 		assert.Regexp(t, expectedBody, string(body))
 		assert.NoError(t, err)
 	})
