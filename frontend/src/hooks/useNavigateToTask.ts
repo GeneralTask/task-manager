@@ -28,7 +28,7 @@ const useNavigateToTask = () => {
             if (!task) return
             const folderId =
                 task.id_folder ??
-                tasks.find((task) => task.id === task.id_parent)?.id_folder ??
+                tasks.find((t) => t.id === task.id_parent)?.id_folder ??
                 folders.find((folder) => folder.task_ids.includes(task.id))?.id
             const suffix = task.id_parent ? `${task.id_parent}/${taskId}` : taskId
 
