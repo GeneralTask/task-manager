@@ -40,7 +40,7 @@ const getAuthorizationUrl = (supportedTypes: TSupportedType[], name: TLinkedAcco
 }
 
 interface ConnectIntegrationProps {
-    type: 'github' | 'google_calendar' | 'slack' | 'linear'
+    type: 'github' | 'google_calendar' | 'slack' | 'linear' | 'jira'
     reconnect?: boolean
     reauthorizeAccountName?: string
 }
@@ -73,6 +73,12 @@ const ConnectIntegration = ({ type, reconnect = false, reauthorizeAccountName }:
                     icon: logos.linear,
                     name: 'Linear',
                     authUrl: getAuthorizationUrl(supportedTypes || [], 'Linear'),
+                }
+            case 'jira':
+                return {
+                    icon: logos.jira,
+                    name: 'Jira',
+                    authUrl: getAuthorizationUrl(supportedTypes || [], 'Jira'),
                 }
             default:
                 return { icon: null, name: null, authUrl: null }

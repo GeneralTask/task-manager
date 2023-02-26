@@ -15,6 +15,7 @@ import { CalendarContextProvider } from '../calendar/CalendarContext'
 import DragLayer from '../molecules/DragLayer'
 import DefaultTemplate from '../templates/DefaultTemplate'
 import DailyOverviewView from '../views/DailyOverviewView'
+import JiraView from '../views/JiraView'
 import LinearView from '../views/LinearView'
 import NoteListView from '../views/NoteListView'
 import PullRequestsView from '../views/PullRequestsView'
@@ -53,6 +54,8 @@ const MainScreen = () => {
                 return <LinearView />
             case 'slack':
                 return <SlackTasksView />
+            case 'jira':
+                return <JiraView />
             default:
                 return (
                     <OverviewContextProvider>

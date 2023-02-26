@@ -57,6 +57,9 @@ export const isSlackLinked = (linkedAccounts: TLinkedAccount[]) => {
 export const isLinearLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Linear')
 }
+export const isJiraLinked = (linkedAccounts: TLinkedAccount[]) => {
+    return linkedAccounts.some((account) => account.name === 'Atlassian')
+}
 export const doesAccountNeedRelinking = (linkedAccounts: TLinkedAccount[], accountName: TLinkedAccountName) => {
     return linkedAccounts
         .filter((linkedAccount) => linkedAccount.name === accountName)
