@@ -336,8 +336,12 @@ export const useSelectedCalendars = () => {
         [],
         true
     )
-    const { field_value: taskToCalAccount } = useSetting('calendar_account_id_for_new_tasks')
-    const { field_value: taskToCalCalendar } = useSetting('calendar_calendar_id_for_new_tasks')
+    const { field_value: taskToCalAccount, updateSetting: setTaskToCalAccount } = useSetting(
+        'calendar_account_id_for_new_tasks'
+    )
+    const { field_value: taskToCalCalendar, updateSetting: setTaskToCalCalendar } = useSetting(
+        'calendar_calendar_id_for_new_tasks'
+    )
 
     // update selected calendars when calendar accounts are added/removed
     useEffect(() => {
@@ -379,7 +383,10 @@ export const useSelectedCalendars = () => {
             })
             // when a new account is added, select all calendars
             newAccounts.forEach((account) => {
-                draft.push(account)
+                draft.push({
+                    ...account,
+                    calendars: account.calendars.filter((calendar) => calendar.access_role === 'owner'),
+                })
             })
         })
         if (hasChanged) {
@@ -420,8 +427,8 @@ export const useSelectedCalendars = () => {
         [selectedCalendars]
     )
 
-    // ensure that task-to-cal calendar is always selected
     useEffect(() => {
+        // ensure that task-to-cal calendar is always selected
         if (!isCalendarSelected(taskToCalAccount, taskToCalCalendar)) {
             const calendar = calendars
                 ?.find((account) => account.account_id === taskToCalAccount)
@@ -429,6 +436,12 @@ export const useSelectedCalendars = () => {
             if (calendar) {
                 toggleCalendarSelection(taskToCalAccount, calendar)
             }
+        }
+
+        // if the first account is added, select the first calendar
+        if (taskToCalAccount === '' && calendars && calendars.length !== 0) {
+            setTaskToCalAccount(calendars[0].account_id)
+            setTaskToCalCalendar(calendars[0].account_id)
         }
     }, [calendars, isCalendarSelected, taskToCalAccount, taskToCalCalendar, toggleCalendarSelection])
 

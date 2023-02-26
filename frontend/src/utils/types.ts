@@ -401,6 +401,7 @@ export interface TCalendar {
     color_id: string
     title: string
     can_write: boolean
+    access_role: string
 }
 
 export interface TCalendarAccount {
