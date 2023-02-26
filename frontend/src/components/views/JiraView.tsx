@@ -15,6 +15,7 @@ import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
 import { Header } from '../molecules/Header'
+import Task from '../molecules/Task'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const BodyHeader = styled.div`
@@ -30,16 +31,20 @@ const JiraView = () => {
     const { calendarType } = useCalendarContext()
 
     const jiraTasks = useMemo(() => {
-        return tasks?.filter((task) => !task.is_done && !task.is_deleted && task.source.name === 'Jira') ?? []
+        return (
+            tasks
+                ?.filter((task) => !task.is_done && !task.is_deleted && task.source.name === 'Jira')
+                .sort((a, b) => (a.priority_normalized > b.priority_normalized ? 1 : -1)) ?? []
+        )
     }, [tasks])
 
     const selectTask = useCallback((task: TTaskV4) => {
         navigate(`/jira/${task.id}`)
-        Log(`linear_task_select__/linear/${task.id}`)
+        Log(`jira_task_select__/jira/${task.id}`)
     }, [])
     useItemSelectionController(jiraTasks, selectTask)
 
-    const { task } = useMemo(() => {
+    const { task: selectedTask } = useMemo(() => {
         if (jiraTasks.length === 0) return { task: null }
         for (const task of jiraTasks) {
             if (task.id === jiraTaskId) return { task }
@@ -55,14 +60,18 @@ const JiraView = () => {
         <>
             <Flex>
                 <ScrollableListTemplate>
-                    <Header folderName="Jira tasks" />
+                    <Header folderName="Jira issues" />
                     {doesNeedRelinking && <ConnectIntegration type="jira" reconnect />}
                     {isJiraIntegrationLinked ? (
                         <>
-                            <BodyHeader>All tasks assigned to you.</BodyHeader>
+                            <BodyHeader>All issues assigned to you.</BodyHeader>
                             {jiraTasks?.map((task) => (
-                                <div key={task.id}>{task.title}</div>
-                                // <Task key={task.id} task={task} />
+                                <Task
+                                    key={task.id}
+                                    task={task}
+                                    isSelected={task.id === selectedTask?.id}
+                                    link={`/jira/${task.id}`}
+                                />
                             ))}
                         </>
                     ) : (
@@ -72,10 +81,10 @@ const JiraView = () => {
             </Flex>
             {calendarType === 'day' && (
                 <>
-                    {task ? (
-                        <TaskDetails task={task} />
+                    {selectedTask ? (
+                        <TaskDetails task={selectedTask} />
                     ) : (
-                        <EmptyDetails icon={icons.check} text="You have no Jira tasks" />
+                        <EmptyDetails icon={icons.check} text="You have no Jira issues" />
                     )}
                 </>
             )}
