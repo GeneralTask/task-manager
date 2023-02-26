@@ -313,6 +313,8 @@ func (api *API) UpdateViewsLinkedStatus(views *[]database.View, userID primitive
 		var serviceID string
 		if view.Type == string(constants.ViewTaskSection) || view.Type == string(constants.ViewMeetingPreparation) || view.Type == string(constants.ViewDueToday) {
 			serviceID = external.TaskServiceGeneralTask.ID
+		} else if view.Type == string(constants.ViewJira) {
+			serviceID = external.TaskServiceAtlassian.ID
 		} else if view.Type == string(constants.ViewLinear) {
 			serviceID = external.TaskServiceLinear.ID
 		} else if view.Type == string(constants.ViewSlack) {
