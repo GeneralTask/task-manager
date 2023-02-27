@@ -929,6 +929,8 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 			c.JSON(400, gin.H{"detail": "'task_section_id' is not a valid ID"})
 			return
 		}
+	} else if viewCreateParams.Type == string(constants.ViewJira) {
+		serviceID = external.TASK_SERVICE_ID_ATLASSIAN
 	} else if viewCreateParams.Type == string(constants.ViewLinear) {
 		serviceID = external.TASK_SERVICE_ID_LINEAR
 	} else if viewCreateParams.Type == string(constants.ViewGithub) {
