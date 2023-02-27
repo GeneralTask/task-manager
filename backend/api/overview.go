@@ -555,48 +555,6 @@ func (api *API) GetGithubOverviewResult(view database.View, userID primitive.Obj
 	return &result, nil
 }
 
-func (api *API) SyncMeetingPreparationTaskWithEvents(meetingTasks *[]database.Task, userID primitive.ObjectID, timezoneOffset time.Duration) error {
-	taskCollection := database.GetTaskCollection(api.DB)
-	for _, task := range *meetingTasks {
-		event, err := database.GetCalendarEventByExternalId(api.DB, task.MeetingPreparationParams.IDExternal, userID)
-
-		if err != nil && err != mongo.ErrNoDocuments {
-			return err
-		}
-		// If we can't find the event in the DB, we say the event is deleted. Eventually we'll want to make gcal api call to check if event was actually deleted
-		if event == nil {
-			task.MeetingPreparationParams.EventMovedOrDeleted = true
-		}
-		if event != nil {
-			if event.DatetimeStart != task.MeetingPreparationParams.DatetimeStart {
-				task.MeetingPreparationParams.EventMovedOrDeleted = true
-			}
-			task.MeetingPreparationParams.DatetimeStart = event.DatetimeStart
-			task.MeetingPreparationParams.DatetimeEnd = event.DatetimeEnd
-			task.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
-		}
-		_, err = taskCollection.UpdateOne(context.Background(),
-			bson.M{"$and": []bson.M{
-				{"_id": task.ID},
-				{"user_id": userID},
-			}},
-			bson.M{"$set": bson.M{
-				"is_completed": task.IsCompleted,
-				"completed_at": task.CompletedAt,
-				"updated_at":   task.UpdatedAt,
-				"meeting_preparation_params.datetime_start":                   task.MeetingPreparationParams.DatetimeStart,
-				"meeting_preparation_params.datetime_end":                     task.MeetingPreparationParams.DatetimeEnd,
-				"meeting_preparation_params.event_moved_or_deleted":           task.MeetingPreparationParams.EventMovedOrDeleted,
-				"meeting_preparation_params.has_been_automatically_completed": task.MeetingPreparationParams.HasBeenAutomaticallyCompleted,
-			}},
-		)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func (api *API) UpdateMeetingPreparationTasks(userID primitive.ObjectID, timezoneOffset time.Duration) error {
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
 	meetingPreparationTasks, err := database.GetMeetingPreparationTasks(api.DB, userID)
@@ -676,8 +634,6 @@ func (api *API) CreateMeetingPreparationTaskFromEvent(userID primitive.ObjectID,
 		} else {
 			continue
 		}
-		fmt.Printf("Creating meeting preparation task for event %s\n", event.Title)
-
 		// Check if meeting preparation task exists
 		count, err := taskCollection.CountDocuments(
 			context.Background(),
@@ -692,7 +648,7 @@ func (api *API) CreateMeetingPreparationTaskFromEvent(userID primitive.ObjectID,
 		if err != nil {
 			return err
 		}
-		// Meeting preparation task does not exist
+		// If meeting preparation task does not exist, create it
 		if count == 0 {
 			isCompleted := false
 			isDeleted := false
