@@ -170,15 +170,27 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		return
 	}
 
+	hasColors := true
+	colors, err := calendarService.Colors.Get().Do()
+	if err != nil {
+		log.Error().Err(err).Msg("could not get color mapping")
+		hasColors = false
+	}
+
 	var calendars []database.Calendar
 	eventsChannels := []chan CalendarResult{}
 	for _, calendar := range calendarList.Items {
-		calendars = append(calendars, database.Calendar{
+		cal := database.Calendar{
 			AccessRole: calendar.AccessRole,
 			CalendarID: calendar.Id,
 			ColorID:    calendar.ColorId,
 			Title:      calendar.Summary,
-		})
+		}
+		if hasColors {
+			cal.ColorBackground = colors.Calendar[calendar.ColorId].Background
+			cal.ColorForeground = colors.Calendar[calendar.ColorId].Foreground
+		}
+		calendars = append(calendars, cal)
 		eventChannel := make(chan CalendarResult)
 		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, calendar.Id, startTime, endTime, eventChannel)
 		eventsChannels = append(eventsChannels, eventChannel)

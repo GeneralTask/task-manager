@@ -775,8 +775,8 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 			UserID:     userID,
 			IDExternal: "acctid",
 			Calendars: []database.Calendar{
-				{"owner", "calid", "", ""},
-				{"reader", "other_calid", "", ""},
+				{"owner", "calid", "", "", "", ""},
+				{"reader", "other_calid", "", "", "", ""},
 			},
 		}, nil)
 	assert.NoError(t, err)
