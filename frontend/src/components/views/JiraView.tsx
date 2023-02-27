@@ -3,9 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Flex } from '@mantine/core'
 import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
+import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import Log from '../../services/api/log'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
@@ -25,7 +25,7 @@ const BodyHeader = styled.div`
 `
 
 const JiraView = () => {
-    const { data: tasks } = useGetTasksV4()
+    const { data: tasks } = useGetActiveTasks()
     const { jiraTaskId } = useParams()
     const navigate = useNavigate()
     const { calendarType } = useCalendarContext()
