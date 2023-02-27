@@ -597,6 +597,42 @@ func (api *API) SyncMeetingPreparationTaskWithEvents(meetingTasks *[]database.Ta
 	return nil
 }
 
+func (api *API) UpdateMeetingPreparationTasks(userID primitive.ObjectID, timezoneOffset time.Duration) error {
+	meetingPreparationTasks, err := database.GetMeetingPreparationTasks(api.DB, userID)
+	if err != nil {
+		return err
+	}
+	for _, task := range *meetingPreparationTasks {
+		associatedEvent, err := database.GetCalendarEventByExternalId(api.DB, task.MeetingPreparationParams.IDExternal, userID)
+		if err != nil {
+			return err
+		}
+		if associatedEvent == nil {
+			continue
+		}
+		taskCollection := database.GetTaskCollection(api.DB)
+		res, err := taskCollection.UpdateOne(
+			context.Background(),
+			bson.M{"$and": []bson.M{
+				{"_id": task.ID},
+				{"user_id": userID},
+			}},
+			bson.M{"$set": bson.M{
+				"updated_at":   primitive.NewDateTimeFromTime(time.Now()),
+				"meeting_preparation_params.datetime_start": associatedEvent.DatetimeStart,
+				"meeting_preparation_params.datetime_end": associatedEvent.DatetimeEnd,
+			}},
+		)
+		if err != nil {
+			return err
+		}
+		if res.ModifiedCount == 0 {
+			return fmt.Errorf("no task updated")
+		}
+	}
+	return nil
+}
+
 func (api *API) CreateMeetingPreparationTaskFromEvent(userID primitive.ObjectID, events *[]database.CalendarEvent) error {
 	calendarAccount, err := database.GetCalendarAccounts(api.DB, userID)
 	if err != nil {
@@ -609,12 +645,13 @@ func (api *API) CreateMeetingPreparationTaskFromEvent(userID primitive.ObjectID,
 		if accessRole, ok := calendarToAccessRole[calendarKey{event.SourceAccountID, event.CalendarID}]; ok {
 			if accessRole != "owner" {
 				continue // only create meeting prep tasks for "owned" calendars
-			} else {
-				continue //could not find the calendar in db
 			}
+		} else {
+			continue
 		}
+		fmt.Printf("Creating meeting preparation task for event %s\n", event.Title)
 
-		/// Check if meeting preparation task exists
+		// Check if meeting preparation task exists
 		count, err := taskCollection.CountDocuments(
 			context.Background(),
 			bson.M{"$and": []bson.M{
@@ -628,7 +665,7 @@ func (api *API) CreateMeetingPreparationTaskFromEvent(userID primitive.ObjectID,
 		if err != nil {
 			return err
 		}
-		// Meeting preparation task exists
+		// Meeting preparation task does not exist
 		if count == 0 {
 			isCompleted := false
 			isDeleted := false
@@ -664,23 +701,27 @@ func (api *API) GetMeetingPreparationTasksResultV4(userID primitive.ObjectID, ti
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf(`events til eod: %v`, *eventsUntilEndOfDay)
-	err = api.CreateMeetingPreparationTaskFromEvent(userID, eventsUntilEndOfDay)
-	if err != nil {
-		return nil, err
-	}
+
 	err = api.CreateMeetingPreparationTaskFromEvent(userID, eventsUntilEndOfDay)
 	if err != nil {
 		return nil, err
 	}
 
-	meetingTasks, err := database.GetMeetingPreparationTasks(api.DB, userID)
-	if err != nil {
-		return nil, err
-	}
+	return nil, nil
 
-	meetingTaskResult := api.taskListToTaskResultListV4(meetingTasks, userID)
-	return meetingTaskResult, nil
+
+	// err = api.UpdateMeetingPreparationTasks(userID, timezoneOffset)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// meetingTasks, err := database.GetMeetingPreparationTasks(api.DB, userID)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// meetingTaskResult := api.taskListToTaskResultListV4(meetingTasks, userID)
+	// return meetingTaskResult, nil
 }
 
 func (api *API) CreateMeetingPreparationTaskList(userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool) (*[]database.Task, error) {
