@@ -293,7 +293,7 @@ export const useMarkTaskDoneOrDeleted = () => {
     const { setOpenListIds } = useOverviewContext()
 
     return useGTMutation((data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data), {
-        tag: 'tasks',
+        tag: 'tasks_v4',
         invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
         onMutate: async (data: TMarkTaskDoneOrDeletedData) => {
             await Promise.all([
@@ -346,7 +346,7 @@ export const useMarkTaskDoneOrDeleted = () => {
                 if (data.waitForAnimation) {
                     await sleep(TASK_MARK_AS_DONE_TIMEOUT)
                 }
-                queryClient.setQueryData('tasks', updatedFolders)
+                queryClient.setQueryData('folders', updatedFolders)
             }
 
             const lists = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
@@ -412,7 +412,11 @@ export const useReorderTask = () => {
         tag: 'tasks_v4',
         invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
         onMutate: async (data: TReorderTaskData) => {
-            await queryClient.cancelQueries('tasks')
+            await Promise.all([
+                queryClient.cancelQueries('tasks_v4'),
+                queryClient.cancelQueries('folders'),
+                queryClient.cancelQueries('overview'),
+            ])
 
             const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
             if (tasks) {
@@ -433,6 +437,10 @@ export const useReorderTask = () => {
                         task.id_folder = data.dropSectionId
                         task.is_done = data.dropSectionId === DONE_FOLDER_ID
                         task.is_deleted = data.dropSectionId === TRASH_FOLDER_ID
+                        // console.log(draft.filter((task) => task.id_folder === data.dropSectionId).sort((a, b) => {
+                        //     if (a.id_ordering === b.id_ordering) return task.id === a.id ? -1 : 1
+                        //     return a.id_ordering - b.id_ordering
+                        // }).map((task) => task.id_ordering))
                         const dropFolder = draft
                             .filter((task) => task.id_folder === data.dropSectionId)
                             .sort((a, b) => {
