@@ -462,6 +462,18 @@ export const useReorderTask = () => {
                 })
                 queryClient.setQueryData('folders', updatedFolders)
             }
+
+            const lists = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+            if (lists) {
+                const updatedLists = produce(lists, (draft) => {
+                    const previousList = draft.find((list) => list.task_section_id === data.dragSectionId)
+                    const newList = draft.find((list) => list.task_section_id === data.dropSectionId)
+                    if (!previousList || !newList) return
+                    previousList.view_item_ids = previousList.view_item_ids.filter((id) => id !== data.id)
+                    newList.view_item_ids.unshift(data.id)
+                })
+                queryClient.setQueryData('overview', updatedLists)
+            }
         },
     })
 }
