@@ -33,6 +33,7 @@ export type TSettingsKey =
     | 'sidebar_linear_preference'
     | 'sidebar_github_preference'
     | 'sidebar_slack_preference'
+    | 'sidebar_jira_preference'
     | 'has_dismissed_multical_prompt'
 
 type TUpdateSettingsData = {
