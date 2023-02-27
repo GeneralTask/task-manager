@@ -105,17 +105,15 @@ const NavigationLink = ({
         (item: DropItem) => {
             if (!taskFolder || !droppable || !item.task) return
             if (taskFolder.id === item.sectionId) return
-            if (taskFolder?.is_done || taskFolder?.is_trash) {
-                reorderTask(
-                    {
-                        id: item.id,
-                        orderingId: 1,
-                        dropSectionId: taskFolder.id,
-                        dragSectionId: item.sectionId,
-                    },
-                    item.task.optimisticId
-                )
-            }
+            reorderTask(
+                {
+                    id: item.id,
+                    orderingId: 1,
+                    dropSectionId: taskFolder.id,
+                    dragSectionId: item.sectionId,
+                },
+                item.task.optimisticId
+            )
         },
         [taskFolder]
     )
