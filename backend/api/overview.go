@@ -589,6 +589,7 @@ func (api *API) UpdateMeetingPreparationTasks(userID primitive.ObjectID, timezon
 			// Updatdate meeting prep start time if it's different from event start time
 			if !associatedEvent.DatetimeStart.Time().Equal(task.MeetingPreparationParams.DatetimeStart.Time()) {
 				updateFields["meeting_preparation_params.datetime_start"] = associatedEvent.DatetimeStart
+				updateFields["meeting_preparation_params.event_moved_or_deleted"] = true
 			}
 			// Update meeting prep end time if it's different from event end time
 			if !associatedEvent.DatetimeEnd.Time().Equal(task.MeetingPreparationParams.DatetimeEnd.Time()) {
