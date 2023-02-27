@@ -125,7 +125,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
                 },
             })),
         },
-        ...(!task.is_deleted && !task.is_done
+        ...(!task.is_deleted && !task.is_done && task.source.name !== 'Jira'
             ? [
                   {
                       label: 'Duplicate task',
