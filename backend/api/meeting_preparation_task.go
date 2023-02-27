@@ -20,13 +20,11 @@ func (api *API) MeetingPreparationTasksList(c *gin.Context) {
 		return
 	}
 	
-	meetingTasks, err := api.CreateMeetingPreparationTaskList(userID, timezoneOffset, true)
+	meetingTasksResult, err := api.GetMeetingPreparationTasksResultV4(userID, timezoneOffset)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to get meeting preparation tasks")
 		Handle500(c)
 	}
 
-	meetingTaskResult := api.taskListToTaskResultListV4(meetingTasks, userID)
-
-	c.JSON(200, meetingTaskResult)
+	c.JSON(200, meetingTasksResult)
 }

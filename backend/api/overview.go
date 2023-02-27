@@ -151,7 +151,8 @@ func (api *API) GetOverviewResults(views []database.View, userID primitive.Objec
 		case string(constants.ViewGithub):
 			singleOverviewResult, err = api.GetGithubOverviewResult(view, userID, timezoneOffset)
 		case string(constants.ViewMeetingPreparation):
-			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, showMovedOrDeleted)
+			continue
+			// singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, showMovedOrDeleted)
 		case string(constants.ViewDueToday):
 			singleOverviewResult, err = api.GetDueTodayOverviewResult(view, userID, timezoneOffset)
 		default:
@@ -498,6 +499,134 @@ func (api *API) GetGithubOverviewResult(view database.View, userID primitive.Obj
 	result.ViewItemIDs = GetPullRequestViewItemsIDs(pullResults)
 	result.HasTasksCompletedToday = taskCompletedInLastDay
 	return &result, nil
+}
+
+func (api *API) SyncMeetingPreparationTaskWithEvents(meetingTasks *[]database.Task, userID primitive.ObjectID, timezoneOffset time.Duration) error {
+	taskCollection := database.GetTaskCollection(api.DB)
+	for _, task := range *meetingTasks {
+		event, err := database.GetCalendarEventByExternalId(api.DB, task.MeetingPreparationParams.IDExternal, userID)
+
+		if err != nil && err != mongo.ErrNoDocuments {
+			return err
+		}
+		// If we can't find the event in the DB, we say the event is deleted. Eventually we'll want to make gcal api call to check if event was actually deleted
+		if event == nil {
+			task.MeetingPreparationParams.EventMovedOrDeleted = true
+		}
+		if event != nil {
+			if (event.DatetimeStart != task.MeetingPreparationParams.DatetimeStart) {
+				task.MeetingPreparationParams.EventMovedOrDeleted = true
+			}
+			task.MeetingPreparationParams.DatetimeStart = event.DatetimeStart
+			task.MeetingPreparationParams.DatetimeEnd = event.DatetimeEnd
+			task.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
+		}
+		_, err = taskCollection.UpdateOne(context.Background(),
+			bson.M{"$and": []bson.M{
+				{"_id": task.ID},
+				{"user_id": userID},
+			}},
+			bson.M{"$set": bson.M{
+				"is_completed": task.IsCompleted,
+				"completed_at": task.CompletedAt,
+				"updated_at":   task.UpdatedAt,
+				"meeting_preparation_params.datetime_start":                   task.MeetingPreparationParams.DatetimeStart,
+				"meeting_preparation_params.datetime_end":                     task.MeetingPreparationParams.DatetimeEnd,
+				"meeting_preparation_params.event_moved_or_deleted":           task.MeetingPreparationParams.EventMovedOrDeleted,
+				"meeting_preparation_params.has_been_automatically_completed": task.MeetingPreparationParams.HasBeenAutomaticallyCompleted,
+			}},
+		)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (api *API) CreateMeetingPreparationTaskFromEvent(userID primitive.ObjectID, events *[]database.CalendarEvent) error {
+	calendarAccount, err := database.GetCalendarAccounts(api.DB, userID)
+	if err != nil {
+		return err
+	}
+	calendarToAccessRole := createCalendarToAccessRoleMap(calendarAccount)
+
+	taskCollection := database.GetTaskCollection(api.DB)
+	for _, event := range *events {
+		if accessRole, ok := calendarToAccessRole[calendarKey{event.SourceAccountID, event.CalendarID}]; ok {
+			if accessRole != "owner" {
+				continue // only create meeting prep tasks for "owned" calendars
+			} else {
+				continue //could not find the calendar in db
+			}
+		}
+
+		/// Check if meeting preparation task exists
+		count, err := taskCollection.CountDocuments(
+			context.Background(),
+			bson.M{"$and": []bson.M{
+				{"user_id": userID},
+				{"is_meeting_preparation_task": true},
+				{"meeting_preparation_params.id_external": event.IDExternal},
+				{"source_id": event.SourceID},
+			},
+			})
+
+		if err != nil {
+			return err
+		}
+		// Meeting preparation task exists
+		if count == 0 {
+			isCompleted := false
+			isDeleted := false
+			_, err = taskCollection.InsertOne(context.Background(), database.Task{
+				Title:                    &event.Title,
+				UserID:                   userID,
+				IsCompleted:              &isCompleted,
+				IsDeleted:                &isDeleted,
+				SourceID:                 event.SourceID,
+				CreatedAtExternal:        primitive.NewDateTimeFromTime(time.Now()),
+				UpdatedAt:                primitive.NewDateTimeFromTime(time.Now()),
+				IsMeetingPreparationTask: true,
+				MeetingPreparationParams: &database.MeetingPreparationParams{
+					CalendarEventID:               event.ID,
+					IDExternal:                    event.IDExternal,
+					DatetimeStart:                 event.DatetimeStart,
+					DatetimeEnd:                   event.DatetimeEnd,
+					HasBeenAutomaticallyCompleted: false,
+					EventMovedOrDeleted:           false,
+				},
+			})
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (api *API) GetMeetingPreparationTasksResultV4(userID primitive.ObjectID, timezoneOffset time.Duration)([]*TaskResultV4, error) {
+	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
+	eventsUntilEndOfDay, err := database.GetEventsUntilEndOfDay(api.DB, userID, timeNow)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf(`events til eod: %v`, *eventsUntilEndOfDay)
+	err = api.CreateMeetingPreparationTaskFromEvent(userID, eventsUntilEndOfDay)
+	if err != nil {
+		return nil, err
+	}
+	err = api.CreateMeetingPreparationTaskFromEvent(userID, eventsUntilEndOfDay)
+	if err != nil {
+		return nil, err
+	}
+
+	meetingTasks, err := database.GetMeetingPreparationTasks(api.DB, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	meetingTaskResult := api.taskListToTaskResultListV4(meetingTasks, userID)
+	return meetingTaskResult, nil
 }
 
 func (api *API) CreateMeetingPreparationTaskList(userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool) (*[]database.Task, error) {
