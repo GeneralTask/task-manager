@@ -298,7 +298,14 @@ export interface TTaskCreateParams {
 
 export type TOverviewItem = TTask & TPullRequest // TODO: change this to more general type
 
-export type TOverviewViewType = 'github' | 'task_section' | 'linear' | 'slack' | 'meeting_preparation' | 'due_today'
+export type TOverviewViewType =
+    | 'github'
+    | 'task_section'
+    | 'linear'
+    | 'slack'
+    | 'meeting_preparation'
+    | 'due_today'
+    | 'jira'
 
 export interface TOverviewView {
     id: string
