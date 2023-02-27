@@ -437,10 +437,6 @@ export const useReorderTask = () => {
                         task.id_folder = data.dropSectionId
                         task.is_done = data.dropSectionId === DONE_FOLDER_ID
                         task.is_deleted = data.dropSectionId === TRASH_FOLDER_ID
-                        // console.log(draft.filter((task) => task.id_folder === data.dropSectionId).sort((a, b) => {
-                        //     if (a.id_ordering === b.id_ordering) return task.id === a.id ? -1 : 1
-                        //     return a.id_ordering - b.id_ordering
-                        // }).map((task) => task.id_ordering))
                         const dropFolder = draft
                             .filter((task) => task.id_folder === data.dropSectionId)
                             .sort((a, b) => {
