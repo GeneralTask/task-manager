@@ -568,7 +568,7 @@ func (api *API) SyncMeetingPreparationTaskWithEvents(meetingTasks *[]database.Ta
 			task.MeetingPreparationParams.EventMovedOrDeleted = true
 		}
 		if event != nil {
-			if (event.DatetimeStart != task.MeetingPreparationParams.DatetimeStart) {
+			if event.DatetimeStart != task.MeetingPreparationParams.DatetimeStart {
 				task.MeetingPreparationParams.EventMovedOrDeleted = true
 			}
 			task.MeetingPreparationParams.DatetimeStart = event.DatetimeStart
@@ -598,18 +598,20 @@ func (api *API) SyncMeetingPreparationTaskWithEvents(meetingTasks *[]database.Ta
 }
 
 func (api *API) UpdateMeetingPreparationTasks(userID primitive.ObjectID, timezoneOffset time.Duration) error {
+	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
 	meetingPreparationTasks, err := database.GetMeetingPreparationTasks(api.DB, userID)
 	if err != nil {
 		return err
 	}
 	for _, task := range *meetingPreparationTasks {
+		// Get event for meeting prep task from DB
 		associatedEvent, err := database.GetCalendarEventByExternalId(api.DB, task.MeetingPreparationParams.IDExternal, userID)
 		if err != nil {
 			return err
 		}
 		taskCollection := database.GetTaskCollection(api.DB)
+		// If we can't find the event in the DB, we say the event is deleted. Eventually we'll want to make gcal api call to check if event was actually deleted
 		if associatedEvent == nil {
-			// If we can't find the event in the DB, we say the event is deleted. Eventually we'll want to make gcal api call to check if event was actually deleted
 			_, err := taskCollection.UpdateOne(
 				context.Background(),
 				bson.M{"$and": []bson.M{
@@ -617,7 +619,7 @@ func (api *API) UpdateMeetingPreparationTasks(userID primitive.ObjectID, timezon
 					{"user_id": userID},
 				}},
 				bson.M{"$set": bson.M{
-					"updated_at":   primitive.NewDateTimeFromTime(time.Now()),
+					"updated_at": primitive.NewDateTimeFromTime(time.Now()),
 					"meeting_preparation_params.event_moved_or_deleted": true,
 				}},
 			)
@@ -625,23 +627,30 @@ func (api *API) UpdateMeetingPreparationTasks(userID primitive.ObjectID, timezon
 				return err
 			}
 		} else {
-			// Do not update meeting prep task if the event hasn't changed
-			if associatedEvent.DatetimeStart.Time().Equal(task.MeetingPreparationParams.DatetimeStart.Time()) && associatedEvent.DatetimeEnd.Time().Equal(task.MeetingPreparationParams.DatetimeEnd.Time()) {
-				fmt.Printf("Event %s has not changed, skipping update\n", associatedEvent.Title)
+			updateFields := bson.M{}
+			// Updatdate meeting prep start time if it's different from event start time
+			if !associatedEvent.DatetimeStart.Time().Equal(task.MeetingPreparationParams.DatetimeStart.Time()) {
+				updateFields["meeting_preparation_params.datetime_start"] = associatedEvent.DatetimeStart
+			}
+			// Update meeting prep end time if it's different from event end time
+			if !associatedEvent.DatetimeEnd.Time().Equal(task.MeetingPreparationParams.DatetimeEnd.Time()) {
+				updateFields["meeting_preparation_params.datetime_end"] = associatedEvent.DatetimeEnd
+			}
+			// Update meeting prep task to completed if event has ended and task has not been auto completed
+			if associatedEvent.DatetimeEnd.Time().Before(timeNow) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
+				updateFields["is_completed"] = true
+				updateFields["completed_at"] = primitive.NewDateTimeFromTime(time.Now())
+				updateFields["meeting_preparation_params.has_been_automatically_completed"] = true
+			}
+			// If there are no fields to update, skip to next task
+			if len(updateFields) == 0 {
 				continue
 			}
-			// Update the meeting prep task with the new event times
+
 			_, err := taskCollection.UpdateOne(
 				context.Background(),
-				bson.M{"$and": []bson.M{
-					{"_id": task.ID},
-					{"user_id": userID},
-				}},
-				bson.M{"$set": bson.M{
-					"updated_at":   primitive.NewDateTimeFromTime(time.Now()),
-					"meeting_preparation_params.datetime_start": associatedEvent.DatetimeStart,
-					"meeting_preparation_params.datetime_end": associatedEvent.DatetimeEnd,
-				}},
+				bson.M{"$and": []bson.M{{"_id": task.ID}, {"user_id": userID}}},
+				bson.M{"$set": updateFields},
 			)
 			if err != nil {
 				return err
@@ -713,7 +722,7 @@ func (api *API) CreateMeetingPreparationTaskFromEvent(userID primitive.ObjectID,
 	return nil
 }
 
-func (api *API) GetMeetingPreparationTasksResultV4(userID primitive.ObjectID, timezoneOffset time.Duration)([]*TaskResultV4, error) {
+func (api *API) GetMeetingPreparationTasksResultV4(userID primitive.ObjectID, timezoneOffset time.Duration) ([]*TaskResultV4, error) {
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
 	eventsUntilEndOfDay, err := database.GetEventsUntilEndOfDay(api.DB, userID, timeNow)
 	if err != nil {
@@ -735,10 +744,10 @@ func (api *API) GetMeetingPreparationTasksResultV4(userID primitive.ObjectID, ti
 		return nil, err
 	}
 
-	for _, task := range *meetingTasks {
-		fmt.Printf("Task: %s\n", *task.Title)
-		fmt.Printf("Start time: %s\n\n", task.MeetingPreparationParams.DatetimeStart.Time().String())
-	}
+	// Sort by datetime_start
+	sort.Slice(*meetingTasks, func(i, j int) bool {
+		return (*meetingTasks)[i].MeetingPreparationParams.DatetimeStart <= (*meetingTasks)[j].MeetingPreparationParams.DatetimeStart
+	})
 
 	meetingTaskResult := api.taskListToTaskResultListV4(meetingTasks, userID)
 	return meetingTaskResult, nil
@@ -791,7 +800,7 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Create result of meeting prep tasks
 	var result []*TaskResult
 	if showMovedOrDeleted {
