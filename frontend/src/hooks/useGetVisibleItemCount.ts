@@ -1,7 +1,9 @@
 import { useLayoutEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { INITIAL_PAGE_SIZE } from '../components/overview/OverviewViewContainer'
 import { TOverviewView } from '../utils/types'
+
+export const INITIAL_PAGE_SIZE = 10
+export const PAGE_SIZE = 5
 
 const useGetVisibleItemCount = (list: TOverviewView, listID: string) => {
     const [visibleItemsCount, setVisibleItemsCount] = useState(0)
