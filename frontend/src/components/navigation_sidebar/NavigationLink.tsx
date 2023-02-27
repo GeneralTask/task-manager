@@ -5,7 +5,7 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
 import { TASK_FOLDER_DEFAULT_ID } from '../../constants'
 import Log from '../../services/api/log'
-import { useMarkTaskDoneOrDeleted, useReorderTask } from '../../services/api/tasks.hooks'
+import { useReorderTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { TIconColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
@@ -98,7 +98,6 @@ const NavigationLink = ({
     isCollapsed = false,
 }: NavigationLinkProps) => {
     const { mutate: reorderTask } = useReorderTask()
-    const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const { showTaskToCalSidebar, setShowTaskToCalSidebar, calendarType } = useCalendarContext()
     const navigate = useNavigate()
 
@@ -106,26 +105,15 @@ const NavigationLink = ({
         (item: DropItem) => {
             if (!taskFolder || !droppable || !item.task) return
             if (taskFolder.id === item.sectionId) return
-            if (taskFolder?.is_done || taskFolder?.is_trash) {
-                markTaskDoneOrDeleted(
-                    {
-                        id: item.id,
-                        isDone: taskFolder?.is_done,
-                        isDeleted: taskFolder?.is_trash,
-                    },
-                    item.task.optimisticId
-                )
-            } else {
-                reorderTask(
-                    {
-                        id: item.id,
-                        orderingId: 1,
-                        dropSectionId: taskFolder.id,
-                        dragSectionId: item.sectionId,
-                    },
-                    item.task.optimisticId
-                )
-            }
+            reorderTask(
+                {
+                    id: item.id,
+                    orderingId: 1,
+                    dropSectionId: taskFolder.id,
+                    dragSectionId: item.sectionId,
+                },
+                item.task.optimisticId
+            )
         },
         [taskFolder]
     )

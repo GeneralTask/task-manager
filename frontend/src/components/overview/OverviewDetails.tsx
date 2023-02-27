@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
-import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
+import { useGetTasksV4 } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'

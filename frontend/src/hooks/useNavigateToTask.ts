@@ -4,7 +4,7 @@ import { useCalendarContext } from '../components/calendar/CalendarContext'
 import { useGetFolders } from '../services/api/folders.hooks'
 import Log from '../services/api/log'
 import { useGetOverviewViews } from '../services/api/overview.hooks'
-import { useGetTasksV4 } from '../services/api/tasksv4.hooks'
+import { useGetTasksV4 } from '../services/api/tasks.hooks'
 import { TOverviewView, TTaskFolder, TTaskV4 } from '../utils/types'
 
 export interface TNavigateToTaskParams {
@@ -28,7 +28,7 @@ const useNavigateToTask = () => {
             if (!task) return
             const folderId =
                 task.id_folder ??
-                tasks.find((task) => task.id === task.id_parent)?.id_folder ??
+                tasks.find((t) => t.id === task.id_parent)?.id_folder ??
                 folders.find((folder) => folder.task_ids.includes(task.id))?.id
             const suffix = task.id_parent ? `${task.id_parent}/${taskId}` : taskId
 
