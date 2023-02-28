@@ -102,9 +102,7 @@ const CalendarView = ({
         'showDailyCalendar',
         useCallback(() => {
             if (calendarType === 'day' && !isCollapsed) {
-                setIsCollapsed(false)
-                setDate(date.minus({ days: date.weekday % 7 }))
-                setCalendarType('week')
+                setIsCollapsed(true)
             } else {
                 setIsCollapsed(false)
                 setDate(dayViewDate)
@@ -117,9 +115,7 @@ const CalendarView = ({
         'showWeeklyCalendar',
         useCallback(() => {
             if (calendarType === 'week' && !isCollapsed) {
-                setIsCollapsed(false)
-                setDate(dayViewDate)
-                setCalendarType('day')
+                setIsCollapsed(true)
             } else {
                 setIsCollapsed(false)
                 setDate(date.minus({ days: date.weekday % 7 }))
