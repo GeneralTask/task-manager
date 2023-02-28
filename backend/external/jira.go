@@ -20,6 +20,7 @@ const (
 	JIRADone        = "done"
 	JIRAPriorityKey = "priority"
 	JIRADueDateKey  = "duedate"
+	NoProject       = "noProject"
 )
 
 type JIRASource struct {
@@ -220,7 +221,11 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 
 		transitionListResult := transitionChannelList[idx]
 		transitionList := <-transitionListResult
-		allStatuses, exists := statusMap[jiraTask.Fields.Project.ID]
+		projectID := jiraTask.Fields.Project.ID
+		if projectID == "" {
+			projectID = NoProject
+		}
+		allStatuses, exists := statusMap[projectID]
 		if exists {
 			task.AllStatuses = allStatuses
 			for _, status := range task.AllStatuses {
@@ -427,7 +432,11 @@ func (jira JIRASource) GetListOfStatuses(siteConfiguration *database.AtlassianSi
 	}
 
 	for _, status := range statuses {
-		value, exists := statusMap[status.Scope.Project.ID]
+		projectID := status.Scope.Project.ID
+		if projectID == "" {
+			projectID = NoProject
+		}
+		value, exists := statusMap[projectID]
 		newStatus := database.ExternalTaskStatus{
 			ExternalID:        status.ID,
 			IconURL:           status.IconURL,
@@ -436,9 +445,9 @@ func (jira JIRASource) GetListOfStatuses(siteConfiguration *database.AtlassianSi
 		}
 
 		if exists {
-			statusMap[status.Scope.Project.ID] = append(value, &newStatus)
+			statusMap[projectID] = append(value, &newStatus)
 		} else {
-			statusMap[status.Scope.Project.ID] = []*database.ExternalTaskStatus{
+			statusMap[projectID] = []*database.ExternalTaskStatus{
 				&newStatus,
 			}
 		}
