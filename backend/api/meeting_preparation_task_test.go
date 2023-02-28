@@ -186,4 +186,15 @@ func TestGetMeetingPreparationTasksResultV4(t *testing.T) {
 		assert.True(t, result[1].MeetingPreparationParams.EventMovedOrDeleted)
 		assert.Equal(t, "Event1", result[2].Title)
 	})
+	t.Run("EventIsNotOnOwnedCalendar", func(t *testing.T) {
+		_, err = createTestEvent(calendarEventCollection, userID, "Event4", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NilObjectID, "acctid", "other_calid")
+		assert.NoError(t, err)
+		result, err := api.GetMeetingPreparationTasksResultV4(userID, 0)
+		assert.NoError(t, err)
+		assert.Len(t, result, 3)
+		assert.Equal(t, "Event2", result[0].Title)
+		assert.Equal(t, "Event3", result[1].Title)
+		assert.Equal(t, "Event1", result[2].Title)
+	})
+
 }
