@@ -300,7 +300,29 @@ export const useMarkTaskDoneOrDeleted = () => {
                 queryClient.cancelQueries('tasks_v4'),
                 queryClient.cancelQueries('folders'),
                 queryClient.cancelQueries('overview'),
+                queryClient.cancelQueries('meeting_preparation_tasks'),
             ])
+            const meetingTasks = queryClient.getImmutableQueryData<TTaskV4[]>('meeting_preparation_tasks')
+            const updateMeetingTasks = async () => {
+                if (!meetingTasks) return
+                const updatedMeetingTasks = produce(meetingTasks, (draft) => {
+                    const task = draft.find((task) => task.id === data.id)
+                    if (!task) return
+                    if (data.isDone !== undefined) {
+                        task.is_done = data.isDone
+                        if (data.isDone) task.id_folder = DONE_FOLDER_ID
+                    }
+                    if (data.isDeleted !== undefined) {
+                        task.is_deleted = data.isDeleted
+                        if (data.isDeleted) task.id_folder = TRASH_FOLDER_ID
+                    }
+                })
+                if (data.waitForAnimation) {
+                    await sleep(TASK_MARK_AS_DONE_TIMEOUT)
+                }
+                queryClient.setQueryData('meeting_preparation_tasks', updatedMeetingTasks)
+            }
+
             const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
             const updateTasks = async () => {
                 if (!tasks) return
@@ -397,6 +419,7 @@ export const useMarkTaskDoneOrDeleted = () => {
             updateFolders()
             updateTasks()
             updateLists()
+            updateMeetingTasks()
         },
     })
 }
