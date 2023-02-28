@@ -601,7 +601,7 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 	if err != nil {
 		return nil, err
 	}
-
+	
 	// Create result of meeting prep tasks
 	var result []*TaskResult
 	if showMovedOrDeleted {
