@@ -221,23 +221,21 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 
 		transitionListResult := transitionChannelList[idx]
 		transitionList := <-transitionListResult
-		projectID := jiraTask.Fields.Project.ID
-		if projectID == "" {
-			projectID = NoProject
-		}
-		allStatuses, exists := statusMap[projectID]
+		allStatuses, exists := statusMap[jiraTask.Fields.Project.ID]
 		if exists {
 			task.AllStatuses = allStatuses
-			for _, status := range task.AllStatuses {
-				for _, transition := range transitionList.Transitions {
-					if transition.ToStatus.ID == status.ExternalID {
-						status.IsValidTransition = true
-					}
-				}
-				// if no results returned, allow frontend to show all statuses
-				if len(transitionList.Transitions) == 0 {
+		} else {
+			task.AllStatuses = statusMap[NoProject]
+		}
+		for _, status := range task.AllStatuses {
+			for _, transition := range transitionList.Transitions {
+				if transition.ToStatus.ID == status.ExternalID {
 					status.IsValidTransition = true
 				}
+			}
+			// if no results returned, allow frontend to show all statuses
+			if len(transitionList.Transitions) == 0 {
+				status.IsValidTransition = true
 			}
 		}
 
