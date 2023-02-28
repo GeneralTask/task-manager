@@ -30,7 +30,7 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
             hideCheckmark
             items={[
                 [
-                    ...(!task.is_deleted && !task.is_done
+                    ...(!task.is_deleted && !task.is_done && task.source.name !== 'Jira'
                         ? [
                               {
                                   label: 'Duplicate task',

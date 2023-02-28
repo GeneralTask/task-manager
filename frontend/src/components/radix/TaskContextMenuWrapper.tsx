@@ -98,7 +98,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                 onClick: () => modifyTask({ id: task.id, priorityNormalized: val }, task.optimisticId),
             })),
         },
-        ...(!task.is_deleted && !task.is_done
+        ...(!task.is_deleted && !task.is_done && task.source.name !== 'Jira'
             ? [
                   {
                       label: 'Duplicate task',
