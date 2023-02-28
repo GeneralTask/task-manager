@@ -40,10 +40,21 @@ func TestMeetingPreparationTask(t *testing.T) {
 	timeOneHourLater := api.GetCurrentTime().Add(1 * time.Hour)
 	timeOneDayLater := api.GetCurrentTime().Add(24 * time.Hour)
 
-	_, err = createTestEvent(calendarEventCollection, userID, "Event1", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
-	assert.NoError(t, err)
+	t.Run("NoEvents", func(t *testing.T) {
+		request, _ := http.NewRequest("GET", "/meeting_preparation_tasks/", nil)
+		request.Header.Set("Authorization", "Bearer "+authtoken)
+		request.Header.Set("Timezone-Offset", "0")
 
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := io.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "[]", string(body))
+	})
 	t.Run("Success", func(t *testing.T) {
+		_, err = createTestEvent(calendarEventCollection, userID, "Event1", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
+		assert.NoError(t, err)
 		request, _ := http.NewRequest("GET", "/meeting_preparation_tasks/", nil)
 		request.Header.Set("Authorization", "Bearer "+authtoken)
 		request.Header.Set("Timezone-Offset", "0")
