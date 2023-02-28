@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -108,6 +110,8 @@ func TestGetMeetingPreparationTasksResultV4(t *testing.T) {
 	timeOneHourLater := api.GetCurrentTime().Add(1 * time.Hour)
 	timeOneDayLater := api.GetCurrentTime().Add(24 * time.Hour)
 
+	externalEventID := primitive.NewObjectID().Hex()
+
 	t.Run("NoEvents", func(t *testing.T) {
 		result, err := api.GetMeetingPreparationTasksResultV4(userID, 0)
 		assert.NoError(t, err)
@@ -135,13 +139,22 @@ func TestGetMeetingPreparationTasksResultV4(t *testing.T) {
 		assert.Equal(t, []*TaskResultV4{}, result)
 	})
 	t.Run("EventLaterToday", func(t *testing.T) {
-		eventExternalID := primitive.NewObjectID().Hex()
-		_, err = createTestEvent(calendarEventCollection, userID, "Event1", eventExternalID, timeOneHourLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
+		_, err = createTestEvent(calendarEventCollection, userID, "Event1", externalEventID, timeOneHourLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
 		assert.NoError(t, err)
 		result, err := api.GetMeetingPreparationTasksResultV4(userID, 0)
 		assert.NoError(t, err)
 		assert.Len(t, result, 1)
 		assert.Equal(t, "Event1", result[0].Title)
 		assert.False(t, result[0].MeetingPreparationParams.EventMovedOrDeleted)
+	})
+	t.Run("EventMovedToLaterToday", func(t *testing.T) {
+		eventCollection := database.GetCalendarEventCollection(db)
+		_, err = eventCollection.UpdateOne(context.Background(), bson.M{"id_external": externalEventID}, bson.M{"$set": bson.M{"datetime_start": primitive.NewDateTimeFromTime(timeOneHourLater.Add(1 * time.Hour))}})
+		assert.NoError(t, err)
+		result, err := api.GetMeetingPreparationTasksResultV4(userID, 0)
+		assert.NoError(t, err)
+		assert.Len(t, result, 1)
+		assert.Equal(t, "Event1", result[0].Title)
+		assert.True(t, result[0].MeetingPreparationParams.EventMovedOrDeleted)
 	})
 }
