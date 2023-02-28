@@ -104,6 +104,7 @@ func TestGetMeetingPreparationTasksResultV4(t *testing.T) {
 	assert.NoError(t, err)
 
 	calendarEventCollection := database.GetCalendarEventCollection(db)
+	timeOneHourEarlier := api.GetCurrentTime().Add(-1 * time.Hour)
 	timeOneHourLater := api.GetCurrentTime().Add(1 * time.Hour)
 	timeOneDayLater := api.GetCurrentTime().Add(24 * time.Hour)
 
@@ -112,11 +113,35 @@ func TestGetMeetingPreparationTasksResultV4(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, []*TaskResultV4{}, result)
 	})
-	t.Run("SingleEventLaterToday", func(t *testing.T) {
-		_, err = createTestEvent(calendarEventCollection, userID, "Event1", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
+	t.Run("EventDifferentUser", func(t *testing.T) {
+		_, err = createTestEvent(calendarEventCollection, primitive.NewObjectID(), "Event1", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
+		assert.NoError(t, err)
+		result, err := api.GetMeetingPreparationTasksResultV4(userID, 0)
+		assert.NoError(t, err)
+		assert.Equal(t, []*TaskResultV4{}, result)
+	})
+	t.Run("EventEarlierToday", func(t *testing.T) {
+		_, err = createTestEvent(calendarEventCollection, userID, "Event1", primitive.NewObjectID().Hex(), timeOneHourEarlier, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
+		assert.NoError(t, err)
+		result, err := api.GetMeetingPreparationTasksResultV4(userID, 0)
+		assert.NoError(t, err)
+		assert.Equal(t, []*TaskResultV4{}, result)
+	})
+	t.Run("EventTomorrow", func(t *testing.T) {
+		_, err = createTestEvent(calendarEventCollection, userID, "Event1", primitive.NewObjectID().Hex(), timeOneDayLater, timeOneDayLater.Add(1*time.Hour), primitive.NilObjectID, "acctid", "calid")
+		assert.NoError(t, err)
+		result, err := api.GetMeetingPreparationTasksResultV4(userID, 0)
+		assert.NoError(t, err)
+		assert.Equal(t, []*TaskResultV4{}, result)
+	})
+	t.Run("EventLaterToday", func(t *testing.T) {
+		eventExternalID := primitive.NewObjectID().Hex()
+		_, err = createTestEvent(calendarEventCollection, userID, "Event1", eventExternalID, timeOneHourLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
 		assert.NoError(t, err)
 		result, err := api.GetMeetingPreparationTasksResultV4(userID, 0)
 		assert.NoError(t, err)
 		assert.Len(t, result, 1)
+		assert.Equal(t, "Event1", result[0].Title)
+		assert.False(t, result[0].MeetingPreparationParams.EventMovedOrDeleted)
 	})
 }
