@@ -164,7 +164,7 @@ func TestGetMeetingPreparationTasksResultV4(t *testing.T) {
 		assert.NoError(t, err)
 
 		taskCollection := database.GetTaskCollection(db)
-		_, err = createTestMeetingPreparationTask(taskCollection, userID,  "Event2", idExternal, false, timeTwoHoursLater, timeOneDayLater, insertResult.InsertedID.(primitive.ObjectID))
+		_, err = createTestMeetingPreparationTask(taskCollection, userID, "Event2", idExternal, false, timeTwoHoursLater, timeOneDayLater, insertResult.InsertedID.(primitive.ObjectID))
 		assert.NoError(t, err)
 
 		result, err := api.GetMeetingPreparationTasksResultV4(userID, 0)
@@ -172,5 +172,18 @@ func TestGetMeetingPreparationTasksResultV4(t *testing.T) {
 		assert.Len(t, result, 2)
 		assert.Equal(t, "Event2", result[0].Title)
 		assert.Equal(t, "Event1", result[1].Title)
+	})
+	t.Run("TaskWithMissingEvent", func(t *testing.T) {
+		taskCollection := database.GetTaskCollection(db)
+		_, err = createTestMeetingPreparationTask(taskCollection, userID, "Event3", "missing", false, timeTwoHoursLater, timeOneDayLater, primitive.NilObjectID)
+		assert.NoError(t, err)
+
+		result, err := api.GetMeetingPreparationTasksResultV4(userID, 0)
+		assert.NoError(t, err)
+		assert.Len(t, result, 3)
+		assert.Equal(t, "Event2", result[0].Title)
+		assert.Equal(t, "Event3", result[1].Title)
+		assert.True(t, result[1].MeetingPreparationParams.EventMovedOrDeleted)
+		assert.Equal(t, "Event1", result[2].Title)
 	})
 }

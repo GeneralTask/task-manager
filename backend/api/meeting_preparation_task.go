@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func (api *API) MeetingPreparationTasksList(c *gin.Context) {
@@ -43,7 +44,7 @@ func (api *API) UpdateMeetingPreparationTasks(userID primitive.ObjectID, timezon
 	for _, task := range *meetingPreparationTasks {
 		// Get event for meeting prep task from DB
 		associatedEvent, err := database.GetCalendarEventByExternalId(api.DB, task.MeetingPreparationParams.IDExternal, userID)
-		if err != nil {
+		if err != nil && err != mongo.ErrNoDocuments {
 			return err
 		}
 		taskCollection := database.GetTaskCollection(api.DB)
