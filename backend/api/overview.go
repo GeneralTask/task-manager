@@ -155,8 +155,7 @@ func (api *API) GetOverviewResults(views []database.View, userID primitive.Objec
 		case string(constants.ViewGithub):
 			singleOverviewResult, err = api.GetGithubOverviewResult(view, userID, timezoneOffset)
 		case string(constants.ViewMeetingPreparation):
-			continue
-			// singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, showMovedOrDeleted)
+			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, showMovedOrDeleted)
 		case string(constants.ViewDueToday):
 			singleOverviewResult, err = api.GetDueTodayOverviewResult(view, userID, timezoneOffset)
 		default:
