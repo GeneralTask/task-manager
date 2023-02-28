@@ -201,7 +201,7 @@ func TestGetMeetingPreparationTasksResultV4(t *testing.T) {
 	t.Run("MeetingHasEnded", func(t *testing.T) {
 		idExternal := primitive.NewObjectID().Hex()
 
-		_, err := createTestEvent(calendarEventCollection, userID, "Event4", idExternal, timeOneHourAgo, timeOneHourAgo, primitive.NilObjectID, "acctid", "calid")
+		_, err := createTestEvent(calendarEventCollection, userID, "Event5", idExternal, timeOneHourAgo, timeOneHourAgo, primitive.NilObjectID, "acctid", "calid")
 		assert.NoError(t, err)
 
 		insertResult, err := createTestMeetingPreparationTask(taskCollection, userID, "reticulate splines", idExternal, false, timeZero, timeZero, primitive.NilObjectID)
@@ -221,6 +221,32 @@ func TestGetMeetingPreparationTasksResultV4(t *testing.T) {
 		assert.Equal(t, "Event2", res[0].Title)
 		assert.Equal(t, "Event3", res[1].Title)
 		assert.Equal(t, "Event1", res[2].Title)
+	})
+	t.Run("EventMovedToNextDay", func(t *testing.T) {
+		idExternal := primitive.NewObjectID().Hex()
+
+		insertResult, err := createTestEvent(calendarEventCollection, userID, "Event6", idExternal, timeTwoHoursLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
+		assert.NoError(t, err)
+
+		insertTaskResult, err := createTestMeetingPreparationTask(taskCollection, userID, "Event6", idExternal, false, timeTwoHoursLater, timeOneDayLater, insertResult.InsertedID.(primitive.ObjectID))
+		assert.NoError(t, err)
+
+		_, err = calendarEventCollection.UpdateOne(context.Background(), bson.M{"_id": insertResult.InsertedID.(primitive.ObjectID)}, bson.M{"$set": bson.M{"datetime_start": primitive.NewDateTimeFromTime(timeOneDayLater)}})
+		assert.NoError(t, err)
+
+		res, err := api.GetMeetingPreparationTasksResultV4(userID, 0)
+		assert.NoError(t, err)
+
+		var item database.Task
+		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertTaskResult.InsertedID.(primitive.ObjectID)}).Decode(&item)
+		assert.NoError(t, err)
+		assert.True(t, item.MeetingPreparationParams.EventMovedOrDeleted)
+
+		assert.Len(t, res, 4)
+		assert.Equal(t, "Event2", res[0].Title)
+		assert.Equal(t, "Event3", res[1].Title)
+		assert.Equal(t, "Event1", res[2].Title)
+		assert.Equal(t, "Event6", res[3].Title)
 	})
 
 }
