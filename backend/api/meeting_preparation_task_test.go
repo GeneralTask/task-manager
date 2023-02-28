@@ -80,3 +80,43 @@ func TestMeetingPreparationTask(t *testing.T) {
 		assert.NoError(t, err)
 	})
 }
+
+func TestGetMeetingPreparationTasksResultV4(t *testing.T) {
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+	testTime := time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
+	api.OverrideTime = &testTime
+
+	authtoken := login("test_overview@generaltask.com", "")
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := getUserIDFromAuthToken(t, db, authtoken)
+	_, err = database.UpdateOrCreateCalendarAccount(db, userID, "123abc", "foobar_source",
+		&database.CalendarAccount{
+			UserID:     userID,
+			IDExternal: "acctid",
+			Calendars: []database.Calendar{
+				{"owner", "calid", "", ""},
+				{"reader", "other_calid", "", ""},
+			},
+		}, nil)
+	assert.NoError(t, err)
+
+	calendarEventCollection := database.GetCalendarEventCollection(db)
+	timeOneHourLater := api.GetCurrentTime().Add(1 * time.Hour)
+	timeOneDayLater := api.GetCurrentTime().Add(24 * time.Hour)
+
+	t.Run("NoEvents", func(t *testing.T) {
+		result, err := api.GetMeetingPreparationTasksResultV4(userID, 0)
+		assert.NoError(t, err)
+		assert.Equal(t, []*TaskResultV4{}, result)
+	})
+	t.Run("SingleEventLaterToday", func(t *testing.T) {
+		_, err = createTestEvent(calendarEventCollection, userID, "Event1", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
+		assert.NoError(t, err)
+		result, err := api.GetMeetingPreparationTasksResultV4(userID, 0)
+		assert.NoError(t, err)
+		assert.Len(t, result, 1)
+	})
+}
