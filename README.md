@@ -202,6 +202,7 @@ Here are a few common interactions:
 * SSH to a pod, run `ksh <pod name>` - for example: `ksh core-deployment-756d697659-hqgk4`
 * View logs for a specific pod `k logs core-deployment-756d697659-hqgk4`
 * View collated logs for the whole deployment with `kdlogs` or `kdl` (for the latter, you need to install [`stern`](https://github.com/wercker/stern))
+* To manually apply a k8s yaml, you can run `kubectl apply -f /path/to/file`. You can also specify a directory to idempotently apply the entire set of manifests in that directory
 
 
 ## Documentation updates

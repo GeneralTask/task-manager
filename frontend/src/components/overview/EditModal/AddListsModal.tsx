@@ -2,6 +2,7 @@ import { Fragment, useDeferredValue, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { GITHUB_SUPPORTED_VIEW_NAME, TASK_INBOX_NAME } from '../../../constants'
+import { usePreviewMode } from '../../../hooks'
 import { useAddView, useGetSupportedViews, useRemoveView } from '../../../services/api/overview.hooks'
 import { useGetLinkedAccounts } from '../../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../../styles'
@@ -54,6 +55,7 @@ interface AddListsModalProps {
 }
 
 export const AddListsModalContent = () => {
+    const { isPreviewMode } = usePreviewMode()
     const { data: supportedViews } = useGetSupportedViews()
     const { mutate: addView } = useAddView()
     const { mutate: removeView } = useRemoveView()
@@ -65,12 +67,15 @@ export const AddListsModalContent = () => {
     const deferredSearchTerm = useDeferredValue(searchTerm)
 
     const filteredSupportedViews = useMemo(() => {
+        const supportedViewsWithoutJiraInNonPreviewMode = supportedViews?.filter(
+            (view) => view.type !== 'jira' || isPreviewMode
+        )
         const lowercaseSearchTerm = deferredSearchTerm.toLowerCase()
-        if (!lowercaseSearchTerm || !supportedViews) {
-            return supportedViews
+        if (!lowercaseSearchTerm || !supportedViewsWithoutJiraInNonPreviewMode) {
+            return supportedViewsWithoutJiraInNonPreviewMode
         }
         const filtered: TSupportedView[] = []
-        for (const view of supportedViews) {
+        for (const view of supportedViewsWithoutJiraInNonPreviewMode) {
             if (view.is_nested) {
                 const filteredNestedViews = view.views.filter((nestedView) =>
                     nestedView.name.toLowerCase().includes(lowercaseSearchTerm)
@@ -85,7 +90,7 @@ export const AddListsModalContent = () => {
             }
         }
         return filtered
-    }, [supportedViews, deferredSearchTerm])
+    }, [supportedViews, deferredSearchTerm, isPreviewMode])
 
     const onChange = (
         supportedView: TSupportedView,

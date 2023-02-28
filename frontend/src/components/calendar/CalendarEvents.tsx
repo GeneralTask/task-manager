@@ -75,14 +75,12 @@ const CalendarTimeTable = () => {
 interface WeekCalendarEventsProps {
     date: DateTime
     groups: TEvent[][]
-    primaryAccountID: string | undefined
 }
-const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEventsProps) => {
+const WeekCalendarEvents = ({ date, groups }: WeekCalendarEventsProps) => {
     const eventsContainerRef = useRef<HTMLDivElement>(null)
     const { calendarType } = useCalendarContext()
     const isWeekCalendar = calendarType === 'week'
     const { isOver, dropPreviewPosition, eventPreview } = useCalendarDrop({
-        primaryAccountID,
         date,
         eventsContainerRef,
     })
@@ -124,10 +122,9 @@ const removeDuplicateEvents = (events: TEvent[]) => {
 
 interface CalendarEventsProps {
     date: DateTime
-    primaryAccountID: string | undefined
 }
 
-const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
+const CalendarEvents = ({ date }: CalendarEventsProps) => {
     const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
     const scrollRef = useRef<HTMLDivElement>(null)
     const timeIndicatorRef = useRef<HTMLDivElement>(null)
@@ -187,12 +184,7 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
             </TimeAndHeaderContainer>
 
             {allGroups.map((groups, dayOffset) => (
-                <WeekCalendarEvents
-                    key={dayOffset}
-                    date={date.plus({ days: dayOffset })}
-                    groups={groups}
-                    primaryAccountID={primaryAccountID}
-                />
+                <WeekCalendarEvents key={dayOffset} date={date.plus({ days: dayOffset })} groups={groups} />
             ))}
         </AllDaysContainer>
     )

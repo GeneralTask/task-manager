@@ -3,7 +3,7 @@ import { useIdleTimer } from 'react-idle-timer'
 import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME, SINGLE_SECOND_INTERVAL } from '../../constants'
+import { SINGLE_SECOND_INTERVAL } from '../../constants'
 import { useInterval, usePreviewMode } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { useEvents } from '../../services/api/events.hooks'
@@ -93,12 +93,6 @@ const CalendarView = ({
 
     const { data: linkedAccounts } = useGetLinkedAccounts()
 
-    const primaryAccountID = useMemo(
-        () =>
-            linkedAccounts?.filter((account) => account.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)?.[0]?.display_id,
-        [linkedAccounts]
-    )
-
     useKeyboardShortcut(
         'calendar',
         useCallback(() => setIsCollapsed(!isCollapsed), [isCollapsed, setIsCollapsed]),
@@ -162,7 +156,7 @@ const CalendarView = ({
                     ))}
             </CalendarWeekDateHeaderContainer>
             {calendarType === 'week' && <TasksDueWeek date={date} />}
-            <CalendarEvents date={date} primaryAccountID={primaryAccountID} />
+            <CalendarEvents date={date} />
             <CalendarFooter />
         </CalendarContainer>
     )

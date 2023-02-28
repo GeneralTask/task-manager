@@ -102,15 +102,16 @@ func (slackService SlackService) HandleLinkCallback(db *mongo.Database, params C
 		return errors.New("internal server error")
 	}
 
+	accountID := fmt.Sprintf("%s-%s", userInfo.TeamID, userInfo.UserID)
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	_, err = externalAPITokenCollection.UpdateOne(
 		context.Background(),
-		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_SLACK}, {"account_id": "todo"}}},
+		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_SLACK}, {"account_id": accountID}}},
 		bson.M{"$set": &database.ExternalAPIToken{
 			UserID:         userID,
 			ServiceID:      TASK_SERVICE_ID_SLACK,
 			Token:          string(tokenString),
-			AccountID:      fmt.Sprintf("%s-%s", userInfo.TeamID, userInfo.UserID),
+			AccountID:      accountID,
 			DisplayID:      fmt.Sprintf("%s (%s)", userInfo.User, userInfo.Team),
 			IsUnlinkable:   true,
 			IsPrimaryLogin: false,

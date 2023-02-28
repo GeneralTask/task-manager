@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
 import { DateTime } from 'luxon'
-import { usePreviewMode } from '../../hooks'
 import { useGetCalendars } from '../../services/api/events.hooks'
 import { logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
@@ -34,7 +33,6 @@ interface EventBodyProps {
     isBeingDragged?: boolean
 }
 function EventBody(props: EventBodyProps): JSX.Element {
-    const { isPreviewMode } = usePreviewMode()
     const { selectedEvent, setSelectedEvent, isPopoverDisabled, disableSelectEvent } = useCalendarContext()
     const startTime = DateTime.fromISO(props.event.datetime_start)
     const endTime = DateTime.fromISO(props.event.datetime_end)
@@ -92,13 +90,14 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     eventBodyHeight={eventBodyHeight}
                     eventHasEnded={eventHasEnded}
                     isBeingDragged={props.isBeingDragged}
+                    isSelected={selectedEvent?.id === props.event.id}
                     isDisabled={disableSelectEvent}
                 >
                     <EventInfoContainer onClick={onClick}>
                         <EventDetailPopover event={props.event} date={props.date} hidePopover={isPopoverDisabled}>
                             <EventInfo type={eventType}>
                                 <EventIconAndTitle>
-                                    {props.event.linked_task_id && (
+                                    {(props.event.linked_task_id || props.event.linked_pull_request_id) && (
                                         <EventIcon
                                             icon={logos[props.event.logo]}
                                             isShort={timeDurationTodayMinutes <= MINIMUM_BODY_HEIGHT}
@@ -120,13 +119,11 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         isSelected={selectedEvent?.id === props.event.id}
                         backgroundColorHex={getCalendarColor(props.event.color_id || calendar?.color_id || '')}
                     />
-                    {isPreviewMode && (
-                        <EdgeHighlight
-                            color={getCalendarColor(props.event.color_id || calendar?.color_id || '')}
-                            squareStart={startedBeforeToday}
-                            squareEnd={endedAfterToday}
-                        />
-                    )}
+                    <EdgeHighlight
+                        color={getCalendarColor(props.event.color_id || calendar?.color_id || '')}
+                        squareStart={startedBeforeToday}
+                        squareEnd={endedAfterToday}
+                    />
                     <ResizeHandle event={props.event} />
                 </EventBodyStyle>
             </FocusModeContextMenuWrapper>

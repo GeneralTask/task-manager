@@ -5,9 +5,10 @@ import { DateTime } from 'luxon'
 import { useCalendarContext } from '../../components/calendar/CalendarContext'
 import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
-import { useGTLocalStorage } from '../../hooks'
+import { useGTLocalStorage, useSetting } from '../../hooks'
+import { TLogoImage } from '../../styles/images'
 import apiClient from '../../utils/api'
-import { TCalendar, TCalendarAccount, TEvent, TOverviewView, TTask } from '../../utils/types'
+import { TCalendar, TCalendarAccount, TEvent, TOverviewView, TPullRequest, TTask } from '../../utils/types'
 import { getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 
 interface TEventAttendee {
@@ -28,6 +29,7 @@ interface TCreateEventPayload {
     add_conference_call?: boolean
     task_id?: string
     view_id?: string
+    pr_id?: string
 }
 interface TModifyEventPayload {
     account_id: string
@@ -45,6 +47,7 @@ interface TCreateEventParams {
     date: DateTime
     linkedTask?: TTask
     linkedView?: TOverviewView
+    linkedPullRequest?: TPullRequest
     optimisticId: string
 }
 interface TCreateEventResponse {
@@ -52,6 +55,7 @@ interface TCreateEventResponse {
 }
 interface TModifyEventPayload {
     account_id: string
+    calendar_id: string
     datetime_start?: string
     datetime_end?: string
     summary?: string
@@ -120,7 +124,14 @@ export const useCreateEvent = () => {
     return useGTMutation(({ createEventPayload }: TCreateEventParams) => createEvent(createEventPayload), {
         tag: 'events',
         invalidateTagsOnSettled: ['events'],
-        onMutate: ({ createEventPayload, date, linkedTask, linkedView, optimisticId }: TCreateEventParams) => {
+        onMutate: ({
+            createEventPayload,
+            date,
+            linkedTask,
+            linkedView,
+            linkedPullRequest,
+            optimisticId,
+        }: TCreateEventParams) => {
             const { events, blockStartTime } = queryClient.getCurrentEvents(
                 date,
                 createEventPayload.datetime_start,
@@ -132,6 +143,15 @@ export const useCreateEvent = () => {
             const calendar = selectedCalendars.find((calendar) => calendar.account_id === createEventPayload.account_id)
                 ?.calendars[0]
 
+            let logo: TLogoImage
+            if (linkedTask?.source.logo_v2) {
+                logo = linkedTask?.source.logo_v2
+            } else if (linkedPullRequest) {
+                logo = 'github'
+            } else {
+                logo = 'gcal'
+            }
+
             const newEvent: TEvent = {
                 id: optimisticId,
                 optimisticId: optimisticId,
@@ -140,7 +160,7 @@ export const useCreateEvent = () => {
                 account_id: createEventPayload.account_id,
                 calendar_id: createEventPayload.calendar_id ?? calendar?.calendar_id ?? '',
                 color_id: '',
-                logo: linkedTask?.source.logo_v2 ?? 'gcal',
+                logo: logo,
                 deeplink: '',
                 datetime_start: createEventPayload.datetime_start,
                 datetime_end: createEventPayload.datetime_end,
@@ -152,6 +172,7 @@ export const useCreateEvent = () => {
                 },
                 linked_task_id: linkedTask?.id ?? '',
                 linked_view_id: linkedView?.id ?? '',
+                linked_pull_request_id: linkedPullRequest?.id ?? '',
             }
 
             const newEvents = produce(events, (draft) => {
@@ -315,6 +336,12 @@ export const useSelectedCalendars = () => {
         [],
         true
     )
+    const { field_value: taskToCalAccount, updateSetting: setTaskToCalAccount } = useSetting(
+        'calendar_account_id_for_new_tasks'
+    )
+    const { field_value: taskToCalCalendar, updateSetting: setTaskToCalCalendar } = useSetting(
+        'calendar_calendar_id_for_new_tasks'
+    )
 
     // update selected calendars when calendar accounts are added/removed
     useEffect(() => {
@@ -342,6 +369,7 @@ export const useSelectedCalendars = () => {
                     calendar.has_multical_scopes !== selectedCalendar.has_multical_scopes
                 )
             })
+
             if (!newAccounts.length && !removedAccounts.length) {
                 hasChanged = false
                 return
@@ -355,7 +383,10 @@ export const useSelectedCalendars = () => {
             })
             // when a new account is added, select all calendars
             newAccounts.forEach((account) => {
-                draft.push(account)
+                draft.push({
+                    ...account,
+                    calendars: account.calendars.filter((calendar) => calendar.access_role === 'owner'),
+                })
             })
         })
         if (hasChanged) {
@@ -395,6 +426,24 @@ export const useSelectedCalendars = () => {
         },
         [selectedCalendars]
     )
+
+    useEffect(() => {
+        // ensure that task-to-cal calendar is always selected
+        if (!isCalendarSelected(taskToCalAccount, taskToCalCalendar)) {
+            const calendar = calendars
+                ?.find((account) => account.account_id === taskToCalAccount)
+                ?.calendars.find((calendar) => calendar.calendar_id === taskToCalCalendar)
+            if (calendar) {
+                toggleCalendarSelection(taskToCalAccount, calendar)
+            }
+        }
+
+        // if the first account is added, select the first calendar
+        if (taskToCalAccount === '' && calendars && calendars.length !== 0) {
+            setTaskToCalAccount(calendars[0].account_id)
+            setTaskToCalCalendar(calendars[0].account_id)
+        }
+    }, [calendars, isCalendarSelected, taskToCalAccount, taskToCalCalendar, toggleCalendarSelection])
 
     return { selectedCalendars, isCalendarSelected, toggleCalendarSelection }
 }

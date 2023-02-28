@@ -20,8 +20,8 @@ type TaskSourceV4 struct {
 type TaskResultV4 struct {
 	ID                       primitive.ObjectID           `json:"id"`
 	IDOrdering               int                          `json:"id_ordering"`
-	IDFolder                 string                       `json:"id_folder"`
-	IDParent                 string                       `json:"id_parent"`
+	IDFolder                 string                       `json:"id_folder,omitempty"`
+	IDParent                 string                       `json:"id_parent,omitempty"`
 	Source                   TaskSourceV4                 `json:"source"`
 	Deeplink                 string                       `json:"deeplink"`
 	Title                    string                       `json:"title"`
@@ -133,7 +133,7 @@ func (api *API) taskListToTaskResultListV4(tasks *[]database.Task, userID primit
 func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) *TaskResultV4 {
 	var dueDate string
 	if t.DueDate != nil {
-		if t.DueDate.Time().Unix() == int64(0) {
+		if t.DueDate.Time().UTC().Year() <= 1971 {
 			dueDate = ""
 		} else {
 			dueDate = t.DueDate.Time().UTC().Format(constants.YEAR_MONTH_DAY_FORMAT)
@@ -190,6 +190,16 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 		UpdatedAt:          t.UpdatedAt.Time().UTC().Format(time.RFC3339),
 	}
 
+	if completed {
+		taskResult.IDFolder = constants.IDTaskSectionDone.Hex()
+	}
+
+	// if both completed and deleted, deleted will take precedence
+	if deleted {
+		taskResult.IDFolder = constants.IDTaskSectionTrash.Hex()
+	}
+
+	// if deleted, completed, and a subtask, being a subtask will take precedence
 	if t.ParentTaskID != primitive.NilObjectID {
 		taskResult.IDParent = t.ParentTaskID.Hex()
 		// we want to make folder ID blank if the task is a subtask
@@ -207,10 +217,11 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 		allStatuses := []*externalStatus{}
 		for _, status := range t.AllStatuses {
 			allStatuses = append(allStatuses, &externalStatus{
-				IDExternal: status.ExternalID,
-				State:      status.State,
-				Type:       status.Type,
-				Color:      status.Color,
+				IDExternal:        status.ExternalID,
+				State:             status.State,
+				Type:              status.Type,
+				Color:             status.Color,
+				IsValidTransition: status.IsValidTransition,
 			})
 		}
 		taskResult.AllStatuses = allStatuses
@@ -227,8 +238,9 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 
 	if t.MeetingPreparationParams != nil && *t.MeetingPreparationParams != (database.MeetingPreparationParams{}) && t.IsMeetingPreparationTask {
 		taskResult.MeetingPreparationParams = &MeetingPreparationParams{
-			DatetimeStart: t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339),
-			DatetimeEnd:   t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339),
+			DatetimeStart:       t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339),
+			DatetimeEnd:         t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339),
+			EventMovedOrDeleted: t.MeetingPreparationParams.EventMovedOrDeleted,
 		}
 	}
 

@@ -49,7 +49,7 @@ export const useRecurringTaskTemplates = () => {
 
 const getRecurringTaskTemplates = async ({ signal }: QueryFunctionContext) => {
     try {
-        const res = await apiClient.get('/recurring_task_templates/', {
+        const res = await apiClient.get('/recurring_task_templates/v2/', {
             signal,
         })
         // the backend currently returns null if the list is empty - will change once this is fixed

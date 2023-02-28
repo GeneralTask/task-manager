@@ -36,7 +36,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		assert.Equal(t, "", result.DueDate)
 	})
 	t.Run("ValidDueDate", func(t *testing.T) {
-		dueDate := time.Unix(420, 0)
+		dueDate := time.Unix(1676478754, 0)
 		primitiveDueDate := primitive.NewDateTimeFromTime(dueDate)
 		result := api.taskBaseToTaskResult(&database.Task{
 			SourceID: external.TASK_SOURCE_ID_LINEAR,
@@ -53,7 +53,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		assert.Equal(t, templateID, result.RecurringTaskTemplateID)
 	})
 	t.Run("AllFieldSuccess", func(t *testing.T) {
-		dueDate := time.Unix(420, 0)
+		dueDate := time.Unix(1676478754, 0)
 		timeAllocation := int64(420)
 		primitiveDueDate := primitive.NewDateTimeFromTime(dueDate)
 		notCompleted := false
@@ -61,10 +61,11 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		body := "example body"
 		priority := 3.0
 		externalStatus := database.ExternalTaskStatus{
-			ExternalID: "example ID",
-			State:      "example state",
-			Type:       "example type",
-			Color:      "#ffffff",
+			ExternalID:        "example ID",
+			State:             "example state",
+			Type:              "example type",
+			Color:             "#ffffff",
+			IsValidTransition: true,
 		}
 		slackMessageParams := database.SlackMessageParams{
 			Channel: database.SlackChannel{
@@ -112,6 +113,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		assert.Equal(t, 1, len(result.AllStatuses))
 		assert.Equal(t, externalStatus.Type, result.AllStatuses[0].Type)
 		assert.Equal(t, externalStatus.Color, result.AllStatuses[0].Color)
+		assert.Equal(t, externalStatus.IsValidTransition, result.AllStatuses[0].IsValidTransition)
 		assert.Equal(t, 1, len(result.AllExternalPriorities))
 		assert.Equal(t, externalPriority.Name, result.AllExternalPriorities[0].Name)
 		assert.Equal(t, externalPriority.PriorityNormalized, result.AllExternalPriorities[0].PriorityNormalized)
@@ -125,7 +127,7 @@ func TestTaskListToTaskResultList(t *testing.T) {
 
 	userID := primitive.NewObjectID()
 	t.Run("SubtaskSuccess", func(t *testing.T) {
-		dueDate := time.Unix(420, 0)
+		dueDate := time.Unix(1676478754, 0)
 		timeAllocation := int64(420)
 		primitiveDueDate := primitive.NewDateTimeFromTime(dueDate)
 		notCompleted := false

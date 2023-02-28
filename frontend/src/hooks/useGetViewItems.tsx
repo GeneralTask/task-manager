@@ -22,6 +22,7 @@ const useGetViewItems = (list: TOverviewView) => {
                 return TaskSectionViewItems
             case 'linear':
             case 'slack':
+            case 'jira':
                 return ExternalViewItems
             case 'github':
                 return PullRequestViewItems

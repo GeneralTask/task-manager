@@ -42,17 +42,31 @@ const EditorContainer = styled.div<{ isMarkdown: boolean }>`
         height: 100%;
         padding: ${Spacing._8};
         box-sizing: border-box;
-        > * {
-            margin-bottom: ${Spacing._8};
-        }
-        > .code-block {
+        > :not(.code-block) {
+            padding-bottom: ${Spacing._8};
             margin: 0;
         }
+        > .code-block {
+            margin: 0 0 ${Spacing._8};
+            background-color: red;
+        }
+    }
+    [aria-label*='floating controls'] {
+        z-index: 1 !important;
     }
     .assistive {
         display: none;
     }
-    ${({ isMarkdown }) => isMarkdown && `u { text-decoration: none; } `}/* remove underline if in markdown mode */
+    ${({ isMarkdown }) => isMarkdown && `u { text-decoration: none; } `} /* remove underline if in markdown mode */
+    
+    /* hide quick insert menu and text coloring */
+    [aria-label="Popup"] {
+        display: none;
+    }
+    [aria-label='On quickInsertTypeAhead'],
+    [aria-label='On quickInsertTypeAhead'] * {
+        color: ${Colors.text.black} !important;
+    }
 `
 interface EditorProps extends RichTextEditorProps {
     editorActions: EditorActions
@@ -98,6 +112,8 @@ const Editor = ({
                     allowResizing: true,
                 }}
                 contentTransformerProvider={isMarkdown ? (schema) => new MarkdownTransformer(schema) : undefined}
+                allowHelpDialog={false}
+                quickInsert={false}
             />
         </EditorContainer>
     )

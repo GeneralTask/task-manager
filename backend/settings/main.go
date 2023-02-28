@@ -281,13 +281,15 @@ func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]Setti
 			Name: token.DisplayID,
 		})
 	}
-	if len(calendarChoices) > 0 {
-		settingsOptions = append(settingsOptions, SettingDefinition{
-			FieldKey:      constants.SettingFieldCalendarForNewTasks,
-			DefaultChoice: calendarChoices[0].Key,
-			Choices:       calendarChoices,
-		})
-	}
+	calendarChoices = append(calendarChoices, SettingChoice{
+		Key:  "",
+		Name: "",
+	})
+	settingsOptions = append(settingsOptions, SettingDefinition{
+		FieldKey:      constants.SettingFieldCalendarForNewTasks,
+		DefaultChoice: calendarChoices[0].Key,
+		Choices:       calendarChoices,
+	})
 
 	calendarAccounts, err := database.GetCalendarAccounts(db, userID)
 	if err != nil {
@@ -302,13 +304,15 @@ func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]Setti
 			})
 		}
 	}
-	if len(calendarIDChoices) > 0 {
-		settingsOptions = append(settingsOptions, SettingDefinition{
-			FieldKey:      constants.SettingFieldCalendarIDForNewTasks,
-			DefaultChoice: calendarIDChoices[0].Key,
-			Choices:       calendarIDChoices,
-		})
-	}
+	calendarIDChoices = append(calendarIDChoices, SettingChoice{
+		Key:  "",
+		Name: "",
+	})
+	settingsOptions = append(settingsOptions, SettingDefinition{
+		FieldKey:      constants.SettingFieldCalendarIDForNewTasks,
+		DefaultChoice: calendarIDChoices[0].Key,
+		Choices:       calendarIDChoices,
+	})
 
 	return &settingsOptions, nil
 }

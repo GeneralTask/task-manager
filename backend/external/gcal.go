@@ -59,6 +59,7 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 		SourceID:        TASK_SOURCE_ID_GCAL,
 		Title:           event.Summary,
 		Body:            event.Description,
+		EventType:       event.EventType,
 		Location:        event.Location,
 		TimeAllocation:  dbEndTime.Sub(dbStartTime).Nanoseconds(),
 		SourceAccountID: accountID,
@@ -76,7 +77,10 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 		dbEvent.IDExternal,
 		dbEvent.SourceID,
 		dbEvent,
-		nil,
+		&[]bson.M{
+			{"source_account_id": accountID},
+			{"calendar_id": calendarID},
+		},
 	)
 	if err != nil {
 		log.Error().Msgf("could not store event in db %+v", dbEvent)

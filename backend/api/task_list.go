@@ -22,10 +22,11 @@ type TaskSource struct {
 }
 
 type externalStatus struct {
-	IDExternal string `json:"external_id,omitempty"`
-	State      string `json:"state,omitempty"`
-	Type       string `json:"type,omitempty"`
-	Color      string `json:"color,omitempty"`
+	IDExternal        string `json:"external_id,omitempty"`
+	State             string `json:"state,omitempty"`
+	Type              string `json:"type,omitempty"`
+	Color             string `json:"color,omitempty"`
+	IsValidTransition bool   `json:"is_valid_transition,omitempty"`
 }
 
 type externalPriority struct {
@@ -37,8 +38,9 @@ type externalPriority struct {
 }
 
 type MeetingPreparationParams struct {
-	DatetimeStart string `json:"datetime_start"`
-	DatetimeEnd   string `json:"datetime_end"`
+	DatetimeStart       string `json:"datetime_start"`
+	DatetimeEnd         string `json:"datetime_end"`
+	EventMovedOrDeleted bool   `json:"event_moved_or_deleted"`
 }
 
 type TaskResult struct {
@@ -75,6 +77,7 @@ type TaskSection struct {
 	ID      primitive.ObjectID `json:"id"`
 	Name    string             `json:"name"`
 	Tasks   []*TaskResult      `json:"tasks"`
+	TaskIDs []string           `json:"task_ids"`
 	IsDone  bool               `json:"is_done"`
 	IsTrash bool               `json:"is_trash"`
 }
@@ -283,7 +286,7 @@ func (api *API) taskListToTaskResultList(tasks *[]database.Task, userID primitiv
 func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID) *TaskResult {
 	var dueDate string
 	if t.DueDate != nil {
-		if t.DueDate.Time().Unix() == int64(0) {
+		if t.DueDate.Time().UTC().Year() <= 1971 {
 			dueDate = ""
 		} else {
 			dueDate = t.DueDate.Time().UTC().Format(constants.YEAR_MONTH_DAY_FORMAT)
@@ -361,10 +364,11 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 		allStatuses := []*externalStatus{}
 		for _, status := range t.AllStatuses {
 			allStatuses = append(allStatuses, &externalStatus{
-				IDExternal: status.ExternalID,
-				State:      status.State,
-				Type:       status.Type,
-				Color:      status.Color,
+				IDExternal:        status.ExternalID,
+				State:             status.State,
+				Type:              status.Type,
+				Color:             status.Color,
+				IsValidTransition: status.IsValidTransition,
 			})
 		}
 		taskResult.AllStatuses = allStatuses
@@ -381,8 +385,9 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 
 	if t.MeetingPreparationParams != nil && *t.MeetingPreparationParams != (database.MeetingPreparationParams{}) && t.IsMeetingPreparationTask {
 		taskResult.MeetingPreparationParams = &MeetingPreparationParams{
-			DatetimeStart: t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339),
-			DatetimeEnd:   t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339),
+			DatetimeStart:       t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339),
+			DatetimeEnd:         t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339),
+			EventMovedOrDeleted: t.MeetingPreparationParams.EventMovedOrDeleted,
 		}
 	}
 

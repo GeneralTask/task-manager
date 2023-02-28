@@ -217,6 +217,7 @@ type CalendarEvent struct {
 	Title           string             `bson:"title,omitempty"`
 	Body            string             `bson:"body,omitempty"`
 	Location        string             `bson:"location,omitempty"`
+	EventType       string             `bson:"event_type,omitempty"`
 	DatetimeEnd     primitive.DateTime `bson:"datetime_end,omitempty"`
 	DatetimeStart   primitive.DateTime `bson:"datetime_start,omitempty"`
 	//time in nanoseconds
@@ -237,6 +238,7 @@ type MeetingPreparationParams struct {
 	DatetimeStart                 primitive.DateTime `bson:"datetime_start,omitempty"`
 	DatetimeEnd                   primitive.DateTime `bson:"datetime_end,omitempty"`
 	HasBeenAutomaticallyCompleted bool               `bson:"has_been_automatically_completed,omitempty"`
+	EventMovedOrDeleted           bool               `bson:"event_moved_or_deleted,omitempty"`
 }
 
 type JIRATaskParams struct {
@@ -298,6 +300,7 @@ type ExternalTaskStatus struct {
 	Position          float64 `json:"position" bson:"position"`
 	Color             string  `json:"color" bson:"color"`
 	IconURL           string  `json:"icon_url" bson:"icon_url"`
+	IsValidTransition bool    `json:"is_valid_transition,omitempty" bson:"is_valid_transition,omitempty"`
 }
 
 type ExternalTaskPriority struct {

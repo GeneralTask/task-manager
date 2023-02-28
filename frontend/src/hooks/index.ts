@@ -8,6 +8,7 @@ import useInterval from './useInterval'
 import useIsDragging from './useIsDragging'
 import useItemSelectionController from './useItemSelectionController'
 import useKeyboardShortcut from './useKeyboardShortcut'
+import useNavigateToPullRequest from './useNavigateToPullRequest'
 import useNavigateToTask from './useNavigateToTask'
 import usePageFocus from './usePageFocus'
 import usePreviewMode from './usePreviewMode'
@@ -26,6 +27,7 @@ export {
     useIsDragging,
     useItemSelectionController,
     useKeyboardShortcut,
+    useNavigateToPullRequest,
     useNavigateToTask,
     usePreviewMode,
     useSetting,

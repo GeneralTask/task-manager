@@ -7,6 +7,8 @@ import (
 	"sort"
 	"time"
 
+	"golang.org/x/exp/slices"
+
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -40,6 +42,7 @@ type OverviewResult[T ViewItem] struct {
 	IsReorderable          bool               `json:"is_reorderable"`
 	IDOrdering             int                `json:"ordering_id"`
 	ViewItems              []*T               `json:"view_items"`
+	ViewItemIDs            []string           `json:"view_item_ids"`
 	HasTasksCompletedToday bool               `json:"has_tasks_completed_today"`
 }
 
@@ -61,7 +64,27 @@ type SupportedView struct {
 	Views            []SupportedViewItem `json:"views"`
 }
 
+func GetShowMovedOrDeletedQueryParam(c *gin.Context) (bool, error) {
+	params := c.Request.URL.Query()
+	showMovedOrDeletedParams := params[constants.ShowMovedOrDeleted]
+	if len(showMovedOrDeletedParams) == 0 {
+		return false, nil
+	}
+	if showMovedOrDeletedParams[0] == "true" {
+		return true, nil
+	} else if showMovedOrDeletedParams[0] == "false" {
+		return false, nil
+	}
+	return false, errors.New("invalid or missing parameter")
+}
+
 func (api *API) OverviewViewsList(c *gin.Context) {
+	showMovedOrDeleted, err := GetShowMovedOrDeletedQueryParam(c)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
 	timezoneOffset, err := GetTimezoneOffsetFromHeader(c)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -102,7 +125,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		return
 	}
 
-	result, err := api.GetOverviewResults(views, userID, timezoneOffset)
+	result, err := api.GetOverviewResults(views, userID, timezoneOffset, showMovedOrDeleted)
 	if err != nil {
 		log.Print("failed to get results")
 		api.Logger.Error().Err(err).Msg("failed to load views")
@@ -112,11 +135,10 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	sort.SliceStable(result, func(i, j int) bool {
 		return result[i].GetOrderingID() < result[j].GetOrderingID()
 	})
-
 	c.JSON(200, result)
 }
 
-func (api *API) GetOverviewResults(views []database.View, userID primitive.ObjectID, timezoneOffset time.Duration) ([]OrderingIDGetter, error) {
+func (api *API) GetOverviewResults(views []database.View, userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool) ([]OrderingIDGetter, error) {
 	result := []OrderingIDGetter{}
 	for _, view := range views {
 		var singleOverviewResult OrderingIDGetter
@@ -124,6 +146,8 @@ func (api *API) GetOverviewResults(views []database.View, userID primitive.Objec
 		switch view.Type {
 		case string(constants.ViewTaskSection):
 			singleOverviewResult, err = api.GetTaskSectionOverviewResult(view, userID, timezoneOffset)
+		case string(constants.ViewJira):
+			singleOverviewResult, err = api.GetJiraOverviewResult(view, userID, timezoneOffset)
 		case string(constants.ViewLinear):
 			singleOverviewResult, err = api.GetLinearOverviewResult(view, userID, timezoneOffset)
 		case string(constants.ViewSlack):
@@ -131,7 +155,7 @@ func (api *API) GetOverviewResults(views []database.View, userID primitive.Objec
 		case string(constants.ViewGithub):
 			singleOverviewResult, err = api.GetGithubOverviewResult(view, userID, timezoneOffset)
 		case string(constants.ViewMeetingPreparation):
-			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
+			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, showMovedOrDeleted)
 		case string(constants.ViewDueToday):
 			singleOverviewResult, err = api.GetDueTodayOverviewResult(view, userID, timezoneOffset)
 		default:
@@ -220,6 +244,7 @@ func (api *API) GetTaskSectionOverviewResult(view database.View, userID primitiv
 		IsReorderable:          view.IsReorderable,
 		IDOrdering:             view.IDOrdering,
 		ViewItems:              usableTaskResults,
+		ViewItemIDs:            GetTaskSectionViewItemIDs(usableTaskResults),
 		HasTasksCompletedToday: taskCompletedInLastDay,
 	}, nil
 }
@@ -289,6 +314,8 @@ func (api *API) UpdateViewsLinkedStatus(views *[]database.View, userID primitive
 		var serviceID string
 		if view.Type == string(constants.ViewTaskSection) || view.Type == string(constants.ViewMeetingPreparation) || view.Type == string(constants.ViewDueToday) {
 			serviceID = external.TaskServiceGeneralTask.ID
+		} else if view.Type == string(constants.ViewJira) {
+			serviceID = external.TaskServiceAtlassian.ID
 		} else if view.Type == string(constants.ViewLinear) {
 			serviceID = external.TaskServiceLinear.ID
 		} else if view.Type == string(constants.ViewSlack) {
@@ -320,6 +347,54 @@ func (api *API) UpdateViewsLinkedStatus(views *[]database.View, userID primitive
 	return nil
 }
 
+func (api *API) GetJiraOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
+	if view.UserID != userID {
+		return nil, errors.New("invalid user")
+	}
+	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_ATLASSIAN)
+	result := OverviewResult[TaskResult]{
+		ID:       view.ID,
+		Name:     constants.ViewJiraName,
+		Logo:     external.TaskServiceAtlassian.LogoV2,
+		Type:     constants.ViewJira,
+		IsLinked: view.IsLinked,
+		Sources: []SourcesResult{
+			{
+				Name:             constants.ViewJiraSourceName,
+				AuthorizationURL: &authURL,
+			},
+		},
+		TaskSectionID: view.TaskSectionID,
+		IsReorderable: view.IsReorderable,
+		IDOrdering:    view.IDOrdering,
+		ViewItems:     []*TaskResult{},
+		ViewItemIDs:   []string{},
+	}
+	if !view.IsLinked {
+		return &result, nil
+	}
+
+	jiraTasks, err := database.GetTasks(api.DB, userID, &[]bson.M{
+		{"is_completed": false},
+		{"is_deleted": bson.M{"$ne": true}},
+		{"source_id": external.TASK_SOURCE_ID_JIRA},
+	}, nil)
+	if err != nil {
+		return nil, err
+	}
+	taskResults := api.taskListToTaskResultList(jiraTasks, userID)
+
+	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
+	timeStartOfDay := time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 0, 0, 0, 0, time.FixedZone("", 0))
+	taskCompletedInLastDay := api.getCompletedInLastDay(database.GetTaskCollection(api.DB), userID, timeStartOfDay, &[]bson.M{{"source_id": external.TASK_SOURCE_ID_JIRA}})
+
+	result.IsLinked = view.IsLinked
+	result.ViewItems = taskResults
+	result.ViewItemIDs = GetTaskSectionViewItemIDs(taskResults)
+	result.HasTasksCompletedToday = taskCompletedInLastDay
+	return &result, nil
+}
+
 func (api *API) GetLinearOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
@@ -341,6 +416,7 @@ func (api *API) GetLinearOverviewResult(view database.View, userID primitive.Obj
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
 		ViewItems:     []*TaskResult{},
+		ViewItemIDs:   []string{},
 	}
 	if !view.IsLinked {
 		return &result, nil
@@ -362,6 +438,7 @@ func (api *API) GetLinearOverviewResult(view database.View, userID primitive.Obj
 
 	result.IsLinked = view.IsLinked
 	result.ViewItems = taskResults
+	result.ViewItemIDs = GetTaskSectionViewItemIDs(taskResults)
 	result.HasTasksCompletedToday = taskCompletedInLastDay
 	return &result, nil
 }
@@ -387,6 +464,7 @@ func (api *API) GetSlackOverviewResult(view database.View, userID primitive.Obje
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
 		ViewItems:     []*TaskResult{},
+		ViewItemIDs:   []string{},
 	}
 	if !view.IsLinked {
 		return &result, nil
@@ -408,6 +486,7 @@ func (api *API) GetSlackOverviewResult(view database.View, userID primitive.Obje
 
 	result.IsLinked = view.IsLinked
 	result.ViewItems = taskResults
+	result.ViewItemIDs = GetTaskSectionViewItemIDs(taskResults)
 	result.HasTasksCompletedToday = taskCompletedInLastDay
 	return &result, nil
 }
@@ -433,6 +512,7 @@ func (api *API) GetGithubOverviewResult(view database.View, userID primitive.Obj
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
 		ViewItems:     []*PullRequestResult{},
+		ViewItemIDs:   []string{},
 	}
 	if !view.IsLinked {
 		return &result, nil
@@ -469,14 +549,12 @@ func (api *API) GetGithubOverviewResult(view database.View, userID primitive.Obj
 
 	result.Name = fmt.Sprintf("GitHub PRs from %s", repository.FullName)
 	result.ViewItems = pullResults
+	result.ViewItemIDs = GetPullRequestViewItemsIDs(pullResults)
 	result.HasTasksCompletedToday = taskCompletedInLastDay
 	return &result, nil
 }
 
-func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
-	if view.UserID != userID {
-		return nil, errors.New("invalid user")
-	}
+func (api *API) CreateMeetingPreparationTaskList(userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool) (*[]database.Task, error) {
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
 	events, err := database.GetEventsUntilEndOfDay(api.DB, userID, timeNow)
 	if err != nil {
@@ -495,13 +573,42 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 		return nil, err
 	}
 
+	if showMovedOrDeleted {
+		// Sync existing Meeting prep tasks with their events
+		err = api.SyncMeetingTasksWithEvents(meetingTasks, userID, timezoneOffset)
+		if err != nil {
+			return nil, err
+		}
+		meetingTasks, err = database.GetMeetingPreparationTasks(api.DB, userID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	// Sort by datetime_start
 	sort.Slice(*meetingTasks, func(i, j int) bool {
 		return (*meetingTasks)[i].MeetingPreparationParams.DatetimeStart <= (*meetingTasks)[j].MeetingPreparationParams.DatetimeStart
 	})
+	return meetingTasks, nil
+}
 
+func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool) (*OverviewResult[TaskResult], error) {
+	if view.UserID != userID {
+		return nil, errors.New("invalid user")
+	}
+	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
+	meetingTasks, err := api.CreateMeetingPreparationTaskList(userID, timezoneOffset, showMovedOrDeleted)
+	if err != nil {
+		return nil, err
+	}
+	
 	// Create result of meeting prep tasks
-	result, err := api.GetMeetingPrepTaskResult(userID, timeNow, meetingTasks)
+	var result []*TaskResult
+	if showMovedOrDeleted {
+		result, err = api.GetMeetingPrepTaskResult(userID, timeNow, meetingTasks)
+	} else {
+		result, err = api.GetMeetingPrepTaskResultWithAutocompletion(userID, timeNow, meetingTasks)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -520,6 +627,7 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 		IsReorderable:          view.IsReorderable,
 		IDOrdering:             view.IDOrdering,
 		ViewItems:              result,
+		ViewItemIDs:            GetTaskSectionViewItemIDs(result),
 		HasTasksCompletedToday: taskCompletedInLastDay,
 	}, nil
 }
@@ -539,6 +647,7 @@ func (api *API) GetDueTodayOverviewResult(view database.View, userID primitive.O
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
 		ViewItems:     []*TaskResult{},
+		ViewItemIDs:   []string{},
 	}
 
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
@@ -549,6 +658,7 @@ func (api *API) GetDueTodayOverviewResult(view database.View, userID primitive.O
 		{"due_date": bson.M{"$lte": primitive.NewDateTimeFromTime(timeEndOfDay)}},
 		{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Time{})}},
 		{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Unix(0, 0))}},
+		{"due_date": bson.M{"$gte": primitive.NewDateTimeFromTime(time.Unix(63090000, 0))}},
 	}, nil)
 	if err != nil {
 		return nil, err
@@ -571,11 +681,13 @@ func (api *API) GetDueTodayOverviewResult(view database.View, userID primitive.O
 			{"due_date": bson.M{"$lte": primitive.NewDateTimeFromTime(timeEndOfDay)}},
 			{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Time{})}},
 			{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Unix(0, 0))}},
+			{"due_date": bson.M{"$gte": primitive.NewDateTimeFromTime(time.Unix(63090000, 0))}},
 		},
 	)
 
 	result.HasTasksCompletedToday = taskCompletedInLastDay
 	result.ViewItems = taskResults
+	result.ViewItemIDs = GetTaskSectionViewItemIDs(taskResults)
 	return &result, nil
 }
 
@@ -665,6 +777,8 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 			IsCompleted:              &isCompleted,
 			IsDeleted:                &isDeleted,
 			SourceID:                 event.SourceID,
+			CreatedAtExternal:        primitive.NewDateTimeFromTime(time.Now()),
+			UpdatedAt:                primitive.NewDateTimeFromTime(time.Now()),
 			IsMeetingPreparationTask: true,
 			MeetingPreparationParams: &database.MeetingPreparationParams{
 				CalendarEventID:               event.ID,
@@ -672,6 +786,7 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 				DatetimeStart:                 event.DatetimeStart,
 				DatetimeEnd:                   event.DatetimeEnd,
 				HasBeenAutomaticallyCompleted: false,
+				EventMovedOrDeleted:           false,
 			},
 		})
 		if err != nil {
@@ -681,8 +796,65 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 	return nil
 }
 
+func (api *API) SyncMeetingTasksWithEvents(meetingTasks *[]database.Task, userID primitive.ObjectID, timezoneOffset time.Duration) error {
+	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
+	taskCollection := database.GetTaskCollection(api.DB)
+	for _, task := range *meetingTasks {
+		event, err := database.GetCalendarEventByExternalId(api.DB, task.MeetingPreparationParams.IDExternal, userID)
+		eventMovedOrDeleted := task.MeetingPreparationParams.EventMovedOrDeleted
+
+		if err != nil && err != mongo.ErrNoDocuments {
+			return err
+		}
+
+		// Do nothing if event time has not changed
+		if event != nil && !(task.MeetingPreparationParams.DatetimeStart.Time().Equal(event.DatetimeStart.Time()) && task.MeetingPreparationParams.DatetimeEnd.Time().Equal(event.DatetimeEnd.Time())) {
+			// if event has been moved to different day, update event_moved_or_deleted
+			localZone := time.FixedZone("", int(-1*timezoneOffset.Seconds()))
+			if event.DatetimeStart.Time().In(localZone).Day() != task.MeetingPreparationParams.DatetimeStart.Time().In(localZone).Day() {
+				eventMovedOrDeleted = true
+			}
+			task.MeetingPreparationParams.DatetimeStart = event.DatetimeStart
+			task.MeetingPreparationParams.DatetimeEnd = event.DatetimeEnd
+			task.MeetingPreparationParams.EventMovedOrDeleted = eventMovedOrDeleted
+			task.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
+		}
+
+		if event == nil {
+			task.MeetingPreparationParams.EventMovedOrDeleted = true
+		} else if task.MeetingPreparationParams.DatetimeEnd.Time().Before(timeNow) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
+			isCompleted := true
+			task.IsCompleted = &isCompleted
+			task.CompletedAt = primitive.NewDateTimeFromTime(time.Now())
+			task.MeetingPreparationParams.HasBeenAutomaticallyCompleted = true
+			task.MeetingPreparationParams.EventMovedOrDeleted = true
+		}
+
+		_, err = taskCollection.UpdateOne(context.Background(),
+			bson.M{"$and": []bson.M{
+				{"_id": task.ID},
+				{"user_id": userID},
+			}},
+			bson.M{"$set": bson.M{
+				"is_completed": task.IsCompleted,
+				"completed_at": task.CompletedAt,
+				"updated_at":   task.UpdatedAt,
+				"meeting_preparation_params.datetime_start":                   task.MeetingPreparationParams.DatetimeStart,
+				"meeting_preparation_params.datetime_end":                     task.MeetingPreparationParams.DatetimeEnd,
+				"meeting_preparation_params.event_moved_or_deleted":           task.MeetingPreparationParams.EventMovedOrDeleted,
+				"meeting_preparation_params.has_been_automatically_completed": task.MeetingPreparationParams.HasBeenAutomaticallyCompleted,
+			}},
+		)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // GetMeetingPrepTaskResult returns a result of meeting prep tasks for a user, and auto-completes tasks that have ended
-func (api *API) GetMeetingPrepTaskResult(userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
+func (api *API) GetMeetingPrepTaskResultWithAutocompletion(userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
 	eventCollection := database.GetCalendarEventCollection(api.DB)
 	taskCollection := database.GetTaskCollection(api.DB)
 	result := []*TaskResult{}
@@ -707,6 +879,19 @@ func (api *API) GetMeetingPrepTaskResult(userID primitive.ObjectID, expirationTi
 			if err != nil {
 				return nil, err
 			}
+			continue
+		}
+		// for implicit memory aliasing
+		tempTask := task
+		result = append(result, api.taskBaseToTaskResult(&tempTask, userID))
+	}
+	return result, nil
+}
+
+func (api *API) GetMeetingPrepTaskResult(userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
+	result := []*TaskResult{}
+	for _, task := range *tasks {
+		if task.IsCompleted != nil && *task.IsCompleted {
 			continue
 		}
 		// for implicit memory aliasing
@@ -758,6 +943,8 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 			c.JSON(400, gin.H{"detail": "'task_section_id' is not a valid ID"})
 			return
 		}
+	} else if viewCreateParams.Type == string(constants.ViewJira) {
+		serviceID = external.TASK_SERVICE_ID_ATLASSIAN
 	} else if viewCreateParams.Type == string(constants.ViewLinear) {
 		serviceID = external.TASK_SERVICE_ID_LINEAR
 	} else if viewCreateParams.Type == string(constants.ViewGithub) {
@@ -773,7 +960,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 			return
 		}
 		githubID = *viewCreateParams.GithubID
-	} else if viewCreateParams.Type != string(constants.ViewLinear) && viewCreateParams.Type != string(constants.ViewSlack) && viewCreateParams.Type != string(constants.ViewMeetingPreparation) && viewCreateParams.Type != string(constants.ViewDueToday) {
+	} else if viewCreateParams.Type != string(constants.ViewJira) && viewCreateParams.Type != string(constants.ViewLinear) && viewCreateParams.Type != string(constants.ViewSlack) && viewCreateParams.Type != string(constants.ViewMeetingPreparation) && viewCreateParams.Type != string(constants.ViewDueToday) {
 		c.JSON(400, gin.H{"detail": "unsupported 'type'"})
 		return
 	}
@@ -827,7 +1014,7 @@ func (api *API) ViewDoesExist(db *mongo.Database, userID primitive.ObjectID, par
 			return false, errors.New("'github_id' is required for github type views")
 		}
 		dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), bson.M{"github_id": *params.GithubID})
-	} else if params.Type != string(constants.ViewLinear) && params.Type != string(constants.ViewSlack) && params.Type != string(constants.ViewMeetingPreparation) && params.Type != string(constants.ViewDueToday) {
+	} else if params.Type != string(constants.ViewLinear) && params.Type != string(constants.ViewSlack) && params.Type != string(constants.ViewJira) && params.Type != string(constants.ViewMeetingPreparation) && params.Type != string(constants.ViewDueToday) {
 		return false, errors.New("unsupported view type")
 	}
 	count, err := viewCollection.CountDocuments(context.Background(), dbQuery)
@@ -978,6 +1165,11 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
+	isJiraLinked, err := api.IsServiceLinked(api.DB, userID, external.TASK_SERVICE_ID_ATLASSIAN)
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	isLinearLinked, err := api.IsServiceLinked(api.DB, userID, external.TASK_SERVICE_ID_LINEAR)
 	if err != nil {
 		Handle500(c)
@@ -990,10 +1182,14 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 	}
 
 	var githubAuthURL string
+	var jiraAuthURL string
 	var linearAuthURL string
 	var slackAuthURL string
 	if !isGithubLinked {
 		githubAuthURL = config.GetAuthorizationURL(external.TASK_SERVICE_ID_GITHUB)
+	}
+	if !isJiraLinked {
+		jiraAuthURL = config.GetAuthorizationURL(external.TASK_SERVICE_ID_ATLASSIAN)
 	}
 	if !isLinearLinked {
 		linearAuthURL = config.GetAuthorizationURL(external.TASK_SERVICE_ID_LINEAR)
@@ -1036,6 +1232,20 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			IsNested: true,
 			IsLinked: true,
 			Views:    supportedTaskSectionViews,
+		},
+		{
+			Type:             constants.ViewJira,
+			Name:             "Jira",
+			Logo:             "jira",
+			IsNested:         false,
+			IsLinked:         isJiraLinked,
+			AuthorizationURL: jiraAuthURL,
+			Views: []SupportedViewItem{
+				{
+					Name:    "Jira View",
+					IsAdded: true,
+				},
+			},
 		},
 		{
 			Type:             constants.ViewLinear,
@@ -1164,7 +1374,7 @@ func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.Ob
 		return api.getView(db, userID, viewType, &[]bson.M{
 			{"task_section_id": view.TaskSectionID},
 		})
-	} else if viewType == constants.ViewLinear || viewType == constants.ViewSlack || viewType == constants.ViewMeetingPreparation || viewType == constants.ViewDueToday {
+	} else if slices.Contains([]constants.ViewType{constants.ViewJira, constants.ViewLinear, constants.ViewSlack, constants.ViewMeetingPreparation, constants.ViewDueToday}, viewType) {
 		return api.getView(db, userID, viewType, nil)
 	} else if viewType == constants.ViewGithub {
 		return api.getView(db, userID, viewType, &[]bson.M{
