@@ -15,7 +15,7 @@ import (
 )
 
 func TestMeetingPreparationTask(t *testing.T) {
-	authtoken := login("test_overview@generaltask.com", "")
+	authtoken := login("test_meeting_prep_endpoint@generaltask.com", "")
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -89,7 +89,7 @@ func TestGetMeetingPreparationTasksResultV4(t *testing.T) {
 	testTime := time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
 	api.OverrideTime = &testTime
 
-	authtoken := login("test_overview@generaltask.com", "")
+	authtoken := login("test_get_meeting_prep_v4@generaltask.com", "")
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
