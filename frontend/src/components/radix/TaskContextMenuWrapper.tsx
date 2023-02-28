@@ -11,6 +11,7 @@ import {
 } from '../../services/api/tasks.hooks'
 import { icons, linearStatus } from '../../styles/images'
 import { TTask } from '../../utils/types'
+import adf2md from '../atoms/GTTextField/AtlassianEditor/adfToMd'
 import GTDatePicker from '../molecules/GTDatePicker'
 import RecurringTaskTemplateModal from '../molecules/recurring-tasks/RecurringTaskTemplateModal'
 import GTContextMenu from './GTContextMenu'
@@ -125,16 +126,21 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
                 },
             })),
         },
-        ...(!task.is_deleted && !task.is_done && task.source.name !== 'Jira'
+        ...(!task.is_deleted && !task.is_done
             ? [
                   {
                       label: 'Duplicate task',
                       icon: icons.clone,
                       onClick: () => {
                           const optimisticId = uuidv4()
+                          let body = task.body
+                          if (task.source.name === 'Jira') {
+                              const json = JSON.parse(body)
+                              body = adf2md.convert(json).result
+                          }
                           createTask({
                               title: `${task.title} (copy)`,
-                              body: task.body,
+                              body,
                               taskSectionId: sectionId || DEFAULT_SECTION_ID,
                               optimisticId,
                           })
