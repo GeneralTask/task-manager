@@ -312,14 +312,8 @@ export const useMarkTaskDoneOrDeleted = () => {
                 const updatedMeetingTasks = produce(meetingTasks, (draft) => {
                     const task = draft.find((task) => task.id === data.id)
                     if (!task) return
-                    if (data.isDone !== undefined) {
-                        task.is_done = data.isDone
-                        if (data.isDone) task.id_folder = DONE_FOLDER_ID
-                    }
-                    if (data.isDeleted !== undefined) {
-                        task.is_deleted = data.isDeleted
-                        if (data.isDeleted) task.id_folder = TRASH_FOLDER_ID
-                    }
+                    if (data.isDone !== undefined) task.is_done = data.isDone
+                    if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
                 })
                 if (data.waitForAnimation) {
                     await sleep(TASK_MARK_AS_DONE_TIMEOUT)
@@ -333,14 +327,8 @@ export const useMarkTaskDoneOrDeleted = () => {
                 const updatedTasks = produce(tasks, (draft) => {
                     const task = draft.find((task) => task.id === data.id)
                     if (!task) return
-                    if (data.isDone !== undefined) {
-                        task.is_done = data.isDone
-                        if (data.isDone) task.id_folder = DONE_FOLDER_ID
-                    }
-                    if (data.isDeleted !== undefined) {
-                        task.is_deleted = data.isDeleted
-                        if (data.isDeleted) task.id_folder = TRASH_FOLDER_ID
-                    }
+                    if (data.isDone !== undefined) task.is_done = data.isDone
+                    if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
                 })
                 if (data.waitForAnimation) {
                     await sleep(TASK_MARK_AS_DONE_TIMEOUT)

@@ -1,6 +1,5 @@
 import { useCallback, useRef } from 'react'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import {
@@ -11,9 +10,8 @@ import {
     SINGLE_SECOND_INTERVAL,
     SLACK_SOURCE_NAME,
     SYNC_MESSAGES,
-    TRASH_FOLDER_ID,
 } from '../../constants'
-import { useInterval, useKeyboardShortcut } from '../../hooks'
+import { useInterval, useKeyboardShortcut, useNavigateToTask } from '../../hooks'
 import { useModifyRecurringTask } from '../../services/api/recurring-tasks.hooks'
 import {
     TModifyTaskData,
@@ -28,13 +26,13 @@ import { EMPTY_ARRAY, isTaskParentTask } from '../../utils/utils'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
-import NoStyleLink from '../atoms/NoStyleLink'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Label } from '../atoms/typography/Typography'
 import CreateLinearComment from '../molecules/CreateLinearComment'
 import FolderSelector from '../molecules/FolderSelector'
@@ -93,10 +91,11 @@ const CommentContainer = styled.div`
     flex-direction: column;
     gap: ${Spacing._24};
 `
-const BackButtonContainer = styled(NoStyleLink)`
+const BackButtonContainer = styled(NoStyleButton)`
     display: flex;
     align-items: center;
     gap: ${Spacing._8};
+    color: ${Colors.text.purple};
     ${Typography.mini};
 `
 const BackButtonText = styled(Label)`
@@ -123,7 +122,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
-    const navigate = useNavigate()
+    const navigateToTask = useNavigateToTask()
 
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
     const { meeting_preparation_params } = task
@@ -219,16 +218,13 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
         useCallback(() => titleRef.current?.select(), [])
     )
 
-    const isInTrash = task.id_folder === TRASH_FOLDER_ID
+    const navigateToParentTask = useCallback(() => {
+        if (isSubtask && task.id_parent) {
+            navigateToTask({ taskId: task.id_parent })
+        }
+    }, [isSubtask, task.id_parent])
 
-    useKeyboardShortcut(
-        'backToParentTask',
-        useCallback(() => {
-            if (isSubtask) {
-                navigate('..', { relative: 'path' })
-            }
-        }, [isSubtask])
-    )
+    useKeyboardShortcut('backToParentTask', navigateToParentTask)
 
     const taskv4 = task as TTaskV4
 
@@ -237,7 +233,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
             <DetailsTopContainer>
                 <DetailItem>
                     {isSubtask ? (
-                        <BackButtonContainer to=".." relative="path">
+                        <BackButtonContainer onClick={navigateToParentTask}>
                             <Icon icon={icons.caret_left} color="purple" />
                             <BackButtonText>Return to parent task</BackButtonText>
                         </BackButtonContainer>
@@ -250,54 +246,52 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                         <DetailItem>
                             <Label color="light">{syncIndicatorText}</Label>
                         </DetailItem>
-                        {!isSubtask && (
-                            <MarginLeftAuto>
-                                {isInTrash && (
-                                    <GTButton
-                                        value="Restore Task"
-                                        onClick={() =>
-                                            markTaskDoneOrDeleted(
-                                                { id: task.id, isDeleted: false },
-                                                task.optimisticId && task.id
-                                            )
-                                        }
-                                        styleType="secondary"
-                                        size="small"
-                                    />
-                                )}
-                                {!isMeetingPreparationTask && !isRecurringTaskTemplate && task.id_folder && (
-                                    <FolderSelector
-                                        value={task.id_folder}
-                                        onChange={(newFolderId) =>
-                                            reorderTask(
-                                                {
-                                                    id: task.id,
-                                                    dropSectionId: newFolderId,
-                                                    dragSectionId: task.id_folder,
-                                                    orderingId: 1,
-                                                },
-                                                task.optimisticId
-                                            )
-                                        }
-                                        renderTrigger={(isOpen, setIsOpen) => (
-                                            <GTIconButton
-                                                icon={icons.folder}
-                                                shortcutName="moveTaskToFolder"
-                                                onClick={() => setIsOpen(!isOpen)}
-                                                forceShowHoverEffect={isOpen}
-                                                asDiv
-                                            />
-                                        )}
-                                        enableKeyboardShortcut
-                                    />
-                                )}
-                                {task.deeplink && <ExternalLinkButton link={task.deeplink} />}
-                                {!isRecurringTaskTemplate && <TaskActionsDropdown task={taskv4} />}
-                                {isRecurringTaskTemplate && (
-                                    <DeleteRecurringTaskTemplateButton template={task as TRecurringTaskTemplate} />
-                                )}
-                            </MarginLeftAuto>
-                        )}
+                        <MarginLeftAuto>
+                            {task.is_deleted && (
+                                <GTButton
+                                    value="Restore Task"
+                                    onClick={() =>
+                                        markTaskDoneOrDeleted(
+                                            { id: task.id, isDeleted: false },
+                                            task.optimisticId && task.id
+                                        )
+                                    }
+                                    styleType="secondary"
+                                    size="small"
+                                />
+                            )}
+                            {!isMeetingPreparationTask && !isRecurringTaskTemplate && task.id_folder && !isSubtask && (
+                                <FolderSelector
+                                    value={task.id_folder}
+                                    onChange={(newFolderId) =>
+                                        reorderTask(
+                                            {
+                                                id: task.id,
+                                                dropSectionId: newFolderId,
+                                                dragSectionId: task.id_folder,
+                                                orderingId: 1,
+                                            },
+                                            task.optimisticId
+                                        )
+                                    }
+                                    renderTrigger={(isOpen, setIsOpen) => (
+                                        <GTIconButton
+                                            icon={icons.folder}
+                                            shortcutName="moveTaskToFolder"
+                                            onClick={() => setIsOpen(!isOpen)}
+                                            forceShowHoverEffect={isOpen}
+                                            asDiv
+                                        />
+                                    )}
+                                    enableKeyboardShortcut
+                                />
+                            )}
+                            {task.deeplink && <ExternalLinkButton link={task.deeplink} />}
+                            {!isRecurringTaskTemplate && <TaskActionsDropdown task={taskv4} />}
+                            {isRecurringTaskTemplate && (
+                                <DeleteRecurringTaskTemplateButton template={task as TRecurringTaskTemplate} />
+                            )}
+                        </MarginLeftAuto>
                     </>
                 )}
             </DetailsTopContainer>
@@ -306,8 +300,10 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                     type="plaintext"
                     ref={titleRef}
                     key={task.id}
-                    value={isInTrash ? `${task.title} (deleted)` : task.title}
-                    disabled={!!task.optimisticId || isMeetingPreparationTask || !!task.id_nux_number || isInTrash}
+                    value={task.is_deleted ? `${task.title} (deleted)` : task.title}
+                    disabled={
+                        !!task.optimisticId || isMeetingPreparationTask || !!task.id_nux_number || task.is_deleted
+                    }
                     onChange={(val) => onEdit({ id: task.id, title: val })}
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
@@ -336,14 +332,14 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                                 ? modifyRecurringTask({ id: task.id, priority_normalized: priority }, task.optimisticId)
                                 : modifyTask({ id: task.id, priorityNormalized: priority }, task.optimisticId)
                         }
-                        disabled={isInTrash}
+                        disabled={task.is_deleted}
                     />
                 )}
                 {!isRecurringTaskTemplate && (
                     <GTDatePicker
                         initialDate={DateTime.fromISO(task.due_date ?? '')}
                         setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
-                        disabled={isInTrash}
+                        disabled={task.is_deleted}
                     />
                 )}
                 {isRecurringTaskTemplate ? (
@@ -362,9 +358,11 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                     {!isRecurringTaskTemplate && task.external_status && task.all_statuses && (
                         <>
                             {task.source?.name === 'Linear' && (
-                                <LinearStatusDropdown task={taskv4} disabled={isInTrash} />
+                                <LinearStatusDropdown task={taskv4} disabled={task.is_deleted} />
                             )}
-                            {task.source?.name === 'Jira' && <JiraStatusDropdown task={taskv4} disabled={isInTrash} />}
+                            {task.source?.name === 'Jira' && (
+                                <JiraStatusDropdown task={taskv4} disabled={task.is_deleted} />
+                            )}
                         </>
                     )}
                 </MarginLeftAuto>
@@ -386,11 +384,11 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                         body={task.body ?? ''}
                         contentType={task.source?.name === 'Jira' ? 'atlassian' : 'markdown'}
                         onChange={(val) => onEdit({ id: task.id, body: val })}
-                        disabled={isInTrash}
+                        disabled={task.is_deleted}
                         nux_number_id={task.id_nux_number}
                     />
                     {SOURCES_ALLOWED_WITH_SUBTASKS.includes(task.source?.name ?? '') &&
-                        !isInTrash &&
+                        !task.is_deleted &&
                         isTaskParentTask(taskv4) && <SubtaskList parentTask={taskv4} />}
                     {task.external_status && task.source && (
                         <CommentContainer>
@@ -398,7 +396,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                             <CommentList comments={task.comments ?? EMPTY_ARRAY} sourceName={task.source.name} />
                         </CommentContainer>
                     )}
-                    {task.source?.name !== 'Jira' && task.external_status && !isInTrash && (
+                    {task.source?.name !== 'Jira' && task.external_status && !task.is_deleted && (
                         <CreateLinearComment taskId={task.id} numComments={task.comments?.length ?? 0} />
                     )}
                     {task.slack_message_params && task.sender && (

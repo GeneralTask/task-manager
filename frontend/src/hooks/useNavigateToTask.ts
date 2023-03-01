@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useCalendarContext } from '../components/calendar/CalendarContext'
+import { DONE_FOLDER_ID, TRASH_FOLDER_ID } from '../constants'
 import { useGetFolders } from '../services/api/folders.hooks'
 import Log from '../services/api/log'
 import { useGetOverviewViews } from '../services/api/overview.hooks'
@@ -26,10 +27,13 @@ const useNavigateToTask = () => {
         (taskId: string, tasks: TTaskV4[], folders: TTaskFolder[], views: TOverviewView[]) => {
             const task = tasks.find((task) => task.id === taskId)
             if (!task) return
-            const folderId =
-                task.id_folder ??
-                tasks.find((t) => t.id === task.id_parent)?.id_folder ??
-                folders.find((folder) => folder.task_ids.includes(task.id))?.id
+            const folderId = task.is_deleted
+                ? TRASH_FOLDER_ID
+                : task.is_done
+                ? DONE_FOLDER_ID
+                : task.id_folder ??
+                  tasks.find((t) => t.id === task.id_parent)?.id_folder ??
+                  folders.find((folder) => folder.task_ids.includes(task.id))?.id
             const suffix = task.id_parent ? `${task.id_parent}/${taskId}` : taskId
 
             const isUserOnOverviewPage = window.location.pathname.startsWith('/overview')
