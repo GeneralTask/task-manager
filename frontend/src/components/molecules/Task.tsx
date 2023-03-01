@@ -9,7 +9,7 @@ import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
 import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
-import { icons, linearStatus, logos } from '../../styles/images'
+import { externalStatusIcons, icons, logos } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
 import Domino from '../atoms/Domino'
 import DueDate from '../atoms/DueDate'
@@ -222,12 +222,12 @@ const Task = ({
                                 items={task.all_statuses.map((status) => ({
                                     label: status.state,
                                     onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
-                                    icon: linearStatus[status.type],
+                                    icon: externalStatusIcons[status.type],
                                     selected: status.state === task.external_status?.state,
                                 }))}
                                 trigger={
                                     <GTButtonHack
-                                        icon={linearStatus[task.external_status.type]}
+                                        icon={externalStatusIcons[task.external_status.type]}
                                         size="small"
                                         styleType="simple"
                                         asDiv
