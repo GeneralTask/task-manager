@@ -152,6 +152,8 @@ func TestLoadJIRATasks(t *testing.T) {
 		assert.Equal(t, 2, len(result.Tasks[0].AllStatuses))
 		assert.Equal(t, false, result.Tasks[0].AllStatuses[0].IsValidTransition)
 		assert.Equal(t, true, result.Tasks[0].AllStatuses[1].IsValidTransition)
+		assert.Equal(t, "new", result.Tasks[0].AllStatuses[0].Type)
+		assert.Equal(t, "done", result.Tasks[0].AllStatuses[1].Type)
 
 		var taskFromDB database.Task
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
