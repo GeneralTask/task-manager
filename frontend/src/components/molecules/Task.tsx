@@ -180,7 +180,7 @@ const Task = ({
 
     const [isVisible, setIsVisible] = useState(true)
     const taskFadeOut = useCallback(() => {
-        if (task.id_folder && !task.is_done) setIsVisible(task.is_done)
+        if (task.id_folder) setIsVisible(task.is_done)
         onMarkTaskDone?.(task.id)
     }, [task.is_done, task.id_folder, onMarkTaskDone])
 

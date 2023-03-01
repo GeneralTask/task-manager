@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
+import { DONE_FOLDER_ID, TRASH_FOLDER_ID } from '../../constants'
 import { useKeyboardShortcut } from '../../hooks'
 import { useNavigateToTask } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
@@ -74,7 +75,12 @@ const TaskSectionView = () => {
     const folder = useMemo(() => folders?.find(({ id }) => id === params.section), [folders, params.section])
     const folderTasks = useMemo(() => {
         if (!folder) return []
-        return allTasks?.filter((t) => t.id_folder === folder.id) || []
+        if (folder.id === DONE_FOLDER_ID) {
+            return allTasks?.filter((t) => t.is_done && !t.is_deleted) || []
+        } else if (folder.id === TRASH_FOLDER_ID) {
+            return allTasks?.filter((t) => t.is_deleted) || []
+        }
+        return allTasks?.filter((t) => t.id_folder === folder.id && !t.is_done && !t.is_deleted) || []
     }, [allTasks, folder])
 
     const sortAndFilterSettings = useSortAndFilterSettings<TTaskV4>(TASK_SORT_AND_FILTER_CONFIG, folder?.id, '_main')
