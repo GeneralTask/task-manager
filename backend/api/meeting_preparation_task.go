@@ -26,7 +26,7 @@ func (api *API) MeetingPreparationTasksList(c *gin.Context) {
 		return
 	}
 
-	meetingTasksResult, err := api.GetMeetingPreparationTasksResultV4(userID, timezoneOffset)
+	meetingTasksResult, err := api.GetMeetingPreparationTasksResult(userID, timezoneOffset)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to get meeting preparation tasks")
 		Handle500(c)
@@ -35,7 +35,7 @@ func (api *API) MeetingPreparationTasksList(c *gin.Context) {
 	c.JSON(200, meetingTasksResult)
 }
 
-func (api *API) GetMeetingPreparationTasksResultV4(userID primitive.ObjectID, timezoneOffset time.Duration) ([]*TaskResultV4, error) {
+func (api *API) GetMeetingPreparationTasksResult(userID primitive.ObjectID, timezoneOffset time.Duration) ([]*TaskResultV4, error) {
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
 	eventsUntilEndOfDay, err := database.GetEventsUntilEndOfDay(api.DB, userID, timeNow)
 	if err != nil {
