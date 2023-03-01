@@ -82,7 +82,15 @@ func (api *API) TasksListV4(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	c.JSON(200, allTasks)
+
+	// Remove meeting prep tasks from task list
+	allTasksWithoutMeetingPreparation := []*TaskResultV4{}
+	for _, task := range allTasks {
+		if task.MeetingPreparationParams == nil {
+			allTasksWithoutMeetingPreparation = append(allTasksWithoutMeetingPreparation, task)
+		}
+	}
+	c.JSON(200, allTasksWithoutMeetingPreparation)
 }
 
 func (api *API) mergeTasksV4(
