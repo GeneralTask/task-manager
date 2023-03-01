@@ -1,5 +1,6 @@
 import { Ref, forwardRef, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
+import { DONE_FOLDER_ID, TRASH_FOLDER_ID } from '../../../constants'
 import { useGetMeetingPreparationTasks } from '../../../services/api/meeting-preparation-tasks.hooks'
 import { useGetLinkedAccounts } from '../../../services/api/settings.hooks'
 import { isGoogleCalendarLinked } from '../../../utils/utils'
@@ -16,7 +17,7 @@ const MeetingPreparationViewItems = forwardRef(({ view, hideHeader }: ViewItemsP
     const isGoogleLinked = isGoogleCalendarLinked(linkedAccounts || [])
     const { data: meetingTasks, isLoading: isMeetingTasksLoading } = useGetMeetingPreparationTasks()
     const activeMeetingTasks = useMemo(
-        () => meetingTasks?.filter((task) => !task.is_done && !task.is_deleted),
+        () => meetingTasks?.filter((task) => task.id_folder !== DONE_FOLDER_ID && task.id_folder !== TRASH_FOLDER_ID),
         [meetingTasks]
     )
 
