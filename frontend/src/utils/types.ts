@@ -375,7 +375,7 @@ export interface TRecurringTaskTemplate {
     is_enabled: boolean
 }
 
-export type TLinkedAccountName = 'Atlassian' | 'GitHub' | 'Google Calendar' | 'Slack' | 'Linear'
+export type TLinkedAccountName = 'Atlassian' | 'GitHub' | 'Google Calendar' | 'Slack' | 'Linear' | 'Jira'
 
 export interface TNote {
     id: string
