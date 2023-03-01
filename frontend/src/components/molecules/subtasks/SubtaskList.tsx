@@ -68,7 +68,8 @@ const SubtaskList = ({ parentTask }: SubtasksProps) => {
         [parentTask.id_folder, parentTask.id]
     )
 
-    const subtasks = allTasks?.filter((task): task is TSubtask => task.id_parent === parentTask.id) ?? []
+    const subtasks =
+        allTasks?.filter((task): task is TSubtask => task.id_parent === parentTask.id && !task.is_deleted) ?? []
     subtasks.sort((a, b) => a.id_ordering - b.id_ordering)
 
     return (
