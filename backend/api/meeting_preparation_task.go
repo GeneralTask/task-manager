@@ -48,7 +48,7 @@ func (api *API) GetMeetingPreparationTasksResult(userID primitive.ObjectID, time
 		return nil, err
 	}
 
-	meetingTasks, err := database.GetMeetingPreparationTasks(api.DB, userID)
+	meetingTasks, err := database.GetAllMeetingPreparationTasks(api.DB, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -58,24 +58,12 @@ func (api *API) GetMeetingPreparationTasksResult(userID primitive.ObjectID, time
 		return nil, err
 	}
 
-	// Filter out completed and deleted meeting prep tasks
-	activeMeetingPreparationTasks := []database.Task{}
-	for _, task := range *meetingTasks {
-		if task.IsCompleted != nil && *task.IsCompleted {
-			continue
-		}
-		if task.IsDeleted != nil && *task.IsDeleted {
-			continue
-		}
-		activeMeetingPreparationTasks = append(activeMeetingPreparationTasks, task)
-	}
-
 	// Sort by datetime_start
-	sort.Slice(activeMeetingPreparationTasks, func(i, j int) bool {
-		return (activeMeetingPreparationTasks)[i].MeetingPreparationParams.DatetimeStart <= (activeMeetingPreparationTasks)[j].MeetingPreparationParams.DatetimeStart
+	sort.Slice(*meetingTasks, func(i, j int) bool {
+		return (*meetingTasks)[i].MeetingPreparationParams.DatetimeStart <= (*meetingTasks)[j].MeetingPreparationParams.DatetimeStart
 	})
 
-	meetingTaskResult := api.taskListToTaskResultListV4(&activeMeetingPreparationTasks, userID)
+	meetingTaskResult := api.taskListToTaskResultListV4(meetingTasks, userID)
 	return meetingTaskResult, nil
 }
 
