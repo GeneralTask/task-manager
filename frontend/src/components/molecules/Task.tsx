@@ -215,36 +215,35 @@ const Task = ({
                             <Domino isVisible={isHovered && !dragDisabled} />
                         )}
                     </MarginRight>
-                    {task.source?.name !== 'Jira' &&
-                        (task.external_status && task.all_statuses ? (
-                            <GTDropdownMenu
-                                disabled={sectionId === TRASH_SECTION_ID}
-                                items={task.all_statuses.map((status) => ({
-                                    label: status.state,
-                                    onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
-                                    icon: externalStatusIcons[status.type],
-                                    selected: status.state === task.external_status?.state,
-                                }))}
-                                trigger={
-                                    <GTButtonHack
-                                        icon={externalStatusIcons[task.external_status.type]}
-                                        size="small"
-                                        styleType="simple"
-                                        asDiv
-                                    />
-                                }
-                            />
-                        ) : (
-                            <MarkTaskDoneButton
-                                taskId={task.id}
-                                sectionId={sectionId}
-                                isDone={task.is_done}
-                                isSelected={isSelected}
-                                isDisabled={!!task.optimisticId || sectionId === TRASH_SECTION_ID}
-                                onMarkComplete={taskFadeOut}
-                                optimsticId={task.optimisticId}
-                            />
-                        ))}
+                    {task.external_status && task.all_statuses ? (
+                        <GTDropdownMenu
+                            disabled={sectionId === TRASH_SECTION_ID}
+                            items={task.all_statuses.map((status) => ({
+                                label: status.state,
+                                onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
+                                icon: externalStatusIcons[status.type],
+                                selected: status.state === task.external_status?.state,
+                            }))}
+                            trigger={
+                                <GTButtonHack
+                                    icon={externalStatusIcons[task.external_status.type]}
+                                    size="small"
+                                    styleType="simple"
+                                    asDiv
+                                />
+                            }
+                        />
+                    ) : (
+                        <MarkTaskDoneButton
+                            taskId={task.id}
+                            sectionId={sectionId}
+                            isDone={task.is_done}
+                            isSelected={isSelected}
+                            isDisabled={!!task.optimisticId || sectionId === TRASH_SECTION_ID}
+                            onMarkComplete={taskFadeOut}
+                            optimsticId={task.optimisticId}
+                        />
+                    )}
                     <Title title={task.title}>{task.title}</Title>
                     <RightContainer>
                         {recurringTaskTemplate && <Icon icon={icons.arrows_repeat} />}
