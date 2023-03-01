@@ -837,7 +837,7 @@ func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
 	}
 	assert.True(t, (a.ExternalPriority == nil) == (b.ExternalPriority == nil))
 	if (a.ExternalPriority != nil) && (b.ExternalPriority != nil) {
-		assert.Equal(t, a.ExternalPriority.ExternalID, b.ExternalPriority.ExternalID)
+		assert.Equal(t, *&a.ExternalPriority.ExternalID, *&b.ExternalPriority.ExternalID)
 	}
 	assert.True(t, (a.Status == nil) == (b.Status == nil))
 	if (a.Status != nil) && (b.Status != nil) {
