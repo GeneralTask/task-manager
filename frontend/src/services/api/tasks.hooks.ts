@@ -1,4 +1,4 @@
-import { QueryFunctionContext, useQuery } from 'react-query'
+import { QueryFunctionContext, QueryKey, useQuery } from 'react-query'
 import { useNavigate } from 'react-router-dom'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
@@ -10,7 +10,7 @@ import apiClient from '../../utils/api'
 import navigateToNextItemAfterOverviewCompletion from '../../utils/navigateToNextItemAfterOverviewCompletion'
 import { TExternalStatus, TOverviewView, TTaskFolder, TTaskV4, TUserInfo } from '../../utils/types'
 import { resetOrderingIds, sleep } from '../../utils/utils'
-import { getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
+import { GTQueryClient, getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 
 export interface TCreateTaskData {
     title: string
@@ -223,39 +223,43 @@ export const createTask = async (data: TCreateTaskData) => {
     }
 }
 
+const optimisticallyUpdateTask = async (queryClient: GTQueryClient, data: TModifyTaskData, queryKey: QueryKey) => {
+    const queryData = queryClient.getImmutableQueryData<TTaskV4[]>(queryKey)
+    if (!queryData) return
+
+    const updatedTasks = produce(queryData, (draft) => {
+        const task = draft.find((task) => task.id === data.id)
+        if (!task) return
+        task.title = data.title || task.title
+        if (data.dueDate === '1969-12-31') {
+            task.due_date = ''
+        } else {
+            task.due_date = data.dueDate ?? task.due_date
+        }
+        task.body = data.body ?? task.body
+        task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
+        task.external_status = data.status ?? task.external_status
+        task.recurring_task_template_id = data.recurringTaskTemplateId ?? task.recurring_task_template_id
+        if (data.external_priority_id) {
+            const newPriority = task.all_priorities?.find(
+                (priority) => priority.external_id === data.external_priority_id
+            )
+            if (newPriority) task.priority = newPriority
+        }
+        task.updated_at = DateTime.utc().toISO()
+    })
+    queryClient.setQueryData(queryKey, updatedTasks)
+}
+
 export const useModifyTask = () => {
     const queryClient = useGTQueryClient()
     return useGTMutation((data: TModifyTaskData) => modifyTask(data), {
         tag: 'tasks_v4',
-        invalidateTagsOnSettled: ['tasks_v4', 'overview'],
+        invalidateTagsOnSettled: ['tasks_v4', 'overview', 'meeting_preparation_tasks'],
         onMutate: async (data: TModifyTaskData) => {
             await Promise.all([queryClient.cancelQueries('overview'), queryClient.cancelQueries('tasks_v4')])
-
-            const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
-            if (tasks) {
-                const updatedTasks = produce(tasks, (draft) => {
-                    const task = draft.find((task) => task.id === data.id)
-                    if (!task) return
-                    task.title = data.title || task.title
-                    if (data.dueDate === '1969-12-31') {
-                        task.due_date = ''
-                    } else {
-                        task.due_date = data.dueDate ?? task.due_date
-                    }
-                    task.body = data.body ?? task.body
-                    task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
-                    task.external_status = data.status ?? task.external_status
-                    task.recurring_task_template_id = data.recurringTaskTemplateId ?? task.recurring_task_template_id
-                    if (data.external_priority_id) {
-                        const newPriority = task.all_priorities?.find(
-                            (priority) => priority.external_id === data.external_priority_id
-                        )
-                        if (newPriority) task.priority = newPriority
-                    }
-                    task.updated_at = DateTime.utc().toISO()
-                })
-                queryClient.setQueryData('tasks_v4', updatedTasks)
-            }
+            optimisticallyUpdateTask(queryClient, data, 'tasks_v4')
+            optimisticallyUpdateTask(queryClient, data, 'meeting_preparation_tasks')
         },
     })
 }
