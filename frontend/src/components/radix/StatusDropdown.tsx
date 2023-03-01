@@ -3,14 +3,16 @@ import { useModifyTask } from '../../services/api/tasks.hooks'
 import { externalStatusIcons } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTDropdownMenu from './GTDropdownMenu'
 
 interface StatusDropdownProps {
     task: TTask
     disabled?: boolean
+    condensedTrigger?: boolean
 }
 
-const StatusDropdown = ({ task, disabled }: StatusDropdownProps) => {
+const StatusDropdown = ({ task, disabled, condensedTrigger }: StatusDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const { mutate: modifyTask } = useModifyTask()
 
@@ -39,16 +41,26 @@ const StatusDropdown = ({ task, disabled }: StatusDropdownProps) => {
             items={dropdownItems}
             unstyledTrigger
             trigger={
-                <GTButton
-                    value={externalStatus.state}
-                    icon={externalStatusIcons[externalStatus.type]}
-                    size="small"
-                    styleType="simple"
-                    isDropdown
-                    active={isOpen}
-                    disabled={disabled}
-                    asDiv
-                />
+                condensedTrigger ? (
+                    <GTIconButton
+                        icon={externalStatusIcons[externalStatus.type]}
+                        tooltipText={task.external_status?.state ?? ''}
+                        forceShowHoverEffect={isOpen}
+                        disabled={disabled}
+                        asDiv
+                    />
+                ) : (
+                    <GTButton
+                        value={externalStatus.state}
+                        icon={externalStatusIcons[externalStatus.type]}
+                        size="small"
+                        styleType="simple"
+                        isDropdown
+                        active={isOpen}
+                        disabled={disabled}
+                        asDiv
+                    />
+                )
             }
         />
     )

@@ -9,7 +9,7 @@ import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
 import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
-import { externalStatusIcons, icons, logos } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
 import Domino from '../atoms/Domino'
 import DueDate from '../atoms/DueDate'
@@ -21,8 +21,8 @@ import GTButton from '../atoms/buttons/GTButton'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
 import { Mini } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
-import GTDropdownMenu from '../radix/GTDropdownMenu'
 import JiraPriorityDropdown from '../radix/JiraPriorityDropdown'
+import StatusDropdown from '../radix/StatusDropdown'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
 import Tip from '../radix/Tip'
 import ItemContainer from './ItemContainer'
@@ -216,23 +216,7 @@ const Task = ({
                         )}
                     </MarginRight>
                     {task.external_status && task.all_statuses ? (
-                        <GTDropdownMenu
-                            disabled={sectionId === TRASH_SECTION_ID}
-                            items={task.all_statuses.map((status) => ({
-                                label: status.state,
-                                onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
-                                icon: externalStatusIcons[status.type],
-                                selected: status.state === task.external_status?.state,
-                            }))}
-                            trigger={
-                                <GTButtonHack
-                                    icon={externalStatusIcons[task.external_status.type]}
-                                    size="small"
-                                    styleType="simple"
-                                    asDiv
-                                />
-                            }
-                        />
+                        <StatusDropdown task={task} condensedTrigger />
                     ) : (
                         <MarkTaskDoneButton
                             taskId={task.id}

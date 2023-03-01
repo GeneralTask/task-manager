@@ -111,7 +111,7 @@ const GTDropdownMenu = ({
 
     const triggerRef = useRef<HTMLButtonElement>(null)
     return (
-        <div>
+        <div onClick={(e) => e.stopPropagation()}>
             <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen}>
                 <DropdownMenuTrigger ref={triggerRef} disabled={disabled} $unstyled={unstyledTrigger}>
                     {trigger}
