@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
+import { DONE_FOLDER_ID, TRASH_FOLDER_ID } from '../../constants'
 import { useKeyboardShortcut } from '../../hooks'
 import { useNavigateToTask } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
@@ -74,7 +75,12 @@ const TaskSectionView = () => {
     const folder = useMemo(() => folders?.find(({ id }) => id === params.section), [folders, params.section])
     const folderTasks = useMemo(() => {
         if (!folder) return []
-        return allTasks?.filter((t) => t.id_folder === folder.id) || []
+        if (folder.id === DONE_FOLDER_ID) {
+            return allTasks?.filter((t) => t.is_done) || []
+        } else if (folder.id === TRASH_FOLDER_ID) {
+            return allTasks?.filter((t) => t.is_deleted) || []
+        }
+        return allTasks?.filter((t) => t.id_folder === folder.id && !t.is_deleted && !t.is_deleted) || []
     }, [allTasks, folder])
 
     const sortAndFilterSettings = useSortAndFilterSettings<TTaskV4>(TASK_SORT_AND_FILTER_CONFIG, folder?.id, '_main')
@@ -92,10 +98,10 @@ const TaskSectionView = () => {
     }, [folder, folderTasks, selectedSort, selectedSortDirection, areSettingsLoading])
 
     const task = useMemo(() => {
-        const subtask = allTasks?.find(({ id }) => id === params.subtaskId)
-        const task = allTasks?.find(({ id }) => id === params.task)
+        const subtask = folderTasks?.find(({ id }) => id === params.subtaskId)
+        const task = folderTasks?.find(({ id }) => id === params.task)
         return subtask || task
-    }, [allTasks, params.task, params.subtaskId])
+    }, [folderTasks, params.task, params.subtaskId])
 
     const [taskIndex, setTaskIndex] = useState(0)
 
@@ -143,6 +149,8 @@ const TaskSectionView = () => {
                 navigate(`/tasks/${folder.id}/${sortedTasks[taskIndex - 1].id}`, { replace: true })
             } else if (!task && sortedTasks.length > 0) {
                 navigate(`/tasks/${folder.id}/${sortedTasks[0].id}`, { replace: true })
+            } else if (!task && sortedTasks.length === 0) {
+                navigate(`/tasks/${folder.id}/`, { replace: true })
             }
         }
     }, [folders, params.section, params.task, sortedTasks])
