@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { DONE_FOLDER_ID, TRASH_FOLDER_ID } from '../../constants'
@@ -8,6 +9,7 @@ import { useNavigateToTask } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import { useGetFolders } from '../../services/api/folders.hooks'
 import Log from '../../services/api/log'
+import { useGetMeetingPreparationTasks } from '../../services/api/meeting-preparation-tasks.hooks'
 import { useCreateTask, useFetchExternalTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { useGetTasksV4 } from '../../services/api/tasks.hooks'
 import { Colors, Spacing } from '../../styles'
@@ -62,6 +64,7 @@ const TaskSectionView = () => {
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
     const { calendarType } = useCalendarContext()
+    const { data: meetingPreparationTasks } = useGetMeetingPreparationTasks()
     const { data: allTasks, isLoading: isLoadingTasks } = useGetTasksV4()
     const { data: folders } = useGetFolders()
     const { mutate: createTask } = useCreateTask()
@@ -76,12 +79,18 @@ const TaskSectionView = () => {
     const folderTasks = useMemo(() => {
         if (!folder) return []
         if (folder.id === DONE_FOLDER_ID) {
-            return allTasks?.filter((t) => t.is_done && !t.is_deleted && !t.id_parent) || []
+            return [
+                ...(meetingPreparationTasks?.filter((t) => t.is_done && !t.is_deleted) || []),
+                ...(allTasks?.filter((t) => t.is_done && !t.is_deleted && !t.id_parent) || []),
+            ].sort((a, b) => +DateTime.fromISO(b.updated_at) - +DateTime.fromISO(a.updated_at))
         } else if (folder.id === TRASH_FOLDER_ID) {
-            return allTasks?.filter((t) => t.is_deleted) || []
+            return [
+                ...(meetingPreparationTasks?.filter((t) => t.is_deleted) || []),
+                ...(allTasks?.filter((t) => t.is_deleted && !t.id_parent) || []),
+            ].sort((a, b) => +DateTime.fromISO(b.updated_at) - +DateTime.fromISO(a.updated_at))
         }
         return allTasks?.filter((t) => t.id_folder === folder.id && !t.is_done && !t.is_deleted) || []
-    }, [allTasks, folder])
+    }, [allTasks, folder, meetingPreparationTasks])
 
     const sortAndFilterSettings = useSortAndFilterSettings<TTaskV4>(TASK_SORT_AND_FILTER_CONFIG, folder?.id, '_main')
     const { selectedSort, selectedSortDirection, isLoading: areSettingsLoading } = sortAndFilterSettings
