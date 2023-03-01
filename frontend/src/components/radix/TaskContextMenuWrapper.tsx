@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { DEFAULT_FOLDER_ID, EMPTY_MONGO_OBJECT_ID, TASK_PRIORITIES, TRASH_FOLDER_ID } from '../../constants'
+import { DEFAULT_FOLDER_ID, EMPTY_MONGO_OBJECT_ID, TASK_PRIORITIES } from '../../constants'
 import { useGetFolders } from '../../services/api/folders.hooks'
 import { useCreateTask, useMarkTaskDoneOrDeleted, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
 import { useGetTasksV4 } from '../../services/api/tasks.hooks'
@@ -162,7 +162,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
             iconColor: 'red',
             textColor: 'red',
             onClick: () => {
-                markTaskDoneOrDeleted({ id: task.id, isDeleted: task.id_folder !== TRASH_FOLDER_ID }, task.optimisticId)
+                markTaskDoneOrDeleted({ id: task.id, isDeleted: !task.is_deleted }, task.optimisticId)
             },
         },
     ]

@@ -197,7 +197,7 @@ const Task = ({
     const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(task.recurring_task_template_id)
 
     const { data: allTasks } = useGetTasksV4()
-    const subtasks = allTasks?.filter((t) => t.id_parent === task.id)
+    const subtasks = allTasks?.filter((t) => t.id_parent === task.id && !t.is_deleted)
 
     return (
         <TaskContextMenuWrapper task={task} onOpenChange={setContextMenuOpen}>
