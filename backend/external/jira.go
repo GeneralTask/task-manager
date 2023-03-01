@@ -191,6 +191,7 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 			Status: &database.ExternalTaskStatus{
 				ExternalID:        jiraTask.Fields.Status.ID,
 				State:             jiraTask.Fields.Status.Name,
+				Type:              jiraTask.Fields.Status.Category.Key,
 				IsCompletedStatus: jiraTask.Fields.Status.Category.Key == JIRADone,
 			},
 		}
@@ -435,6 +436,7 @@ func (jira JIRASource) GetListOfStatuses(siteConfiguration *database.AtlassianSi
 		newStatus := database.ExternalTaskStatus{
 			ExternalID:        status.ID,
 			State:             status.Name,
+			Type:              status.Category.Key, // will be one of "new", "indeterminate", "done"
 			IsCompletedStatus: status.Category.Key == JIRADone,
 		}
 
