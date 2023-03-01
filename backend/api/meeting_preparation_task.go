@@ -5,6 +5,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -76,7 +77,7 @@ func (api *API) CreateMeetingPreparationTasksFromEvent(userID primitive.ObjectID
 	taskCollection := database.GetTaskCollection(api.DB)
 	for _, event := range *events {
 		if accessRole, ok := calendarToAccessRole[calendarKey{event.SourceAccountID, event.CalendarID}]; ok {
-			if accessRole != "owner" {
+			if accessRole != constants.AccessControlOwner {
 				continue // only create meeting prep tasks for "owned" calendars
 			}
 		} else {

@@ -903,7 +903,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 			UserID:     userID,
 			IDExternal: "acctid",
 			Calendars: []database.Calendar{
-				{"owner", "calid", "", ""},
+				{constants.AccessControlOwner, "calid", "", ""},
 				{"reader", "other_calid", "", ""},
 			},
 		}, nil)
