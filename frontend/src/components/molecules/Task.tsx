@@ -7,7 +7,7 @@ import styled from 'styled-components'
 import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
 import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
-import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
+import { useMarkTaskDoneOrDeleted } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
@@ -88,7 +88,6 @@ const Task = ({
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
     const [isHovered, setIsHovered] = useState(false)
-    const { mutate: modifyTask } = useModifyTask()
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
     const [isMeetingTextColored, setIsMeetingTextColor] = useState<boolean>(false)
     const { meeting_preparation_params } = task
