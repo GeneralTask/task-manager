@@ -39,7 +39,6 @@ type JIRATransitionList struct {
 type JIRAStatus struct {
 	ID       string             `json:"id"`
 	Name     string             `json:"name"`
-	IconURL  string             `json:"iconUrl"`
 	Scope    JIRAScope          `json:"scope"`
 	Category JIRAStatusCategory `json:"statusCategory"`
 }
@@ -191,7 +190,6 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 			SourceAccountID: accountID,
 			Status: &database.ExternalTaskStatus{
 				ExternalID:        jiraTask.Fields.Status.ID,
-				IconURL:           jiraTask.Fields.Status.IconURL,
 				State:             jiraTask.Fields.Status.Name,
 				IsCompletedStatus: jiraTask.Fields.Status.Category.Key == JIRADone,
 			},
@@ -263,7 +261,6 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 				priorityObject := database.ExternalTaskPriority{
 					ExternalID:         priority.ID,
 					Name:               priority.Name,
-					IconURL:            priority.IconURL,
 					Color:              priority.Color,
 					PriorityNormalized: priorityNormalized,
 				}
@@ -437,7 +434,6 @@ func (jira JIRASource) GetListOfStatuses(siteConfiguration *database.AtlassianSi
 		value, exists := statusMap[projectID]
 		newStatus := database.ExternalTaskStatus{
 			ExternalID:        status.ID,
-			IconURL:           status.IconURL,
 			State:             status.Name,
 			IsCompletedStatus: status.Category.Key == JIRADone,
 		}
