@@ -1,6 +1,5 @@
 import { useCallback, useRef } from 'react'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import {
@@ -13,7 +12,7 @@ import {
     SYNC_MESSAGES,
     TRASH_FOLDER_ID,
 } from '../../constants'
-import { useInterval, useKeyboardShortcut } from '../../hooks'
+import { useInterval, useKeyboardShortcut, useNavigateToTask } from '../../hooks'
 import { useModifyRecurringTask } from '../../services/api/recurring-tasks.hooks'
 import {
     TModifyTaskData,
@@ -35,6 +34,7 @@ import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Label } from '../atoms/typography/Typography'
 import CreateLinearComment from '../molecules/CreateLinearComment'
 import FolderSelector from '../molecules/FolderSelector'
@@ -93,10 +93,11 @@ const CommentContainer = styled.div`
     flex-direction: column;
     gap: ${Spacing._24};
 `
-const BackButtonContainer = styled(NoStyleLink)`
+const BackButtonContainer = styled(NoStyleButton)`
     display: flex;
     align-items: center;
     gap: ${Spacing._8};
+    color: ${Colors.text.purple};
     ${Typography.mini};
 `
 const BackButtonText = styled(Label)`
@@ -123,7 +124,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
-    const navigate = useNavigate()
+    const navigateToTask = useNavigateToTask()
 
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
     const { meeting_preparation_params } = task
@@ -221,14 +222,13 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
 
     const isInTrash = task.id_folder === TRASH_FOLDER_ID
 
-    useKeyboardShortcut(
-        'backToParentTask',
-        useCallback(() => {
-            if (isSubtask) {
-                navigate('..', { relative: 'path' })
-            }
-        }, [isSubtask])
-    )
+    const navigateToParentTask = useCallback(() => {
+        if (isSubtask && task.id_parent) {
+            navigateToTask({ taskId: task.id_parent })
+        }
+    }, [isSubtask, task.id_parent])
+
+    useKeyboardShortcut('backToParentTask', navigateToParentTask)
 
     const taskv4 = task as TTaskV4
 
@@ -237,7 +237,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
             <DetailsTopContainer>
                 <DetailItem>
                     {isSubtask ? (
-                        <BackButtonContainer to=".." relative="path">
+                        <BackButtonContainer onClick={navigateToParentTask}>
                             <Icon icon={icons.caret_left} color="purple" />
                             <BackButtonText>Return to parent task</BackButtonText>
                         </BackButtonContainer>
