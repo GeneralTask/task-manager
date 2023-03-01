@@ -175,6 +175,8 @@ func (api *API) UpdateMeetingPreparationTasks(userID primitive.ObjectID, timezon
 			// If there are no fields to update, skip to next task
 			if len(updateFields) == 0 {
 				continue
+			} else {
+				updateFields["updated_at"] = primitive.NewDateTimeFromTime(time.Now())
 			}
 
 			_, err := taskCollection.UpdateOne(
