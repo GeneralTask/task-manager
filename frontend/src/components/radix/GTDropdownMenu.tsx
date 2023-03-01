@@ -1,4 +1,4 @@
-import { Fragment, useRef } from 'react'
+import { Fragment, useCallback, useRef } from 'react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -16,6 +16,7 @@ import {
     MenuItemShared,
     MenuTriggerShared,
 } from './RadixUIConstants'
+import Tip from './Tip'
 
 const DROPDOWN_MENU_ITEM_MAX_WIDTH = '240px'
 const DROPDOWN_MENU_ITEM_MAX_HEIGHT = '75vh'
@@ -96,6 +97,18 @@ const GTDropdownMenu = ({
 }: GTDropdownMenuProps) => {
     const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTMenuItem[][]
 
+    const ConditionalTooltip = useCallback(
+        ({ children, tip }: { children: React.ReactNode; tip?: string }) =>
+            tip ? (
+                <Tip content={tip} side="right">
+                    {children}
+                </Tip>
+            ) : (
+                <>{children}</>
+            ),
+        []
+    )
+
     const triggerRef = useRef<HTMLButtonElement>(null)
     return (
         <div>
@@ -139,95 +152,101 @@ const GTDropdownMenu = ({
                                                     <DropdownMenu.Portal>
                                                         <DropdownMenuSubContent>
                                                             {item.subItems.map((subItem) => (
-                                                                <DropdownMenuItem
+                                                                <ConditionalTooltip
                                                                     key={getItemKey(subItem)}
-                                                                    textValue={subItem.label}
-                                                                    onClick={
-                                                                        subItem.disabled
-                                                                            ? emptyFunction
-                                                                            : subItem.onClick
-                                                                    }
-                                                                    $disabled={subItem.disabled}
-                                                                    $textColor={subItem.textColor}
-                                                                    onSelect={
-                                                                        subItem.keepOpenOnSelect ||
-                                                                        keepOpenOnSelect ||
-                                                                        subItem.disabled
-                                                                            ? (e) => e.preventDefault()
-                                                                            : emptyFunction
-                                                                    }
+                                                                    tip={subItem.tip}
                                                                 >
-                                                                    {subItem.renderer ? (
-                                                                        subItem.renderer()
-                                                                    ) : (
-                                                                        <>
-                                                                            {!hideCheckmark && !subItem.hideCheckmark && (
-                                                                                <FixedSizeIcon
-                                                                                    visible={subItem.selected}
-                                                                                >
-                                                                                    <Icon icon={icons.check} />
-                                                                                </FixedSizeIcon>
-                                                                            )}
-                                                                            {subItem.icon && (
-                                                                                <Icon
-                                                                                    icon={subItem.icon}
-                                                                                    color={subItem.iconColor}
-                                                                                    colorHex={subItem.iconColorHex}
-                                                                                />
-                                                                            )}
-                                                                            <MenuItemLabel>
-                                                                                {subItem.label}
-                                                                            </MenuItemLabel>
-                                                                            {subItem.count && (
-                                                                                <LeftMarginAutoContainer>
-                                                                                    ({subItem.count})
-                                                                                </LeftMarginAutoContainer>
-                                                                            )}
-                                                                        </>
-                                                                    )}
-                                                                </DropdownMenuItem>
+                                                                    <DropdownMenuItem
+                                                                        textValue={subItem.label}
+                                                                        onClick={
+                                                                            subItem.disabled
+                                                                                ? emptyFunction
+                                                                                : subItem.onClick
+                                                                        }
+                                                                        $disabled={subItem.disabled}
+                                                                        $textColor={subItem.textColor}
+                                                                        onSelect={
+                                                                            subItem.keepOpenOnSelect ||
+                                                                            keepOpenOnSelect ||
+                                                                            subItem.disabled
+                                                                                ? (e) => e.preventDefault()
+                                                                                : emptyFunction
+                                                                        }
+                                                                    >
+                                                                        {subItem.renderer ? (
+                                                                            subItem.renderer()
+                                                                        ) : (
+                                                                            <>
+                                                                                {!hideCheckmark &&
+                                                                                    !subItem.hideCheckmark && (
+                                                                                        <FixedSizeIcon
+                                                                                            visible={subItem.selected}
+                                                                                        >
+                                                                                            <Icon icon={icons.check} />
+                                                                                        </FixedSizeIcon>
+                                                                                    )}
+                                                                                {subItem.icon && (
+                                                                                    <Icon
+                                                                                        icon={subItem.icon}
+                                                                                        color={subItem.iconColor}
+                                                                                        colorHex={subItem.iconColorHex}
+                                                                                    />
+                                                                                )}
+                                                                                <MenuItemLabel>
+                                                                                    {subItem.label}
+                                                                                </MenuItemLabel>
+                                                                                {subItem.count && (
+                                                                                    <LeftMarginAutoContainer>
+                                                                                        ({subItem.count})
+                                                                                    </LeftMarginAutoContainer>
+                                                                                )}
+                                                                            </>
+                                                                        )}
+                                                                    </DropdownMenuItem>
+                                                                </ConditionalTooltip>
                                                             ))}
                                                         </DropdownMenuSubContent>
                                                     </DropdownMenu.Portal>
                                                 </DropdownMenu.Sub>
                                             ) : (
-                                                <DropdownMenuItem
-                                                    key={getItemKey(item)}
-                                                    textValue={item.label}
-                                                    onClick={item.disabled ? emptyFunction : item.onClick}
-                                                    $disabled={item.disabled}
-                                                    $textColor={item.textColor}
-                                                    onSelect={
-                                                        item.keepOpenOnSelect || keepOpenOnSelect || item.disabled
-                                                            ? (e) => e.preventDefault()
-                                                            : emptyFunction
-                                                    }
-                                                >
-                                                    {item.renderer ? (
-                                                        item.renderer()
-                                                    ) : (
-                                                        <>
-                                                            {!hideCheckmark && !item.hideCheckmark && (
-                                                                <FixedSizeIcon visible={item.selected}>
-                                                                    <Icon icon={icons.check} />
-                                                                </FixedSizeIcon>
-                                                            )}
-                                                            {item.icon && (
-                                                                <Icon
-                                                                    icon={item.icon}
-                                                                    color={item.iconColor}
-                                                                    colorHex={item.iconColorHex}
-                                                                />
-                                                            )}
-                                                            <MenuItemLabel>{item.label}</MenuItemLabel>
-                                                            {item.count && (
-                                                                <LeftMarginAutoContainer>
-                                                                    ({item.count})
-                                                                </LeftMarginAutoContainer>
-                                                            )}
-                                                        </>
-                                                    )}
-                                                </DropdownMenuItem>
+                                                <ConditionalTooltip key={getItemKey(item)} tip={item.tip}>
+                                                    <DropdownMenuItem
+                                                        textValue={item.label}
+                                                        onClick={item.disabled ? emptyFunction : item.onClick}
+                                                        $disabled={item.disabled}
+                                                        $textColor={item.textColor}
+                                                        onSelect={
+                                                            item.keepOpenOnSelect || keepOpenOnSelect || item.disabled
+                                                                ? (e) => e.preventDefault()
+                                                                : emptyFunction
+                                                        }
+                                                    >
+                                                        {item.renderer ? (
+                                                            item.renderer()
+                                                        ) : (
+                                                            <>
+                                                                {!hideCheckmark && !item.hideCheckmark && (
+                                                                    <FixedSizeIcon visible={item.selected}>
+                                                                        <Icon icon={icons.check} />
+                                                                    </FixedSizeIcon>
+                                                                )}
+                                                                {item.icon && (
+                                                                    <Icon
+                                                                        icon={item.icon}
+                                                                        color={item.iconColor}
+                                                                        colorHex={item.iconColorHex}
+                                                                    />
+                                                                )}
+                                                                <MenuItemLabel>{item.label}</MenuItemLabel>
+                                                                {item.count && (
+                                                                    <LeftMarginAutoContainer>
+                                                                        ({item.count})
+                                                                    </LeftMarginAutoContainer>
+                                                                )}
+                                                            </>
+                                                        )}
+                                                    </DropdownMenuItem>
+                                                </ConditionalTooltip>
                                             )}
                                         </Fragment>
                                     ))}

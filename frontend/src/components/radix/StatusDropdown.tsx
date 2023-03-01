@@ -23,6 +23,13 @@ const StatusDropdown = ({ task, disabled }: StatusDropdownProps) => {
         icon: externalStatusIcons[status.type],
         onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
         selected: status.state === externalStatus.state,
+        disabled: status.is_valid_transition === false,
+        tip:
+            status.is_valid_transition === false && task.source.name === 'Jira'
+                ? `A workflow rule is preventing 
+        you from moving this issue to 
+        "${status.state}."`
+                : undefined,
     }))
 
     return (
