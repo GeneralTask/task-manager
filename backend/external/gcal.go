@@ -157,7 +157,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		calendarAccount.Calendars = []database.Calendar{
 			{
 				CalendarID: accountID,
-				AccessRole: "owner",
+				AccessRole: constants.AccessControlOwner,
 				ColorID:    "",
 				Title:      "",
 			},

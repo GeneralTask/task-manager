@@ -5,6 +5,7 @@ import (
 
 	"golang.org/x/exp/slices"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -50,7 +51,7 @@ func (api *API) CalendarsList(c *gin.Context) {
 				CalendarID: calendar.CalendarID,
 				ColorID:    calendar.ColorID,
 				Title:      calendar.Title,
-				CanWrite:   slices.Contains([]string{"owner", "writer"}, calendar.AccessRole),
+				CanWrite:   slices.Contains([]string{constants.AccessControlOwner, "writer"}, calendar.AccessRole),
 				AccessRole: calendar.AccessRole,
 			}
 			calendars = append(calendars, calendarResult)
