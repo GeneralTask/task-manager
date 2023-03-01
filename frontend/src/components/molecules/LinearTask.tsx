@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import Log from '../../services/api/log'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
-import { linearStatus } from '../../styles/images'
+import { externalStatusIcons } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
 import CommentCount from '../atoms/CommentCount'
 import Domino from '../atoms/Domino'
@@ -96,13 +96,13 @@ const LinearTask = ({ task }: LinearTaskProps) => {
                             items={task.all_statuses.map((status) => ({
                                 label: status.state,
                                 onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
-                                icon: linearStatus[status.type],
+                                icon: externalStatusIcons[status.type],
                                 selected: status.state === task.external_status?.state,
                             }))}
                             trigger={
                                 <GTButtonHack
                                     value={status}
-                                    icon={linearStatus[task.external_status.type]}
+                                    icon={externalStatusIcons[task.external_status.type]}
                                     size="small"
                                     styleType="simple"
                                     asDiv

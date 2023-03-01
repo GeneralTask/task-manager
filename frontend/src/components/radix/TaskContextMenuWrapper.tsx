@@ -9,7 +9,7 @@ import {
     useModifyTask,
     useReorderTask,
 } from '../../services/api/tasks.hooks'
-import { icons, linearStatus } from '../../styles/images'
+import { externalStatusIcons, icons } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import GTDatePicker from '../molecules/GTDatePicker'
 import RecurringTaskTemplateModal from '../molecules/recurring-tasks/RecurringTaskTemplateModal'
@@ -163,11 +163,11 @@ const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenC
             ? [
                   {
                       label: 'Set status',
-                      icon: linearStatus[task.external_status.type],
+                      icon: externalStatusIcons[task.external_status.type],
                       subItems: task.all_statuses.map((status) => ({
                           label: status.state,
                           onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
-                          icon: linearStatus[status.type],
+                          icon: externalStatusIcons[status.type],
                           selected: status.state === task.external_status?.state,
                       })),
                   },

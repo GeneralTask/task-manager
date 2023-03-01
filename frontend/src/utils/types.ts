@@ -132,10 +132,14 @@ export interface TCommentUser {
     Name: string
 }
 
+export type TLinearStatusType = 'backlog' | 'unstarted' | 'started' | 'completed' | 'canceled'
+export type TJiraStatusType = 'new' | 'indeterminate' | 'done'
+export type TExternalStatusType = TLinearStatusType | TJiraStatusType
+
 export interface TExternalStatus {
     external_id: string // the id of the status on linear
     state: string // the custom name of the status (e.g. Todo) - note: these are self-defined by the users of linear and can be different even across teams
-    type: 'backlog' | 'unstarted' | 'started' | 'completed' | 'canceled' // the type of status native to the task application
+    type: TExternalStatusType // the type of status native to the task application
 }
 
 export interface TEvent {
