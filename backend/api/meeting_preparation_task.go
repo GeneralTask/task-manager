@@ -42,7 +42,7 @@ func (api *API) GetMeetingPreparationTasksResultV4(userID primitive.ObjectID, ti
 		return nil, err
 	}
 
-	err = api.CreateMeetingPreparationTaskFromEvent(userID, eventsUntilEndOfDay)
+	err = api.CreateMeetingPreparationTasksFromEvent(userID, eventsUntilEndOfDay)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (api *API) GetMeetingPreparationTasksResultV4(userID primitive.ObjectID, ti
 	return meetingTaskResult, nil
 }
 
-func (api *API) CreateMeetingPreparationTaskFromEvent(userID primitive.ObjectID, events *[]database.CalendarEvent) error {
+func (api *API) CreateMeetingPreparationTasksFromEvent(userID primitive.ObjectID, events *[]database.CalendarEvent) error {
 	calendarAccount, err := database.GetCalendarAccounts(api.DB, userID)
 	if err != nil {
 		return err
