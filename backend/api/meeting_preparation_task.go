@@ -53,14 +53,14 @@ func (api *API) GetMeetingPreparationTasksResult(userID primitive.ObjectID, time
 		return nil, err
 	}
 
-	updatedMeetingPreparationTasks, err := api.UpdateMeetingPreparationTasks(userID, meetingTasks, timezoneOffset)
+	err = api.UpdateMeetingPreparationTasks(userID, meetingTasks, timezoneOffset)
 	if err != nil {
 		return nil, err
 	}
 
 	// Filter out completed and deleted meeting prep tasks
 	activeMeetingPreparationTasks := []database.Task{}
-	for _, task := range *updatedMeetingPreparationTasks {
+	for _, task := range *meetingTasks {
 		if task.IsCompleted != nil && *task.IsCompleted {
 			continue
 		}
@@ -139,13 +139,13 @@ func (api *API) CreateMeetingPreparationTasksFromEvent(userID primitive.ObjectID
 	return nil
 }
 
-func (api *API) UpdateMeetingPreparationTasks(userID primitive.ObjectID, meetingPreparationTasks *[]database.Task, timezoneOffset time.Duration) (*[]database.Task, error) {
+func (api *API) UpdateMeetingPreparationTasks(userID primitive.ObjectID, meetingPreparationTasks *[]database.Task, timezoneOffset time.Duration) error {
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
 	for index, task := range *meetingPreparationTasks {
 		// Get event for meeting prep task from DB
 		associatedEvent, err := database.GetCalendarEventByExternalId(api.DB, task.MeetingPreparationParams.IDExternal, userID)
 		if err != nil && err != mongo.ErrNoDocuments {
-			return nil, err
+			return err
 		}
 		taskCollection := database.GetTaskCollection(api.DB)
 		// Create MeetingPreparationParams if it doesn't exist
@@ -170,7 +170,7 @@ func (api *API) UpdateMeetingPreparationTasks(userID primitive.ObjectID, meeting
 				}},
 			)
 			if err != nil {
-				return nil, err
+				return err
 			}
 		} else {
 			updateFields := bson.M{}
@@ -212,9 +212,9 @@ func (api *API) UpdateMeetingPreparationTasks(userID primitive.ObjectID, meeting
 				bson.M{"$set": updateFields},
 			)
 			if err != nil {
-				return nil, err
+				return err
 			}
 		}
 	}
-	return meetingPreparationTasks, nil
+	return nil
 }
