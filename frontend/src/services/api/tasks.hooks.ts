@@ -225,7 +225,6 @@ export const createTask = async (data: TCreateTaskData) => {
 
 const optimisticallyUpdateTask = async (queryClient: GTQueryClient, data: TModifyTaskData, queryKey: QueryKey) => {
     const queryData = queryClient.getImmutableQueryData<TTaskV4[]>(queryKey)
-    console.log(queryData)
     if (!queryData) return
 
     const updatedTasks = produce(queryData, (draft) => {
