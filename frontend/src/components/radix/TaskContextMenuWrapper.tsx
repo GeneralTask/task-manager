@@ -3,9 +3,14 @@ import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_FOLDER_ID, EMPTY_MONGO_OBJECT_ID, TASK_PRIORITIES } from '../../constants'
 import { useGetFolders } from '../../services/api/folders.hooks'
-import { useCreateTask, useMarkTaskDoneOrDeleted, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
-import { useGetTasksV4 } from '../../services/api/tasks.hooks'
-import { icons, linearStatus } from '../../styles/images'
+import {
+    useCreateTask,
+    useGetTasksV4,
+    useMarkTaskDoneOrDeleted,
+    useModifyTask,
+    useReorderTask,
+} from '../../services/api/tasks.hooks'
+import { externalStatusIcons, icons } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
 import GTDatePicker from '../molecules/GTDatePicker'
 import RecurringTaskTemplateModal from '../molecules/recurring-tasks/RecurringTaskTemplateModal'
@@ -137,11 +142,11 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
             ? [
                   {
                       label: 'Set status',
-                      icon: linearStatus[task.external_status.type],
+                      icon: externalStatusIcons[task.external_status.type],
                       subItems: task.all_statuses.map((status) => ({
                           label: status.state,
                           onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
-                          icon: linearStatus[status.type],
+                          icon: externalStatusIcons[status.type],
                           selected: status.state === task.external_status?.state,
                       })),
                   },
