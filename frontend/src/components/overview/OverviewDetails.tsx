@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom'
+import { useGetMeetingPreparationTasks } from '../../services/api/meeting-preparation-tasks.hooks'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetTasksV4 } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
@@ -13,8 +14,10 @@ const OverviewDetails = () => {
     const selectedList = lists?.find((list) => list.id === overviewViewId)
     const { data: repositories, isLoading: isGetPullRequestLoading } = useGetPullRequests()
     const { data: allTasks, isLoading: isGetAllTasksLoading } = useGetTasksV4()
+    const { data: meetingPreparationTasks, isLoading: isMeetingPreparationTasksLoading } =
+        useGetMeetingPreparationTasks()
 
-    if (isLoading || isGetPullRequestLoading || isGetAllTasksLoading) return null
+    if (isLoading || isGetPullRequestLoading || isGetAllTasksLoading || isMeetingPreparationTasksLoading) return null
     else if (lists.length > 0 && flattenedLists.length === 0)
         return <EmptyDetails icon={icons.check} text="Your lists are all empty" />
     else if (lists.length === 0) return <EmptyDetails icon={icons.list} text="You have no lists" />
@@ -26,6 +29,11 @@ const OverviewDetails = () => {
             .find((item) => item.id === overviewItemId)
         if (!selectedPullRequest) return null
         return <PullRequestDetails pullRequest={selectedPullRequest} />
+    } else if (selectedList.type === 'meeting_preparation') {
+        const selectedTaskId = subtaskId || overviewItemId
+        const selectedTask = meetingPreparationTasks?.find((task) => task.id === selectedTaskId)
+        if (!selectedTask) return null
+        return <TaskDetails task={selectedTask} />
     } else {
         const selectedTaskId = subtaskId || overviewItemId
         const selectedTask = allTasks?.find((task) => task.id === selectedTaskId)
