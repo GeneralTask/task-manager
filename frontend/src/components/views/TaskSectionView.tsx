@@ -76,7 +76,7 @@ const TaskSectionView = () => {
     const folderTasks = useMemo(() => {
         if (!folder) return []
         if (folder.id === DONE_FOLDER_ID) {
-            return allTasks?.filter((t) => t.is_done && !t.is_deleted) || []
+            return allTasks?.filter((t) => t.is_done && !t.is_deleted && !t.id_parent) || []
         } else if (folder.id === TRASH_FOLDER_ID) {
             return allTasks?.filter((t) => t.is_deleted) || []
         }
