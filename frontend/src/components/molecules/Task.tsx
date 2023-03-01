@@ -4,7 +4,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DONE_FOLDER_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_FOLDER_ID } from '../../constants'
+import { SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_FOLDER_ID } from '../../constants'
 import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
 import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
@@ -180,7 +180,7 @@ const Task = ({
 
     const [isVisible, setIsVisible] = useState(true)
     const taskFadeOut = useCallback(() => {
-        if (task.id_folder && task.id_folder !== DONE_FOLDER_ID) setIsVisible(task.is_done)
+        if (task.id_folder && !task.is_done) setIsVisible(task.is_done)
         onMarkTaskDone?.(task.id)
     }, [task.is_done, task.id_folder, onMarkTaskDone])
 
