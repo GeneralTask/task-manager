@@ -92,10 +92,10 @@ const TaskSectionView = () => {
     }, [folder, folderTasks, selectedSort, selectedSortDirection, areSettingsLoading])
 
     const task = useMemo(() => {
-        const subtask = folderTasks?.find(({ id }) => id === params.subtaskId)
-        const task = folderTasks?.find(({ id }) => id === params.task)
+        const subtask = allTasks?.find(({ id }) => id === params.subtaskId)
+        const task = allTasks?.find(({ id }) => id === params.task)
         return subtask || task
-    }, [folderTasks, params.task, params.subtaskId])
+    }, [allTasks, params.task, params.subtaskId])
 
     const [taskIndex, setTaskIndex] = useState(0)
 
@@ -143,8 +143,6 @@ const TaskSectionView = () => {
                 navigate(`/tasks/${folder.id}/${sortedTasks[taskIndex - 1].id}`, { replace: true })
             } else if (!task && sortedTasks.length > 0) {
                 navigate(`/tasks/${folder.id}/${sortedTasks[0].id}`, { replace: true })
-            } else if (!task && sortedTasks.length === 0) {
-                navigate(`/tasks/${folder.id}/`, { replace: true })
             }
         }
     }, [folders, params.section, params.task, sortedTasks])
