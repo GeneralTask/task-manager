@@ -1,5 +1,5 @@
 import { ReactNode, useCallback, useMemo } from 'react'
-import { usePreviewMode, useSetting } from '../../hooks'
+import { useSetting } from '../../hooks'
 import { useGetCalendars, useSelectedCalendars } from '../../services/api/events.hooks'
 import { icons, logos } from '../../styles/images'
 import { TCalendar, TCalendarAccount } from '../../utils/types'
@@ -13,7 +13,6 @@ interface CalendarSelectorProps {
     renderTrigger: (calendar: TCalendar | undefined, accountId: string) => ReactNode
 }
 const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSelectorProps) => {
-    const { isPreviewMode } = usePreviewMode()
     const { data: calendars } = useGetCalendars()
     const { isCalendarSelected, toggleCalendarSelection } = useSelectedCalendars()
     const { field_value: taskToCalAccount, updateSetting: setTaskToCalAccount } = useSetting(
@@ -74,9 +73,7 @@ const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSele
                         .map((calendar) => ({
                             label: getCalendarName(account.account_id, calendar.title),
                             icon: icons.square,
-                            iconColorHex: isPreviewMode
-                                ? calendar.color_background || ''
-                                : getCalendarColor(calendar.color_id || ''),
+                            iconColorHex: getCalendarColor(calendar.color_id),
                             selected: isCalendarChecked(account, calendar),
                             onClick: () => handleCalendarClick(account, calendar),
                             keepOpenOnSelect: mode === 'cal-selection',
