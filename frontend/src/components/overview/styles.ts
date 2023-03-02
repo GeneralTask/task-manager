@@ -31,7 +31,7 @@ export const SelectedList = styled.div`
     width: 100%;
     box-sizing: border-box;
     border-radius: ${Border.radius.mini};
-    border: ${Border.stroke.medium} solid ${Colors.gtColor.secondary};
+    border: ${Border.stroke.medium} solid ${Colors.legacyColors.secondary};
     padding: ${Spacing._12};
     margin: ${Spacing._4} 0;
     gap: ${Spacing._12};

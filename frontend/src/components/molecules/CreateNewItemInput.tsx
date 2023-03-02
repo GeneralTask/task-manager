@@ -21,7 +21,7 @@ export const CreateNewItemInputContainer = styled.div`
     box-sizing: border-box;
     border: ${Border.stroke.medium} solid transparent;
     :focus-within {
-        border: ${Border.stroke.medium} solid ${Colors.border.purple};
+        border: ${Border.stroke.medium} solid ${Colors.legacyColors.purple};
     }
     margin-bottom: ${Spacing._16};
 `

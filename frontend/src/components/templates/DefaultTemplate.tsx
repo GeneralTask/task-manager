@@ -24,7 +24,7 @@ const DefaultTemplateContainer = styled.div<{ $calendarType: TCalendarType; $sho
     position: relative;
     min-width: ${WINDOW_MIN_WIDTH};
     a {
-        color: ${Colors.gtColor.primary};
+        color: ${Colors.legacyColors.purple};
     }
     .tooltip {
         box-shadow: ${Shadows.light} !important;

@@ -8,7 +8,7 @@ import GTButton from '../../atoms/buttons/GTButton'
 const TextContainerWidth = '40%'
 const MessageContainer = styled.div`
     ${Typography.bodySmall};
-    border: ${Border.stroke.medium} solid ${Colors.border.light};
+    border: ${Border.stroke.medium} solid ${Colors.background.border};
     border-radius: ${Border.radius.mini};
     padding: ${Spacing._16};
     display: flex;

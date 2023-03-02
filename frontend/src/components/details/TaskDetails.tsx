@@ -387,7 +387,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                         isTaskParentTask(taskv4) && <SubtaskList parentTask={taskv4} />}
                     {task.external_status && task.source && (
                         <CommentContainer>
-                            <Divider color={Colors.border.extra_light} />
+                            <Divider color={Colors.background.border} />
                             <CommentList comments={task.comments ?? EMPTY_ARRAY} sourceName={task.source.name} />
                         </CommentContainer>
                     )}

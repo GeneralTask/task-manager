@@ -16,8 +16,8 @@ const TasksDueWeekContainer = styled.div`
     display: flex;
     min-width: 0;
     height: fit-content;
-    border-top: ${Border.stroke.medium} solid ${Colors.border.light};
-    border-bottom: ${Border.stroke.medium} solid ${Colors.border.light};
+    border-top: ${Border.stroke.medium} solid ${Colors.background.border};
+    border-bottom: ${Border.stroke.medium} solid ${Colors.background.border};
     position: relative;
     box-sizing: border-box;
     padding-right: ${scrollbarWidth()}px;

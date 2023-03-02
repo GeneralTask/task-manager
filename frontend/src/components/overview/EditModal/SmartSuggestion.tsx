@@ -124,7 +124,7 @@ const SmartSuggestion = ({ suggestions, onRevertToManual }: SmartSuggestionProps
                         <List id={id} index={index} />
                         <Reasoning>{reasoning}</Reasoning>
                     </Suggestion>
-                    {index !== suggestions.length - 1 && <Divider color={Colors.border.light} />}
+                    {index !== suggestions.length - 1 && <Divider color={Colors.background.border} />}
                 </Fragment>
             ))}
         </>

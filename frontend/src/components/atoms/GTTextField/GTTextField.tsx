@@ -11,17 +11,17 @@ const AtlassianEditor = lazy(() => import('./AtlassianEditor'))
 const PlainTextContainer = styled.div<{ hideUnfocusedOutline?: boolean; disabled?: boolean }>`
     border: ${Border.stroke.medium} solid
         ${({ hideUnfocusedOutline, disabled }) =>
-            hideUnfocusedOutline || disabled ? 'transparent' : Colors.border.extra_light};
+            hideUnfocusedOutline || disabled ? 'transparent' : Colors.background.border};
     border-radius: ${Border.radius.small};
     flex: 1;
     :focus-within {
         box-shadow: ${Shadows.light};
     }
     :hover {
-        border-color: ${({ disabled }) => (disabled ? 'transparent' : Colors.border.light)};
+        border-color: ${({ disabled }) => (disabled ? 'transparent' : Colors.background.border)};
     }
     :focus-within {
-        border-color: ${Colors.gtColor.primary};
+        border-color: ${Colors.legacyColors.purple};
     }
 `
 
@@ -35,7 +35,7 @@ const Container = styled.div<{
     box-sizing: border-box;
     border: ${Border.stroke.medium} solid
         ${({ hideUnfocusedOutline, noBorder }) =>
-            hideUnfocusedOutline || noBorder ? 'transparent' : Colors.border.extra_light};
+            hideUnfocusedOutline || noBorder ? 'transparent' : Colors.background.border};
     border-radius: ${Border.radius.small};
     width: 100%;
     :hover,
@@ -43,10 +43,10 @@ const Container = styled.div<{
         background-color: ${Colors.background.white};
     }
     :hover {
-        border-color: ${({ noBorder }) => !noBorder && Colors.border.light};
+        border-color: ${({ noBorder }) => !noBorder && Colors.background.border};
     }
     :focus-within {
-        border-color: ${Colors.gtColor.primary};
+        border-color: ${Colors.legacyColors.purple};
     }
     ${({ isFullHeight }) => (isFullHeight ? `height: 100%;` : '')}
     ${({ minHeight }) => (minHeight ? `min-height: ${minHeight}px;` : '')}
