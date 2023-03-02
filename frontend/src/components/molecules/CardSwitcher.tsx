@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import styled from 'styled-components'
-import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { checkboxSize } from '../../styles/dimensions'
-import { TOverviewItem } from '../../utils/types'
 import GTShadowContainer from '../atoms/GTShadowContainer'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
+import useOverviewLists from '../overview/useOverviewLists'
 
 const Header = styled.div`
     display: flex;
@@ -38,34 +37,34 @@ interface CardSwitcherProps {
 }
 
 const CardSwitcher = ({ viewId }: CardSwitcherProps) => {
-    const { data: views } = useGetOverviewViews()
+    const { lists } = useOverviewLists()
+    const list = useMemo(() => lists?.find(({ id }) => id === viewId), [lists, viewId])
+
     const [cardIndex, setCardIndex] = useState(0)
-    const [card, setCard] = useState<TOverviewItem | null>(null)
+    const card = useMemo(() => list?.view_items[cardIndex], [cardIndex, viewId, list])
 
-    useEffect(() => {
-        const view = views?.find(({ id }) => id === viewId)
-        if (view == null) return
-        if (cardIndex >= view.view_items.length) {
-            setCardIndex(0)
-            setCard(view.view_items[0])
-        } else {
-            setCard(view.view_items[cardIndex])
-        }
-    }, [cardIndex, viewId, views])
+    const onClickPrevious = () => {
+        if (list == null) return
+        const index = mod(cardIndex - 1, list.view_item_ids.length)
+        if (index < 0) setCardIndex(list.view_item_ids.length - 1)
+        else setCardIndex(index)
+    }
+    const onClickNext = () => {
+        if (list == null) return
+        const index = mod(cardIndex + 1, list.view_item_ids.length)
+        if (index >= list.view_item_ids.length) setCardIndex(0)
+        else setCardIndex(index)
+    }
 
-    const view = views?.find(({ id }) => id === viewId)
-    if (!view || view.view_items.length === 0) return null
-    if (card == null) return null
+    if (!list || list.view_item_ids.length === 0 || !card) return null
     return (
         <div>
             <Header>
-                <SwitchText onClick={() => setCardIndex(mod(cardIndex - 1, view.view_items.length))}>
-                    Previous
-                </SwitchText>
+                <SwitchText onClick={onClickPrevious}>Previous</SwitchText>
                 <div>
-                    Task {cardIndex + 1} of {view.view_items.length}
+                    Task {cardIndex + 1} of {list.view_item_ids.length}
                 </div>
-                <SwitchText onClick={() => setCardIndex(mod(cardIndex + 1, view.view_items.length))}>Next</SwitchText>
+                <SwitchText onClick={onClickNext}>Next</SwitchText>
             </Header>
             <GTShadowContainer>
                 <CardHeader>

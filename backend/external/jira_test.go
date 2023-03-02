@@ -471,7 +471,9 @@ func TestGetPriorities(t *testing.T) {
 
 		assert.Equal(t, 2, len(priorities))
 		assert.Equal(t, "9", priorities[0].ID)
+		assert.Equal(t, "https://example.com", priorities[0].IconURL)
 		assert.Equal(t, "5", priorities[1].ID)
+		assert.Equal(t, "https://example2.com", priorities[1].IconURL)
 	})
 }
 

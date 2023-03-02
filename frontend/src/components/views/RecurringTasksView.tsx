@@ -14,7 +14,7 @@ import Spinner from '../atoms/Spinner'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
-import { SectionHeader } from '../molecules/Header'
+import { Header } from '../molecules/Header'
 import AddRecurringTask from '../molecules/recurring-tasks/AddRecurringTask'
 import RecurringTask from '../molecules/recurring-tasks/RecurringTask'
 import { RECURRING_TASK_SORT_AND_FILTER_CONFIG } from '../molecules/recurring-tasks/recurring-task.config'
@@ -62,7 +62,7 @@ const RecurringTasksView = () => {
         <>
             <Flex>
                 <ScrollableListTemplate>
-                    <SectionHeader sectionName="Recurring tasks" />
+                    <Header folderName="Recurring tasks" />
                     {!filteredRecurringTasks ? (
                         <Spinner />
                     ) : (
