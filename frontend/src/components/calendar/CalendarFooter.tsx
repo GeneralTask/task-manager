@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { usePreviewMode } from '../../hooks'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import GTButton from '../atoms/buttons/GTButton'
@@ -26,6 +27,7 @@ const TaskToCalContainer = styled.div`
 `
 
 const CalendarFooter = () => {
+    const { isPreviewMode } = usePreviewMode()
     const { calendarType } = useCalendarContext()
     return (
         <Container>
@@ -45,7 +47,11 @@ const CalendarFooter = () => {
                                     </Truncated>
                                 }
                                 icon={icons.square}
-                                iconColorHex={getCalendarColor(calendar?.color_id || '')}
+                                iconColorHex={
+                                    isPreviewMode
+                                        ? calendar?.color_background || ''
+                                        : getCalendarColor(calendar?.color_id || '')
+                                }
                                 asDiv
                                 isDropdown
                                 styleType="secondary"

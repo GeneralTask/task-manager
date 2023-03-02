@@ -117,7 +117,14 @@ const CalendarSettings = () => {
                                             )
                                         }
                                     />
-                                    <Icon icon={icons.square} colorHex={getCalendarColor(calendar.color_id)} />
+                                    <Icon
+                                        icon={icons.square}
+                                        colorHex={
+                                            isPreviewMode
+                                                ? calendar.color_background
+                                                : getCalendarColor(calendar.color_id)
+                                        }
+                                    />
                                     <BodySmall>{getCalendarName(account.account_id, calendar.title)}</BodySmall>
                                 </Calendar>
                             ))}
