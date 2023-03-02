@@ -18,7 +18,7 @@ import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
-import { SectionHeader } from '../molecules/Header'
+import { Header } from '../molecules/Header'
 import PullRequest from '../pull-requests/PullRequest'
 import { Repository, RepositoryName } from '../pull-requests/styles'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
@@ -95,7 +95,7 @@ const PullRequestsView = () => {
         <>
             <PullRequestsContainer>
                 <ScrollableListTemplate>
-                    <SectionHeader sectionName="GitHub Pull Requests" />
+                    <Header folderName="GitHub Pull Requests" />
                     {doesNeedRelinking && <ConnectIntegration type="github" reconnect />}
                     <MarginBottom4>
                         <SortAndFilterSelectors settings={sortAndFilterSettings} />

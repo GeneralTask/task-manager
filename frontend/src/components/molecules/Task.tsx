@@ -4,13 +4,14 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
+import { SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_FOLDER_ID } from '../../constants'
 import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
 import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
+import { useGetTasksV4 } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
 import { externalStatusIcons, icons, logos } from '../../styles/images'
-import { DropType, TTask } from '../../utils/types'
+import { DropType, TTaskV4 } from '../../utils/types'
 import Domino from '../atoms/Domino'
 import DueDate from '../atoms/DueDate'
 import Flex from '../atoms/Flex'
@@ -57,11 +58,10 @@ export const PositionedDomino = styled(Domino)`
 `
 
 interface TaskProps {
-    task: TTask
+    task: TTaskV4
     dragDisabled?: boolean
     dropType?: DropType
     index?: number
-    sectionId?: string
     sectionScrollingRef?: MutableRefObject<HTMLDivElement | null>
     isSelected: boolean
     link: string
@@ -76,7 +76,6 @@ const Task = ({
     dragDisabled,
     dropType = DropType.TASK,
     index,
-    sectionId,
     sectionScrollingRef,
     isSelected,
     link,
@@ -168,10 +167,10 @@ const Task = ({
     const [, drag, dragPreview] = useDrag(
         () => ({
             type: dropType,
-            item: { id: task.id, sectionId, task },
+            item: { id: task.id, sectionId: task.id_folder, task },
             canDrag: !dragDisabled,
         }),
-        [task, index, sectionId, dragDisabled]
+        [task, index, dragDisabled]
     )
 
     // hide default drag preview
@@ -181,9 +180,9 @@ const Task = ({
 
     const [isVisible, setIsVisible] = useState(true)
     const taskFadeOut = useCallback(() => {
-        if (sectionId !== DONE_SECTION_ID) setIsVisible(task.is_done)
+        if (task.id_folder) setIsVisible(task.is_done)
         onMarkTaskDone?.(task.id)
-    }, [task.is_done, sectionId, onMarkTaskDone])
+    }, [task.is_done, task.id_folder, onMarkTaskDone])
 
     const dueDate = DateTime.fromISO(task.due_date)
     const [contextMenuOpen, setContextMenuOpen] = useState(false)
@@ -197,8 +196,11 @@ const Task = ({
 
     const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(task.recurring_task_template_id)
 
+    const { data: allTasks } = useGetTasksV4()
+    const subtasks = allTasks?.filter((t) => t.id_parent === task.id && !t.is_deleted)
+
     return (
-        <TaskContextMenuWrapper task={task} sectionId={sectionId} onOpenChange={setContextMenuOpen}>
+        <TaskContextMenuWrapper task={task} onOpenChange={setContextMenuOpen}>
             <TaskTemplate
                 ref={elementRef}
                 isVisible={isVisible}
@@ -218,7 +220,7 @@ const Task = ({
                     {task.source?.name !== 'Jira' &&
                         (task.external_status && task.all_statuses ? (
                             <GTDropdownMenu
-                                disabled={sectionId === TRASH_SECTION_ID}
+                                disabled={task.id_folder === TRASH_FOLDER_ID}
                                 items={task.all_statuses.map((status) => ({
                                     label: status.state,
                                     onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
@@ -237,10 +239,10 @@ const Task = ({
                         ) : (
                             <MarkTaskDoneButton
                                 taskId={task.id}
-                                sectionId={sectionId}
+                                sectionId={task.id_folder}
                                 isDone={task.is_done}
                                 isSelected={isSelected}
-                                isDisabled={!!task.optimisticId || sectionId === TRASH_SECTION_ID}
+                                isDisabled={!!task.optimisticId || task.id_folder === TRASH_FOLDER_ID}
                                 onMarkComplete={taskFadeOut}
                                 optimsticId={task.optimisticId}
                             />
@@ -264,16 +266,16 @@ const Task = ({
                                     color={TASK_PRIORITIES[task.priority_normalized].color}
                                 />
                             )}
-                        {task.sub_tasks && task.sub_tasks.length > 0 && (
+                        {subtasks && subtasks.length > 0 && (
                             <Flex gap={Spacing._4}>
                                 <Icon icon={icons.subtask} />
-                                <Mini>{task.sub_tasks.length}</Mini>
+                                <Mini>{subtasks.length}</Mini>
                             </Flex>
                         )}
                         {meetingStartText ? (
                             <MeetingStartText isTextColored={isMeetingTextColored}>{meetingStartText}</MeetingStartText>
                         ) : (
-                            <Icon icon={logos[task.source.logo_v2]} />
+                            <Icon icon={logos[task.source.logo]} />
                         )}
                     </RightContainer>
                 </ItemContainer>

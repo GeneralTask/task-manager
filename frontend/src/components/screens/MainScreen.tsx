@@ -1,17 +1,21 @@
-import { Navigate, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
 import { DateTime } from 'luxon'
 import { OverviewContextProvider } from '../../context/OverviewContextProvider'
 import { useEventBanners, usePageFocus } from '../../hooks'
+import { useGetFolders } from '../../services/api/folders.hooks'
+import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
-import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
+import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
+import { useGetTasksV4 } from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { focusModeBackground, noteBackground } from '../../styles/images'
 import { CalendarContextProvider } from '../calendar/CalendarContext'
 import DragLayer from '../molecules/DragLayer'
 import DefaultTemplate from '../templates/DefaultTemplate'
 import DailyOverviewView from '../views/DailyOverviewView'
+import JiraView from '../views/JiraView'
 import LinearView from '../views/LinearView'
 import NoteListView from '../views/NoteListView'
 import PullRequestsView from '../views/PullRequestsView'
@@ -21,8 +25,10 @@ import TaskSection from '../views/TaskSectionView'
 
 const MainScreen = () => {
     const location = useLocation()
-    const { data: userInfo } = useGetUserInfo()
-    const { isLoading: isTaskSectionsLoading } = useGetTasks()
+    useGetUserInfo()
+    useGetTasksV4()
+    useGetFolders()
+    useGetOverviewViews()
     useFetchPullRequests()
     useFetchExternalTasks()
     useEventBanners(DateTime.now())
@@ -48,6 +54,8 @@ const MainScreen = () => {
                 return <LinearView />
             case 'slack':
                 return <SlackTasksView />
+            case 'jira':
+                return <JiraView />
             default:
                 return (
                     <OverviewContextProvider>
@@ -56,8 +64,6 @@ const MainScreen = () => {
                 )
         }
     }
-
-    if (!isTaskSectionsLoading && !userInfo?.agreed_to_terms) return <Navigate to="/tos-summary" />
 
     return (
         <CalendarContextProvider>

@@ -55,6 +55,10 @@ const AuthenticatedRoutes = () => {
                             <Route index element={<MainScreen />} />
                             <Route path=":slackTaskId" element={<MainScreen />} />
                         </Route>
+                        <Route path="jira" element={<Outlet />}>
+                            <Route index element={<MainScreen />} />
+                            <Route path=":jiraTaskId" element={<MainScreen />} />
+                        </Route>
                         <Route path={FOCUS_MODE_ROUTE} element={<Outlet />}>
                             <Route
                                 index
