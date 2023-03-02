@@ -109,26 +109,24 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
         )
     }
     const onMultiSelectFolderClick = (folderId: string) => {
-        const promises = selectedTaskIds.map((id) => {
-            return reorderTaskAsync({
-                id,
-                dropSectionId: folderId,
-                dragSectionId: task.id_folder,
-                orderingId: 1,
-            })
-        })
         clearSelectedTaskIds()
-        Promise.all(promises)
+        Promise.all(
+            selectedTaskIds.map((id) =>
+                reorderTaskAsync({
+                    id,
+                    dropSectionId: folderId,
+                    dragSectionId: task.id_folder,
+                    orderingId: 1,
+                })
+            )
+        )
     }
     const onSingleSetDueDateClick = (date: string) => {
         modifyTask({ id: task.id, dueDate: date }, task.optimisticId)
     }
     const onMultiSetDueDateClick = (date: string) => {
-        const promises = selectedTaskIds.map((id) => {
-            return modifyTask({ id, dueDate: date })
-        })
         clearSelectedTaskIds()
-        Promise.all(promises)
+        Promise.all(selectedTaskIds.map((id) => modifyTask({ id, dueDate: date })))
     }
     const onSingleSetPriorityClick = (priority: number) => {
         modifyTask({ id: task.id, priorityNormalized: priority }, task.optimisticId)
