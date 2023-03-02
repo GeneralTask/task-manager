@@ -2,7 +2,7 @@ import { ReactNode, useCallback, useEffect, useState } from 'react'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import { EVENT_UNDO_TIMEOUT, NO_TITLE } from '../../constants'
-import { useKeyboardShortcut, useNavigateToPullRequest, useNavigateToTask, useToast } from '../../hooks'
+import { useKeyboardShortcut, useNavigateToPullRequest, useNavigateToTask, usePreviewMode, useToast } from '../../hooks'
 import { useDeleteEvent, useGetCalendars } from '../../services/api/events.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -32,6 +32,7 @@ interface EventDetailPopoverProps {
     children: ReactNode
 }
 const EventDetailPopover = ({ event, date, hidePopover = false, children }: EventDetailPopoverProps) => {
+    const { isPreviewMode } = usePreviewMode()
     const toast = useToast()
     const [isOpen, setIsOpen] = useState(false)
     const { selectedEvent, setSelectedEvent } = useCalendarContext()
@@ -124,7 +125,14 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
             <EventTitle>{event.title || NO_TITLE}</EventTitle>
             {calendarAccount && calendar && (
                 <Flex gap={Spacing._8}>
-                    <Icon icon={icons.square} colorHex={getCalendarColor(event.color_id || calendar.color_id)} />
+                    <Icon
+                        icon={icons.square}
+                        colorHex={
+                            isPreviewMode
+                                ? calendar.color_background
+                                : getCalendarColor(event.color_id || calendar.color_id)
+                        }
+                    />
                     <Label>
                         {calendar.title && calendar.title !== calendarAccount.account_id
                             ? `${calendar.title} (${calendarAccount.account_id})`
