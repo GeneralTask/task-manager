@@ -9,7 +9,7 @@ const BannerContainer = styled.div<{ hasBorder: boolean }>`
     box-sizing: border-box;
     border: ${Border.stroke.medium} solid;
     border-color: ${(props) => (props.hasBorder ? Colors.legacyColors.secondary : 'transparent')};
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     display: flex;
     justify-content: space-between;
     align-items: center;

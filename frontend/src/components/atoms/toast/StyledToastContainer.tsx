@@ -40,7 +40,7 @@ const StyledToastContainer = styled(ToastContainer).attrs({
     --toastify-text-color-dark: ${Colors.text.white};
     .toast {
         box-shadow: ${Shadows.medium};
-        border-radius: ${Border.radius.small};
+        border-radius: ${Border.radius.medium};
         cursor: auto;
     }
     .toast-body {

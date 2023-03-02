@@ -5,7 +5,7 @@ import NoStyleButton from '../atoms/buttons/NoStyleButton'
 export const ViewContainer = styled.div`
     padding: ${Spacing._12};
     background-color: ${Colors.background.white};
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     margin: ${Spacing._16} 0;
     box-shadow: ${Shadows.light};
 `
@@ -20,7 +20,7 @@ export const ViewName = styled.div`
 `
 export const RemoveButton = styled(NoStyleButton)`
     padding: ${Spacing._8};
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     &:hover {
         background-color: ${Colors.background.dark};
     }
@@ -30,7 +30,7 @@ export const SelectedList = styled.div`
     align-items: center;
     width: 100%;
     box-sizing: border-box;
-    border-radius: ${Border.radius.mini};
+    border-radius: ${Border.radius.small};
     border: ${Border.stroke.medium} solid ${Colors.legacyColors.secondary};
     padding: ${Spacing._12};
     margin: ${Spacing._4} 0;

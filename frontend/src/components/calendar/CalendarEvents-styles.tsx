@@ -173,10 +173,10 @@ export const EventFill = styled.div<{
     box-shadow: ${Shadows.light};
     /* add opacity to background color */
     background-color: ${(props) => `${props.backgroundColorHex}1A`};
-    border-top-left-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
-    border-top-right-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
-    border-bottom-left-radius: ${(props) => (props.squareEnd ? '0' : Border.radius.mini)};
-    border-bottom-right-radius: ${(props) => (props.squareEnd ? '0' : Border.radius.mini)};
+    border-top-left-radius: ${(props) => (props.squareStart ? '0' : Border.radius.small)};
+    border-top-right-radius: ${(props) => (props.squareStart ? '0' : Border.radius.small)};
+    border-bottom-left-radius: ${(props) => (props.squareEnd ? '0' : Border.radius.small)};
+    border-bottom-right-radius: ${(props) => (props.squareEnd ? '0' : Border.radius.small)};
     ::before {
         content: '';
         background-color: ${Colors.background.white};
@@ -184,7 +184,7 @@ export const EventFill = styled.div<{
         width: 100%;
         height: 100%;
         z-index: -1;
-        border-radius: ${Border.radius.mini};
+        border-radius: ${Border.radius.small};
     }
 `
 export const CalendarDayHeader = styled.div`
@@ -199,7 +199,7 @@ export const CalendarDayHeader = styled.div`
     margin: 0 auto;
 `
 export const DayHeaderText = styled.div<{ isToday: boolean; isPreviewMode: boolean }>`
-    border-radius: ${Border.radius.mini};
+    border-radius: ${Border.radius.small};
     padding: ${Spacing._4} ${Spacing._8};
     color: ${(props) => (props.isToday ? Colors.text.white : Colors.text.black)};
     background-color: ${(props) =>
