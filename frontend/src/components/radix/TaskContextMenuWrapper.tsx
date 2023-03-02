@@ -61,6 +61,20 @@ const getSetDueDateMenuItem = (task: TTaskV4, setDate: (date: string) => void) =
     }
 }
 
+const getSetPriorityMenuItem = (task: TTaskV4, setPriority: (priority: number) => void) => {
+    return {
+        label: 'Set priority',
+        icon: icons.priority,
+        subItems: TASK_PRIORITIES.map((priority, val) => ({
+            label: priority.label,
+            icon: priority.icon,
+            selected: val === task.priority_normalized,
+            iconColor: priority.color,
+            onClick: () => setPriority(val),
+        })),
+    }
+}
+
 interface TaskContextMenuProps {
     task: TTaskV4
     children: React.ReactNode
@@ -116,21 +130,18 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
         clearSelectedTaskIds()
         Promise.all(promises)
     }
+    const onSingleSetPriorityClick = (priority: number) => {
+        modifyTask({ id: task.id, priorityNormalized: priority }, task.optimisticId)
+    }
+    const onMultiSetPriorityClick = (priority: number) => {
+        clearSelectedTaskIds()
+        Promise.all(selectedTaskIds.map((id) => modifyTask({ id, priorityNormalized: priority })))
+    }
 
     const contextMenuItems: GTMenuItem[] = [
         ...(task.id_folder && folders ? [getMoveFolderMenuItem(task, folders, onSingleSelectFolderClick)] : []),
         getSetDueDateMenuItem(task, onSingleSetDueDateClick),
-        {
-            label: 'Set priority',
-            icon: icons.priority,
-            subItems: TASK_PRIORITIES.map((priority, val) => ({
-                label: priority.label,
-                icon: priority.icon,
-                selected: val === task.priority_normalized,
-                iconColor: priority.color,
-                onClick: () => modifyTask({ id: task.id, priorityNormalized: val }, task.optimisticId),
-            })),
-        },
+        getSetPriorityMenuItem(task, onSingleSetPriorityClick),
         ...(!task.id_parent && !task.is_deleted && !task.is_done && task.source.name !== 'Jira'
             ? [
                   {
@@ -203,6 +214,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
     const multiSelectContextMenuItems: GTMenuItem[] = [
         ...(task.id_folder && folders ? [getMoveFolderMenuItem(task, folders, onMultiSelectFolderClick)] : []),
         getSetDueDateMenuItem(task, onMultiSetDueDateClick),
+        getSetPriorityMenuItem(task, onMultiSetPriorityClick),
     ]
     return (
         <>
