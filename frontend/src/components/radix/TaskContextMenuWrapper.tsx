@@ -46,7 +46,7 @@ const getMoveFolderMenuItem = (
     }
 }
 
-const getSetDueDateMenuItem = (task: TTaskV4, setDate: (date: string) => void) => {
+const getSetDueDateMenuItem = (task: TTaskV4, setDate: (date: string) => void): GTMenuItem => {
     return {
         label: 'Set due date',
         icon: icons.clock,
@@ -61,7 +61,7 @@ const getSetDueDateMenuItem = (task: TTaskV4, setDate: (date: string) => void) =
     }
 }
 
-const getSetPriorityMenuItem = (task: TTaskV4, setPriority: (priority: number) => void) => {
+const getSetPriorityMenuItem = (task: TTaskV4, setPriority: (priority: number) => void): GTMenuItem => {
     return {
         label: 'Set priority',
         icon: icons.priority,
@@ -72,6 +72,16 @@ const getSetPriorityMenuItem = (task: TTaskV4, setPriority: (priority: number) =
             iconColor: priority.color,
             onClick: () => setPriority(val),
         })),
+    }
+}
+
+const getDeleteMenuItem = (task: TTaskV4, deleteTask: () => void): GTMenuItem => {
+    return {
+        label: getDeleteLabel(task),
+        icon: icons.trash,
+        iconColor: 'red',
+        textColor: 'red',
+        onClick: deleteTask,
     }
 }
 
@@ -134,6 +144,13 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
     const onMultiSetPriorityClick = (priority: number) => {
         clearSelectedTaskIds()
         Promise.all(selectedTaskIds.map((id) => modifyTask({ id, priorityNormalized: priority })))
+    }
+    const onSingleDeleteClick = () => {
+        markTaskDoneOrDeleted({ id: task.id, isDeleted: !task.is_deleted }, task.optimisticId)
+    }
+    const onMultiDeleteClick = () => {
+        clearSelectedTaskIds()
+        Promise.all(selectedTaskIds.map((id) => markTaskDoneOrDeleted({ id, isDeleted: !task.is_deleted })))
     }
 
     const contextMenuItems: GTMenuItem[] = [
@@ -198,21 +215,14 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                   },
               ]
             : []),
-        {
-            label: getDeleteLabel(task),
-            icon: icons.trash,
-            iconColor: 'red',
-            textColor: 'red',
-            onClick: () => {
-                markTaskDoneOrDeleted({ id: task.id, isDeleted: !task.is_deleted }, task.optimisticId)
-            },
-        },
+        getDeleteMenuItem(task, onSingleDeleteClick),
     ]
 
     const multiSelectContextMenuItems: GTMenuItem[] = [
         ...(task.id_folder && folders ? [getMoveFolderMenuItem(task, folders, onMultiSelectFolderClick)] : []),
         getSetDueDateMenuItem(task, onMultiSetDueDateClick),
         getSetPriorityMenuItem(task, onMultiSetPriorityClick),
+        getDeleteMenuItem(task, onMultiDeleteClick),
     ]
     return (
         <>
