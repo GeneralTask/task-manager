@@ -1,15 +1,14 @@
 import { useLayoutEffect } from 'react'
 import styled from 'styled-components'
-import { DEFAULT_SECTION_ID } from '../../constants'
+import { DEFAULT_FOLDER_ID } from '../../constants'
 import useOverviewContext from '../../context/OverviewContextProvider'
 import useGetViewItems from '../../hooks/useGetViewItems'
-import useGetVisibleItemCount from '../../hooks/useGetVisibleItemCount'
+import useGetVisibleItemCount, { PAGE_SIZE } from '../../hooks/useGetVisibleItemCount'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { TLogoImage, icons, logos } from '../../styles/images'
 import { TOverviewView } from '../../utils/types'
 import GTAccordionHeader from './AccordionHeader'
 import AuthBanner from './AuthBanner'
-import { PAGE_SIZE } from './OverviewViewContainer'
 import { PaginateTextButton } from './styles'
 
 const AccordionContainer = styled.div`
@@ -39,7 +38,7 @@ const ListContent = styled.div`
 
 export const getOverviewAccordionHeaderIcon = (logo: TLogoImage, sectionId?: string) => {
     if (logo !== 'generaltask') return logos[logo]
-    return sectionId === DEFAULT_SECTION_ID ? icons.inbox : icons.folder
+    return sectionId === DEFAULT_FOLDER_ID ? icons.inbox : icons.folder
 }
 
 interface AccordionItemProps {
@@ -57,11 +56,11 @@ const AccordionItem = ({ list }: AccordionItemProps) => {
 
     useLayoutEffect(() => {
         //close if no view items
-        if (list.view_items.length === 0) setOpenListIds(openListIds.filter((id) => id !== list.id))
-    }, [list.view_items.length])
+        if (list.view_item_ids.length === 0) setOpenListIds(openListIds.filter((id) => id !== list.id))
+    }, [list.view_item_ids.length])
 
     const [visibleItemsCount, setVisibleItemsCount] = useGetVisibleItemCount(list, list.id)
-    const nextPageLength = Math.min(list.view_items.length - visibleItemsCount, PAGE_SIZE)
+    const nextPageLength = Math.min(list.view_item_ids.length - visibleItemsCount, PAGE_SIZE)
 
     return (
         <AccordionContainer>
@@ -73,7 +72,7 @@ const AccordionItem = ({ list }: AccordionItemProps) => {
                     {list.is_linked ? (
                         <>
                             <ViewItems view={list} visibleItemsCount={visibleItemsCount} hideHeader />
-                            {visibleItemsCount < list.view_items.length && (
+                            {visibleItemsCount < list.view_item_ids.length && (
                                 <PaginateTextButton
                                     onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}
                                 >

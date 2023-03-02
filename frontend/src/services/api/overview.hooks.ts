@@ -182,6 +182,7 @@ export const useAddView = () => {
                             is_reorderable: false,
                             logo: supportedView.logo,
                             view_items: [],
+                            view_item_ids: [],
                             sources: [],
                             is_linked: true,
                             has_tasks_completed_today: false,

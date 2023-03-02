@@ -22,7 +22,7 @@ interface OverviewViewProps {
 const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
     const { overviewViewId, overviewItemId } = useParams()
     const [visibleItemsCount, setVisibleItemsCount] = useState(0)
-    const nextPageLength = Math.min(view.view_items.length - visibleItemsCount, PAGE_SIZE)
+    const nextPageLength = Math.min(view.view_item_ids.length - visibleItemsCount, PAGE_SIZE)
 
     const ViewItems = useMemo(() => {
         if (view.optimisticId) {
@@ -52,15 +52,15 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
     useLayoutEffect(() => {
         setVisibleItemsCount(
             Math.max(
-                // Ensure that visibleItemsCount <= view.view_items.length, and that we do not decrease the number of visible items when selecting a new item
-                Math.min(visibleItemsCount, view.view_items.length),
-                // If view.view_items.length drops below PAGE_SIZE, set visibleItemsCount to view.view_items.length
-                Math.min(view.view_items.length, INITIAL_PAGE_SIZE),
+                // Ensure that visibleItemsCount <= view.view_item_ids.length, and that we do not decrease the number of visible items when selecting a new item
+                Math.min(visibleItemsCount, view.view_item_ids.length),
+                // If view.view_item_ids.length drops below PAGE_SIZE, set visibleItemsCount to view.view_item_ids.length
+                Math.min(view.view_item_ids.length, INITIAL_PAGE_SIZE),
                 // if the selected item is in this view, ensure it is visible
-                view.id === overviewViewId ? view.view_items.findIndex((item) => item.id === overviewItemId) + 1 : 0
+                view.id === overviewViewId ? view.view_item_ids.findIndex((id) => id === overviewItemId) + 1 : 0
             )
         )
-    }, [view.is_linked, view.view_items, overviewViewId, overviewItemId])
+    }, [view.is_linked, view.view_item_ids, overviewViewId, overviewItemId])
 
     const [, drag, dragPreview] = useDrag(() => ({
         type: DropType.OVERVIEW_VIEW_HEADER,
@@ -84,7 +84,7 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
                         hasBorder={true}
                     />
                 ))}
-            {visibleItemsCount < view.view_items.length && (
+            {visibleItemsCount < view.view_item_ids.length && (
                 <PaginateTextButton onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}>
                     View more ({nextPageLength})
                 </PaginateTextButton>

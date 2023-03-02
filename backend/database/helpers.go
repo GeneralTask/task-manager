@@ -611,6 +611,15 @@ func GetDeletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, er
 	return tasks, nil
 }
 
+func GetAllMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
+	return GetTasks(db, userID,
+		&[]bson.M{
+			{"is_meeting_preparation_task": true},
+		},
+		nil,
+	)
+}
+
 func GetMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
 	return GetTasks(db, userID,
 		&[]bson.M{
