@@ -108,9 +108,12 @@ const TaskSectionView = () => {
 
     const task = useMemo(() => {
         const subtask = allTasks?.find(({ id }) => id === params.subtaskId)
+        if (subtask) return subtask
         const task = allTasks?.find(({ id }) => id === params.task)
-        return subtask || task
-    }, [allTasks, params.task, params.subtaskId])
+        if (task) return task
+        const meetingTask = meetingPreparationTasks?.find(({ id }) => id === params.task)
+        return meetingTask
+    }, [allTasks, meetingPreparationTasks, params.task, params.subtaskId])
 
     const [taskIndex, setTaskIndex] = useState(0)
 
