@@ -27,7 +27,7 @@ type GoogleCalendarSource struct {
 	Google GoogleService
 }
 
-func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID primitive.ObjectID, accountID string, calendarID string) *database.CalendarEvent {
+func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID primitive.ObjectID, accountID string, calendarID string, colors *calendar.Colors) *database.CalendarEvent {
 	//exclude all day events which won't have a start time.
 	if len(event.Start.DateTime) == 0 {
 		return &database.CalendarEvent{}
@@ -70,6 +70,10 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 		CallLogo:        conferenceCall.Logo,
 		CallPlatform:    conferenceCall.Platform,
 	}
+	if colors != nil {
+		dbEvent.ColorBackground = colors.Calendar[event.ColorId].Background
+		dbEvent.ColorForeground = colors.Calendar[event.ColorId].Foreground
+	}
 
 	dbEvent, err := database.UpdateOrCreateCalendarEvent(
 		db,
@@ -89,7 +93,7 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 	return dbEvent
 }
 
-func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar.Service, db *mongo.Database, userID primitive.ObjectID, accountID string, calendarId string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar.Service, db *mongo.Database, userID primitive.ObjectID, accountID string, calendarId string, startTime time.Time, endTime time.Time, result chan<- CalendarResult, colors *calendar.Colors) {
 	calendarResponse, err := calendarService.Events.
 		List(calendarId).
 		TimeMin(startTime.Format(time.RFC3339)).
@@ -111,7 +115,7 @@ func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar
 
 	var events []*database.CalendarEvent
 	for _, event := range calendarResponse.Items {
-		dbEvent := processAndStoreEvent(event, db, userID, accountID, calendarId)
+		dbEvent := processAndStoreEvent(event, db, userID, accountID, calendarId, colors)
 		if dbEvent != nil && *dbEvent != (database.CalendarEvent{}) {
 			events = append(events, dbEvent)
 		}
@@ -144,11 +148,16 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		}
 	}
 
+	colors, err := calendarService.Colors.Get().Do()
+	if err != nil {
+		log.Error().Err(err).Msg("could not get color mapping")
+	}
+
 	// If we can't fetch the calendar list, we try fetching just the primary calendar
 	if !fetchAllCalendars {
 		log.Debug().Err(err).Msgf("could not fetch calendar list for accountID: %s", accountID)
 		eventChannel := make(chan CalendarResult)
-		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, "primary", startTime, endTime, eventChannel)
+		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, "primary", startTime, endTime, eventChannel, colors)
 		eventResult := <-eventChannel
 		if eventResult.Error != nil {
 			result <- emptyCalendarResult(errors.New("failed to fetch events"))
@@ -170,13 +179,6 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		return
 	}
 
-	hasColors := true
-	colors, err := calendarService.Colors.Get().Do()
-	if err != nil {
-		log.Error().Err(err).Msg("could not get color mapping")
-		hasColors = false
-	}
-
 	var calendars []database.Calendar
 	eventsChannels := []chan CalendarResult{}
 	for _, calendar := range calendarList.Items {
@@ -186,13 +188,13 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 			ColorID:    calendar.ColorId,
 			Title:      calendar.Summary,
 		}
-		if hasColors {
+		if colors != nil {
 			cal.ColorBackground = colors.Calendar[calendar.ColorId].Background
 			cal.ColorForeground = colors.Calendar[calendar.ColorId].Foreground
 		}
 		calendars = append(calendars, cal)
 		eventChannel := make(chan CalendarResult)
-		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, calendar.Id, startTime, endTime, eventChannel)
+		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, calendar.Id, startTime, endTime, eventChannel, colors)
 		eventsChannels = append(eventsChannels, eventChannel)
 	}
 	for _, eventChannel := range eventsChannels {
