@@ -6,7 +6,7 @@ import Log from '../../services/api/log'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
 import { externalStatusIcons } from '../../styles/images'
-import { DropType, TTask } from '../../utils/types'
+import { DropType, TTaskV4 } from '../../utils/types'
 import CommentCount from '../atoms/CommentCount'
 import Domino from '../atoms/Domino'
 import SelectableContainer, { EdgeHighlight } from '../atoms/SelectableContainer'
@@ -48,7 +48,7 @@ const RightContainer = styled.div`
 `
 
 interface LinearTaskProps {
-    task: TTask
+    task: TTaskV4
 }
 const LinearTask = ({ task }: LinearTaskProps) => {
     const navigate = useNavigate()
@@ -101,7 +101,6 @@ const LinearTask = ({ task }: LinearTaskProps) => {
                             }))}
                             trigger={
                                 <GTButtonHack
-                                    value={status}
                                     icon={externalStatusIcons[task.external_status.type]}
                                     size="small"
                                     styleType="simple"

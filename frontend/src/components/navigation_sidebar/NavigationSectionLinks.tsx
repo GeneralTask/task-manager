@@ -3,13 +3,12 @@ import 'react-loading-skeleton/dist/skeleton.css'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
-import { DEFAULT_SECTION_ID } from '../../constants'
+import { DEFAULT_FOLDER_ID } from '../../constants'
 import { useKeyboardShortcut } from '../../hooks'
-import { useAddTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
-import { useGetTasks } from '../../services/api/tasks.hooks'
+import { useAddFolder, useGetFolders, useModifyFolder } from '../../services/api/folders.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
-import { DropItem, DropType, TTaskSection } from '../../utils/types'
+import { DropItem, DropType, TTaskFolder } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import NoStyleInput from '../atoms/NoStyleInput'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
@@ -44,10 +43,10 @@ const InputContainer = styled.div`
 const NavigationSectionLinks = () => {
     const [isAddSectionInputVisible, setIsAddSectionInputVisible] = useState(false)
     const [sectionName, setSectionName] = useState('')
-    const { mutate: addTaskSection } = useAddTaskSection()
-    const { mutate: modifyTaskSection } = useModifyTaskSection()
+    const { mutate: addFolder } = useAddFolder()
+    const { mutate: modifyFolder } = useModifyFolder()
 
-    const { data: folders, isLoading: isFoldersLoading } = useGetTasks()
+    const { data: folders, isLoading: isFoldersLoading } = useGetFolders()
     const { section: sectionId } = useParams()
 
     const onKeyChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,7 +56,7 @@ const NavigationSectionLinks = () => {
         e.stopPropagation()
         if (e.key === 'Enter' && sectionName.trim() !== '') {
             setSectionName('')
-            addTaskSection({ optimisticId: uuidv4(), name: sectionName, id_ordering: folders?.length })
+            addFolder({ optimisticId: uuidv4(), name: sectionName, id_ordering: folders?.length })
             setIsAddSectionInputVisible(false)
         } else if (e.key === 'Escape' && inputRef.current) {
             setSectionName('')
@@ -66,7 +65,7 @@ const NavigationSectionLinks = () => {
     }
     const onBlurHandler = () => {
         if (sectionName.trim() !== '') {
-            addTaskSection({ optimisticId: uuidv4(), name: sectionName, id_ordering: folders?.length })
+            addFolder({ optimisticId: uuidv4(), name: sectionName, id_ordering: folders?.length })
         }
         setIsAddSectionInputVisible(false)
         setSectionName('')
@@ -101,7 +100,7 @@ const NavigationSectionLinks = () => {
     }, [])
 
     const handleReorder = useCallback((item: DropItem, dropIndex: number) => {
-        modifyTaskSection(
+        modifyFolder(
             {
                 id: item.id,
                 id_ordering: dropIndex,
@@ -110,12 +109,12 @@ const NavigationSectionLinks = () => {
         )
     }, [])
 
-    const defaultFolder = folders?.find((section) => section.id === DEFAULT_SECTION_ID)
+    const defaultFolder = folders?.find((section) => section.id === DEFAULT_FOLDER_ID)
     const doneFolder = folders?.find((section) => section.is_done)
     const trashFolder = folders?.find((section) => section.is_trash)
 
     // Logic for updating section name from navigation view
-    const [sectionBeingEdited, setSectionBeingEdited] = useState<TTaskSection | null>(null)
+    const [sectionBeingEdited, setSectionBeingEdited] = useState<TTaskFolder | null>(null)
     const [updatedSectionName, setUpdatedSectionName] = useState<string>('')
     const ref = useRef<HTMLDivElement>(null)
 
@@ -125,7 +124,7 @@ const NavigationSectionLinks = () => {
         if (e.key === 'Enter' && updatedSectionName.trim() !== '') {
             setSectionBeingEdited(null)
             setUpdatedSectionName('')
-            modifyTaskSection(
+            modifyFolder(
                 {
                     id: sectionBeingEdited.id,
                     name: updatedSectionName,
@@ -156,14 +155,14 @@ const NavigationSectionLinks = () => {
                         title={defaultFolder.name}
                         icon={icons.inbox}
                         isCurrentPage={sectionId === defaultFolder.id}
-                        taskSection={defaultFolder}
-                        count={defaultFolder.tasks.length}
+                        taskFolder={defaultFolder}
+                        count={defaultFolder.task_ids.length}
                         droppable
                     />
                 </Tip>
             )}
             {folders
-                ?.filter((section) => section.id !== DEFAULT_SECTION_ID && !section.is_done && !section.is_trash)
+                ?.filter((section) => section.id !== DEFAULT_FOLDER_ID && !section.is_done && !section.is_trash)
                 .map((section, index) =>
                     sectionBeingEdited?.id !== section.id ? (
                         <ReorderDropContainer
@@ -173,10 +172,10 @@ const NavigationSectionLinks = () => {
                             onReorder={handleReorder}
                         >
                             <NavigationContextMenuWrapper
-                                section={section}
-                                setSectionBeingEdited={(section) => {
-                                    setUpdatedSectionName(section.name)
-                                    setSectionBeingEdited(section)
+                                folder={section}
+                                setSectionBeingEdited={(folder) => {
+                                    setUpdatedSectionName(folder.name)
+                                    setSectionBeingEdited(folder)
                                 }}
                             >
                                 <NavigationLink
@@ -184,8 +183,8 @@ const NavigationSectionLinks = () => {
                                     title={section.name}
                                     icon={icons.folder}
                                     isCurrentPage={sectionId === section.id}
-                                    taskSection={section}
-                                    count={section.tasks.length}
+                                    taskFolder={section}
+                                    count={section.task_ids.length}
                                     draggable
                                     droppable
                                 />
@@ -249,8 +248,8 @@ const NavigationSectionLinks = () => {
                                 title={doneFolder.name}
                                 icon={icons.checkbox_checked}
                                 isCurrentPage={sectionId === doneFolder.id}
-                                count={doneFolder.tasks.length}
-                                taskSection={doneFolder}
+                                count={doneFolder.task_ids.length}
+                                taskFolder={doneFolder}
                                 droppable
                             />
                         )}
@@ -260,7 +259,7 @@ const NavigationSectionLinks = () => {
                                 title={trashFolder.name}
                                 icon={icons.trash}
                                 isCurrentPage={sectionId === trashFolder.id}
-                                taskSection={trashFolder}
+                                taskFolder={trashFolder}
                                 droppable
                             />
                         )}

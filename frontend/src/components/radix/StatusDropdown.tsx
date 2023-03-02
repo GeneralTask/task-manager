@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { externalStatusIcons } from '../../styles/images'
-import { TTask } from '../../utils/types'
+import { TTaskV4 } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
 import GTDropdownMenu from './GTDropdownMenu'
 
 interface StatusDropdownProps {
-    task: TTask
+    task: TTaskV4
     disabled?: boolean
 }
 

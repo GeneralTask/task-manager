@@ -7,7 +7,7 @@ export const { REACT_APP_API_BASE_URL, REACT_APP_FRONTEND_BASE_URL, REACT_APP_NO
     getEnvVars()
 
 // API Constants
-export const TASK_SECTION_DEFAULT_ID = '-1'
+export const TASK_FOLDER_DEFAULT_ID = '-1'
 export const AUTHORIZATION_COOKE = 'authToken'
 export const MESSAGE_TYPE_DM = 'directmessage'
 
@@ -56,9 +56,9 @@ export const GOOGLE_AUTH_ROUTE = 'link/google'
 
 export const NO_TITLE = '(no title)'
 export const EMPTY_MONGO_OBJECT_ID = '000000000000000000000000'
-export const DEFAULT_SECTION_ID = '000000000000000000000001'
-export const DONE_SECTION_ID = '000000000000000000000004'
-export const TRASH_SECTION_ID = '000000000000000000000005'
+export const DEFAULT_FOLDER_ID = '000000000000000000000001'
+export const DONE_FOLDER_ID = '000000000000000000000004'
+export const TRASH_FOLDER_ID = '000000000000000000000005'
 
 export const TASK_INBOX_NAME = 'Task Inbox'
 export const TRASH_FOLDER_NAME = 'Trash'
