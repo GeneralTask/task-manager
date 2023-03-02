@@ -1,3 +1,4 @@
+// deprecated
 export const legacyColors = {
     purple: '#5634CF',
     secondary: '#EEEBFA',
@@ -5,6 +6,7 @@ export const legacyColors = {
     blue: '#405EFB',
 }
 
+// deprecated
 export const icon = {
     white: '#FFFFFF',
     gray: '#717179',
@@ -18,10 +20,11 @@ export const icon = {
 }
 export type TIconColor = keyof typeof icon
 
+// deprecated
 export const button = {
     primary: {
         default: '#5634CF',
-        hover: `linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), ${'#5634CF'}`,
+        hover: 'linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), #5634CF',
         active_text: '#DADADA',
     },
     secondary: {
@@ -31,6 +34,7 @@ export const button = {
     },
 }
 
+// deprecated
 export const status = {
     red: { default: '#E24858', light: '#F6C8CD' },
     yellow: { default: '#FFBA0D', light: '#FFEAB6' },
@@ -51,6 +55,7 @@ export const background = {
     border: '#E4E4E7',
     hover: '#D4D4D8',
 
+    // deprecated
     light: '#FBFBFB',
     medium: '#F0F3F7',
     dark: '#DADADA',
@@ -63,6 +68,7 @@ export const text = {
     base: '#3F3F46',
     muted: '#71717A',
 
+    // deprecated
     black: '#000000',
     light: '#717179',
     white: '#FFFFFF',
