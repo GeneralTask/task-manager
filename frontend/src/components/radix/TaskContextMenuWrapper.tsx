@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_FOLDER_ID, EMPTY_MONGO_OBJECT_ID, TASK_PRIORITIES } from '../../constants'
+import useSelectionContext from '../../context/SelectionContextProvider'
 import { useGetFolders } from '../../services/api/folders.hooks'
 import {
     useCreateTask,
@@ -11,7 +12,7 @@ import {
     useReorderTask,
 } from '../../services/api/tasks.hooks'
 import { externalStatusIcons, icons } from '../../styles/images'
-import { TTaskV4 } from '../../utils/types'
+import { TTaskFolder, TTaskV4 } from '../../utils/types'
 import GTDatePicker from '../molecules/GTDatePicker'
 import RecurringTaskTemplateModal from '../molecules/recurring-tasks/RecurringTaskTemplateModal'
 import GTContextMenu from './GTContextMenu'
@@ -24,6 +25,27 @@ const getDeleteLabel = (task: TTaskV4) => {
     return 'Delete task'
 }
 
+const getMoveFolderMenuItem = (
+    task: TTaskV4,
+    folders: TTaskFolder[],
+    onFolderClick: (folderId: string) => void
+): GTMenuItem => {
+    return {
+        label: 'Move to folder',
+        icon: icons.folder,
+        subItems: [
+            ...folders
+                .filter((f) => !f.is_done && !f.is_trash)
+                .map((f) => ({
+                    label: f.name,
+                    icon: f.id === DEFAULT_FOLDER_ID ? icons.inbox : icons.folder,
+                    selected: f.id === task.id_folder,
+                    onClick: () => onFolderClick(f.id),
+                })),
+        ],
+    }
+}
+
 interface TaskContextMenuProps {
     task: TTaskV4
     children: React.ReactNode
@@ -33,10 +55,11 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
     const { data: allTasks } = useGetTasksV4(false)
     const { data: folders } = useGetFolders(false)
     const { mutate: createTask } = useCreateTask()
-    const { mutate: reorderTask } = useReorderTask()
-    const { mutate: modifyTask } = useModifyTask()
-    const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
+    const { mutate: reorderTask, mutateAsync: reorderTaskAsync } = useReorderTask(false)
+    const { mutate: modifyTask } = useModifyTask(false)
+    const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted(false)
     const [isRecurringTaskTemplateModalOpen, setIsRecurringTaskTemplateModalOpen] = useState(false)
+    const { inMultiSelectMode, selectedTaskIds, clearSelectedTaskIds } = useSelectionContext()
 
     const parentTask = allTasks?.find((t) => t.id === task.id_parent)
 
@@ -45,37 +68,31 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
         (!task.recurring_task_template_id || task.recurring_task_template_id === EMPTY_MONGO_OBJECT_ID) && // and not already be a recurring task
         !parentTask
 
+    const onSingleSelectFolderClick = (folderId: string) => {
+        reorderTask(
+            {
+                id: task.id,
+                dropSectionId: folderId,
+                dragSectionId: task.id_folder,
+                orderingId: 1,
+            },
+            task.optimisticId
+        )
+    }
+    const onMultiSelectFolderClick = (folderId: string) => {
+        const promises = selectedTaskIds.map((id) => {
+            return reorderTaskAsync({
+                id,
+                dropSectionId: folderId,
+                dragSectionId: task.id_folder,
+                orderingId: 1,
+            })
+        })
+        clearSelectedTaskIds()
+        Promise.all(promises)
+    }
     const contextMenuItems: GTMenuItem[] = [
-        ...(task.id_folder
-            ? [
-                  {
-                      label: 'Move to folder',
-                      icon: icons.folder,
-                      subItems: folders
-                          ? [
-                                ...folders
-                                    .filter((folder) => !folder.is_done && !folder.is_trash)
-                                    .map((folder) => ({
-                                        label: folder.name,
-                                        icon: folder.id === DEFAULT_FOLDER_ID ? icons.inbox : icons.folder,
-                                        selected: folder.id === task.id_folder,
-                                        onClick: () => {
-                                            reorderTask(
-                                                {
-                                                    id: task.id,
-                                                    dropSectionId: folder.id,
-                                                    dragSectionId: task.id_folder,
-                                                    orderingId: 1,
-                                                },
-                                                task.optimisticId
-                                            )
-                                        },
-                                    })),
-                            ]
-                          : [],
-                  },
-              ]
-            : []),
+        ...(task.id_folder && folders ? [getMoveFolderMenuItem(task, folders, onSingleSelectFolderClick)] : []),
         {
             label: 'Set due date',
             icon: icons.clock,
@@ -171,9 +188,17 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
             },
         },
     ]
+
+    const multiSelectContextMenuItems: GTMenuItem[] = [
+        ...(task.id_folder && folders ? [getMoveFolderMenuItem(task, folders, onMultiSelectFolderClick)] : []),
+    ]
     return (
         <>
-            <GTContextMenu items={contextMenuItems} trigger={children} onOpenChange={onOpenChange} />
+            <GTContextMenu
+                items={inMultiSelectMode && !task.id_parent ? multiSelectContextMenuItems : contextMenuItems}
+                trigger={children}
+                onOpenChange={onOpenChange}
+            />
             {isRecurringTaskTemplateModalOpen && (
                 <RecurringTaskTemplateModal
                     initialTask={task}
