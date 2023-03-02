@@ -4,13 +4,13 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_FOLDER_ID } from '../../constants'
+import { SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
 import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
-import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
+import { useMarkTaskDoneOrDeleted } from '../../services/api/tasks.hooks'
 import { useGetTasksV4 } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
-import { externalStatusIcons, icons, logos } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import { DropType, TTaskV4 } from '../../utils/types'
 import Domino from '../atoms/Domino'
 import DueDate from '../atoms/DueDate'
@@ -22,8 +22,8 @@ import GTButton from '../atoms/buttons/GTButton'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
 import { Mini } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
-import GTDropdownMenu from '../radix/GTDropdownMenu'
 import JiraPriorityDropdown from '../radix/JiraPriorityDropdown'
+import StatusDropdown from '../radix/StatusDropdown'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
 import Tip from '../radix/Tip'
 import ItemContainer from './ItemContainer'
@@ -87,7 +87,6 @@ const Task = ({
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
     const [isHovered, setIsHovered] = useState(false)
-    const { mutate: modifyTask } = useModifyTask()
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
     const [isMeetingTextColored, setIsMeetingTextColor] = useState<boolean>(false)
     const { meeting_preparation_params } = task
@@ -217,36 +216,19 @@ const Task = ({
                             <Domino isVisible={isHovered && !dragDisabled} />
                         )}
                     </MarginRight>
-                    {task.source?.name !== 'Jira' &&
-                        (task.external_status && task.all_statuses ? (
-                            <GTDropdownMenu
-                                disabled={task.id_folder === TRASH_FOLDER_ID}
-                                items={task.all_statuses.map((status) => ({
-                                    label: status.state,
-                                    onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
-                                    icon: externalStatusIcons[status.type],
-                                    selected: status.state === task.external_status?.state,
-                                }))}
-                                trigger={
-                                    <GTButtonHack
-                                        icon={externalStatusIcons[task.external_status.type]}
-                                        size="small"
-                                        styleType="simple"
-                                        asDiv
-                                    />
-                                }
-                            />
-                        ) : (
-                            <MarkTaskDoneButton
-                                taskId={task.id}
-                                sectionId={task.id_folder}
-                                isDone={task.is_done}
-                                isSelected={isSelected}
-                                isDisabled={!!task.optimisticId || task.id_folder === TRASH_FOLDER_ID}
-                                onMarkComplete={taskFadeOut}
-                                optimsticId={task.optimisticId}
-                            />
-                        ))}
+                    {task.external_status && task.all_statuses ? (
+                        <StatusDropdown task={task} condensedTrigger />
+                    ) : (
+                        <MarkTaskDoneButton
+                            taskId={task.id}
+                            sectionId={task.id_folder}
+                            isDone={task.is_done}
+                            isSelected={isSelected}
+                            isDisabled={!!task.optimisticId || task.is_deleted}
+                            onMarkComplete={taskFadeOut}
+                            optimsticId={task.optimisticId}
+                        />
+                    )}
                     <Title title={task.title}>{task.title}</Title>
                     <RightContainer>
                         {recurringTaskTemplate && <Icon icon={icons.arrows_repeat} />}
