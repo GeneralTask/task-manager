@@ -99,7 +99,7 @@ const CalendarView = ({
         isFocusMode
     )
     useKeyboardShortcut(
-        'showDailyCalendar',
+        'toggleDailyCalendar',
         useCallback(() => {
             if (calendarType === 'day' && !isCollapsed) {
                 setIsCollapsed(true)
@@ -112,7 +112,7 @@ const CalendarView = ({
         isFocusMode
     )
     useKeyboardShortcut(
-        'showWeeklyCalendar',
+        'toggleWeeklyCalendar',
         useCallback(() => {
             if (calendarType === 'week' && !isCollapsed) {
                 setIsCollapsed(true)
