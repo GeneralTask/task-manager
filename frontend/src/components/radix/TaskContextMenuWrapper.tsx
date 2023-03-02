@@ -137,7 +137,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
             ],
         },
         getPriorityOption(task),
-        ...(!task.id_parent && !task.is_deleted && !task.is_done && task.source.name !== 'Jira'
+        ...(!task.id_parent && !task.is_deleted && !task.is_done
             ? [
                   {
                       label: 'Duplicate task',
