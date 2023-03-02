@@ -31,7 +31,7 @@ const CommandDialog = styled(Command.Dialog)`
     transform: translateX(-50%);
     width: ${COMMAND_PALETTE_WIDTH};
     background-color: ${Colors.background.white};
-    box-shadow: ${Shadows.medium};
+    box-shadow: ${Shadows.deprecated_medium};
     border-radius: ${Border.radius.medium};
     padding-bottom: ${Spacing._4};
     z-index: 1500; // should appear over modals

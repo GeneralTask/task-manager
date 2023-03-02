@@ -13,11 +13,11 @@ const PrimaryButtonStyles = css`
     background-color: ${Colors.button.primary.default};
     color: ${Colors.text.white};
     &:hover {
-        box-shadow: ${Shadows.button.hover};
+        box-shadow: ${Shadows.deprecated_button.hover};
         background-color: ${Colors.button.primary.hover};
     }
     &:active {
-        box-shadow: ${Shadows.button.active};
+        box-shadow: ${Shadows.deprecated_button.active};
         color: ${Colors.button.primary.active_text};
     }
 `
@@ -25,11 +25,11 @@ const SecondaryButtonStyles = css`
     background-color: ${Colors.button.secondary.default};
     color: ${Colors.text.black};
     &:hover {
-        box-shadow: ${Shadows.button.hover};
+        box-shadow: ${Shadows.deprecated_button.hover};
         background-color: ${Colors.button.secondary.hover};
     }
     &:active {
-        box-shadow: ${Shadows.button.active};
+        box-shadow: ${Shadows.deprecated_button.active};
         color: ${Colors.button.secondary.active_text};
     }
 `
@@ -74,7 +74,7 @@ const Button = styled(NoStyleButton)<{
     border-radius: ${Border.radius.small};
     text-align: center;
     width: ${({ fitContent }) => (fitContent ? 'fit-content' : '100%')};
-    ${(props) => props.styleType !== 'simple' && `box-shadow: ${Shadows.button.default};`};
+    ${(props) => props.styleType !== 'simple' && `box-shadow: ${Shadows.deprecated_button.default};`};
     white-space: ${(props) => (props.wrapText ? 'normal' : 'nowrap')};
     overflow: hidden;
     text-overflow: ellipsis;
@@ -93,7 +93,7 @@ const Button = styled(NoStyleButton)<{
         ${(props) =>
             props.disabled &&
             (props.styleType === 'primary' || props.styleType === 'secondary') &&
-            `box-shadow: ${Shadows.button.default}`};
+            `box-shadow: ${Shadows.deprecated_button.default}`};
         ${(props) =>
             props.disabled &&
             `background-color: ${

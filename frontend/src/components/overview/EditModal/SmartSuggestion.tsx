@@ -30,7 +30,7 @@ const ListContainer = styled.div`
     height: fit-content;
     flex: 1;
     background-color: ${Colors.background.white};
-    box-shadow: ${Shadows.button.default};
+    box-shadow: ${Shadows.deprecated_button.default};
     border-radius: ${Border.radius.small};
 `
 const Reasoning = styled.span`
