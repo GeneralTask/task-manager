@@ -69,7 +69,7 @@ const DragLayer = () => {
                     {itemType === DropType.TASK ? (
                         <Task task={item.task} dragDisabled isSelected link="" />
                     ) : (
-                        <Subtask parentTask={item} subtask={item.task} />
+                        <Subtask subtask={item.task} />
                     )}
                 </DragItem>
             </DragOverlay>
