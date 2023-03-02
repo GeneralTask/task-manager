@@ -264,6 +264,7 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 					Name:               priority.Name,
 					Color:              priority.Color,
 					PriorityNormalized: priorityNormalized,
+					IconURL:            priority.IconURL,
 				}
 				if priority.ID == jiraTask.Fields.Priority.ID {
 					task.ExternalPriority = &priorityObject
