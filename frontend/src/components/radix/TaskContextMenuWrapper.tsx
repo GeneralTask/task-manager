@@ -32,8 +32,8 @@ interface TaskContextMenuProps {
 const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMenuProps) => {
     const { data: allTasks } = useGetTasksV4(false)
     const { data: folders } = useGetFolders(false)
-    const { mutate: createTask } = useCreateTask()
     const { mutate: reorderTask } = useReorderTask()
+    const { mutate: createTask } = useCreateTask()
     const { mutate: modifyTask } = useModifyTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const [isRecurringTaskTemplateModalOpen, setIsRecurringTaskTemplateModalOpen] = useState(false)
@@ -44,6 +44,50 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
         task.source?.name === 'General Task' && // must be a native task
         (!task.recurring_task_template_id || task.recurring_task_template_id === EMPTY_MONGO_OBJECT_ID) && // and not already be a recurring task
         !parentTask
+
+    const getPriorityOption = (task: TTaskV4): GTMenuItem => {
+        if (task.all_priorities) {
+            return {
+                label: 'Set priority',
+                icon: icons.priority,
+                subItems: task.all_priorities.map((priority) => ({
+                    label: priority.name,
+                    icon: priority.icon_url,
+                    selected: priority.priority_normalized === task.priority_normalized,
+                    onClick: () => {
+                        if (parentTask && task) {
+                            modifyTask(
+                                {
+                                    id: parentTask.id,
+                                    external_priority_id: priority.external_id,
+                                },
+                                task.optimisticId
+                            )
+                        } else {
+                            modifyTask({ id: task.id, external_priority_id: priority.external_id }, task.optimisticId)
+                        }
+                    },
+                })),
+            }
+        }
+        return {
+            label: 'Set priority',
+            icon: icons.priority,
+            subItems: TASK_PRIORITIES.map((priority, val) => ({
+                label: priority.label,
+                icon: priority.icon,
+                selected: val === task.priority_normalized,
+                iconColor: priority.color,
+                onClick: () => {
+                    if (parentTask && task) {
+                        modifyTask({ id: parentTask.id, priorityNormalized: val }, task.optimisticId)
+                    } else {
+                        modifyTask({ id: task.id, priorityNormalized: val }, task.optimisticId)
+                    }
+                },
+            })),
+        }
+    }
 
     const contextMenuItems: GTMenuItem[] = [
         ...(task.id_folder
@@ -92,18 +136,8 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                 },
             ],
         },
-        {
-            label: 'Set priority',
-            icon: icons.priority,
-            subItems: TASK_PRIORITIES.map((priority, val) => ({
-                label: priority.label,
-                icon: priority.icon,
-                selected: val === task.priority_normalized,
-                iconColor: priority.color,
-                onClick: () => modifyTask({ id: task.id, priorityNormalized: val }, task.optimisticId),
-            })),
-        },
-        ...(!task.id_parent && !task.is_deleted && !task.is_done && task.source.name !== 'Jira'
+        getPriorityOption(task),
+        ...(!task.id_parent && !task.is_deleted && !task.is_done
             ? [
                   {
                       label: 'Duplicate task',
