@@ -121,14 +121,14 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         isSelected={selectedEvent?.id === props.event.id}
                         backgroundColorHex={
                             isPreviewMode
-                                ? calendar?.color_background || ''
+                                ? props.event.color_background || calendar?.color_background || ''
                                 : getCalendarColor(props.event.color_id || calendar?.color_id || '')
                         }
                     />
                     <EdgeHighlight
                         color={
                             isPreviewMode
-                                ? calendar?.color_background || ''
+                                ? props.event.color_background || calendar?.color_background || ''
                                 : getCalendarColor(props.event.color_id || calendar?.color_id || '')
                         }
                         squareStart={startedBeforeToday}
