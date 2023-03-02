@@ -46,6 +46,21 @@ const getMoveFolderMenuItem = (
     }
 }
 
+const getSetDueDateMenuItem = (task: TTaskV4, setDate: (date: string) => void) => {
+    return {
+        label: 'Set due date',
+        icon: icons.clock,
+        subItems: [
+            {
+                label: 'Calendar',
+                renderer: () => (
+                    <GTDatePicker initialDate={DateTime.fromISO(task.due_date)} setDate={setDate} onlyCalendar />
+                ),
+            },
+        ],
+    }
+}
+
 interface TaskContextMenuProps {
     task: TTaskV4
     children: React.ReactNode
@@ -91,24 +106,20 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
         clearSelectedTaskIds()
         Promise.all(promises)
     }
+    const onSingleSetDueDateClick = (date: string) => {
+        modifyTask({ id: task.id, dueDate: date }, task.optimisticId)
+    }
+    const onMultiSetDueDateClick = (date: string) => {
+        const promises = selectedTaskIds.map((id) => {
+            return modifyTask({ id, dueDate: date })
+        })
+        clearSelectedTaskIds()
+        Promise.all(promises)
+    }
+
     const contextMenuItems: GTMenuItem[] = [
         ...(task.id_folder && folders ? [getMoveFolderMenuItem(task, folders, onSingleSelectFolderClick)] : []),
-        {
-            label: 'Set due date',
-            icon: icons.clock,
-            subItems: [
-                {
-                    label: 'Calendar',
-                    renderer: () => (
-                        <GTDatePicker
-                            initialDate={DateTime.fromISO(task.due_date)}
-                            setDate={(date) => modifyTask({ id: task.id, dueDate: date }, task.optimisticId)}
-                            onlyCalendar
-                        />
-                    ),
-                },
-            ],
-        },
+        getSetDueDateMenuItem(task, onSingleSetDueDateClick),
         {
             label: 'Set priority',
             icon: icons.priority,
@@ -191,6 +202,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
 
     const multiSelectContextMenuItems: GTMenuItem[] = [
         ...(task.id_folder && folders ? [getMoveFolderMenuItem(task, folders, onMultiSelectFolderClick)] : []),
+        getSetDueDateMenuItem(task, onMultiSetDueDateClick),
     ]
     return (
         <>
