@@ -13,7 +13,10 @@ export interface TTaskSource {
     is_completable: boolean
     is_replyable: boolean
 }
-
+export interface TTaskSourceV4 {
+    name: TTaskSourceName
+    logo: TLogoImage
+}
 export interface TConferenceCall {
     platform: string
     logo: TLogoImage | EmptyString
@@ -73,13 +76,13 @@ export interface TTaskV4 {
     body: string
     priority_normalized: number
     due_date: string
-    source: TTaskSource
+    source: TTaskSourceV4
     sender: string
     is_done: boolean
     is_deleted: boolean
     created_at: string
     updated_at: string
-    id_folder: string
+    id_folder?: string
     id_nux_number?: number
     id_parent?: string
     subtask_ids?: string[]
@@ -88,6 +91,8 @@ export interface TTaskV4 {
     comments?: TComment[]
     external_status?: TExternalStatus
     recurring_task_template_id?: string
+    priority?: TExternalPriority
+    all_priorities?: TExternalPriority[]
 
     all_statuses?: TExternalStatus[] // Deprecated but still in response (will be moved to userInfo)
 }
@@ -132,10 +137,15 @@ export interface TCommentUser {
     Name: string
 }
 
+export type TLinearStatusType = 'backlog' | 'unstarted' | 'started' | 'completed' | 'canceled'
+export type TJiraStatusType = 'new' | 'indeterminate' | 'done'
+export type TExternalStatusType = TLinearStatusType | TJiraStatusType
+
 export interface TExternalStatus {
     external_id: string // the id of the status on linear
     state: string // the custom name of the status (e.g. Todo) - note: these are self-defined by the users of linear and can be different even across teams
-    type: 'backlog' | 'unstarted' | 'started' | 'completed' | 'canceled' // the type of status native to the task application
+    type: TExternalStatusType // the type of status native to the task application
+    is_valid_transition?: boolean
 }
 
 export interface TEvent {
@@ -223,6 +233,14 @@ export interface TTaskSection {
     is_done: boolean
     is_trash: boolean
 }
+export interface TTaskFolder {
+    id: string
+    name: string
+    task_ids: string[]
+    is_done: boolean
+    is_trash: boolean
+    optimisticId?: string
+}
 
 export interface TSettingChoice {
     choice_key: string
@@ -280,7 +298,7 @@ export enum DropType {
 export interface DropItem {
     id: string
     sectionId?: string
-    task?: TTask
+    task?: TTaskV4
     event?: TEvent
     folder?: TTaskSection
     view?: TOverviewView
@@ -296,7 +314,7 @@ export interface TTaskCreateParams {
     id_task_section?: string
 }
 
-export type TOverviewItem = TTask & TPullRequest // TODO: change this to more general type
+export type TOverviewItem = TTaskV4 & TTask & TPullRequest // TODO: change this to more general type
 
 export type TOverviewViewType =
     | 'github'
@@ -316,6 +334,7 @@ export interface TOverviewView {
     is_reorderable: boolean
     logo: TLogoImage
     view_items: TOverviewItem[]
+    view_item_ids: string[]
     total_view_items?: number // the total number of items in the view without filters applied
     sources: TSourcesResult[]
     is_linked: boolean
@@ -375,7 +394,7 @@ export interface TRecurringTaskTemplate {
     is_enabled: boolean
 }
 
-export type TLinkedAccountName = 'Atlassian' | 'GitHub' | 'Google Calendar' | 'Slack' | 'Linear'
+export type TLinkedAccountName = 'Atlassian' | 'GitHub' | 'Google Calendar' | 'Slack' | 'Linear' | 'Jira'
 
 export interface TNote {
     id: string
@@ -403,3 +422,7 @@ export interface TCalendarAccount {
     has_multical_scopes: boolean
     has_primary_calendar_scopes: boolean
 }
+
+export type TParentTask = TTaskV4 & Required<Pick<TTaskV4, 'id_folder'>>
+
+export type TSubtask = TTaskV4 & Required<Pick<TTaskV4, 'id_parent'>>

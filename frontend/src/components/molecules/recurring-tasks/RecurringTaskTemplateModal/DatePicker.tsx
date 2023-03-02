@@ -32,7 +32,7 @@ const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
         max-width: none;
     }
     thead {
-        border-bottom: ${Border.stroke.medium} solid ${Colors.border.light};
+        border-bottom: ${Border.stroke.medium} solid ${Colors.background.border};
         margin-bottom: 40px;
     }
     .mantine-Calendar-calendarHeader {
@@ -70,18 +70,18 @@ const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
         color: ${Colors.text.light};
     }
     .today {
-        background-color: ${Colors.gtColor.primary};
+        background-color: ${Colors.legacyColors.purple};
         color: white;
     }
     .selected {
-        border-color: ${Colors.gtColor.primary};
-        background-color: ${Colors.gtColor.secondary};
+        border-color: ${Colors.legacyColors.purple};
+        background-color: ${Colors.legacyColors.secondary};
     }
     .recurring-past {
-        border-color: ${Colors.gtColor.primary};
+        border-color: ${Colors.legacyColors.purple};
     }
     .recurring-selection {
-        background-color: ${Colors.gtColor.secondary};
+        background-color: ${Colors.legacyColors.secondary};
     }
 `
 const HelpText = styled(Label)<{ show: boolean }>`

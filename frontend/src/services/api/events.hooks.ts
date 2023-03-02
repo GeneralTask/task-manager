@@ -8,7 +8,7 @@ import useQueryContext from '../../context/QueryContext'
 import { useGTLocalStorage, useSetting } from '../../hooks'
 import { TLogoImage } from '../../styles/images'
 import apiClient from '../../utils/api'
-import { TCalendar, TCalendarAccount, TEvent, TOverviewView, TPullRequest, TTask } from '../../utils/types'
+import { TCalendar, TCalendarAccount, TEvent, TOverviewView, TPullRequest, TTaskV4 } from '../../utils/types'
 import { getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 
 interface TEventAttendee {
@@ -45,7 +45,7 @@ interface TModifyEventPayload {
 interface TCreateEventParams {
     createEventPayload: TCreateEventPayload
     date: DateTime
-    linkedTask?: TTask
+    linkedTask?: TTaskV4
     linkedView?: TOverviewView
     linkedPullRequest?: TPullRequest
     optimisticId: string
@@ -88,7 +88,7 @@ const useGetEvents = (params: { startISO: string; endISO: string }, calendarType
             ...getBackgroundQueryOptions(EVENTS_REFETCH_INTERVAL),
             onSettled: () => {
                 // because apparently we only refetch calendars when we refetch events
-                queryClient.invalidateQueries('calendars')
+                queryClient.invalidateQueries(['calendars', 'meeting_preparation_tasks'])
             },
         }
     )
@@ -144,8 +144,8 @@ export const useCreateEvent = () => {
                 ?.calendars[0]
 
             let logo: TLogoImage
-            if (linkedTask?.source.logo_v2) {
-                logo = linkedTask?.source.logo_v2
+            if (linkedTask?.source.logo) {
+                logo = linkedTask?.source.logo
             } else if (linkedPullRequest) {
                 logo = 'github'
             } else {

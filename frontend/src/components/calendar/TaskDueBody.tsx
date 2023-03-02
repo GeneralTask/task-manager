@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { Spacing } from '../../styles'
-import { TTask } from '../../utils/types'
+import { TTaskV4 } from '../../utils/types'
 import DueTask from './DueTask'
 
 const TasksDueBody = styled.div`
@@ -11,7 +11,7 @@ const TasksDueBody = styled.div`
 `
 
 interface TaskDueBodyProps {
-    tasksDue: TTask[]
+    tasksDue: TTaskV4[]
     showDueDate?: boolean
 }
 

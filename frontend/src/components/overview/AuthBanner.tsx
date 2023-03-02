@@ -8,7 +8,7 @@ import GTButton from '../atoms/buttons/GTButton'
 const BannerContainer = styled.div<{ hasBorder: boolean }>`
     box-sizing: border-box;
     border: ${Border.stroke.medium} solid;
-    border-color: ${(props) => (props.hasBorder ? Colors.gtColor.secondary : 'transparent')};
+    border-color: ${(props) => (props.hasBorder ? Colors.legacyColors.secondary : 'transparent')};
     border-radius: ${Border.radius.small};
     display: flex;
     justify-content: space-between;
@@ -46,7 +46,7 @@ const AuthBanner = ({ authorizationUrl, name, logo, hasBorder, isGoogleSignIn }:
             <div>
                 <GTButton
                     value="Connect"
-                    color={Colors.gtColor.primary}
+                    color={Colors.legacyColors.purple}
                     icon={icons.external_link}
                     size="small"
                     styleType="secondary"

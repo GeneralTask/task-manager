@@ -14,7 +14,7 @@ const Footer = styled.div`
     justify-content: space-between;
     align-items: center;
     padding: ${Spacing._8} ${Spacing._16};
-    background-color: ${Colors.gtColor.primary};
+    background-color: ${Colors.legacyColors.purple};
     width: 100%;
     z-index: 1;
     box-sizing: border-box;

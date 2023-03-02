@@ -2,11 +2,11 @@ import { useCallback, useState } from 'react'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { useKeyboardShortcut } from '../../../hooks'
-import { useCreateTask, useGetTasks, useReorderTask } from '../../../services/api/tasks.hooks'
+import { useCreateTask, useReorderTask } from '../../../services/api/tasks.hooks'
+import { useGetTasksV4 } from '../../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
 import { icons } from '../../../styles/images'
-import { DropItem, DropType, TTask } from '../../../utils/types'
-import { getSectionFromTask } from '../../../utils/utils'
+import { DropItem, DropType, TParentTask, TSubtask } from '../../../utils/types'
 import Flex from '../../atoms/Flex'
 import { Icon } from '../../atoms/Icon'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
@@ -28,7 +28,7 @@ const AddTaskbutton = styled.div`
     border: ${Border.stroke.small} solid transparent;
     box-sizing: border-box;
     :hover {
-        border-color: ${Colors.border.light};
+        border-color: ${Colors.background.border};
         border-radius: ${Border.radius.small};
     }
 `
@@ -41,13 +41,11 @@ const TaskListContainer = styled.div`
 `
 
 interface SubtasksProps {
-    parentTask: TTask
-    subtasks: TTask[]
+    parentTask: TParentTask
 }
 
-const SubtaskList = ({ parentTask, subtasks }: SubtasksProps) => {
-    const { data: taskSections } = useGetTasks()
-    const sectionId = getSectionFromTask(taskSections ?? [], parentTask.id)?.id
+const SubtaskList = ({ parentTask }: SubtasksProps) => {
+    const { data: allTasks } = useGetTasksV4()
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderMutate } = useReorderTask()
     const [showCreateNewSubtask, setShowCreateNewSubtask] = useState(false)
@@ -58,64 +56,60 @@ const SubtaskList = ({ parentTask, subtasks }: SubtasksProps) => {
 
     const handleReorder = useCallback(
         (item: DropItem, dropIndex: number) => {
-            if (!sectionId) return
+            if (!parentTask.id_folder) return
             reorderMutate({
                 id: item.id,
                 parentId: parentTask.id,
                 isSubtask: true,
                 orderingId: dropIndex,
-                dropSectionId: sectionId,
+                dropSectionId: parentTask.id_folder,
             })
         },
-        [sectionId, parentTask.id]
+        [parentTask.id_folder, parentTask.id]
     )
 
-    if (!sectionId) return null
+    const subtasks =
+        allTasks?.filter((task): task is TSubtask => task.id_parent === parentTask.id && !task.is_deleted) ?? []
+    subtasks.sort((a, b) => a.id_ordering - b.id_ordering)
+
     return (
         <Flex flex="1" column>
             <TaskListContainer>
-                {sectionId && (
-                    <>
-                        {!showCreateNewSubtask && (
-                            <MarginBottomDiv>
-                                <Tip shortcutName="createSubtask" content="Create new subtask" fitContent>
-                                    <AddTaskbutton onClick={() => setShowCreateNewSubtask(true)}>
-                                        <Icon icon={icons.plus} color="gray" />
-                                        Add new subtask
-                                    </AddTaskbutton>
-                                </Tip>
-                            </MarginBottomDiv>
-                        )}
-                        {showCreateNewSubtask && (
-                            <CreateNewItemInput
-                                placeholder="Add new subtask"
-                                onSubmit={(title) =>
-                                    createTask({
-                                        title: title,
-                                        parent_task_id: parentTask.id,
-                                        taskSectionId: sectionId,
-                                        optimisticId: uuidv4(),
-                                    })
-                                }
-                                onBlur={() => setShowCreateNewSubtask(false)}
-                                autoFocus
-                            />
-                        )}
-                    </>
+                {!showCreateNewSubtask && (
+                    <MarginBottomDiv>
+                        <Tip shortcutName="createSubtask" content="Create new subtask" fitContent>
+                            <AddTaskbutton onClick={() => setShowCreateNewSubtask(true)}>
+                                <Icon icon={icons.plus} color="gray" />
+                                Add new subtask
+                            </AddTaskbutton>
+                        </Tip>
+                    </MarginBottomDiv>
                 )}
-                {subtasks.map((subtask, index) => {
-                    return (
-                        <ReorderDropContainer
-                            key={subtask.id}
-                            index={index}
-                            acceptDropType={DropType.SUBTASK}
-                            onReorder={handleReorder}
-                            disabled={false}
-                        >
-                            <Subtask key={subtask.id} parentTask={parentTask} subtask={subtask} />
-                        </ReorderDropContainer>
-                    )
-                })}
+                {showCreateNewSubtask && (
+                    <CreateNewItemInput
+                        placeholder="Add new subtask"
+                        onSubmit={(title) =>
+                            createTask({
+                                title: title,
+                                id_parent: parentTask.id,
+                                optimisticId: uuidv4(),
+                            })
+                        }
+                        onBlur={() => setShowCreateNewSubtask(false)}
+                        autoFocus
+                    />
+                )}
+                {subtasks.map((subtask, index) => (
+                    <ReorderDropContainer
+                        key={subtask.id}
+                        index={index}
+                        acceptDropType={DropType.SUBTASK}
+                        onReorder={handleReorder}
+                        disabled={false}
+                    >
+                        <Subtask key={subtask.id} subtask={subtask} />
+                    </ReorderDropContainer>
+                ))}
             </TaskListContainer>
             <ReorderDropContainer
                 index={subtasks.length + 1}

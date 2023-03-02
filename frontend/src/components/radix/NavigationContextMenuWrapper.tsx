@@ -1,27 +1,27 @@
-import { useDeleteTaskSection } from '../../services/api/task-section.hooks'
+import { useDeleteFolder } from '../../services/api/folders.hooks'
 import { icons } from '../../styles/images'
-import { TTaskSection } from '../../utils/types'
+import { TTaskFolder } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 import GTContextMenu from './GTContextMenu'
 import { GTMenuItem } from './RadixUIConstants'
 
 interface NavigationContextMenuWrapperProps {
     children: React.ReactNode
-    section: TTaskSection
-    setSectionBeingEdited: (section: TTaskSection) => void
+    folder: TTaskFolder
+    setSectionBeingEdited: (folder: TTaskFolder) => void
 }
 const NavigationContextMenuWrapper = ({
     children,
-    section,
+    folder,
     setSectionBeingEdited,
 }: NavigationContextMenuWrapperProps) => {
-    const { mutate: deleteSection } = useDeleteTaskSection()
+    const { mutate: deleteFolder } = useDeleteFolder()
     const items: GTMenuItem[] = [
         {
             label: 'Rename Folder',
             icon: icons.pencil,
             onClick: () => {
-                setSectionBeingEdited(section)
+                setSectionBeingEdited(folder)
             },
         },
         {
@@ -30,7 +30,7 @@ const NavigationContextMenuWrapper = ({
             icon: icons.trash,
             iconColor: 'red',
             onClick: () => {
-                deleteSection({ id: section.id }, section.optimisticId)
+                deleteFolder({ id: folder.id }, folder.optimisticId)
             },
         },
     ]

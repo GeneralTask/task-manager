@@ -1,102 +1,120 @@
-const WHITE = '#FFFFFF'
-const BLACK = '#000000'
-const GRAY = {
-    _50: '#FBFBFB',
-    _100: '#F0F3F7',
-    _200: '#DADADA',
-    _500: '#717179',
-}
-const RED = {
-    _1: '#E24858',
-    _2: '#F6C8CD',
-}
-const ORANGE = {
-    _1: '#FF8200',
-    _2: '#FFD7B3',
-}
-const YELLOW = {
-    _1: '#FFBA0D',
-    _2: '#FFEAB6',
-}
-const GREEN = {
-    _1: '#41802E',
-    _2: '#CFDFCB',
-}
-const BLUE = {
-    _1: '#25BEFF',
-    _2: '#BEEBFF',
-    _3: '#405EFB',
-}
-const PURPLE = {
-    _1: '#5634CF',
-    _2: '#EEEBFA',
-    _3: '#E1D7FD33', // NOT IN DESIGN DOC (only used for drop indicator)
+// deprecated
+export const legacyColors = {
+    purple: '#5634CF',
+    secondary: '#EEEBFA',
+    orange: '#FF8200',
+    blue: '#405EFB',
 }
 
-export const background = {
-    white: WHITE,
-    light: GRAY._50,
-    medium: GRAY._100,
-    dark: GRAY._200,
-    black: BLACK,
-    dropIndicator: PURPLE._3,
-}
-
-export const border = {
-    extra_light: GRAY._100,
-    light: GRAY._200,
-    gray: GRAY._500,
-    purple: PURPLE._1,
-}
-
-export const text = {
-    black: BLACK,
-    light: GRAY._500,
-    white: WHITE,
-    orange: ORANGE._1,
-    green: GREEN._1,
-    red: RED._1,
-    purple: PURPLE._1,
-}
-export type TTextColor = keyof typeof text
-
+// deprecated
 export const icon = {
-    white: WHITE,
-    gray: GRAY._500,
-    red: RED._1,
-    yellow: YELLOW._1,
-    blue: BLUE._1,
-    green: GREEN._1,
-    orange: ORANGE._1,
-    purple: PURPLE._1,
-    black: BLACK,
+    white: '#FFFFFF',
+    gray: '#717179',
+    red: '#E24858',
+    yellow: '#FFBA0D',
+    blue: '#25BEFF',
+    green: '#41802E',
+    orange: '#FF8200',
+    purple: '#5634CF',
+    black: '#000000',
 }
 export type TIconColor = keyof typeof icon
 
+// deprecated
 export const button = {
     primary: {
-        default: PURPLE._1,
-        hover: `linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), ${PURPLE._1}`,
-        active_text: GRAY._200,
+        default: '#5634CF',
+        hover: 'linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), #5634CF',
+        active_text: '#DADADA',
     },
     secondary: {
-        default: WHITE,
-        hover: GRAY._200,
-        active_text: BLACK,
+        default: '#FFFFFF',
+        hover: '#DADADA',
+        active_text: '#000000',
     },
 }
 
+// deprecated
 export const status = {
-    red: { default: RED._1, light: RED._2 },
-    yellow: { default: YELLOW._1, light: YELLOW._2 },
-    green: { default: GREEN._1, light: GREEN._2 },
-    gray: { default: GRAY._500, light: GRAY._200 },
+    red: { default: '#E24858', light: '#F6C8CD' },
+    yellow: { default: '#FFBA0D', light: '#FFEAB6' },
+    green: { default: '#41802E', light: '#CFDFCB' },
+    gray: { default: '#717179', light: '#DADADA' },
 }
 export type TStatusColors = keyof typeof status
 
-export const gtColor = {
-    primary: PURPLE._1,
-    secondary: PURPLE._2,
-    orange: ORANGE._1,
-    blue: BLUE._3,
+export const accent = {
+    pink: '#DB2979',
+    yellow: '#FBDD40',
+}
+
+export const background = {
+    white: '#FFFFFF',
+    base: '#FDFDFD',
+    sub: '#F4F4F5',
+    border: '#E4E4E7',
+    hover: '#D4D4D8',
+
+    // deprecated
+    light: '#FBFBFB',
+    medium: '#F0F3F7',
+    dark: '#DADADA',
+    black: '#000000',
+    dropIndicator: '#E1D7FD33',
+}
+
+export const text = {
+    title: '#18181B',
+    base: '#3F3F46',
+    muted: '#71717A',
+
+    // deprecated
+    black: '#000000',
+    light: '#717179',
+    white: '#FFFFFF',
+    orange: '#FF8200',
+    green: '#41802E',
+    red: '#E24858',
+    purple: '#5634CF',
+}
+export type TTextColor = keyof typeof text
+
+export const control = {
+    primary: {
+        label: '#FDFDFD',
+        bg: '#DB2979',
+        hover: '#7E1645',
+        highlight: '#F54C98',
+    },
+    secondary: {
+        label: '#3F3F46',
+        bg: '#FDFDFD',
+        stroke: '#E4E4E7',
+        hover: '#E4E4E7',
+        highlight: '#DB2979',
+    },
+    destructive: {
+        label: '#FFFFFF',
+        bg: '#BE0A16',
+        hover: '#701513',
+        highlight: '#E53742',
+    },
+}
+
+export const semantic = {
+    success: {
+        base: '#16A249',
+        hover: '#10652F',
+        faint: '#16A249',
+    },
+    warning: {
+        base: '#BE0A16',
+        hover: '#701513',
+        faint: '#FCEEEA',
+    },
+    highlight: {
+        base: '#FBDD40',
+        hover: '#C39A2B',
+        faint: '#16A249',
+    },
 }

@@ -10,7 +10,7 @@ import SettingsModal from '../molecules/SettingsModal'
 const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number }>`
     background-color: inherit;
     box-sizing: border-box;
-    border: ${Border.stroke.medium} solid ${Colors.border.extra_light};
+    border: ${Border.stroke.medium} solid ${Colors.background.border};
     border-radius: ${Border.radius.small};
     width: 100%;
     padding: ${Spacing._8};
@@ -18,7 +18,7 @@ const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number }>`
     :hover {
         box-shadow: ${Shadows.light};
         background-color: ${Colors.background.white};
-        border-color: ${Colors.border.light};
+        border-color: ${Colors.background.border};
     }
 `
 const DivCursorPointer = styled.div`

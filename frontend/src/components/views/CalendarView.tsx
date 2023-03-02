@@ -99,21 +99,29 @@ const CalendarView = ({
         isFocusMode
     )
     useKeyboardShortcut(
-        'showDailyCalendar',
+        'toggleDailyCalendar',
         useCallback(() => {
-            setIsCollapsed(false)
-            setDate(dayViewDate)
-            setCalendarType('day')
-        }, [calendarType, setCalendarType, setIsCollapsed]),
+            if (calendarType === 'day' && !isCollapsed) {
+                setIsCollapsed(true)
+            } else {
+                setIsCollapsed(false)
+                setDate(dayViewDate)
+                setCalendarType('day')
+            }
+        }, [calendarType, dayViewDate, setCalendarType, setIsCollapsed]),
         isFocusMode
     )
     useKeyboardShortcut(
-        'showWeeklyCalendar',
+        'toggleWeeklyCalendar',
         useCallback(() => {
-            setIsCollapsed(false)
-            setDate(date.minus({ days: date.weekday % 7 }))
-            setCalendarType('week')
-        }, [calendarType, setCalendarType, setIsCollapsed]),
+            if (calendarType === 'week' && !isCollapsed) {
+                setIsCollapsed(true)
+            } else {
+                setIsCollapsed(false)
+                setDate(date.minus({ days: date.weekday % 7 }))
+                setCalendarType('week')
+            }
+        }, [calendarType, dayViewDate, setCalendarType, setIsCollapsed]),
         isFocusMode
     )
     useKeyboardShortcut(

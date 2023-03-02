@@ -18,14 +18,14 @@ import Tip from '../../radix/Tip'
 import SmartSuggestion from './SmartSuggestion'
 
 const Container = styled.div`
-    border: ${Border.stroke.medium} solid ${Colors.border.light};
+    border: ${Border.stroke.medium} solid ${Colors.background.border};
     border-radius: ${Border.radius.small};
     overflow: hidden;
     margin-bottom: ${Spacing._16};
 `
 const Description = styled.div`
     padding: ${Spacing._16};
-    border-bottom: ${Border.stroke.medium} solid ${Colors.border.light};
+    border-bottom: ${Border.stroke.medium} solid ${Colors.background.border};
 `
 const Body = styled.div`
     display: flex;
