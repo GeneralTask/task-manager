@@ -86,7 +86,6 @@ export const SelectionContextProvider = ({ children }: SelectionContextProviderP
                 const start = Math.min(clickedTaskIndex, lastSelectedTaskIndex)
                 const end = Math.max(clickedTaskIndex, lastSelectedTaskIndex)
                 const newSelectedTaskIds = sortedTasks.slice(start, end + 1).map((task) => task.id)
-                console.log([...selectedTaskIds, ...newSelectedTaskIds.filter((id) => !selectedTaskIds.includes(id))])
                 setSelectedTaskIds([
                     ...selectedTaskIds,
                     ...newSelectedTaskIds.filter((id) => !selectedTaskIds.includes(id)),

@@ -97,7 +97,7 @@ const Task = ({
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const { calendarType, setCalendarType, setDate, dayViewDate } = useCalendarContext()
     const { onClickHandler: onMultiSelectClick, isTaskSelected: isTaskMultiSelected } = useSelectionContext()
-    const { task: idTaskRoute } = useParams()
+    const { task: idTaskRoute, overviewItemId } = useParams()
     const { data: allTasks } = useGetTasksV4()
 
     const { inMultiSelectMode } = useSelectionContext()
@@ -218,7 +218,13 @@ const Task = ({
                 onMouseLeave={() => setIsHovered(false)}
                 onMouseEnter={() => setIsHovered(true)}
                 onClick={(e) =>
-                    onMultiSelectClick(e, task.id, task.is_deleted || task.is_done, idTaskRoute ?? '', sortedTasks)
+                    onMultiSelectClick(
+                        e,
+                        task.id,
+                        task.is_deleted || task.is_done,
+                        (idTaskRoute || overviewItemId) ?? '',
+                        sortedTasks
+                    )
                 }
             >
                 <ItemContainer
