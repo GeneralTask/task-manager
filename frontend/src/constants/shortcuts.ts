@@ -128,15 +128,15 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Calendar',
         icon: 'calendar_blank',
     },
-    showDailyCalendar: {
-        label: 'Show daily calendar',
+    toggleDailyCalendar: {
+        label: 'Toggle daily calendar',
         key: 'd',
         keyLabel: 'D',
         category: 'Calendar',
         icon: 'calendar_blank',
     },
-    showWeeklyCalendar: {
-        label: 'Show weekly calendar',
+    toggleWeeklyCalendar: {
+        label: 'Toggle weekly calendar',
         key: 'w',
         keyLabel: 'W',
         category: 'Calendar',
