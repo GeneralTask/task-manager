@@ -71,8 +71,8 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 		CallPlatform:    conferenceCall.Platform,
 	}
 	if colors != nil {
-		dbEvent.ColorBackground = colors.Calendar[event.ColorId].Background
-		dbEvent.ColorForeground = colors.Calendar[event.ColorId].Foreground
+		dbEvent.ColorBackground = colors.Event[event.ColorId].Background
+		dbEvent.ColorForeground = colors.Event[event.ColorId].Foreground
 	}
 
 	dbEvent, err := database.UpdateOrCreateCalendarEvent(
