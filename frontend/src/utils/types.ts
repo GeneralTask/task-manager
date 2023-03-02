@@ -156,6 +156,8 @@ export interface TEvent {
     account_id: string
     calendar_id: string
     color_id: string
+    color_background?: string
+    color_foreground?: string
     logo: TLogoImage
     deeplink: string
     datetime_start: string
@@ -414,6 +416,8 @@ export interface TCalendar {
     title: string
     can_write: boolean
     access_role: string
+    color_background: string
+    color_foreground: string
 }
 
 export interface TCalendarAccount {
