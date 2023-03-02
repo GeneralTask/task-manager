@@ -1,11 +1,11 @@
 import { ReactNode, useCallback, useMemo } from 'react'
-import { usePreviewMode, useSetting } from '../../hooks'
+import { useSetting } from '../../hooks'
 import { useGetCalendars, useSelectedCalendars } from '../../services/api/events.hooks'
 import { icons, logos } from '../../styles/images'
 import { TCalendar, TCalendarAccount } from '../../utils/types'
 import { EMPTY_ARRAY } from '../../utils/utils'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
-import { getCalendarColor, getCalendarName } from './utils/utils'
+import { getCalendarName } from './utils/utils'
 
 interface CalendarSelectorProps {
     mode: 'task-to-cal' | 'cal-selection'
@@ -13,7 +13,6 @@ interface CalendarSelectorProps {
     renderTrigger: (calendar: TCalendar | undefined, accountId: string) => ReactNode
 }
 const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSelectorProps) => {
-    const { isPreviewMode } = usePreviewMode()
     const { data: calendars } = useGetCalendars()
     const { isCalendarSelected, toggleCalendarSelection } = useSelectedCalendars()
     const { field_value: taskToCalAccount, updateSetting: setTaskToCalAccount } = useSetting(
@@ -74,9 +73,7 @@ const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSele
                         .map((calendar) => ({
                             label: getCalendarName(account.account_id, calendar.title),
                             icon: icons.square,
-                            iconColorHex: isPreviewMode
-                                ? calendar.color_background || ''
-                                : getCalendarColor(calendar.color_id || ''),
+                            iconColorHex: calendar.color_background,
                             selected: isCalendarChecked(account, calendar),
                             onClick: () => handleCalendarClick(account, calendar),
                             keepOpenOnSelect: mode === 'cal-selection',
