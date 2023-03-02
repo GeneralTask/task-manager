@@ -86,7 +86,7 @@ const TaskSectionView = () => {
         } else if (folder.id === TRASH_FOLDER_ID) {
             return [
                 ...(meetingPreparationTasks?.filter((t) => t.is_deleted) || []),
-                ...(allTasks?.filter((t) => t.is_deleted && !t.id_parent) || []),
+                ...(allTasks?.filter((t) => t.is_deleted) || []),
             ].sort((a, b) => +DateTime.fromISO(b.updated_at) - +DateTime.fromISO(a.updated_at))
         }
         return allTasks?.filter((t) => t.id_folder === folder.id && !t.is_done && !t.is_deleted) || []
