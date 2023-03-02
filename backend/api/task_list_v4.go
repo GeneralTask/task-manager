@@ -20,8 +20,8 @@ type TaskSourceV4 struct {
 type TaskResultV4 struct {
 	ID                       primitive.ObjectID           `json:"id"`
 	IDOrdering               int                          `json:"id_ordering"`
-	IDFolder                 string                       `json:"id_folder"`
-	IDParent                 string                       `json:"id_parent"`
+	IDFolder                 string                       `json:"id_folder,omitempty"`
+	IDParent                 string                       `json:"id_parent,omitempty"`
 	Source                   TaskSourceV4                 `json:"source"`
 	Deeplink                 string                       `json:"deeplink"`
 	Title                    string                       `json:"title"`
@@ -82,7 +82,15 @@ func (api *API) TasksListV4(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	c.JSON(200, allTasks)
+
+	// Remove meeting prep tasks from task list
+	allTasksWithoutMeetingPreparation := []*TaskResultV4{}
+	for _, task := range allTasks {
+		if task.MeetingPreparationParams == nil {
+			allTasksWithoutMeetingPreparation = append(allTasksWithoutMeetingPreparation, task)
+		}
+	}
+	c.JSON(200, allTasksWithoutMeetingPreparation)
 }
 
 func (api *API) mergeTasksV4(
@@ -207,10 +215,11 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 		allStatuses := []*externalStatus{}
 		for _, status := range t.AllStatuses {
 			allStatuses = append(allStatuses, &externalStatus{
-				IDExternal: status.ExternalID,
-				State:      status.State,
-				Type:       status.Type,
-				Color:      status.Color,
+				IDExternal:        status.ExternalID,
+				State:             status.State,
+				Type:              status.Type,
+				Color:             status.Color,
+				IsValidTransition: status.IsValidTransition,
 			})
 		}
 		taskResult.AllStatuses = allStatuses
@@ -227,8 +236,9 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 
 	if t.MeetingPreparationParams != nil && *t.MeetingPreparationParams != (database.MeetingPreparationParams{}) && t.IsMeetingPreparationTask {
 		taskResult.MeetingPreparationParams = &MeetingPreparationParams{
-			DatetimeStart: t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339),
-			DatetimeEnd:   t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339),
+			DatetimeStart:       t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339),
+			DatetimeEnd:         t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339),
+			EventMovedOrDeleted: t.MeetingPreparationParams.EventMovedOrDeleted,
 		}
 	}
 

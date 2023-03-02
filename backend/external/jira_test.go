@@ -73,6 +73,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		statusServer := getStatusServerForJIRA(t, http.StatusOK, false)
 		fieldsServer := getJIRAFieldsServer(t, http.StatusOK, []byte(`{"fields":{}}`))
 		commentsServer := getJIRACommentsServer(t, http.StatusOK, []byte(`{"comments": [{"id": "10000","author":{"accountId": "example-id-1", "displayName": "test"}},{"id": "10001","author":{"accountId": "example-id-2", "displayName": "test2"}}]}`))
+		transitionServer := getTransitionServerForJIRA(t, 200, false, true)
 
 		// ensure external API token values updated
 		var externalJIRAToken database.ExternalAPIToken
@@ -118,7 +119,6 @@ func TestLoadJIRATasks(t *testing.T) {
 				IsCompletedStatus: false,
 				Position:          0,
 				Color:             "",
-				IconURL:           "https://example.com",
 			},
 			Comments: &[]database.Comment{
 				{
@@ -141,7 +141,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		}
 
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL, StatusListURL: &statusServer.URL, CommentsListURL: &commentsServer.URL, FieldsListURL: &fieldsServer.URL}}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL, StatusListURL: &statusServer.URL, CommentsListURL: &commentsServer.URL, FieldsListURL: &fieldsServer.URL, TransitionURL: &transitionServer.URL}}}}
 		go JIRA.GetTasks(db, *userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
@@ -149,6 +149,11 @@ func TestLoadJIRATasks(t *testing.T) {
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 		assert.Equal(t, false, *result.Tasks[0].JIRATaskParams.HasDueDateField)
 		assert.Equal(t, false, *result.Tasks[0].JIRATaskParams.HasPriorityField)
+		assert.Equal(t, 2, len(result.Tasks[0].AllStatuses))
+		assert.Equal(t, false, result.Tasks[0].AllStatuses[0].IsValidTransition)
+		assert.Equal(t, true, result.Tasks[0].AllStatuses[1].IsValidTransition)
+		assert.Equal(t, "new", result.Tasks[0].AllStatuses[0].Type)
+		assert.Equal(t, "done", result.Tasks[0].AllStatuses[1].Type)
 
 		var taskFromDB database.Task
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -213,7 +218,6 @@ func TestLoadJIRATasks(t *testing.T) {
 				IsCompletedStatus: false,
 				Position:          0,
 				Color:             "",
-				IconURL:           "https://example.com",
 			},
 			Comments: &[]database.Comment{},
 		}
@@ -282,7 +286,6 @@ func TestLoadJIRATasks(t *testing.T) {
 				IsCompletedStatus: false,
 				Position:          0,
 				Color:             "",
-				IconURL:           "https://example.com",
 			},
 			PriorityNormalized: &priorityNormalized,
 			ExternalPriority: &database.ExternalTaskPriority{
@@ -355,7 +358,6 @@ func TestLoadJIRATasks(t *testing.T) {
 				IsCompletedStatus: false,
 				Position:          0,
 				Color:             "",
-				IconURL:           "https://example.com",
 			},
 			Comments: &[]database.Comment{},
 		}
@@ -433,7 +435,6 @@ func TestGetStatuses(t *testing.T) {
 		assert.True(t, exists)
 		assert.Equal(t, 2, len(statusList))
 		assert.Equal(t, "Todo", statusList[0].State)
-		assert.Equal(t, "https://example.com", statusList[0].IconURL)
 		assert.True(t, statusList[1].IsCompletedStatus)
 	})
 }
@@ -578,7 +579,7 @@ func getSearchServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 			w.Write(result)
 		} else {
 			result, err := json.Marshal(JIRATaskList{Issues: []JIRATask{{
-				Fields: JIRATaskFields{DueDate: "2021-04-20", Summary: "Sample Taskeroni", CreatedAt: "2022-04-20T07:05:06.416-0800", Status: JIRAStatus{Name: "todo", IconURL: "https://example.com"}, Project: JIRAProject{ID: "10000"}, Priority: JIRAPriority{ID: "9", Name: "todo", IconURL: "https://example.com"}},
+				Fields: JIRATaskFields{DueDate: "2021-04-20", Summary: "Sample Taskeroni", CreatedAt: "2022-04-20T07:05:06.416-0800", Status: JIRAStatus{Name: "todo"}, Project: JIRAProject{ID: "10000"}, Priority: JIRAPriority{ID: "9", Name: "todo", IconURL: "https://example.com"}},
 				ID:     "42069",
 				Key:    "MOON-1969",
 			}}})
@@ -633,9 +634,8 @@ func getStatusServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 		} else {
 			resultTemp, err := json.Marshal([]JIRAStatus{
 				{
-					ID:      "10000",
-					Name:    "Todo",
-					IconURL: "https://example.com",
+					ID:   "10000",
+					Name: "Todo",
 					Category: JIRAStatusCategory{
 						Key: "new",
 					},
@@ -646,9 +646,8 @@ func getStatusServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 					},
 				},
 				{
-					ID:      "10003",
-					Name:    "Done",
-					IconURL: "https://example.com",
+					ID:   "10003",
+					Name: "Done",
 					Category: JIRAStatusCategory{
 						Key: "done",
 					},
@@ -666,21 +665,42 @@ func getStatusServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 	}))
 }
 
-func getTransitionServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.Server {
+func getTransitionServerForJIRA(t *testing.T, statusCode int, empty bool, partial bool) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(statusCode)
 		var result []byte
 		if empty {
 			result = []byte(``)
+		} else if partial {
+			resultTemp, err := json.Marshal(JIRATransitionList{
+				Transitions: []JIRATransition{
+					{
+						ID: "101",
+						ToStatus: JIRAStatus{
+							ID:   "10003",
+							Name: "Done",
+							Category: JIRAStatusCategory{
+								Key: "done",
+							},
+							Scope: JIRAScope{
+								Project: JIRAProject{
+									ID: "10000",
+								},
+							},
+						},
+					},
+				},
+			})
+			assert.NoError(t, err)
+			result = resultTemp
 		} else {
 			resultTemp, err := json.Marshal(JIRATransitionList{
 				Transitions: []JIRATransition{
 					{
 						ID: "100",
 						ToStatus: JIRAStatus{
-							ID:      "10000",
-							Name:    "Todo",
-							IconURL: "https://example.com",
+							ID:   "10000",
+							Name: "Todo",
 							Category: JIRAStatusCategory{
 								Key: "new",
 							},
@@ -694,9 +714,8 @@ func getTransitionServerForJIRA(t *testing.T, statusCode int, empty bool) *httpt
 					{
 						ID: "101",
 						ToStatus: JIRAStatus{
-							ID:      "10003",
-							Name:    "Done",
-							IconURL: "https://example.com",
+							ID:   "10003",
+							Name: "Done",
 							Category: JIRAStatusCategory{
 								Key: "done",
 							},
@@ -788,7 +807,7 @@ func TestModifyJIRATask(t *testing.T) {
 	})
 	t.Run("UpdateStatusOnlySuccess", func(t *testing.T) {
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
-		transitionServer := getTransitionServerForJIRA(t, 200, false)
+		transitionServer := getTransitionServerForJIRA(t, 200, false, false)
 		defer transitionServer.Close()
 		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{TransitionURL: &transitionServer.URL, TokenURL: &tokenServer.URL}}}}
 
@@ -830,7 +849,7 @@ func TestModifyJIRATask(t *testing.T) {
 	t.Run("UpdateTitleStatusSuccess", func(t *testing.T) {
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		taskUpdateServer := testutils.GetMockAPIServer(t, 204, "")
-		transitionServer := getTransitionServerForJIRA(t, 200, false)
+		transitionServer := getTransitionServerForJIRA(t, 200, false, false)
 		defer taskUpdateServer.Close()
 		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{TransitionURL: &transitionServer.URL, IssueUpdateURL: &taskUpdateServer.URL, TokenURL: &tokenServer.URL}}}}
 

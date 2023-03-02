@@ -303,6 +303,134 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	})
 }
 
+func TestGetJiraOverviewResult(t *testing.T) {
+	userID := primitive.NewObjectID()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
+	_, err := externalAPITokenCollection.InsertOne(context.Background(), database.ExternalAPIToken{
+		UserID:    userID,
+		Token:     "testtoken",
+		ServiceID: external.TaskServiceAtlassian.ID,
+	})
+	assert.NoError(t, err)
+	view := database.View{
+		UserID:     userID,
+		IDOrdering: 1,
+		Type:       "jira",
+		IsLinked:   true,
+	}
+	viewCollection := database.GetViewCollection(api.DB)
+	_, err = viewCollection.InsertOne(context.Background(), view)
+	assert.NoError(t, err)
+
+	authURL := "http://localhost:8080/link/atlassian/"
+	expectedViewResult := OverviewResult[TaskResult]{
+		ID:            view.ID,
+		Name:          "Jira Issues",
+		Type:          constants.ViewJira,
+		Logo:          "jira",
+		IsLinked:      true,
+		IsReorderable: false,
+		Sources: []SourcesResult{
+			{
+				Name:             "Jira",
+				AuthorizationURL: &authURL,
+			},
+		},
+		IDOrdering:    1,
+		TaskSectionID: primitive.NilObjectID,
+	}
+	t.Run("EmptyViewItems", func(t *testing.T) {
+		result, err := api.GetJiraOverviewResult(view, userID, 0)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.ViewItems = []*TaskResult{}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+		assert.Zero(t, len(result.ViewItemIDs))
+	})
+	t.Run("SingleJiraViewItem", func(t *testing.T) {
+		taskCollection := database.GetTaskCollection(api.DB)
+		notCompleted := false
+		completed := true
+		taskResult, err := taskCollection.InsertOne(context.Background(), database.Task{
+			UserID:        userID,
+			IsCompleted:   &notCompleted,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_JIRA,
+		})
+		assert.NoError(t, err)
+
+		// Insert completed Jira task. This task should not be in the view result.
+		_, err = taskCollection.InsertOne(context.Background(), database.Task{
+			UserID:        userID,
+			IsCompleted:   &completed,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_JIRA,
+			CompletedAt:   primitive.NewDateTimeFromTime(time.Now()),
+		})
+		assert.NoError(t, err)
+
+		// Insert completed Jira subtask. This task should not be in the view result.
+		_, err = taskCollection.InsertOne(context.Background(), database.Task{
+			UserID:        userID,
+			IsCompleted:   &completed,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_JIRA,
+			ParentTaskID:  primitive.NewObjectID(),
+		})
+		assert.NoError(t, err)
+
+		// Insert task with different source. This task should not be in the view result.
+		_, err = taskCollection.InsertOne(context.Background(), database.Task{
+			UserID:        userID,
+			IsCompleted:   &notCompleted,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      "randomSource",
+		})
+		assert.NoError(t, err)
+
+		// Insert Jira task with different UserID. This task should not be in the view result.
+		_, err = taskCollection.InsertOne(context.Background(), database.Task{
+			UserID:        primitive.NewObjectID(),
+			IsCompleted:   &notCompleted,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_JIRA,
+		})
+		assert.NoError(t, err)
+
+		taskID := taskResult.InsertedID.(primitive.ObjectID)
+		result, err := api.GetJiraOverviewResult(view, userID, 0)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.ViewItems = []*TaskResult{
+			{
+				ID: taskID,
+			},
+		}
+		expectedViewResult.ViewItemIDs = []string{taskID.Hex()}
+		expectedViewResult.HasTasksCompletedToday = true
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+	t.Run("InvalidUser", func(t *testing.T) {
+		result, err := api.GetJiraOverviewResult(view, primitive.NewObjectID(), 0)
+		assert.Error(t, err)
+		assert.Equal(t, "invalid user", err.Error())
+		assert.Nil(t, result)
+	})
+	t.Run("ViewNotLinked", func(t *testing.T) {
+		view.IsLinked = false
+		result, err := api.GetJiraOverviewResult(view, userID, 0)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.IsLinked = false
+		expectedViewResult.ViewItems = []*TaskResult{}
+		expectedViewResult.ViewItemIDs = []string{}
+		expectedViewResult.HasTasksCompletedToday = false
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+}
+
 func TestGetLinearOverviewResult(t *testing.T) {
 	userID := primitive.NewObjectID()
 	api, dbCleanup := GetAPIWithDBCleanup()
@@ -775,7 +903,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 			UserID:     userID,
 			IDExternal: "acctid",
 			Calendars: []database.Calendar{
-				{"owner", "calid", "", ""},
+				{constants.AccessControlOwner, "calid", "", ""},
 				{"reader", "other_calid", "", ""},
 			},
 		}, nil)
@@ -974,18 +1102,21 @@ func createTestEvent(calendarEventCollection *mongo.Collection, userID primitive
 }
 
 func createTestMeetingPreparationTask(taskCollection *mongo.Collection, userID primitive.ObjectID, title string, IDExternal string, isCompleted bool, dateTimeStart time.Time, dateTimeEnd time.Time, eventID primitive.ObjectID) (*mongo.InsertOneResult, error) {
+	isDeleted := false
 	return taskCollection.InsertOne(context.Background(), database.Task{
 		UserID:                   userID,
 		SourceID:                 external.TASK_SOURCE_ID_GCAL,
 		Title:                    &title,
 		IsCompleted:              &isCompleted,
+		IsDeleted:                &isDeleted,
 		IsMeetingPreparationTask: true,
 		MeetingPreparationParams: &database.MeetingPreparationParams{
-			CalendarEventID:     eventID,
-			IDExternal:          IDExternal,
-			DatetimeStart:       primitive.NewDateTimeFromTime(dateTimeStart),
-			DatetimeEnd:         primitive.NewDateTimeFromTime(dateTimeEnd),
-			EventMovedOrDeleted: false,
+			CalendarEventID:               eventID,
+			IDExternal:                    IDExternal,
+			DatetimeStart:                 primitive.NewDateTimeFromTime(dateTimeStart),
+			DatetimeEnd:                   primitive.NewDateTimeFromTime(dateTimeEnd),
+			HasBeenAutomaticallyCompleted: false,
+			EventMovedOrDeleted:           false,
 		},
 	})
 }
@@ -1802,7 +1933,7 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 		externalAPITokenCollection.DeleteMany(context.Background(), bson.M{"user_id": userID})
 		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK, nil)
 
-		expectedBody := fmt.Sprintf("[{\"type\":\"meeting_preparation\",\"name\":\"Meeting Preparation for the day\",\"logo\":\"gcal\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Meeting Preparation\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"due_today\",\"name\":\"Tasks Due Today\",\"logo\":\"generaltask\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Tasks Due Today View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"task_section\",\"name\":\"Task Folders\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Task Inbox\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID)
+		expectedBody := fmt.Sprintf("[{\"type\":\"meeting_preparation\",\"name\":\"Meeting Preparation for the day\",\"logo\":\"gcal\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Meeting Preparation\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"due_today\",\"name\":\"Tasks Due Today\",\"logo\":\"generaltask\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Tasks Due Today View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"task_section\",\"name\":\"Task Folders\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Task Inbox\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"jira\",\"name\":\"Jira\",\"logo\":\"jira\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/atlassian/\",\"views\":[{\"name\":\"Jira View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionObjectID.Hex())
 		assert.Equal(t, expectedBody, string(body))
 	})
 	t.Run("TestTaskSectionIsAdded", func(t *testing.T) {
@@ -1817,7 +1948,7 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 		assert.NoError(t, err)
 		addedViewId := view.InsertedID.(primitive.ObjectID).Hex()
 		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK, nil)
-		expectedBody := fmt.Sprintf("[{\"type\":\"meeting_preparation\",\"name\":\"Meeting Preparation for the day\",\"logo\":\"gcal\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Meeting Preparation\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"due_today\",\"name\":\"Tasks Due Today\",\"logo\":\"generaltask\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Tasks Due Today View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"task_section\",\"name\":\"Task Folders\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Task Inbox\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":true,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
+		expectedBody := fmt.Sprintf("[{\"type\":\"meeting_preparation\",\"name\":\"Meeting Preparation for the day\",\"logo\":\"gcal\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Meeting Preparation\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"due_today\",\"name\":\"Tasks Due Today\",\"logo\":\"generaltask\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Tasks Due Today View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"task_section\",\"name\":\"Task Folders\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Task Inbox\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":true,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"jira\",\"name\":\"Jira\",\"logo\":\"jira\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/atlassian/\",\"views\":[{\"name\":\"Jira View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
 		assert.Equal(t, expectedBody, string(body))
 	})
 	t.Run("TestLinearIsAddedIsUnlinked", func(t *testing.T) {
@@ -1831,7 +1962,7 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 		assert.NoError(t, err)
 		addedViewId := view.InsertedID.(primitive.ObjectID).Hex()
 		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK, nil)
-		expectedBody := fmt.Sprintf("[{\"type\":\"meeting_preparation\",\"name\":\"Meeting Preparation for the day\",\"logo\":\"gcal\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Meeting Preparation\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"due_today\",\"name\":\"Tasks Due Today\",\"logo\":\"generaltask\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Tasks Due Today View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"task_section\",\"name\":\"Task Folders\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Task Inbox\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
+		expectedBody := fmt.Sprintf("[{\"type\":\"meeting_preparation\",\"name\":\"Meeting Preparation for the day\",\"logo\":\"gcal\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Meeting Preparation\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"due_today\",\"name\":\"Tasks Due Today\",\"logo\":\"generaltask\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Tasks Due Today View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"task_section\",\"name\":\"Task Folders\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Task Inbox\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"jira\",\"name\":\"Jira\",\"logo\":\"jira\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/atlassian/\",\"views\":[{\"name\":\"Jira View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
 		assert.Equal(t, expectedBody, string(body))
 	})
 	t.Run("TestLinearIsAddedIsLinked", func(t *testing.T) {
@@ -1850,7 +1981,7 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 			ServiceID: external.TASK_SERVICE_ID_LINEAR,
 		})
 		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK, nil)
-		expectedBody := fmt.Sprintf("[{\"type\":\"meeting_preparation\",\"name\":\"Meeting Preparation for the day\",\"logo\":\"gcal\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Meeting Preparation\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"due_today\",\"name\":\"Tasks Due Today\",\"logo\":\"generaltask\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Tasks Due Today View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"task_section\",\"name\":\"Task Folders\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Task Inbox\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Linear View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
+		expectedBody := fmt.Sprintf("[{\"type\":\"meeting_preparation\",\"name\":\"Meeting Preparation for the day\",\"logo\":\"gcal\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Meeting Preparation\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"due_today\",\"name\":\"Tasks Due Today\",\"logo\":\"generaltask\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Tasks Due Today View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"task_section\",\"name\":\"Task Folders\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Task Inbox\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"jira\",\"name\":\"Jira\",\"logo\":\"jira\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/atlassian/\",\"views\":[{\"name\":\"Jira View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Linear View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
 		assert.Equal(t, expectedBody, string(body))
 	})
 	t.Run("TestSlackIsAddedIsUnlinked", func(t *testing.T) {
@@ -1864,7 +1995,7 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 		assert.NoError(t, err)
 		addedViewId := view.InsertedID.(primitive.ObjectID).Hex()
 		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK, nil)
-		expectedBody := fmt.Sprintf("[{\"type\":\"meeting_preparation\",\"name\":\"Meeting Preparation for the day\",\"logo\":\"gcal\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Meeting Preparation\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"due_today\",\"name\":\"Tasks Due Today\",\"logo\":\"generaltask\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Tasks Due Today View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"task_section\",\"name\":\"Task Folders\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Task Inbox\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
+		expectedBody := fmt.Sprintf("[{\"type\":\"meeting_preparation\",\"name\":\"Meeting Preparation for the day\",\"logo\":\"gcal\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Meeting Preparation\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"due_today\",\"name\":\"Tasks Due Today\",\"logo\":\"generaltask\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Tasks Due Today View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"task_section\",\"name\":\"Task Folders\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Task Inbox\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"jira\",\"name\":\"Jira\",\"logo\":\"jira\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/atlassian/\",\"views\":[{\"name\":\"Jira View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
 		assert.Equal(t, expectedBody, string(body))
 	})
 	t.Run("TestSlackIsAddedIsLinked", func(t *testing.T) {
@@ -1883,7 +2014,8 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 			ServiceID: external.TASK_SERVICE_ID_SLACK,
 		})
 		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK, nil)
-		expectedBody := fmt.Sprintf("[{\"type\":\"meeting_preparation\",\"name\":\"Meeting Preparation for the day\",\"logo\":\"gcal\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Meeting Preparation\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"due_today\",\"name\":\"Tasks Due Today\",\"logo\":\"generaltask\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Tasks Due Today View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"task_section\",\"name\":\"Task Folders\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Task Inbox\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Slack View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
+		expectedBody := fmt.Sprintf("[{\"type\":\"meeting_preparation\",\"name\":\"Meeting Preparation for the day\",\"logo\":\"gcal\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Meeting Preparation\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"due_today\",\"name\":\"Tasks Due Today\",\"logo\":\"generaltask\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Tasks Due Today View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"task_section\",\"name\":\"Task Folders\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Task Inbox\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"jira\",\"name\":\"Jira\",\"logo\":\"jira\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/atlassian/\",\"views\":[{\"name\":\"Jira View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Slack View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
+
 		assert.Equal(t, expectedBody, string(body))
 	})
 }
