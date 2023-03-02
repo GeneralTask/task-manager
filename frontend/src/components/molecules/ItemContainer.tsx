@@ -32,9 +32,9 @@ const ItemContainerDiv = styled.div<{
     ${({ isMultiSelected }) =>
         isMultiSelected &&
         `
-        outline: ${Border.stroke.medium} solid ${Colors.background.border};
+        outline: ${Border.stroke.medium} solid ${Colors.legacyColors.orange};
         :hover {
-            outline: ${Border.stroke.medium} solid ${Colors.background.border};
+            outline: ${Border.stroke.medium} solid ${Colors.legacyColors.orange};
         }
     `}
     padding: 0 ${({ isCompact }) => (isCompact ? `${Spacing._4} 0 0` : Spacing._16)};
