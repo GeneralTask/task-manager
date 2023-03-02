@@ -1,5 +1,6 @@
 import React from 'react'
 import { QueryContextProvider } from './QueryContext'
+import { SelectionContextProvider } from './SelectionContextProvider'
 import { ShortcutContextProvider } from './ShortcutContext'
 
 interface AppContextProviderProps {
@@ -8,7 +9,9 @@ interface AppContextProviderProps {
 const AppContextProvider = ({ children }: AppContextProviderProps) => {
     return (
         <QueryContextProvider>
-            <ShortcutContextProvider>{children}</ShortcutContextProvider>
+            <SelectionContextProvider>
+                <ShortcutContextProvider>{children}</ShortcutContextProvider>
+            </SelectionContextProvider>
         </QueryContextProvider>
     )
 }

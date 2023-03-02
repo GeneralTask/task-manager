@@ -1,9 +1,14 @@
-import { forwardRef } from 'react'
+import { MouseEventHandler, forwardRef } from 'react'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { EdgeHighlight } from '../atoms/SelectableContainer'
 
-const ItemContainerDiv = styled.div<{ isSelected?: boolean; isCompact?: boolean; forceHoverStyle?: boolean }>`
+const ItemContainerDiv = styled.div<{
+    isSelected?: boolean
+    isMultiSelected?: boolean
+    isCompact?: boolean
+    forceHoverStyle?: boolean
+}>`
     position: relative;
     display: flex;
     flex-direction: row;
@@ -13,6 +18,12 @@ const ItemContainerDiv = styled.div<{ isSelected?: boolean; isCompact?: boolean;
     background-color: ${Colors.background.white};
     box-shadow: ${Shadows.button.default};
     border-radius: ${Border.radius.mini};
+    ${({ isMultiSelected }) =>
+        isMultiSelected &&
+        `
+        background-color: ${Colors.gtColor.blue}25;
+        outline: ${Border.stroke.medium} solid ${Colors.border.light};
+    `}
     :hover {
         outline: ${Border.stroke.medium} solid ${Colors.border.light};
         background-color: ${Colors.background.medium};
@@ -31,16 +42,21 @@ const ItemContainerDiv = styled.div<{ isSelected?: boolean; isCompact?: boolean;
 
 interface ItemContainerProps {
     isSelected?: boolean
+    isMultiSelected?: boolean
     isCompact?: boolean
-    onClick?: () => void
+    onClick?: MouseEventHandler
     children: React.ReactNode
     forceHoverStyle?: boolean
     className?: string
 }
 const ItemContainer = forwardRef<HTMLDivElement, ItemContainerProps>(
-    ({ isSelected, isCompact = false, onClick, children, forceHoverStyle, className }, ref) => (
+    (
+        { isSelected, isMultiSelected = false, isCompact = false, onClick, children, forceHoverStyle, className },
+        ref
+    ) => (
         <ItemContainerDiv
             isSelected={isSelected}
+            isMultiSelected={isMultiSelected}
             isCompact={isCompact}
             onClick={onClick}
             ref={ref}
