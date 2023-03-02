@@ -4,13 +4,13 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_FOLDER_ID } from '../../constants'
+import { SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
 import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
-import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
+import { useMarkTaskDoneOrDeleted } from '../../services/api/tasks.hooks'
 import { useGetTasksV4 } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
-import { externalStatusIcons, icons, logos } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import { DropType, TTaskV4 } from '../../utils/types'
 import Domino from '../atoms/Domino'
 import DueDate from '../atoms/DueDate'
@@ -221,10 +221,10 @@ const Task = ({
                     ) : (
                         <MarkTaskDoneButton
                             taskId={task.id}
-                            sectionId={sectionId}
+                            sectionId={task.id_folder}
                             isDone={task.is_done}
                             isSelected={isSelected}
-                            isDisabled={!!task.optimisticId || sectionId === TRASH_SECTION_ID}
+                            isDisabled={!!task.optimisticId || task.is_deleted}
                             onMarkComplete={taskFadeOut}
                             optimsticId={task.optimisticId}
                         />
