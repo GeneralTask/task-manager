@@ -95,7 +95,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
     const { data: folders } = useGetFolders(false)
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderTask, mutateAsync: reorderTaskAsync } = useReorderTask(false)
-    const { mutate: modifyTask } = useModifyTask(false)
+    const { mutate: modifyTask } = useModifyTask(true)
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted(false)
     const [isRecurringTaskTemplateModalOpen, setIsRecurringTaskTemplateModalOpen] = useState(false)
     const { inMultiSelectMode, selectedTaskIds, clearSelectedTaskIds } = useSelectionContext()
@@ -135,7 +135,6 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
         modifyTask({ id: task.id, dueDate: date }, task.optimisticId)
     }
     const onMultiSetDueDateClick = (date: string) => {
-        clearSelectedTaskIds()
         Promise.all(selectedTaskIds.map((id) => modifyTask({ id, dueDate: date })))
     }
     const onSingleSetPriorityClick = (priority: number) => {
