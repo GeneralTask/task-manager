@@ -14,13 +14,13 @@ const ItemContainerDiv = styled.div<{ isSelected?: boolean; isCompact?: boolean;
     box-shadow: ${Shadows.button.default};
     border-radius: ${Border.radius.mini};
     :hover {
-        outline: ${Border.stroke.medium} solid ${Colors.border.light};
+        outline: ${Border.stroke.medium} solid ${Colors.background.border};
         background-color: ${Colors.background.medium};
     }
     ${({ forceHoverStyle }) =>
         forceHoverStyle &&
         `
-        outline: ${Border.stroke.medium} solid ${Colors.border.light};
+        outline: ${Border.stroke.medium} solid ${Colors.background.border};
         background-color: ${Colors.background.medium};`}
     padding: 0 ${({ isCompact }) => (isCompact ? `${Spacing._4} 0 0` : Spacing._16)};
     cursor: pointer;
@@ -47,7 +47,7 @@ const ItemContainer = forwardRef<HTMLDivElement, ItemContainerProps>(
             forceHoverStyle={forceHoverStyle}
             className={className}
         >
-            {isSelected && <EdgeHighlight color={Colors.gtColor.orange} />}
+            {isSelected && <EdgeHighlight color={Colors.legacyColors.orange} />}
             {children}
         </ItemContainerDiv>
     )

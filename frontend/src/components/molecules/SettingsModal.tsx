@@ -201,7 +201,7 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                                     </a>
                                 </Service>
                             </ServicesContainer>
-                            <Divider color={Colors.border.light} />
+                            <Divider color={Colors.background.border} />
                             <Body>My integrations</Body>
                             {linkedAccounts && linkedAccounts.length > 0 ? (
                                 linkedAccounts?.map((account) => (

@@ -111,7 +111,7 @@ const GTModal = ({ title, tabs, defaultTabIndex = 0, ...baseModalProps }: GTModa
                         />
                     </Flex>
                     {tab.subtitle && <Label color="light">{tab.subtitle}</Label>}
-                    {Array.isArray(tabs) && <Divider color={Colors.border.light} />}
+                    {Array.isArray(tabs) && <Divider color={Colors.background.border} />}
                     <div>{tab.body}</div>
                 </ModalContent>
             </ModalOuter>

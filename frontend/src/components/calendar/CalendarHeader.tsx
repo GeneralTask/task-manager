@@ -155,7 +155,7 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                             />
                         </Flex>
                     </PaddedContainer>
-                    <Divider color={Colors.border.light} />
+                    <Divider color={Colors.background.border} />
                     {!isCalendarExpanded && (
                         <PaddedContainer>
                             {nextPreviousButtons}

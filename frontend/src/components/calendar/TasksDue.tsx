@@ -14,8 +14,8 @@ import TasksDueHeader from './TasksDueHeader'
 const CONTAINER_MAX_HEIGHT = '130px'
 
 const TasksDueContainer = styled.div<{ hasTopBorder?: boolean }>`
-    ${({ hasTopBorder }) => hasTopBorder && `border-top: ${Border.stroke.medium} solid ${Colors.border.light};`}
-    border-bottom: ${Border.stroke.medium} solid ${Colors.border.light};
+    ${({ hasTopBorder }) => hasTopBorder && `border-top: ${Border.stroke.medium} solid ${Colors.background.border};`}
+    border-bottom: ${Border.stroke.medium} solid ${Colors.background.border};
 `
 export const PaddedTasksScroll = styled.div`
     padding: 0 ${Spacing._12} ${Spacing._8};

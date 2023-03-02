@@ -41,7 +41,7 @@ export const PullRequestRow = styled.div<{ isSelected: boolean }>`
     box-shadow: ${Shadows.button.default};
     &:hover {
         background-color: ${Colors.background.medium};
-        outline: ${Border.stroke.medium} solid ${Colors.border.light};
+        outline: ${Border.stroke.medium} solid ${Colors.background.border};
     }
     gap: ${Spacing._16};
     align-items: center;
@@ -66,8 +66,8 @@ export const RepositoryName = styled.div`
 export const BranchNameContainer = styled.div`
     display: flex;
     align-items: center;
-    color: ${Colors.gtColor.primary};
-    border: ${Border.stroke.medium} solid ${Colors.border.purple};
+    color: ${Colors.legacyColors.purple};
+    border: ${Border.stroke.medium} solid ${Colors.legacyColors.purple};
     background-color: ${Colors.background.white};
     border-radius: ${Border.radius.small};
     padding: ${Spacing._4} ${Spacing._8};

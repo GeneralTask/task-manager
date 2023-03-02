@@ -15,7 +15,7 @@ export const MenuTriggerShared = css<{ $unstyled?: boolean }>`
         `
         border-radius: ${Border.radius.small};
         &:focus {
-            outline: ${Border.stroke.small} solid ${Colors.border.light};
+            outline: ${Border.stroke.small} solid ${Colors.background.border};
         }
     `}
 `
@@ -35,12 +35,12 @@ export const MenuItemShared = css<{ $textColor?: TTextColor; $disabled?: boolean
         ${({ $disabled }) =>
             !$disabled &&
             `
-        outline: ${Border.stroke.small} solid ${Colors.border.light};
+        outline: ${Border.stroke.small} solid ${Colors.background.border};
         background-color: ${Colors.background.medium};
         `}
     }
     &[data-state='open'] {
-        outline: ${Border.stroke.small} solid ${Colors.border.light};
+        outline: ${Border.stroke.small} solid ${Colors.background.border};
         background-color: ${Colors.background.medium};
     }
 `

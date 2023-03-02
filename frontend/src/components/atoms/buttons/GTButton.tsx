@@ -37,16 +37,16 @@ const SimpleButtonStyles = css<{ active?: boolean; disabled?: boolean }>`
     background-color: inherit;
     color: ${Colors.text.light};
     &:hover {
-        ${({ disabled }) => !disabled && `outline: ${Border.stroke.small} solid ${Colors.border.light};`}
+        ${({ disabled }) => !disabled && `outline: ${Border.stroke.small} solid ${Colors.background.border};`}
     }
     &:active {
         background-color: ${Colors.background.light};
-        outline: ${Border.stroke.small} solid ${Colors.border.light};
+        outline: ${Border.stroke.small} solid ${Colors.background.border};
     }
     ${({ active }) =>
         active &&
         `background-color: ${Colors.background.light};
-        outline: ${Border.stroke.small} solid ${Colors.border.light};`}
+        outline: ${Border.stroke.small} solid ${Colors.background.border};`}
     ${Typography.label};
 `
 const LargeButtonStyle = css`

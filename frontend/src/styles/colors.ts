@@ -1,9 +1,9 @@
 // deprecated
-export const border = {
-    extra_light: '#F0F3F7',
-    light: '#DADADA',
-    gray: '#717179',
+export const legacyColors = {
     purple: '#5634CF',
+    secondary: '#EEEBFA',
+    orange: '#FF8200',
+    blue: '#405EFB',
 }
 
 // deprecated
@@ -42,14 +42,6 @@ export const status = {
     gray: { default: '#717179', light: '#DADADA' },
 }
 export type TStatusColors = keyof typeof status
-
-// deprecated
-export const gtColor = {
-    primary: '#5634CF',
-    secondary: '#EEEBFA',
-    orange: '#FF8200',
-    blue: '#405EFB',
-}
 
 export const accent = {
     pink: '#DB2979',
