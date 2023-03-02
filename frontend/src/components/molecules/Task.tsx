@@ -100,6 +100,8 @@ const Task = ({
     const { task: idTaskRoute } = useParams()
     const { data: allTasks } = useGetTasksV4()
 
+    const { inMultiSelectMode } = useSelectionContext()
+
     const sortedTasks = useGetSortedFolderTasks(task.id_folder ?? '')
 
     useInterval(() => {
@@ -171,7 +173,7 @@ const Task = ({
                 setDate(dayViewDate)
             }
         },
-        [link, isSelected, dayViewDate]
+        [link, isSelected, dayViewDate, inMultiSelectMode]
     )
 
     const [, drag, dragPreview] = useDrag(
