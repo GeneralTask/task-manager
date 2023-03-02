@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { TRASH_FOLDER_ID } from '../constants'
 import { TTaskV4 } from '../utils/types'
 import { emptyFunction } from '../utils/utils'
 
@@ -8,7 +7,7 @@ interface TSelectionContext {
     onClickHandler: (
         e: React.MouseEvent<HTMLDivElement, MouseEvent>,
         id: string,
-        idFolder: string,
+        isTrashOrComplete: boolean,
         currentlySelectedTaskId: string,
         sortedTasks: TTaskV4[]
     ) => void
@@ -67,20 +66,19 @@ export const SelectionContextProvider = ({ children }: SelectionContextProviderP
     const onClickHandler = (
         e: React.MouseEvent<HTMLDivElement, MouseEvent>,
         id: string,
-        idFolder: string,
+        isTrashOrComplete: boolean,
         currentlySelectedTaskId: string,
         sortedTasks: TTaskV4[]
     ) => {
         e.stopPropagation()
         e.preventDefault()
-        if (idFolder === TRASH_FOLDER_ID) return
+        if (isTrashOrComplete) return
 
         if (e.metaKey) {
             toggleTaskId(id)
         } else if (e.shiftKey) {
             const lastSelectedTaskId =
                 selectedTaskIds.length !== 0 ? selectedTaskIds[selectedTaskIds.length - 1] : currentlySelectedTaskId
-
             if (lastSelectedTaskId) {
                 const clickedTaskIndex = sortedTasks.findIndex((task) => task.id === id)
                 const lastSelectedTaskIndex = sortedTasks.findIndex((task) => task.id === lastSelectedTaskId)

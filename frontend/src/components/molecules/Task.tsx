@@ -217,7 +217,9 @@ const Task = ({
                 isVisible={isVisible}
                 onMouseLeave={() => setIsHovered(false)}
                 onMouseEnter={() => setIsHovered(true)}
-                onClick={(e) => onMultiSelectClick(e, task.id, task.id_folder ?? '', idTaskRoute ?? '', sortedTasks)}
+                onClick={(e) =>
+                    onMultiSelectClick(e, task.id, task.is_deleted || task.is_done, idTaskRoute ?? '', sortedTasks)
+                }
             >
                 <ItemContainer
                     isSelected={isSelected}
