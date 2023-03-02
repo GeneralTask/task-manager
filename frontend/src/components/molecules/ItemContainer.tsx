@@ -18,21 +18,25 @@ const ItemContainerDiv = styled.div<{
     background-color: ${Colors.background.white};
     box-shadow: ${Shadows.button.default};
     border-radius: ${Border.radius.mini};
-    ${({ isMultiSelected }) =>
-        isMultiSelected &&
-        `
-        background-color: ${Colors.gtColor.blue}25;
-        outline: ${Border.stroke.medium} solid ${Colors.border.light};
-    `}
     :hover {
         outline: ${Border.stroke.medium} solid ${Colors.border.light};
         background-color: ${Colors.background.medium};
     }
+
     ${({ forceHoverStyle }) =>
         forceHoverStyle &&
         `
         outline: ${Border.stroke.medium} solid ${Colors.border.light};
-        background-color: ${Colors.background.medium};`}
+        background-color: ${Colors.background.medium};
+        `}
+    ${({ isMultiSelected }) =>
+        isMultiSelected &&
+        `
+        outline: ${Border.stroke.medium} solid ${Colors.gtColor.orange};
+        :hover {
+            outline: ${Border.stroke.medium} solid ${Colors.gtColor.orange};
+        }
+    `}
     padding: 0 ${({ isCompact }) => (isCompact ? `${Spacing._4} 0 0` : Spacing._16)};
     cursor: pointer;
     white-space: nowrap;
