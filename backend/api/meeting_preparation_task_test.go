@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
@@ -32,8 +33,14 @@ func TestMeetingPreparationTask(t *testing.T) {
 			UserID:     userID,
 			IDExternal: "acctid",
 			Calendars: []database.Calendar{
-				{"owner", "calid", "", ""},
-				{"reader", "other_calid", "", ""},
+				{
+					AccessRole: constants.AccessControlOwner,
+					CalendarID: "calid",
+				},
+				{
+					AccessRole: constants.AccessControlReader,
+					CalendarID: "other_calid",
+				},
 			},
 		}, nil)
 	assert.NoError(t, err)
@@ -99,8 +106,14 @@ func TestGetMeetingPreparationTasksResult(t *testing.T) {
 			UserID:     userID,
 			IDExternal: "acctid",
 			Calendars: []database.Calendar{
-				{"owner", "calid", "", ""},
-				{"reader", "other_calid", "", ""},
+				{
+					AccessRole: constants.AccessControlOwner,
+					CalendarID: "calid",
+				},
+				{
+					AccessRole: constants.AccessControlReader,
+					CalendarID: "other_calid",
+				},
 			},
 		}, nil)
 	assert.NoError(t, err)

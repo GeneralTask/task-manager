@@ -30,7 +30,7 @@ const ListContainer = styled.div`
     height: fit-content;
     flex: 1;
     background-color: ${Colors.background.white};
-    box-shadow: ${Shadows.button.default};
+    box-shadow: ${Shadows.deprecated_button.default};
     border-radius: ${Border.radius.small};
 `
 const Reasoning = styled.span`
@@ -124,7 +124,7 @@ const SmartSuggestion = ({ suggestions, onRevertToManual }: SmartSuggestionProps
                         <List id={id} index={index} />
                         <Reasoning>{reasoning}</Reasoning>
                     </Suggestion>
-                    {index !== suggestions.length - 1 && <Divider color={Colors.border.light} />}
+                    {index !== suggestions.length - 1 && <Divider color={Colors.background.border} />}
                 </Fragment>
             ))}
         </>

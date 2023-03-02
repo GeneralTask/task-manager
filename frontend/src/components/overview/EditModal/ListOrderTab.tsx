@@ -48,7 +48,7 @@ const ListOrderTab = () => {
                 onReorder={handleReorder}
                 indicatorType="TOP_ONLY"
             />
-            <PositionedDivider color={Colors.border.light} />
+            <PositionedDivider color={Colors.background.border} />
             <PreferencesContainer>
                 <PreferencesTitle>Preferences</PreferencesTitle>
                 <ListModalPreference

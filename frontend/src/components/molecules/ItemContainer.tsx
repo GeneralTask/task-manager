@@ -16,25 +16,25 @@ const ItemContainerDiv = styled.div<{
     justify-content: space-between;
     height: 100%;
     background-color: ${Colors.background.white};
-    box-shadow: ${Shadows.button.default};
+    box-shadow: ${Shadows.deprecated_button.default};
     border-radius: ${Border.radius.mini};
     :hover {
-        outline: ${Border.stroke.medium} solid ${Colors.border.light};
+        outline: ${Border.stroke.medium} solid ${Colors.background.border};
         background-color: ${Colors.background.medium};
     }
 
     ${({ forceHoverStyle }) =>
         forceHoverStyle &&
         `
-        outline: ${Border.stroke.medium} solid ${Colors.border.light};
+    outline: ${Border.stroke.medium} solid ${Colors.background.border};
         background-color: ${Colors.background.medium};
         `}
     ${({ isMultiSelected }) =>
         isMultiSelected &&
         `
-        outline: ${Border.stroke.medium} solid ${Colors.gtColor.orange};
+        outline: ${Border.stroke.medium} solid ${Colors.background.border};
         :hover {
-            outline: ${Border.stroke.medium} solid ${Colors.gtColor.orange};
+            outline: ${Border.stroke.medium} solid ${Colors.background.border};
         }
     `}
     padding: 0 ${({ isCompact }) => (isCompact ? `${Spacing._4} 0 0` : Spacing._16)};
@@ -67,7 +67,7 @@ const ItemContainer = forwardRef<HTMLDivElement, ItemContainerProps>(
             forceHoverStyle={forceHoverStyle}
             className={className}
         >
-            {isSelected && <EdgeHighlight color={Colors.gtColor.orange} />}
+            {isSelected && <EdgeHighlight color={Colors.legacyColors.orange} />}
             {children}
         </ItemContainerDiv>
     )

@@ -21,7 +21,7 @@ const Calendar = styled(Flex)`
     padding: ${Spacing._8} ${Spacing._4};
     box-sizing: border-box;
     :hover {
-        border: ${Border.stroke.small} solid ${Colors.border.light};
+        border: ${Border.stroke.small} solid ${Colors.background.border};
         background-color: ${Colors.background.light};
     }
 `
@@ -117,7 +117,14 @@ const CalendarSettings = () => {
                                             )
                                         }
                                     />
-                                    <Icon icon={icons.square} colorHex={getCalendarColor(calendar.color_id)} />
+                                    <Icon
+                                        icon={icons.square}
+                                        colorHex={
+                                            isPreviewMode
+                                                ? calendar.color_background
+                                                : getCalendarColor(calendar.color_id)
+                                        }
+                                    />
                                     <BodySmall>{getCalendarName(account.account_id, calendar.title)}</BodySmall>
                                 </Calendar>
                             ))}

@@ -903,8 +903,14 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 			UserID:     userID,
 			IDExternal: "acctid",
 			Calendars: []database.Calendar{
-				{constants.AccessControlOwner, "calid", "", ""},
-				{"reader", "other_calid", "", ""},
+				{
+					AccessRole: constants.AccessControlOwner,
+					CalendarID: "calid",
+				},
+				{
+					AccessRole: constants.AccessControlReader,
+					CalendarID: "other_calid",
+				},
 			},
 		}, nil)
 	assert.NoError(t, err)

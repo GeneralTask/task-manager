@@ -113,14 +113,14 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
                 <BranchName name={branch} />
             </BranchInfoContainer>
             <PaddingVertical24>
-                <Divider color={Colors.border.extra_light} />
+                <Divider color={Colors.background.border} />
             </PaddingVertical24>
             <Eyebrow color="light">Description</Eyebrow>
             <PullRequestComment author={author} body={body} lastUpdatedAt={last_updated_at} isAuthorOfPR />
             {num_comments > 0 && (
                 <>
                     <PaddingVertical24>
-                        <Divider color={Colors.border.extra_light} />
+                        <Divider color={Colors.background.border} />
                     </PaddingVertical24>
                     <Eyebrow color="light">{`Comments (${num_comments})`}</Eyebrow>
                     {comments

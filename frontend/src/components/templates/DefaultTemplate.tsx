@@ -24,10 +24,10 @@ const DefaultTemplateContainer = styled.div<{ $calendarType: TCalendarType; $sho
     position: relative;
     min-width: ${WINDOW_MIN_WIDTH};
     a {
-        color: ${Colors.gtColor.primary};
+        color: ${Colors.legacyColors.purple};
     }
     .tooltip {
-        box-shadow: ${Shadows.light} !important;
+        box-shadow: ${Shadows.deprecated_light} !important;
         border-radius: ${Border.radius.medium} !important;
         font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu,
             Cantarell, Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji',

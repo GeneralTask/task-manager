@@ -7,7 +7,7 @@ export const ViewContainer = styled.div`
     background-color: ${Colors.background.white};
     border-radius: ${Border.radius.small};
     margin: ${Spacing._16} 0;
-    box-shadow: ${Shadows.light};
+    box-shadow: ${Shadows.deprecated_light};
 `
 export const ViewHeader = styled.div`
     margin: ${Spacing._8} 0;
@@ -31,7 +31,7 @@ export const SelectedList = styled.div`
     width: 100%;
     box-sizing: border-box;
     border-radius: ${Border.radius.mini};
-    border: ${Border.stroke.medium} solid ${Colors.gtColor.secondary};
+    border: ${Border.stroke.medium} solid ${Colors.legacyColors.secondary};
     padding: ${Spacing._12};
     margin: ${Spacing._4} 0;
     gap: ${Spacing._12};

@@ -137,9 +137,6 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
     const onMultiSetDueDateClick = (date: string) => {
         Promise.all(selectedTaskIds.map((id) => modifyTask({ id, dueDate: date })))
     }
-    const onSingleSetPriorityClick = (priority: number) => {
-        modifyTask({ id: task.id, priorityNormalized: priority }, task.optimisticId)
-    }
     const onMultiSetPriorityClick = (priority: number) => {
         clearSelectedTaskIds()
         Promise.all(selectedTaskIds.map((id) => modifyTask({ id, priorityNormalized: priority })))
@@ -152,11 +149,55 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
         Promise.all(selectedTaskIds.map((id) => markTaskDoneOrDeleted({ id, isDeleted: !task.is_deleted })))
     }
 
+    const getPriorityOption = (task: TTaskV4): GTMenuItem => {
+        if (task.all_priorities) {
+            return {
+                label: 'Set priority',
+                icon: icons.priority,
+                subItems: task.all_priorities.map((priority) => ({
+                    label: priority.name,
+                    icon: priority.icon_url,
+                    selected: priority.priority_normalized === task.priority_normalized,
+                    onClick: () => {
+                        if (parentTask && task) {
+                            modifyTask(
+                                {
+                                    id: parentTask.id,
+                                    external_priority_id: priority.external_id,
+                                },
+                                task.optimisticId
+                            )
+                        } else {
+                            modifyTask({ id: task.id, external_priority_id: priority.external_id }, task.optimisticId)
+                        }
+                    },
+                })),
+            }
+        }
+        return {
+            label: 'Set priority',
+            icon: icons.priority,
+            subItems: TASK_PRIORITIES.map((priority, val) => ({
+                label: priority.label,
+                icon: priority.icon,
+                selected: val === task.priority_normalized,
+                iconColor: priority.color,
+                onClick: () => {
+                    if (parentTask && task) {
+                        modifyTask({ id: parentTask.id, priorityNormalized: val }, task.optimisticId)
+                    } else {
+                        modifyTask({ id: task.id, priorityNormalized: val }, task.optimisticId)
+                    }
+                },
+            })),
+        }
+    }
+
     const contextMenuItems: GTMenuItem[] = [
         ...(task.id_folder && folders ? [getMoveFolderMenuItem(task, folders, onSingleSelectFolderClick)] : []),
         getSetDueDateMenuItem(task, onSingleSetDueDateClick),
-        getSetPriorityMenuItem(task, onSingleSetPriorityClick),
-        ...(!task.id_parent && !task.is_deleted && !task.is_done && task.source.name !== 'Jira'
+        getPriorityOption(task),
+        ...(!task.id_parent && !task.is_deleted && !task.is_done
             ? [
                   {
                       label: 'Duplicate task',

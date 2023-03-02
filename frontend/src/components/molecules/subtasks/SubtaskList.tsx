@@ -28,7 +28,7 @@ const AddTaskbutton = styled.div`
     border: ${Border.stroke.small} solid transparent;
     box-sizing: border-box;
     :hover {
-        border-color: ${Colors.border.light};
+        border-color: ${Colors.background.border};
         border-radius: ${Border.radius.small};
     }
 `

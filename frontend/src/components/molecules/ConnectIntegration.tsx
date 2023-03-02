@@ -115,7 +115,7 @@ const ConnectIntegration = ({ type, reconnect = false, reauthorizeAccountName }:
                 <GTButton
                     disabled={isAuthWindowOpen}
                     value={getButtonLabel()}
-                    color={Colors.gtColor.primary}
+                    color={Colors.legacyColors.purple}
                     size="small"
                     onClick={onClick}
                 />
