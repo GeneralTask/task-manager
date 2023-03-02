@@ -5,7 +5,7 @@ import { useCreateTask, useReorderTask } from '../../../services/api/tasks.hooks
 import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSelectors'
 import { TASK_SORT_AND_FILTER_CONFIG } from '../../../utils/sortAndFilter/tasks.config'
 import useSortAndFilterSettings from '../../../utils/sortAndFilter/useSortAndFilterSettings'
-import { DropItem, DropType, TTask } from '../../../utils/types'
+import { DropItem, DropType, TTaskV4 } from '../../../utils/types'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import CreateNewItemInput from '../../molecules/CreateNewItemInput'
 import Task from '../../molecules/Task'
@@ -24,7 +24,7 @@ const TaskSectionViewItems = forwardRef(
         const navigate = useNavigate()
         const location = useLocation()
 
-        const sortAndFilterSettings = useSortAndFilterSettings<TTask>(
+        const sortAndFilterSettings = useSortAndFilterSettings<TTaskV4>(
             TASK_SORT_AND_FILTER_CONFIG,
             view.task_section_id,
             '_overview'
@@ -50,10 +50,10 @@ const TaskSectionViewItems = forwardRef(
             const optimisticId = uuidv4()
             createTask({
                 title: title,
-                taskSectionId: sectionId,
+                id_folder: sectionId,
                 optimisticId: optimisticId,
             })
-            const allListsEmpty = lists?.every((list) => list.view_items.length === 0)
+            const allListsEmpty = lists?.every((list) => list.view_item_ids.length === 0)
             if (allListsEmpty && location.pathname.includes('overview')) {
                 navigate(`/overview/${view.id}/${optimisticId}/`)
             }
@@ -78,10 +78,9 @@ const TaskSectionViewItems = forwardRef(
                             disabled={sortAndFilterSettings.selectedSort.id !== 'manual'}
                         >
                             <Task
-                                task={item as TTask}
+                                task={item}
                                 dragDisabled={item.is_done}
                                 index={index}
-                                sectionId={sectionId}
                                 sectionScrollingRef={scrollRef}
                                 isSelected={overviewViewId === view.id && overviewItemId === item.id}
                                 link={`/overview/${view.id}/${item.id}`}

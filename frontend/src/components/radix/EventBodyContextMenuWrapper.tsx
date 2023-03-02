@@ -66,7 +66,7 @@ const FocusModeContextMenuWrapper = ({ event, children }: FocusModeContextMenuPr
                   {
                       label: 'View task details',
                       icon: logos.generaltask,
-                      onClick: () => navigateToTask(event.linked_task_id),
+                      onClick: () => navigateToTask({ taskId: event.linked_task_id }),
                   },
               ]
             : []),

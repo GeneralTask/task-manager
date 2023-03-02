@@ -1,27 +1,31 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
+import { DONE_FOLDER_ID, TRASH_FOLDER_ID } from '../../constants'
 import { useKeyboardShortcut } from '../../hooks'
 import { useNavigateToTask } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
+import { useGetFolders } from '../../services/api/folders.hooks'
 import Log from '../../services/api/log'
-import { useCreateTask, useFetchExternalTasks, useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
+import { useGetMeetingPreparationTasks } from '../../services/api/meeting-preparation-tasks.hooks'
+import { useCreateTask, useFetchExternalTasks, useReorderTask } from '../../services/api/tasks.hooks'
+import { useGetTasksV4 } from '../../services/api/tasks.hooks'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
 import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
 import { TASK_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/tasks.config'
 import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
-import { DropItem, DropType, TTask } from '../../utils/types'
-import { getTaskIndexFromSections } from '../../utils/utils'
+import { DropItem, DropType, TTaskV4 } from '../../utils/types'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import Spinner from '../atoms/Spinner'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import CreateNewItemInput from '../molecules/CreateNewItemInput'
-import { SectionHeader } from '../molecules/Header'
+import { Header } from '../molecules/Header'
 import Task from '../molecules/Task'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
@@ -60,7 +64,9 @@ const TaskSectionView = () => {
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
     const { calendarType } = useCalendarContext()
-    const { data: taskSections, isLoading: isLoadingTasks } = useGetTasks()
+    const { data: meetingPreparationTasks } = useGetMeetingPreparationTasks()
+    const { data: allTasks, isLoading: isLoadingTasks } = useGetTasksV4()
+    const { data: folders } = useGetFolders()
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderTask } = useReorderTask()
     useFetchExternalTasks()
@@ -69,23 +75,42 @@ const TaskSectionView = () => {
     const params = useParams()
     const navigateToTask = useNavigateToTask()
 
-    const section = useMemo(() => taskSections?.find(({ id }) => id === params.section), [taskSections, params.section])
+    const folder = useMemo(() => folders?.find(({ id }) => id === params.section), [folders, params.section])
+    const folderTasks = useMemo(() => {
+        if (!folder) return []
+        if (folder.id === DONE_FOLDER_ID) {
+            return [
+                ...(meetingPreparationTasks?.filter((t) => t.is_done && !t.is_deleted) || []),
+                ...(allTasks?.filter((t) => t.is_done && !t.is_deleted && !t.id_parent) || []),
+            ].sort((a, b) => +DateTime.fromISO(b.updated_at) - +DateTime.fromISO(a.updated_at))
+        } else if (folder.id === TRASH_FOLDER_ID) {
+            return [
+                ...(meetingPreparationTasks?.filter((t) => t.is_deleted) || []),
+                ...(allTasks?.filter((t) => t.is_deleted && !t.id_parent) || []),
+            ].sort((a, b) => +DateTime.fromISO(b.updated_at) - +DateTime.fromISO(a.updated_at))
+        }
+        return allTasks?.filter((t) => t.id_folder === folder.id && !t.is_done && !t.is_deleted) || []
+    }, [allTasks, folder, meetingPreparationTasks])
 
-    const sortAndFilterSettings = useSortAndFilterSettings<TTask>(TASK_SORT_AND_FILTER_CONFIG, section?.id, '_main')
+    const sortAndFilterSettings = useSortAndFilterSettings<TTaskV4>(TASK_SORT_AND_FILTER_CONFIG, folder?.id, '_main')
     const { selectedSort, selectedSortDirection, isLoading: areSettingsLoading } = sortAndFilterSettings
     const sortedTasks = useMemo(() => {
-        if (section && (section.is_done || section.is_trash)) return section.tasks
-        if (!section || areSettingsLoading) return []
-        return sortAndFilterItems({
-            items: section.tasks,
+        if (folder && (folder.is_done || folder.is_trash)) return folderTasks
+        if (!folder || areSettingsLoading) return []
+
+        return sortAndFilterItems<TTaskV4>({
+            items: folderTasks,
             sort: selectedSort,
             sortDirection: selectedSortDirection,
             tieBreakerField: TASK_SORT_AND_FILTER_CONFIG.tieBreakerField,
         })
-    }, [section, selectedSort, selectedSortDirection, areSettingsLoading])
+    }, [folder, folderTasks, selectedSort, selectedSortDirection, areSettingsLoading])
 
-    const task = useMemo(() => sortedTasks.find(({ id }) => id === params.task), [sortedTasks, params.task])
-    const subtask = useMemo(() => task?.sub_tasks?.find(({ id }) => id === params.subtaskId), [task, params.subtaskId])
+    const task = useMemo(() => {
+        const subtask = allTasks?.find(({ id }) => id === params.subtaskId)
+        const task = allTasks?.find(({ id }) => id === params.task)
+        return subtask || task
+    }, [allTasks, params.task, params.subtaskId])
 
     const [taskIndex, setTaskIndex] = useState(0)
 
@@ -97,86 +122,87 @@ const TaskSectionView = () => {
     }, [params.task, params.section, sortedTasks, task])
 
     const selectTask = useCallback(
-        (task: TTask) => {
+        (task: TTaskV4) => {
             setShouldScrollToTask(true)
-            if (section) {
-                navigate(`/tasks/${section.id}/${task.id}`, { replace: true })
+            if (folder) {
+                navigate(`/tasks/${folder.id}/${task.id}`, { replace: true })
                 Log(`task_select_${task.id}`)
             }
         },
-        [section]
+        [folder]
     )
     const handleReorderTask = useCallback(
         (item: DropItem, dropIndex: number) => {
-            if (!section) return
+            if (!folder) return
             reorderTask(
                 {
                     id: item.id,
                     orderingId: dropIndex,
-                    dropSectionId: section.id,
+                    dropSectionId: folder.id,
                 },
                 item.task?.optimisticId
             )
         },
-        [section]
+        [folder]
     )
 
     // deal with invalid routes
     useEffect(() => {
-        if (taskSections && taskSections.length > 0 && (!section || !task)) {
-            const firstSectionId = taskSections[0].id
-            if (!section) {
-                navigate(`/tasks/${firstSectionId}/`, { replace: true })
+        if (folders && folders.length > 0 && (!folder || !task)) {
+            const firstFolderId = folders[0].id
+            if (!folder) {
+                navigate(`/tasks/${firstFolderId}/`, { replace: true })
             } else if (!task && sortedTasks.length > taskIndex) {
-                navigate(`/tasks/${section.id}/${sortedTasks[taskIndex].id}`, { replace: true })
+                navigate(`/tasks/${folder.id}/${sortedTasks[taskIndex].id}`, { replace: true })
             } else if (!task && sortedTasks.length === taskIndex && taskIndex > 0) {
-                navigate(`/tasks/${section.id}/${sortedTasks[taskIndex - 1].id}`, { replace: true })
+                navigate(`/tasks/${folder.id}/${sortedTasks[taskIndex - 1].id}`, { replace: true })
             } else if (!task && sortedTasks.length > 0) {
-                navigate(`/tasks/${section.id}/${sortedTasks[0].id}`, { replace: true })
+                navigate(`/tasks/${folder.id}/${sortedTasks[0].id}`, { replace: true })
             }
         }
-    }, [taskSections, params.section, params.task, sortedTasks])
+    }, [folders, params.section, params.task, sortedTasks])
 
     useItemSelectionController(sortedTasks, selectTask)
 
     useKeyboardShortcut(
         'moveTaskDown',
         useCallback(() => {
-            if (!task || !section || taskIndex === section.tasks.length - 1) return
+            if (!task || !folder || taskIndex === sortedTasks.length - 1) return
             reorderTask({
                 id: task.id,
                 orderingId: task.id_ordering + 2,
-                dropSectionId: section.id,
+                dropSectionId: folder.id,
             })
-        }, [task, section, sortedTasks, taskIndex]),
+        }, [task, folder, sortedTasks, taskIndex, sortedTasks]),
         selectedSort.id !== 'manual'
     )
     useKeyboardShortcut(
         'moveTaskUp',
         useCallback(() => {
-            if (!task || !section || taskIndex === 0) return
+            if (!task || !folder || taskIndex === 0) return
             reorderTask({
                 id: task.id,
                 orderingId: task.id_ordering - 1,
-                dropSectionId: section.id,
+                dropSectionId: folder.id,
             })
-        }, [task, section, sortedTasks, taskIndex]),
+        }, [task, folder, sortedTasks, taskIndex]),
         selectedSort.id !== 'manual'
     )
 
     const selectTaskAfterCompletion = useCallback(
         (taskId: string) => {
-            if (!taskSections) return
+            if (!folders) return
             if (params.task !== taskId) return
-            const { taskIndex, sectionIndex } = getTaskIndexFromSections(taskSections, taskId)
-            if (sectionIndex == null || taskIndex == null) return
+            const folderIndex = folders.findIndex(({ id }) => id === params.section)
+            const taskIndex = sortedTasks.findIndex(({ id }) => id === taskId)
+            if (folderIndex == null || taskIndex == null) return
 
-            if (taskSections.length === 0 || taskSections[sectionIndex].tasks.length === 0) return
-            const previousTask = taskSections[sectionIndex].tasks[taskIndex - 1]
+            if (folders.length === 0 || sortedTasks.length === 0) return
+            const previousTask = sortedTasks[taskIndex - 1]
             if (!previousTask) return
-            navigateToTask(previousTask.id)
+            navigateToTask({ taskId: previousTask.id })
         },
-        [taskSections, params.task]
+        [folders, params.task]
     )
 
     return (
@@ -184,24 +210,24 @@ const TaskSectionView = () => {
             <TaskSectionContainer>
                 <ScrollableListTemplate ref={sectionScrollingRef}>
                     <TaskSectionViewContainer>
-                        {isLoadingTasks || !section || (areSettingsLoading && !section.is_done && !section.is_trash) ? (
+                        {isLoadingTasks || !folder || (areSettingsLoading && !folder.is_done && !folder.is_trash) ? (
                             <Spinner />
                         ) : (
                             <>
-                                <SectionHeader sectionName={section.name} taskSectionId={section.id} />
-                                {!section.is_done && !section.is_trash && (
+                                <Header folderName={folder.name} folderId={folder.id} />
+                                {!folder.is_done && !folder.is_trash && (
                                     <ActionsContainer>
                                         <SortAndFilterSelectors settings={sortAndFilterSettings} />
                                     </ActionsContainer>
                                 )}
-                                {!section.is_done && !section.is_trash && (
+                                {!folder.is_done && !folder.is_trash && (
                                     <CreateNewItemInput
                                         placeholder="Create new task"
                                         shortcutName="createTask"
                                         onSubmit={(title) =>
                                             createTask({
                                                 title: title,
-                                                taskSectionId: section.id,
+                                                id_folder: folder.id,
                                                 optimisticId: uuidv4(),
                                             })
                                         }
@@ -216,14 +242,13 @@ const TaskSectionView = () => {
                                             onReorder={handleReorderTask}
                                             disabled={
                                                 sortAndFilterSettings.selectedSort.id !== 'manual' ||
-                                                section.is_done ||
-                                                section.is_trash
+                                                folder.is_done ||
+                                                folder.is_trash
                                             }
                                         >
                                             <Task
                                                 task={task}
                                                 index={index}
-                                                sectionId={section.id}
                                                 sectionScrollingRef={sectionScrollingRef}
                                                 isSelected={task.id === params.task}
                                                 link={`/tasks/${params.section}/${task.id}`}
@@ -241,8 +266,8 @@ const TaskSectionView = () => {
                                     indicatorType="TOP_ONLY"
                                     disabled={
                                         sortAndFilterSettings.selectedSort.id !== 'manual' ||
-                                        section.is_done ||
-                                        section.is_trash
+                                        folder.is_done ||
+                                        folder.is_trash
                                     }
                                 >
                                     <BottomDropArea />
@@ -254,8 +279,8 @@ const TaskSectionView = () => {
             </TaskSectionContainer>
             {calendarType === 'day' && (
                 <>
-                    {task && section ? (
-                        <TaskDetails task={task} subtask={subtask} />
+                    {task && folder ? (
+                        <TaskDetails task={task} />
                     ) : (
                         <EmptyDetails icon={icons.check} text="You have no tasks" />
                     )}

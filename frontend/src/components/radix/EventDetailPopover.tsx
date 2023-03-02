@@ -1,7 +1,7 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
-import { EVENT_UNDO_TIMEOUT } from '../../constants'
+import { EVENT_UNDO_TIMEOUT, NO_TITLE } from '../../constants'
 import { useKeyboardShortcut, useNavigateToPullRequest, useNavigateToTask, useToast } from '../../hooks'
 import { useDeleteEvent, useGetCalendars } from '../../services/api/events.hooks'
 import { Spacing } from '../../styles'
@@ -121,7 +121,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                     </IconButton>
                 </EventHeaderIcons>
             </EventHeader>
-            <EventTitle>{event.title}</EventTitle>
+            <EventTitle>{event.title || NO_TITLE}</EventTitle>
             {calendarAccount && calendar && (
                 <Flex gap={Spacing._8}>
                     <Icon icon={icons.square} colorHex={getCalendarColor(event.color_id || calendar.color_id)} />
@@ -148,7 +148,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                         fitContent={false}
                         onClick={() => {
                             setIsOpen(false)
-                            navigateToTask(event.linked_task_id)
+                            navigateToTask({ taskId: event.linked_task_id })
                         }}
                     />
                 )}

@@ -1,8 +1,8 @@
-import { TTask } from '../types'
+import { TTaskV4 } from '../types'
 import { emptyFunction } from '../utils'
 import { SORT_DIRECTION, SortAndFilterSettingsConfig, SortOptions } from './types'
 
-export const TASK_SORT_SELECTOR_ITEMS: SortOptions<TTask> = {
+export const TASK_SORT_SELECTOR_ITEMS: SortOptions<TTaskV4> = {
     manual: {
         id: 'manual',
         label: 'Manual',
@@ -39,7 +39,7 @@ export const TASK_SORT_SELECTOR_ITEMS: SortOptions<TTask> = {
     },
 }
 
-export const TASK_SORT_AND_FILTER_CONFIG: SortAndFilterSettingsConfig<TTask> = {
+export const TASK_SORT_AND_FILTER_CONFIG: SortAndFilterSettingsConfig<TTaskV4> = {
     sortOptions: TASK_SORT_SELECTOR_ITEMS,
     filterOptions: {},
     sortPreferenceId: 'task_sorting_preference',

@@ -80,4 +80,5 @@ export interface GTMenuItem {
     renderer?: () => JSX.Element // override how the option is rendered
     count?: number
     keepOpenOnSelect?: boolean
+    tip?: string
 }

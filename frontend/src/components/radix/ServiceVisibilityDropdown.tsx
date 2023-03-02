@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useSetting } from '../../hooks'
+import { usePreviewMode, useSetting } from '../../hooks'
 import { icons, logos } from '../../styles/images'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Label } from '../atoms/typography/Typography'
@@ -10,15 +10,18 @@ interface ServiceVisibilityDropdownProps {
     disabled?: boolean
 }
 const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps) => {
+    const { isPreviewMode } = usePreviewMode()
     const [isOpen, setIsOpen] = useState(false)
     const [settingsIsOpen, setSettingsIsOpen] = useState(false)
     const showGitHubSetting = useSetting('sidebar_github_preference')
     const showLinearSetting = useSetting('sidebar_linear_preference')
     const showSlackSetting = useSetting('sidebar_slack_preference')
+    const showJiraSetting = useSetting('sidebar_jira_preference')
 
     const showGitHub = showGitHubSetting.field_value === 'true'
     const showLinear = showLinearSetting.field_value === 'true'
     const showSlack = showSlackSetting.field_value === 'true'
+    const showJira = showJiraSetting.field_value === 'true'
 
     const handleManageServicesClick = () => {
         setIsOpen(false)
@@ -58,6 +61,16 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
                             onClick: () => showSlackSetting.updateSetting(!showSlack),
                             selected: showSlack,
                         },
+                        ...(isPreviewMode
+                            ? [
+                                  {
+                                      label: 'Jira',
+                                      icon: logos.jira,
+                                      onClick: () => showJiraSetting.updateSetting(!showJira),
+                                      selected: showJira,
+                                  },
+                              ]
+                            : []),
                     ],
                     [
                         {

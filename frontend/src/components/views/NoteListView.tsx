@@ -15,7 +15,7 @@ import Flex from '../atoms/Flex'
 import Spinner from '../atoms/Spinner'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
-import { SectionHeader } from '../molecules/Header'
+import { Header } from '../molecules/Header'
 import Note from '../notes/Note'
 import NoteCreateButton from '../notes/NoteCreateButton'
 import NoteDetails from '../notes/NoteDetails'
@@ -76,7 +76,7 @@ const NoteListView = () => {
         <>
             <Flex>
                 <ScrollableListTemplate>
-                    <SectionHeader sectionName="Notes" />
+                    <Header folderName="Notes" />
                     <ActionsContainer>
                         <SortAndFilterSelectors settings={sortAndFilterSettings} />
                         <CreateButtonContainer>

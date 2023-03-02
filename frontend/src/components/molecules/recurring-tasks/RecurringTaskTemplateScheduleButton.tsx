@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { icons } from '../../../styles/images'
-import { TTask } from '../../../utils/types'
+import { TTaskV4 } from '../../../utils/types'
 import GTButton from '../../atoms/buttons/GTButton'
 import GTIconButton from '../../atoms/buttons/GTIconButton'
 import RecurringTaskTemplateModal from './RecurringTaskTemplateModal'
@@ -8,7 +8,7 @@ import { formatRecurrenceRateForScheduleButton, useGetRecurringTaskTemplateFromI
 
 interface RecurringTaskTemplateScheduleButtonProps {
     templateId?: string
-    task?: TTask
+    task?: TTaskV4
     folderId?: string
 }
 const RecurringTaskTemplateScheduleButton = ({
@@ -34,6 +34,7 @@ const RecurringTaskTemplateScheduleButton = ({
             onClick={() => setIsEditModalOpen(true)}
         />
     )
+
     return (
         <>
             {button}

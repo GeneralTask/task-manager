@@ -5,10 +5,10 @@ import { DateTime } from 'luxon'
 import { useCalendarContext } from '../../components/calendar/CalendarContext'
 import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
-import { useGTLocalStorage } from '../../hooks'
+import { useGTLocalStorage, useSetting } from '../../hooks'
 import { TLogoImage } from '../../styles/images'
 import apiClient from '../../utils/api'
-import { TCalendar, TCalendarAccount, TEvent, TOverviewView, TPullRequest, TTask } from '../../utils/types'
+import { TCalendar, TCalendarAccount, TEvent, TOverviewView, TPullRequest, TTaskV4 } from '../../utils/types'
 import { getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 
 interface TEventAttendee {
@@ -45,7 +45,7 @@ interface TModifyEventPayload {
 interface TCreateEventParams {
     createEventPayload: TCreateEventPayload
     date: DateTime
-    linkedTask?: TTask
+    linkedTask?: TTaskV4
     linkedView?: TOverviewView
     linkedPullRequest?: TPullRequest
     optimisticId: string
@@ -88,7 +88,7 @@ const useGetEvents = (params: { startISO: string; endISO: string }, calendarType
             ...getBackgroundQueryOptions(EVENTS_REFETCH_INTERVAL),
             onSettled: () => {
                 // because apparently we only refetch calendars when we refetch events
-                queryClient.invalidateQueries('calendars')
+                queryClient.invalidateQueries(['calendars', 'meeting_preparation_tasks'])
             },
         }
     )
@@ -144,8 +144,8 @@ export const useCreateEvent = () => {
                 ?.calendars[0]
 
             let logo: TLogoImage
-            if (linkedTask?.source.logo_v2) {
-                logo = linkedTask?.source.logo_v2
+            if (linkedTask?.source.logo) {
+                logo = linkedTask?.source.logo
             } else if (linkedPullRequest) {
                 logo = 'github'
             } else {
@@ -336,6 +336,12 @@ export const useSelectedCalendars = () => {
         [],
         true
     )
+    const { field_value: taskToCalAccount, updateSetting: setTaskToCalAccount } = useSetting(
+        'calendar_account_id_for_new_tasks'
+    )
+    const { field_value: taskToCalCalendar, updateSetting: setTaskToCalCalendar } = useSetting(
+        'calendar_calendar_id_for_new_tasks'
+    )
 
     // update selected calendars when calendar accounts are added/removed
     useEffect(() => {
@@ -363,6 +369,7 @@ export const useSelectedCalendars = () => {
                     calendar.has_multical_scopes !== selectedCalendar.has_multical_scopes
                 )
             })
+
             if (!newAccounts.length && !removedAccounts.length) {
                 hasChanged = false
                 return
@@ -376,7 +383,10 @@ export const useSelectedCalendars = () => {
             })
             // when a new account is added, select all calendars
             newAccounts.forEach((account) => {
-                draft.push(account)
+                draft.push({
+                    ...account,
+                    calendars: account.calendars.filter((calendar) => calendar.access_role === 'owner'),
+                })
             })
         })
         if (hasChanged) {
@@ -416,6 +426,24 @@ export const useSelectedCalendars = () => {
         },
         [selectedCalendars]
     )
+
+    useEffect(() => {
+        // ensure that task-to-cal calendar is always selected
+        if (!isCalendarSelected(taskToCalAccount, taskToCalCalendar)) {
+            const calendar = calendars
+                ?.find((account) => account.account_id === taskToCalAccount)
+                ?.calendars.find((calendar) => calendar.calendar_id === taskToCalCalendar)
+            if (calendar) {
+                toggleCalendarSelection(taskToCalAccount, calendar)
+            }
+        }
+
+        // if the first account is added, select the first calendar
+        if (taskToCalAccount === '' && calendars && calendars.length !== 0) {
+            setTaskToCalAccount(calendars[0].account_id)
+            setTaskToCalCalendar(calendars[0].account_id)
+        }
+    }, [calendars, isCalendarSelected, taskToCalAccount, taskToCalCalendar, toggleCalendarSelection])
 
     return { selectedCalendars, isCalendarSelected, toggleCalendarSelection }
 }
