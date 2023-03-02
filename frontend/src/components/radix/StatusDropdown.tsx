@@ -3,8 +3,9 @@ import { useModifyTask } from '../../services/api/tasks.hooks'
 import { externalStatusIcons } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
+import { GTButtonHack } from '../molecules/Task'
 import GTDropdownMenu from './GTDropdownMenu'
+import Tip from './Tip'
 
 interface StatusDropdownProps {
     task: TTaskV4
@@ -42,13 +43,17 @@ const StatusDropdown = ({ task, disabled, condensedTrigger }: StatusDropdownProp
             unstyledTrigger
             trigger={
                 condensedTrigger ? (
-                    <GTIconButton
-                        icon={externalStatusIcons[externalStatus.type]}
-                        tooltipText={task.external_status?.state ?? ''}
-                        forceShowHoverEffect={isOpen}
-                        disabled={disabled}
-                        asDiv
-                    />
+                    <Tip content={externalStatus.state}>
+                        <GTButtonHack
+                            value={status}
+                            icon={externalStatusIcons[externalStatus.type]}
+                            size="small"
+                            styleType="simple"
+                            active={isOpen}
+                            disabled={disabled}
+                            asDiv
+                        />
+                    </Tip>
                 ) : (
                     <GTButton
                         value={externalStatus.state}
