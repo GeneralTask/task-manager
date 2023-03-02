@@ -127,7 +127,11 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                 <Flex gap={Spacing._8}>
                     <Icon
                         icon={icons.square}
-                        colorHex={isPreviewMode ? calendar.color_background : getCalendarColor(calendar.color_id)}
+                        colorHex={
+                            isPreviewMode
+                                ? calendar.color_background
+                                : getCalendarColor(event.color_id || calendar.color_id)
+                        }
                     />
                     <Label>
                         {calendar.title && calendar.title !== calendarAccount.account_id
