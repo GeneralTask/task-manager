@@ -6,7 +6,7 @@ import GTIconButton from '../atoms/buttons/GTIconButton'
 
 const Banner = styled.div`
     display: flex;
-    background-color: ${Colors.background.medium};
+    background-color: ${Colors.background.sub};
     border: ${Border.stroke.small} solid ${Colors.background.border};
     border-radius: ${Border.radius.small};
     gap: ${Spacing._16};

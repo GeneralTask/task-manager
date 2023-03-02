@@ -72,7 +72,7 @@ const CommandItem = styled(Command.Item)`
     cursor: pointer;
     padding-right: ${Spacing._16};
     &[aria-selected='true'] {
-        background-color: ${Colors.background.medium};
+        background-color: ${Colors.background.sub};
         & > ${KeyboardShortcutContainer} {
             background-color: ${Colors.background.white};
         }
@@ -199,7 +199,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                         onValueChange={setSearchValue}
                     />
                 </Searchbar>
-                <Divider color={Colors.background.dark} />
+                <Divider color={Colors.background.hover} />
                 <CommandEmpty>No results found</CommandEmpty>
                 <CommandList>
                     {shortcutGroups.map(

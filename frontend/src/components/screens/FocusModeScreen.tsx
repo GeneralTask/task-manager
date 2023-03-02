@@ -43,7 +43,7 @@ export const IconButton = styled(NoStyleButton)`
     padding: ${Spacing._8};
     border-radius: 50vh;
     &:hover {
-        background-color: ${Colors.background.dark};
+        background-color: ${Colors.background.hover};
     }
 `
 const TemplateViewContainer = styled.div`

@@ -250,13 +250,13 @@ const GTDropdownMenu = ({
                                             )}
                                         </Fragment>
                                     ))}
-                                    {groupIndex !== groups.length - 1 && <Divider color={Colors.background.medium} />}
+                                    {groupIndex !== groups.length - 1 && <Divider color={Colors.background.sub} />}
                                 </DropdownMenu.Group>
                             </Fragment>
                         ))}
                         {description && (
                             <>
-                                <Divider color={Colors.background.medium} />
+                                <Divider color={Colors.background.sub} />
                                 <Description color="light">{description}</Description>
                             </>
                         )}

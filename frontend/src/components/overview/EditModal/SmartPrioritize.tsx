@@ -32,7 +32,7 @@ const Body = styled.div`
     flex-direction: column;
     justify-content: center;
     padding: 0 ${Spacing._16};
-    background-color: ${Colors.background.light};
+    background-color: ${Colors.background.base};
     min-height: ${Spacing._64};
 `
 

@@ -13,7 +13,7 @@ const ButtonContainer = styled.div`
     user-select: none;
     width: 100%;
     box-sizing: border-box;
-    background-color: ${Colors.background.medium};
+    background-color: ${Colors.background.sub};
     border-radius: ${Border.radius.mini};
 `
 const PositionedIcon = styled(Icon)`

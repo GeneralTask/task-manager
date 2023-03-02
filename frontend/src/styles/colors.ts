@@ -4,6 +4,7 @@ export const legacyColors = {
     secondary: '#EEEBFA',
     orange: '#FF8200',
     blue: '#405EFB',
+    black: '#000000',
 }
 
 // deprecated
@@ -56,10 +57,6 @@ export const background = {
     hover: '#D4D4D8',
 
     // deprecated
-    light: '#FBFBFB',
-    medium: '#F0F3F7',
-    dark: '#DADADA',
-    black: '#000000',
     dropIndicator: '#E1D7FD33',
 }
 

@@ -7,7 +7,7 @@ export const MenuContainer = styled.div`
     display: flex;
     height: ${TOOLBAR_HEIGHT};
     align-items: center;
-    background-color: ${Colors.background.medium};
+    background-color: ${Colors.background.sub};
     padding: 0 ${Spacing._8};
     border-bottom-left-radius: ${Border.radius.small};
     border-bottom-right-radius: ${Border.radius.small};

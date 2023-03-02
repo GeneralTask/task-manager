@@ -40,7 +40,7 @@ export const PullRequestRow = styled.div<{ isSelected: boolean }>`
     cursor: pointer;
     box-shadow: ${Shadows.button.default};
     &:hover {
-        background-color: ${Colors.background.medium};
+        background-color: ${Colors.background.sub};
         outline: ${Border.stroke.medium} solid ${Colors.background.border};
     }
     gap: ${Spacing._16};
@@ -54,7 +54,7 @@ export const TitleContainer = styled.div`
 `
 export const HeaderContainer = styled.div`
     display: flex;
-    background-color: ${Colors.background.medium};
+    background-color: ${Colors.background.sub};
     border-radius: ${Border.radius.large};
     color: ${Colors.text.light};
     padding: ${Spacing._16} ${Spacing._8};

@@ -15,13 +15,13 @@ const ItemContainerDiv = styled.div<{ isSelected?: boolean; isCompact?: boolean;
     border-radius: ${Border.radius.mini};
     :hover {
         outline: ${Border.stroke.medium} solid ${Colors.background.border};
-        background-color: ${Colors.background.medium};
+        background-color: ${Colors.background.sub};
     }
     ${({ forceHoverStyle }) =>
         forceHoverStyle &&
         `
         outline: ${Border.stroke.medium} solid ${Colors.background.border};
-        background-color: ${Colors.background.medium};`}
+        background-color: ${Colors.background.sub};`}
     padding: 0 ${({ isCompact }) => (isCompact ? `${Spacing._4} 0 0` : Spacing._16)};
     cursor: pointer;
     white-space: nowrap;

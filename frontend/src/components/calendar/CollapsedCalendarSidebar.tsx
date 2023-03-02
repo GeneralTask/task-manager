@@ -11,7 +11,7 @@ const flicker = keyframes`
 `
 const Sidebar = styled.div<{ showFlicker: boolean }>`
     padding: ${Spacing._16} ${Spacing._4} 0;
-    background-color: ${Colors.background.medium};
+    background-color: ${Colors.background.sub};
     cursor: pointer;
     z-index: 1;
     position: relative;

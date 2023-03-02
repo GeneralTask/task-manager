@@ -13,7 +13,7 @@ export const CreateNewItemInputContainer = styled.div`
     flex-shrink: 0;
     flex-direction: row;
     gap: ${Spacing._8};
-    background-color: ${Colors.background.medium};
+    background-color: ${Colors.background.sub};
     height: ${Dimensions.TASK_HEIGHT};
     align-items: center;
     padding: 0px ${Spacing._8};

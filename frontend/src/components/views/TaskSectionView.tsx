@@ -42,7 +42,7 @@ const TaskSectionViewContainer = styled.div`
     height: 100%;
     flex-direction: column;
     padding-top: 0;
-    background-color: ${Colors.background.light};
+    background-color: ${Colors.background.base};
 `
 const TasksContainer = styled.div`
     display: flex;

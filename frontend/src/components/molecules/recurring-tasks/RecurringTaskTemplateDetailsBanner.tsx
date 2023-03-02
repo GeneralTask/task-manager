@@ -11,7 +11,7 @@ import TemplateFolderSelector from './RecurringTaskTemplateModal/TemplateFolderS
 
 export const Banner = styled.div`
     border-radius: ${Border.radius.mini};
-    background-color: ${Colors.background.light};
+    background-color: ${Colors.background.base};
     padding: ${Spacing._16};
     ${Typography.bodySmall};
     color: ${Colors.text.light};

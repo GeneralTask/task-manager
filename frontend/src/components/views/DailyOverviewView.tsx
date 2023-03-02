@@ -17,7 +17,7 @@ import useOverviewLists from '../overview/useOverviewLists'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const ActionsContainer = styled.div`
-    background-color: ${Colors.background.medium};
+    background-color: ${Colors.background.sub};
     padding: ${Spacing._8} ${Spacing._12};
     border-radius: ${Border.radius.mini};
     display: flex;

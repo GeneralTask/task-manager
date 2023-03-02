@@ -29,7 +29,7 @@ const DateViewContainer = styled.div`
     gap: ${Spacing._8};
     border-radius: ${Border.radius.mini};
     border: ${Border.stroke.medium} solid ${Colors.background.border};
-    background-color: ${Colors.background.light};
+    background-color: ${Colors.background.base};
 `
 const DateViewText = styled.span`
     ${Typography.bodySmall};
