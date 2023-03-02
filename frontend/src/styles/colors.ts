@@ -1,4 +1,3 @@
-// old
 export const border = {
     extra_light: '#F0F3F7',
     light: '#DADADA',
@@ -6,7 +5,6 @@ export const border = {
     purple: '#5634CF',
 }
 
-// old but sorta new?
 export const icon = {
     white: '#FFFFFF',
     gray: '#717179',
@@ -20,7 +18,6 @@ export const icon = {
 }
 export type TIconColor = keyof typeof icon
 
-// old button colors
 export const button = {
     primary: {
         default: '#5634CF',
@@ -34,7 +31,6 @@ export const button = {
     },
 }
 
-// old status colors
 export const status = {
     red: { default: '#E24858', light: '#F6C8CD' },
     yellow: { default: '#FFBA0D', light: '#FFEAB6' },
@@ -43,7 +39,6 @@ export const status = {
 }
 export type TStatusColors = keyof typeof status
 
-// old gtColors
 export const gtColor = {
     primary: '#5634CF',
     secondary: '#EEEBFA',
@@ -63,7 +58,6 @@ export const background = {
     border: '#E4E4E7',
     hover: '#D4D4D8',
 
-    // old
     light: '#FBFBFB',
     medium: '#F0F3F7',
     dark: '#DADADA',
@@ -76,7 +70,6 @@ export const text = {
     base: '#3F3F46',
     muted: '#71717A',
 
-    // old
     black: '#000000',
     light: '#717179',
     white: '#FFFFFF',
