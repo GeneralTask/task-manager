@@ -2,13 +2,14 @@ import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Command } from 'cmdk'
 import styled from 'styled-components'
-import { DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID } from '../../constants'
+import { DEFAULT_FOLDER_ID, DONE_FOLDER_ID, TRASH_FOLDER_ID } from '../../constants'
 import KEYBOARD_SHORTCUTS, { ShortcutCategories } from '../../constants/shortcuts'
 import useShortcutContext from '../../context/ShortcutContext'
 import { useKeyboardShortcut } from '../../hooks'
 import useNavigateToTask from '../../hooks/useNavigateToTask'
+import { useGetFolders } from '../../services/api/folders.hooks'
 import Log from '../../services/api/log'
-import { useGetTasks } from '../../services/api/tasks.hooks'
+import { useGetTasksV4 } from '../../services/api/tasks.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { TShortcut, TShortcutCategory } from '../../utils/types'
@@ -129,12 +130,10 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
     const [selectedShortcut, setSelectedShortcut] = useState<string>()
     const [searchValue, setSearchValue] = useState<string>()
 
-    const { data: taskFolders } = useGetTasks()
+    const { data: allTasks } = useGetTasksV4()
+    const { data: folders } = useGetFolders()
     const navigateToTask = useNavigateToTask()
     const navigate = useNavigate()
-    const tasks = useMemo(() => {
-        return taskFolders?.flatMap((folder) => folder.tasks) ?? []
-    }, [taskFolders])
 
     useKeyboardShortcut(
         'toggleCommandPalette',
@@ -231,8 +230,8 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                     )}
                     {searchValue && (
                         <CommandGroup heading={`Search for "${searchValue}"`}>
-                            {taskFolders
-                                ?.filter((f) => f.id !== DEFAULT_SECTION_ID)
+                            {folders
+                                ?.filter((f) => f.id !== DEFAULT_FOLDER_ID)
                                 .map(({ name, id }) => (
                                     <CommandItem
                                         key={id}
@@ -246,9 +245,9 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                             <IconContainer>
                                                 <Icon
                                                     icon={
-                                                        id === TRASH_SECTION_ID
+                                                        id === TRASH_FOLDER_ID
                                                             ? icons.trash
-                                                            : id === DONE_SECTION_ID
+                                                            : id === DONE_FOLDER_ID
                                                             ? icons.checkbox_checked
                                                             : icons.folder
                                                     }
@@ -260,18 +259,18 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                         </FlexWidth100>
                                     </CommandItem>
                                 ))}
-                            {tasks.map(({ is_done, is_deleted, title, source, id }) => (
+                            {allTasks?.map(({ is_done, is_deleted, title, source, id }) => (
                                 <CommandItem
                                     key={id}
                                     onSelect={() => {
                                         setShowCommandPalette(false)
-                                        navigateToTask(id)
+                                        navigateToTask({ taskId: id })
                                     }}
                                     value={`${title} ${id}`}
                                 >
                                     <FlexWidth100 alignItems="center">
                                         <IconContainer>
-                                            <Icon icon={logos[source.logo_v2]} />
+                                            <Icon icon={logos[source.logo]} />
                                         </IconContainer>
                                         <TruncatedTitle
                                             strike={is_done || is_deleted}

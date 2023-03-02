@@ -19,7 +19,7 @@ const TimeIndicatorContainer = styled.div.attrs(({ topOffset }: TimeIndicatorCon
     },
 }))<TimeIndicatorContainerProps>`
     width: 100%;
-    background-color: ${Colors.gtColor.orange};
+    background-color: ${Colors.legacyColors.orange};
     height: ${INDICATOR_HEIGHT}px;
     position: absolute;
     ${({ hideDot }) =>
@@ -30,7 +30,7 @@ const TimeIndicatorContainer = styled.div.attrs(({ topOffset }: TimeIndicatorCon
         width: ${DOT_SIZE}px;
         height: ${DOT_SIZE}px;
         border-radius: 50%;
-        background-color: ${Colors.gtColor.orange};
+        background-color: ${Colors.legacyColors.orange};
         top: -${(DOT_SIZE - INDICATOR_HEIGHT) / 2}px;
         left: 0;
     }`}

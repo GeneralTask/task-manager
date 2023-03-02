@@ -28,7 +28,7 @@ const DateViewContainer = styled.div`
     padding: ${Spacing._4} ${Spacing._8};
     gap: ${Spacing._8};
     border-radius: ${Border.radius.mini};
-    border: ${Border.stroke.medium} solid ${Colors.border.light};
+    border: ${Border.stroke.medium} solid ${Colors.background.border};
     background-color: ${Colors.background.light};
 `
 const DateViewText = styled.span`
@@ -78,13 +78,13 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                 dayStyle={(date, modifiers) => {
                     if (modifiers.selected) {
                         return {
-                            backgroundColor: Colors.gtColor.primary,
+                            backgroundColor: Colors.legacyColors.purple,
                             color: Colors.text.white,
                         }
                     }
                     if (date.toDateString() === new Date().toDateString()) {
                         return {
-                            border: `${Border.stroke.medium} solid ${Colors.gtColor.primary}`,
+                            border: `${Border.stroke.medium} solid ${Colors.legacyColors.purple}`,
                             zIndex: 1,
                         }
                     }

@@ -35,8 +35,8 @@ const TermsScrollDiv = styled.div`
     flex: 1;
     overflow-y: scroll;
     padding: ${Spacing._16} 0;
-    border-top: ${Border.stroke.medium} solid ${Colors.border.light};
-    border-bottom: ${Border.stroke.medium} solid ${Colors.border.light};
+    border-top: ${Border.stroke.medium} solid ${Colors.background.border};
+    border-bottom: ${Border.stroke.medium} solid ${Colors.background.border};
 `
 const LinkContainer = styled.div`
     display: flex;

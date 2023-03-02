@@ -7,7 +7,7 @@ import { Bold } from '../atoms/typography/Typography'
 
 const NotificationMessage = styled.div<{ isCentered?: boolean }>`
     justify-content: ${({ isCentered }) => (isCentered ? `center` : `space-between`)};
-    border: 1px solid ${Colors.border.light};
+    border: 1px solid ${Colors.background.border};
     border-radius: ${Border.radius.large};
     display: flex;
     padding: ${Spacing._24} ${Spacing._16};

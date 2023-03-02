@@ -42,7 +42,7 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
 
     return (
         <PullRequestRow onClick={onClickHandler} isSelected={isSelected} ref={drag}>
-            {isSelected && <EdgeHighlight color={Colors.gtColor.orange} />}
+            {isSelected && <EdgeHighlight color={Colors.legacyColors.orange} />}
             <TitleContainer>{title}</TitleContainer>
             <Column>
                 <Status description={statusDescription} status={status.text} color={status.color} />

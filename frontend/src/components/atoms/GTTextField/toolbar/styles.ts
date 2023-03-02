@@ -18,7 +18,7 @@ export const MenuContainer = styled.div`
     overflow-x: auto;
 `
 export const Divider = styled.div`
-    border-left: ${Border.stroke.large} solid ${Colors.border.light};
+    border-left: ${Border.stroke.large} solid ${Colors.background.border};
     height: ${Spacing._16};
 `
 export const MarginLeftGap = styled.div`

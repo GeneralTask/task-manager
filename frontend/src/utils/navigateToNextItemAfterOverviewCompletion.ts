@@ -13,23 +13,23 @@ const navigateToNextItemAfterOverviewCompletion = (
 
     // Get list with deleted task
     const listWithDeletedTask = oldLists.find((list) => {
-        return list.view_items.find((item) => item.id === deletedTaskId)
+        return list.view_item_ids.find((id) => id === deletedTaskId)
     })
 
     // If list has more than one task, navigate to next task
-    if (listWithDeletedTask && listWithDeletedTask.view_items.length !== 1) {
+    if (listWithDeletedTask && listWithDeletedTask.view_item_ids.length !== 1) {
         if (location[3] !== deletedTaskId) return
-        const taskIndex = listWithDeletedTask.view_items.findIndex((item) => item.id === deletedTaskId)
-        const nextTask = listWithDeletedTask.view_items[taskIndex + 1]
-        if (nextTask) {
-            navigate(`/overview/${listWithDeletedTask.id}/${nextTask.id}`)
+        const taskIndex = listWithDeletedTask.view_item_ids.findIndex((id) => id === deletedTaskId)
+        const nextTaskId = listWithDeletedTask.view_item_ids[taskIndex + 1]
+        if (nextTaskId) {
+            navigate(`/overview/${listWithDeletedTask.id}/${nextTaskId}`)
         } else {
-            const previousTask = listWithDeletedTask.view_items[taskIndex - 1]
-            navigate(`/overview/${listWithDeletedTask.id}/${previousTask.id}`)
+            const previousTaskId = listWithDeletedTask.view_item_ids[taskIndex - 1]
+            navigate(`/overview/${listWithDeletedTask.id}/${previousTaskId}`)
         }
     } else {
         // If list has only one task, navigate to first non-empty list
-        const firstNonEmptyList = newLists.find((list) => list.view_items.length > 0)
+        const firstNonEmptyList = newLists.find((list) => list.view_item_ids.length > 0)
         if (firstNonEmptyList) {
             setOpenListIds((openListIds) => {
                 if (!openListIds.includes(firstNonEmptyList.id)) {
@@ -37,7 +37,7 @@ const navigateToNextItemAfterOverviewCompletion = (
                 }
                 return openListIds
             })
-            navigate(`/overview/${firstNonEmptyList.id}/${firstNonEmptyList.view_items[0].id}`)
+            navigate(`/overview/${firstNonEmptyList.id}/${firstNonEmptyList.view_item_ids[0]}`)
         } else {
             navigate(`/overview/`)
         }

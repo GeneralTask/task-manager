@@ -2,8 +2,8 @@ import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import * as Sentry from '@sentry/browser'
 import styled from 'styled-components'
+import { useGetFolders } from '../../../services/api/folders.hooks'
 import { useModifyRecurringTask } from '../../../services/api/recurring-tasks.hooks'
-import { useGetTasks } from '../../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
 import Flex from '../../atoms/Flex'
 import { Bold } from '../../atoms/typography/Typography'
@@ -29,7 +29,7 @@ interface RecurringTaskTemplateDetailsBannerProps {
     folderId: string
 }
 const RecurringTaskTemplateDetailsBanner = ({ id, folderId }: RecurringTaskTemplateDetailsBannerProps) => {
-    const { data: folders } = useGetTasks()
+    const { data: folders } = useGetFolders()
     const { mutate: modifyRecurringTask } = useModifyRecurringTask()
     const folder = useMemo(() => {
         const folder = folders?.find((folder) => folder.id === folderId)

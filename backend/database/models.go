@@ -303,7 +303,6 @@ type ExternalTaskStatus struct {
 	IsCompletedStatus bool    `json:"is_completed_status" bson:"is_completed_status"`
 	Position          float64 `json:"position" bson:"position"`
 	Color             string  `json:"color" bson:"color"`
-	IconURL           string  `json:"icon_url" bson:"icon_url"`
 	IsValidTransition bool    `json:"is_valid_transition,omitempty" bson:"is_valid_transition,omitempty"`
 }
 

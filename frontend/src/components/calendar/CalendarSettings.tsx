@@ -21,7 +21,7 @@ const Calendar = styled(Flex)`
     padding: ${Spacing._8} ${Spacing._4};
     box-sizing: border-box;
     :hover {
-        border: ${Border.stroke.small} solid ${Colors.border.light};
+        border: ${Border.stroke.small} solid ${Colors.background.border};
         background-color: ${Colors.background.light};
     }
 `

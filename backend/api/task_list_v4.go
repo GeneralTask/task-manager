@@ -82,7 +82,15 @@ func (api *API) TasksListV4(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	c.JSON(200, allTasks)
+
+	// Remove meeting prep tasks from task list
+	allTasksWithoutMeetingPreparation := []*TaskResultV4{}
+	for _, task := range allTasks {
+		if task.MeetingPreparationParams == nil {
+			allTasksWithoutMeetingPreparation = append(allTasksWithoutMeetingPreparation, task)
+		}
+	}
+	c.JSON(200, allTasksWithoutMeetingPreparation)
 }
 
 func (api *API) mergeTasksV4(
@@ -190,16 +198,6 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 		UpdatedAt:          t.UpdatedAt.Time().UTC().Format(time.RFC3339),
 	}
 
-	if completed {
-		taskResult.IDFolder = constants.IDTaskSectionDone.Hex()
-	}
-
-	// if both completed and deleted, deleted will take precedence
-	if deleted {
-		taskResult.IDFolder = constants.IDTaskSectionTrash.Hex()
-	}
-
-	// if deleted, completed, and a subtask, being a subtask will take precedence
 	if t.ParentTaskID != primitive.NilObjectID {
 		taskResult.IDParent = t.ParentTaskID.Hex()
 		// we want to make folder ID blank if the task is a subtask
@@ -238,8 +236,9 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 
 	if t.MeetingPreparationParams != nil && *t.MeetingPreparationParams != (database.MeetingPreparationParams{}) && t.IsMeetingPreparationTask {
 		taskResult.MeetingPreparationParams = &MeetingPreparationParams{
-			DatetimeStart: t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339),
-			DatetimeEnd:   t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339),
+			DatetimeStart:       t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339),
+			DatetimeEnd:         t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339),
+			EventMovedOrDeleted: t.MeetingPreparationParams.EventMovedOrDeleted,
 		}
 	}
 

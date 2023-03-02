@@ -6,7 +6,7 @@ import { DateTime } from 'luxon'
 import styled, { css } from 'styled-components'
 import { AUTHORIZATION_COOKE, LOGIN_URL } from '../../constants'
 import getEnvVars from '../../environment'
-import { useAuthWindow, usePreviewMode } from '../../hooks'
+import { useAuthWindow } from '../../hooks'
 import useAnalyticsEventTracker from '../../hooks/useAnalyticsEventTracker'
 import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
@@ -95,7 +95,6 @@ const SharedNoteView = () => {
     const { openAuthWindow } = useAuthWindow()
     const navigate = useNavigate()
     const { noteId } = useParams()
-    const { isLoading: isPreviewModeLoading } = usePreviewMode()
     const isLoggedIn = !!Cookies.get(AUTHORIZATION_COOKE)
 
     const { data: note, isLoading } = useGetNote({ id: noteId ?? '' })
@@ -105,7 +104,7 @@ const SharedNoteView = () => {
 
     if (!noteId) navigate('/')
 
-    if (isLoading || isLoadingNotes || isPreviewModeLoading) return <Spinner />
+    if (isLoading || isLoadingNotes) return <Spinner />
     return (
         <>
             {note && (
@@ -171,7 +170,7 @@ const SharedNoteView = () => {
                                         disabled
                                         readOnly
                                     />
-                                    <Divider color={Colors.border.light} />
+                                    <Divider color={Colors.background.border} />
                                     <FlexPadding8Horizontal justifyContent="space-between" alignItems="center">
                                         <Flex gap={Spacing._4}>
                                             {isLoggedIn && isUserNoteOwner ? (

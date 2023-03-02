@@ -119,7 +119,6 @@ func TestLoadJIRATasks(t *testing.T) {
 				IsCompletedStatus: false,
 				Position:          0,
 				Color:             "",
-				IconURL:           "https://example.com",
 			},
 			Comments: &[]database.Comment{
 				{
@@ -153,6 +152,8 @@ func TestLoadJIRATasks(t *testing.T) {
 		assert.Equal(t, 2, len(result.Tasks[0].AllStatuses))
 		assert.Equal(t, false, result.Tasks[0].AllStatuses[0].IsValidTransition)
 		assert.Equal(t, true, result.Tasks[0].AllStatuses[1].IsValidTransition)
+		assert.Equal(t, "new", result.Tasks[0].AllStatuses[0].Type)
+		assert.Equal(t, "done", result.Tasks[0].AllStatuses[1].Type)
 
 		var taskFromDB database.Task
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -217,7 +218,6 @@ func TestLoadJIRATasks(t *testing.T) {
 				IsCompletedStatus: false,
 				Position:          0,
 				Color:             "",
-				IconURL:           "https://example.com",
 			},
 			Comments: &[]database.Comment{},
 		}
@@ -286,7 +286,6 @@ func TestLoadJIRATasks(t *testing.T) {
 				IsCompletedStatus: false,
 				Position:          0,
 				Color:             "",
-				IconURL:           "https://example.com",
 			},
 			PriorityNormalized: &priorityNormalized,
 			ExternalPriority: &database.ExternalTaskPriority{
@@ -359,7 +358,6 @@ func TestLoadJIRATasks(t *testing.T) {
 				IsCompletedStatus: false,
 				Position:          0,
 				Color:             "",
-				IconURL:           "https://example.com",
 			},
 			Comments: &[]database.Comment{},
 		}
@@ -437,7 +435,6 @@ func TestGetStatuses(t *testing.T) {
 		assert.True(t, exists)
 		assert.Equal(t, 2, len(statusList))
 		assert.Equal(t, "Todo", statusList[0].State)
-		assert.Equal(t, "https://example.com", statusList[0].IconURL)
 		assert.True(t, statusList[1].IsCompletedStatus)
 	})
 }
@@ -582,7 +579,7 @@ func getSearchServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 			w.Write(result)
 		} else {
 			result, err := json.Marshal(JIRATaskList{Issues: []JIRATask{{
-				Fields: JIRATaskFields{DueDate: "2021-04-20", Summary: "Sample Taskeroni", CreatedAt: "2022-04-20T07:05:06.416-0800", Status: JIRAStatus{Name: "todo", IconURL: "https://example.com"}, Project: JIRAProject{ID: "10000"}, Priority: JIRAPriority{ID: "9", Name: "todo", IconURL: "https://example.com"}},
+				Fields: JIRATaskFields{DueDate: "2021-04-20", Summary: "Sample Taskeroni", CreatedAt: "2022-04-20T07:05:06.416-0800", Status: JIRAStatus{Name: "todo"}, Project: JIRAProject{ID: "10000"}, Priority: JIRAPriority{ID: "9", Name: "todo", IconURL: "https://example.com"}},
 				ID:     "42069",
 				Key:    "MOON-1969",
 			}}})
@@ -637,9 +634,8 @@ func getStatusServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 		} else {
 			resultTemp, err := json.Marshal([]JIRAStatus{
 				{
-					ID:      "10000",
-					Name:    "Todo",
-					IconURL: "https://example.com",
+					ID:   "10000",
+					Name: "Todo",
 					Category: JIRAStatusCategory{
 						Key: "new",
 					},
@@ -650,9 +646,8 @@ func getStatusServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 					},
 				},
 				{
-					ID:      "10003",
-					Name:    "Done",
-					IconURL: "https://example.com",
+					ID:   "10003",
+					Name: "Done",
 					Category: JIRAStatusCategory{
 						Key: "done",
 					},
@@ -682,9 +677,8 @@ func getTransitionServerForJIRA(t *testing.T, statusCode int, empty bool, partia
 					{
 						ID: "101",
 						ToStatus: JIRAStatus{
-							ID:      "10003",
-							Name:    "Done",
-							IconURL: "https://example.com",
+							ID:   "10003",
+							Name: "Done",
 							Category: JIRAStatusCategory{
 								Key: "done",
 							},
@@ -705,9 +699,8 @@ func getTransitionServerForJIRA(t *testing.T, statusCode int, empty bool, partia
 					{
 						ID: "100",
 						ToStatus: JIRAStatus{
-							ID:      "10000",
-							Name:    "Todo",
-							IconURL: "https://example.com",
+							ID:   "10000",
+							Name: "Todo",
 							Category: JIRAStatusCategory{
 								Key: "new",
 							},
@@ -721,9 +714,8 @@ func getTransitionServerForJIRA(t *testing.T, statusCode int, empty bool, partia
 					{
 						ID: "101",
 						ToStatus: JIRAStatus{
-							ID:      "10003",
-							Name:    "Done",
-							IconURL: "https://example.com",
+							ID:   "10003",
+							Name: "Done",
 							Category: JIRAStatusCategory{
 								Key: "done",
 							},

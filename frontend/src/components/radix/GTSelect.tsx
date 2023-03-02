@@ -18,7 +18,7 @@ const SelectTrigger = styled(Select.Trigger)`
     align-items: center;
     justify-content: space-between;
     padding: ${Spacing._4} ${Spacing._8};
-    border: ${Border.stroke.medium} solid ${Colors.border.light};
+    border: ${Border.stroke.medium} solid ${Colors.background.border};
     box-sizing: border-box;
     user-select: none;
     cursor: pointer;
