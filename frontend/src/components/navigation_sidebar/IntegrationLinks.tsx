@@ -64,13 +64,10 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
         () => activeTasks?.filter((task) => task.source.name === 'Slack').length,
         [activeTasks]
     )
-
-    const jiraTasksCount = useMemo(() => {
-        if (!isPreviewMode) return 0
-        const tasks =
-            folders?.filter((section) => !section.is_done && !section.is_trash).flatMap((folder) => folder.tasks) ?? []
-        return tasks.filter((task) => task.source.name === 'Jira').length
-    }, [folders, isPreviewMode])
+    const jiraTasksCount = useMemo(
+        () => activeTasks?.filter((task) => task.source.name === 'Jira').length,
+        [activeTasks]
+    )
 
     const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
 
