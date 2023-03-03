@@ -73,7 +73,7 @@ export interface TTaskPriority {
 }
 export const TASK_PRIORITIES: TTaskPriority[] = [
     { icon: icons.priority_none, label: 'No Priority', color: 'black' },
-    { icon: icons.priority_urgent, label: 'Urgent', color: 'red' },
+    { icon: icons.priority_urgent, label: 'Urgent priority', color: 'red' },
     { icon: icons.priority_high, label: 'High Priority', color: 'yellow' },
     { icon: icons.priority_medium, label: 'Medium Priority', color: 'blue' },
     { icon: icons.priority_low, label: 'Low Priority', color: 'green' },
