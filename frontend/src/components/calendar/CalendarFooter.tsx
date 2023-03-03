@@ -8,7 +8,7 @@ import SettingsModalButton from '../molecules/SettingsModalButton'
 import Tip from '../radix/Tip'
 import { useCalendarContext } from './CalendarContext'
 import CalendarSelector from './CalendarSelector'
-import { getCalendarColor, getCalendarName } from './utils/utils'
+import { getCalendarName } from './utils/utils'
 
 const Container = styled.div`
     display: flex;
@@ -45,7 +45,7 @@ const CalendarFooter = () => {
                                     </Truncated>
                                 }
                                 icon={icons.square}
-                                iconColorHex={getCalendarColor(calendar?.color_id || '')}
+                                iconColorHex={calendar?.color_background || ''}
                                 asDiv
                                 isDropdown
                                 styleType="secondary"

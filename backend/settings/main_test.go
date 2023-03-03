@@ -76,7 +76,7 @@ func TestGetSettingsOptions(t *testing.T) {
 		&database.CalendarAccount{
 			UserID:     userID,
 			IDExternal: "b",
-			Calendars:  []database.Calendar{{"", "cal1", "", "title1"}, {"", "cal2", "", "title2"}},
+			Calendars:  []database.Calendar{{"", "cal1", "", "title1", "", ""}, {"", "cal2", "", "title2", "", ""}},
 		},
 	)
 	assert.NoError(t, err)

@@ -10,7 +10,7 @@ import { Bold } from '../../atoms/typography/Typography'
 import TemplateFolderSelector from './RecurringTaskTemplateModal/TemplateFolderSelector'
 
 export const Banner = styled.div`
-    border-radius: ${Border.radius.mini};
+    border-radius: ${Border.radius.small};
     background-color: ${Colors.background.base};
     padding: ${Spacing._16};
     ${Typography.bodySmall};

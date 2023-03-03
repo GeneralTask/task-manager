@@ -25,8 +25,8 @@ const modalProps: Partial<ModalProps> = {
     onKeyDown: (e) => stopKeydownPropogation(e, [], true),
     styles: {
         modal: {
-            borderRadius: Border.radius.small,
-            boxShadow: Shadows.medium,
+            borderRadius: Border.radius.medium,
+            boxShadow: Shadows.deprecated_medium,
             overflow: 'hidden',
         },
     },

@@ -66,8 +66,8 @@ const BottomContainer = styled.div`
 `
 const NoteBody = styled.div`
     background: ${Colors.background.white};
-    border-radius: ${Border.radius.small};
-    box-shadow: ${Shadows.medium};
+    border-radius: ${Border.radius.medium};
+    box-shadow: ${Shadows.deprecated_medium};
     display: flex;
     flex-direction: column;
     padding: ${Spacing._24};

@@ -31,7 +31,7 @@ const CommandDialog = styled(Command.Dialog)`
     transform: translateX(-50%);
     width: ${COMMAND_PALETTE_WIDTH};
     background-color: ${Colors.background.white};
-    box-shadow: ${Shadows.medium};
+    box-shadow: ${Shadows.deprecated_medium};
     border-radius: ${Border.radius.medium};
     padding-bottom: ${Spacing._4};
     z-index: 1500; // should appear over modals
@@ -67,7 +67,7 @@ const CommandItem = styled(Command.Item)`
     justify-content: space-between;
     align-items: center;
     ${Typography.bodySmall}
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     margin: 0 ${Spacing._4};
     cursor: pointer;
     padding-right: ${Spacing._16};

@@ -72,10 +72,18 @@ func TestNotePreview(t *testing.T) {
 			nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusNotFound, recorder.Code)
+		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
+		assert.Equal(t, `
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Refresh" content="0; url='http://localhost:3000/note/`+note2.ID.Hex()+`'" />
+</head>
+<body>
+</body>
+</html>`, string(body))
 	})
 	t.Run("Success", func(t *testing.T) {
 		request, _ := http.NewRequest(

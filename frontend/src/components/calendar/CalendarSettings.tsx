@@ -12,12 +12,12 @@ import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Body, BodySmall, Label } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
-import { getCalendarAuthButton, getCalendarColor, getCalendarName } from './utils/utils'
+import { getCalendarAuthButton, getCalendarName } from './utils/utils'
 
 const Calendar = styled(Flex)`
     cursor: pointer;
     border: ${Border.stroke.small} solid transparent;
-    border-radius: ${Border.radius.mini};
+    border-radius: ${Border.radius.small};
     padding: ${Spacing._8} ${Spacing._4};
     box-sizing: border-box;
     :hover {
@@ -117,7 +117,7 @@ const CalendarSettings = () => {
                                             )
                                         }
                                     />
-                                    <Icon icon={icons.square} colorHex={getCalendarColor(calendar.color_id)} />
+                                    <Icon icon={icons.square} colorHex={calendar.color_background} />
                                     <BodySmall>{getCalendarName(account.account_id, calendar.title)}</BodySmall>
                                 </Calendar>
                             ))}

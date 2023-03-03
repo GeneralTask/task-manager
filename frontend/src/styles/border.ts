@@ -1,8 +1,7 @@
 export const radius = {
-    mini: '4px',
-    small: '8px',
-    medium: '12px',
-    large: '16px',
+    xs: '2px',
+    small: '4px',
+    medium: '8px',
 }
 
 export const stroke = {

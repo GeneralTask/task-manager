@@ -8,7 +8,7 @@ const Banner = styled.div`
     display: flex;
     background-color: ${Colors.background.sub};
     border: ${Border.stroke.small} solid ${Colors.background.border};
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     gap: ${Spacing._16};
     padding: ${Spacing._8};
     margin-bottom: ${Spacing._16};

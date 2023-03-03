@@ -23,7 +23,7 @@ const Sidebar = styled.div<{ showFlicker: boolean }>`
         width: 100%;
         height: 100%;
         opacity: 0;
-        box-shadow: ${Shadows.medium};
+        box-shadow: ${Shadows.deprecated_medium};
         ${(props) =>
             props.showFlicker
                 ? css`

@@ -13,7 +13,7 @@ export const MenuTriggerShared = css<{ $unstyled?: boolean }>`
     ${({ $unstyled }) =>
         !$unstyled &&
         `
-        border-radius: ${Border.radius.small};
+        border-radius: ${Border.radius.medium};
         &:focus {
             outline: ${Border.stroke.small} solid ${Colors.background.border};
         }
@@ -28,7 +28,7 @@ export const MenuItemShared = css<{ $textColor?: TTextColor; $disabled?: boolean
     margin: ${Spacing._4} 0;
     padding: ${Spacing._4} ${Spacing._12};
     outline: none;
-    border-radius: ${Border.radius.mini};
+    border-radius: ${Border.radius.small};
     ${({ $textColor }) => $textColor && `color: ${Colors.text[$textColor]};`}
     ${({ $disabled }) => !$disabled && `cursor: pointer;`}
     &[data-highlighted] {
@@ -49,8 +49,8 @@ export const MenuContentShared = css`
     ${Typography.body};
     padding: ${Spacing._4};
     background-color: ${Colors.background.white};
-    border-radius: ${Border.radius.mini};
-    box-shadow: ${Shadows.light};
+    border-radius: ${Border.radius.small};
+    box-shadow: ${Shadows.deprecated_light};
 `
 export const MarginLeftIcon = styled.div`
     margin-left: auto;

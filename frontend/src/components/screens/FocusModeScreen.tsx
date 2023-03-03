@@ -66,7 +66,7 @@ const FocusModeContainer = styled.div`
     display: flex;
     flex-direction: column;
     background-color: ${Colors.background.white};
-    box-shadow: ${Shadows.medium};
+    box-shadow: ${Shadows.deprecated_medium};
 `
 const MainContainer = styled.div`
     display: flex;
@@ -76,7 +76,7 @@ const MainContainer = styled.div`
 const ClockContainer = styled.div`
     display: flex;
     justify-content: space-between;
-    border-top: ${Border.radius.mini} solid ${Colors.background.border};
+    border-top: ${Border.radius.small} solid ${Colors.background.border};
     ${Typography.header};
     padding: ${Spacing._24} ${Spacing._32};
     font-weight: 274;
@@ -132,7 +132,7 @@ const CurrentEvent = styled(GTShadowContainer)`
     ${Typography.body};
     display: flex;
     justify-content: space-between;
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     border: ${Border.stroke.small} solid ${Colors.background.border};
     cursor: pointer;
 `

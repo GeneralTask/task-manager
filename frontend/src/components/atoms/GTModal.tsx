@@ -41,7 +41,7 @@ const Footer = styled.div`
 `
 const CloseButton = styled(NoStyleButton)`
     padding: ${Spacing._8};
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     &:hover {
         background-color: ${Colors.background.hover};
     }
@@ -55,9 +55,9 @@ const SHARED_MODAL_CONTENT_STYLE = {
     margin: 'auto',
     border: 'none',
     height: 'fit-content',
-    boxShadow: Shadows.medium,
+    boxShadow: Shadows.deprecated_medium,
     padding: Spacing._16,
-    borderRadius: Border.radius.small,
+    borderRadius: Border.radius.medium,
 }
 
 const getModalStyle = (modalSize: TModalSize): Modal.Styles => ({

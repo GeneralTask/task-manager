@@ -11,12 +11,12 @@ const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number }>`
     background-color: inherit;
     box-sizing: border-box;
     border: ${Border.stroke.medium} solid ${Colors.background.border};
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     width: 100%;
     padding: ${Spacing._8};
     ${Typography.bodySmall};
     :hover {
-        box-shadow: ${Shadows.light};
+        box-shadow: ${Shadows.deprecated_light};
         background-color: ${Colors.background.white};
         border-color: ${Colors.background.border};
     }

@@ -19,7 +19,7 @@ import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 const ActionsContainer = styled.div`
     background-color: ${Colors.background.sub};
     padding: ${Spacing._8} ${Spacing._12};
-    border-radius: ${Border.radius.mini};
+    border-radius: ${Border.radius.small};
     display: flex;
     gap: ${Spacing._24};
     margin-bottom: ${Spacing._16};

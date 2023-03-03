@@ -5,7 +5,7 @@ import { useKeyboardShortcut } from '../../hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 
 export const KeyboardShortcutContainer = styled.div<{ isSelected?: boolean }>`
-    border-radius: ${Border.radius.mini};
+    border-radius: ${Border.radius.small};
     display: flex;
     justify-content: center;
     align-items: center;

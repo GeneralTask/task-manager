@@ -9,8 +9,8 @@ export const MenuContainer = styled.div`
     align-items: center;
     background-color: ${Colors.background.sub};
     padding: 0 ${Spacing._8};
-    border-bottom-left-radius: ${Border.radius.small};
-    border-bottom-right-radius: ${Border.radius.small};
+    border-bottom-left-radius: ${Border.radius.medium};
+    border-bottom-right-radius: ${Border.radius.medium};
     gap: ${Spacing._8};
     bottom: 0;
     left: 0;

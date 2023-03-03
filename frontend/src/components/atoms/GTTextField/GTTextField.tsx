@@ -12,10 +12,10 @@ const PlainTextContainer = styled.div<{ hideUnfocusedOutline?: boolean; disabled
     border: ${Border.stroke.medium} solid
         ${({ hideUnfocusedOutline, disabled }) =>
             hideUnfocusedOutline || disabled ? 'transparent' : Colors.background.border};
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     flex: 1;
     :focus-within {
-        box-shadow: ${Shadows.light};
+        box-shadow: ${Shadows.deprecated_light};
     }
     :hover {
         border-color: ${({ disabled }) => (disabled ? 'transparent' : Colors.background.border)};
@@ -36,7 +36,7 @@ const Container = styled.div<{
     border: ${Border.stroke.medium} solid
         ${({ hideUnfocusedOutline, noBorder }) =>
             hideUnfocusedOutline || noBorder ? 'transparent' : Colors.background.border};
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     width: 100%;
     :hover,
     :focus-within {

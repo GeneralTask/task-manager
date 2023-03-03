@@ -23,17 +23,17 @@ const Trigger = styled.div<{ isOpen: boolean }>`
     padding: ${Spacing._16};
     display: flex;
     justify-content: space-between;
-    border-radius: ${Border.radius.small};
-    ${(props) => props.isOpen && `border-radius: ${Border.radius.small} ${Border.radius.small} 0 0;`}
+    border-radius: ${Border.radius.medium};
+    ${(props) => props.isOpen && `border-radius: ${Border.radius.medium} ${Border.radius.medium} 0 0;`}
     cursor: pointer;
-    box-shadow: ${Shadows.button.default};
+    box-shadow: ${Shadows.deprecated_button.default};
 `
 
 const ListContent = styled.div`
     padding: ${Spacing._16};
     background-color: ${Colors.background.white};
-    border-radius: 0 0 ${Border.radius.small} ${Border.radius.small};
-    box-shadow: ${Shadows.button.default};
+    border-radius: 0 0 ${Border.radius.medium} ${Border.radius.medium};
+    box-shadow: ${Shadows.deprecated_button.default};
 `
 
 export const getOverviewAccordionHeaderIcon = (logo: TLogoImage, sectionId?: string) => {
@@ -60,7 +60,8 @@ const AccordionItem = ({ list }: AccordionItemProps) => {
     }, [list.view_item_ids.length])
 
     const [visibleItemsCount, setVisibleItemsCount] = useGetVisibleItemCount(list, list.id)
-    const nextPageLength = Math.min(list.view_item_ids.length - visibleItemsCount, PAGE_SIZE)
+
+    const nextPageLength = Math.min(list.view_items.length - visibleItemsCount, PAGE_SIZE)
 
     return (
         <AccordionContainer>
@@ -72,7 +73,7 @@ const AccordionItem = ({ list }: AccordionItemProps) => {
                     {list.is_linked ? (
                         <>
                             <ViewItems view={list} visibleItemsCount={visibleItemsCount} hideHeader />
-                            {visibleItemsCount < list.view_item_ids.length && (
+                            {visibleItemsCount < list.view_items.length && (
                                 <PaginateTextButton
                                     onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}
                                 >
