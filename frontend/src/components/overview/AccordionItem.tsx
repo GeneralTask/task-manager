@@ -60,7 +60,8 @@ const AccordionItem = ({ list }: AccordionItemProps) => {
     }, [list.view_item_ids.length])
 
     const [visibleItemsCount, setVisibleItemsCount] = useGetVisibleItemCount(list, list.id)
-    const nextPageLength = Math.min(list.view_item_ids.length - visibleItemsCount, PAGE_SIZE)
+
+    const nextPageLength = Math.min(list.view_items.length - visibleItemsCount, PAGE_SIZE)
 
     return (
         <AccordionContainer>
@@ -72,7 +73,7 @@ const AccordionItem = ({ list }: AccordionItemProps) => {
                     {list.is_linked ? (
                         <>
                             <ViewItems view={list} visibleItemsCount={visibleItemsCount} hideHeader />
-                            {visibleItemsCount < list.view_item_ids.length && (
+                            {visibleItemsCount < list.view_items.length && (
                                 <PaginateTextButton
                                     onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}
                                 >
