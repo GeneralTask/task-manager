@@ -268,11 +268,11 @@ func TestGetMeetingPreparationTasksResult(t *testing.T) {
 		assert.True(t, res[4].IsDone)
 	})
 	t.Run("LimitResponseTo100Tasks", func(t *testing.T) {
-		// Clear all tasks and events
-		_, err = taskCollection.DeleteMany(context.Background(), bson.M{})
+		authtoken := login("test_limit_100_tasks@generaltask.com", "")
+		db, dbCleanup, err := database.GetDBConnection()
 		assert.NoError(t, err)
-		_, err = calendarEventCollection.DeleteMany(context.Background(), bson.M{})
-		assert.NoError(t, err)
+		defer dbCleanup()
+		userID := getUserIDFromAuthToken(t, db, authtoken)
 
 		// Add 200 new meeting preparation tasks
 		for i := 0; i < 200; i++ {
