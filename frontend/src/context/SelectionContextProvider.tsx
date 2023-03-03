@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
+import { usePreviewMode } from '../hooks'
 import { TTaskV4 } from '../utils/types'
 import { emptyFunction } from '../utils/utils'
 
@@ -34,7 +35,13 @@ export const SelectionContextProvider = ({ children }: SelectionContextProviderP
     const clearSelectedTaskIds = () => setSelectedTaskIds([])
     const isTaskSelected = (id: string) => selectedTaskIds.includes(id)
     const inMultiSelectMode = selectedTaskIds.length > 0
+    const { isPreviewMode } = usePreviewMode()
 
+    useEffect(() => {
+        if (!isPreviewMode) {
+            clearSelectedTaskIds()
+        }
+    }, [isPreviewMode])
     // Clear selected tasks when user changes pages
     const { pathname, key } = useLocation()
     useEffect(() => {
@@ -70,6 +77,7 @@ export const SelectionContextProvider = ({ children }: SelectionContextProviderP
         currentlySelectedTaskId: string,
         sortedTasks: TTaskV4[]
     ) => {
+        if (!isPreviewMode) return
         e.stopPropagation()
         e.preventDefault()
         if (isTrashOrComplete) return
