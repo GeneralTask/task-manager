@@ -39,7 +39,6 @@ type TaskItemChangeableFields struct {
 	CompletedAt    primitive.DateTime `json:"completed_at,omitempty" bson:"completed_at"`
 	IsDeleted      *bool              `json:"is_deleted,omitempty" bson:"is_deleted,omitempty"`
 	DeletedAt      primitive.DateTime `json:"deleted_at,omitempty" bson:"deleted_at"`
-	SharedUntil    primitive.DateTime `json:"shared_until,omitempty"`
 }
 
 type TaskModifyParams struct {
@@ -126,7 +125,6 @@ func (api *API) TaskModify(c *gin.Context) {
 			CompletedAt:        modifyParams.TaskItemChangeableFields.CompletedAt,
 			IsDeleted:          modifyParams.TaskItemChangeableFields.IsDeleted,
 			DeletedAt:          modifyParams.TaskItemChangeableFields.DeletedAt,
-			SharedUntil:        modifyParams.TaskItemChangeableFields.SharedUntil,
 			UpdatedAt:          primitive.NewDateTimeFromTime(time.Now()),
 			PriorityNormalized: modifyParams.TaskItemChangeableFields.Task.PriorityNormalized,
 			ExternalPriority:   modifyParams.TaskItemChangeableFields.Task.ExternalPriority,
