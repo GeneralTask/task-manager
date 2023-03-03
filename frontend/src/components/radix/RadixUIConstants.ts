@@ -50,7 +50,7 @@ export const MenuContentShared = css`
     padding: ${Spacing._4};
     background-color: ${Colors.background.white};
     border-radius: ${Border.radius.small};
-    box-shadow: ${Shadows.light};
+    box-shadow: ${Shadows.deprecated_light};
 `
 export const MarginLeftIcon = styled.div`
     margin-left: auto;

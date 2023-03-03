@@ -66,7 +66,7 @@ const FocusModeContainer = styled.div`
     display: flex;
     flex-direction: column;
     background-color: ${Colors.background.white};
-    box-shadow: ${Shadows.medium};
+    box-shadow: ${Shadows.deprecated_medium};
 `
 const MainContainer = styled.div`
     display: flex;

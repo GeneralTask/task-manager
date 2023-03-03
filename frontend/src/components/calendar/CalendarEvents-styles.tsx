@@ -170,7 +170,7 @@ export const EventFill = styled.div<{
     height: 100%;
     outline: ${Border.stroke.medium} solid ${(props) => (props.isSelected ? Colors.legacyColors.purple : 'transparent')};
     box-sizing: border-box;
-    box-shadow: ${Shadows.light};
+    box-shadow: ${Shadows.deprecated_light};
     /* add opacity to background color */
     background-color: ${(props) => `${props.backgroundColorHex}1A`};
     border-top-left-radius: ${(props) => (props.squareStart ? '0' : Border.radius.small)};
@@ -214,7 +214,7 @@ export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: b
     background-color: ${Colors.background.medium};
     display: flex;
     z-index: 1;
-    box-shadow: ${({ showShadow }) => (showShadow ? Shadows.light : 'none')};
+    box-shadow: ${({ showShadow }) => (showShadow ? Shadows.deprecated_light : 'none')};
     flex-direction: column;
     border-left: ${({ hasLeftBorder }) => (hasLeftBorder ? Border.stroke.medium : 'none')} solid
         ${Colors.background.border};

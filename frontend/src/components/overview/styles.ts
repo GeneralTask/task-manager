@@ -7,7 +7,7 @@ export const ViewContainer = styled.div`
     background-color: ${Colors.background.white};
     border-radius: ${Border.radius.medium};
     margin: ${Spacing._16} 0;
-    box-shadow: ${Shadows.light};
+    box-shadow: ${Shadows.deprecated_light};
 `
 export const ViewHeader = styled.div`
     margin: ${Spacing._8} 0;

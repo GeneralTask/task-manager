@@ -26,14 +26,14 @@ const Trigger = styled.div<{ isOpen: boolean }>`
     border-radius: ${Border.radius.medium};
     ${(props) => props.isOpen && `border-radius: ${Border.radius.medium} ${Border.radius.medium} 0 0;`}
     cursor: pointer;
-    box-shadow: ${Shadows.button.default};
+    box-shadow: ${Shadows.deprecated_button.default};
 `
 
 const ListContent = styled.div`
     padding: ${Spacing._16};
     background-color: ${Colors.background.white};
     border-radius: 0 0 ${Border.radius.medium} ${Border.radius.medium};
-    box-shadow: ${Shadows.button.default};
+    box-shadow: ${Shadows.deprecated_button.default};
 `
 
 export const getOverviewAccordionHeaderIcon = (logo: TLogoImage, sectionId?: string) => {

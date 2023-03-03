@@ -15,7 +15,7 @@ const PlainTextContainer = styled.div<{ hideUnfocusedOutline?: boolean; disabled
     border-radius: ${Border.radius.medium};
     flex: 1;
     :focus-within {
-        box-shadow: ${Shadows.light};
+        box-shadow: ${Shadows.deprecated_light};
     }
     :hover {
         border-color: ${({ disabled }) => (disabled ? 'transparent' : Colors.background.border)};

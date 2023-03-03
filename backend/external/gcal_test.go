@@ -119,6 +119,7 @@ func TestGetEvents(t *testing.T) {
 		assert.Equal(t, "exampleAccountID", calendarAccount.Calendars[0].CalendarID)
 		assert.Equal(t, "", calendarAccount.Calendars[0].Title)
 		assert.Equal(t, "owner", calendarAccount.Calendars[0].AccessRole)
+		assert.Equal(t, "", calendarAccount.Calendars[0].ColorBackground)
 		assert.NoError(t, err)
 	})
 	t.Run("ExistingEvent", func(t *testing.T) {
@@ -454,6 +455,18 @@ func TestGetEvents(t *testing.T) {
 		assertCalendarEventsEqual(t, &standardDBEvent, &calendarEventsFromDB[0])
 		standardDBEvent.CalendarID = "testuser@gmail.com"
 		assertCalendarEventsEqual(t, &standardDBEvent, &calendarEventsFromDB[1])
+
+		var calendarAccount database.CalendarAccount
+		err = database.GetCalendarAccountCollection(db).FindOne(
+			context.Background(),
+			bson.M{"$and": []bson.M{
+				{"user_id": userID},
+			}},
+		).Decode(&calendarAccount)
+		assert.Equal(t, "primary", calendarAccount.Calendars[0].CalendarID)
+		assert.Equal(t, "title", calendarAccount.Calendars[0].Title)
+		assert.Equal(t, "owner", calendarAccount.Calendars[0].AccessRole)
+		assert.Equal(t, "#000000", calendarAccount.Calendars[0].ColorBackground)
 	})
 }
 

@@ -55,7 +55,7 @@ const SHARED_MODAL_CONTENT_STYLE = {
     margin: 'auto',
     border: 'none',
     height: 'fit-content',
-    boxShadow: Shadows.medium,
+    boxShadow: Shadows.deprecated_medium,
     padding: Spacing._16,
     borderRadius: Border.radius.medium,
 }
