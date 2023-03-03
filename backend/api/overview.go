@@ -716,7 +716,7 @@ func createCalendarToAccessRoleMap(calendarAccounts *[]database.CalendarAccount)
 		for _, calendar := range calendarAccount.Calendars {
 			calendarToAccessRole[calendarKey{calendarAccount.IDExternal, calendar.CalendarID}] = calendar.AccessRole
 		}
-		calendarToAccessRole[calendarKey{calendarAccount.IDExternal, "primary"}] = "owner"
+		calendarToAccessRole[calendarKey{calendarAccount.IDExternal, "primary"}] = constants.AccessControlOwner
 	}
 	return calendarToAccessRole
 }
@@ -731,7 +731,7 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 	taskCollection := database.GetTaskCollection(db)
 	for _, event := range *events {
 		if accessRole, ok := calendarToAccessRole[calendarKey{event.SourceAccountID, event.CalendarID}]; ok {
-			if accessRole != "owner" {
+			if accessRole != constants.AccessControlOwner {
 				continue // only create meeting prep tasks for "owned" calendars
 			}
 		} else {

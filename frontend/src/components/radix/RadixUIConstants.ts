@@ -15,7 +15,7 @@ export const MenuTriggerShared = css<{ $unstyled?: boolean }>`
         `
         border-radius: ${Border.radius.small};
         &:focus {
-            outline: ${Border.stroke.small} solid ${Colors.border.light};
+            outline: ${Border.stroke.small} solid ${Colors.background.border};
         }
     `}
 `
@@ -35,12 +35,12 @@ export const MenuItemShared = css<{ $textColor?: TTextColor; $disabled?: boolean
         ${({ $disabled }) =>
             !$disabled &&
             `
-        outline: ${Border.stroke.small} solid ${Colors.border.light};
+        outline: ${Border.stroke.small} solid ${Colors.background.border};
         background-color: ${Colors.background.medium};
         `}
     }
     &[data-state='open'] {
-        outline: ${Border.stroke.small} solid ${Colors.border.light};
+        outline: ${Border.stroke.small} solid ${Colors.background.border};
         background-color: ${Colors.background.medium};
     }
 `
@@ -50,7 +50,7 @@ export const MenuContentShared = css`
     padding: ${Spacing._4};
     background-color: ${Colors.background.white};
     border-radius: ${Border.radius.mini};
-    box-shadow: ${Shadows.light};
+    box-shadow: ${Shadows.deprecated_light};
 `
 export const MarginLeftIcon = styled.div`
     margin-left: auto;
@@ -80,4 +80,5 @@ export interface GTMenuItem {
     renderer?: () => JSX.Element // override how the option is rendered
     count?: number
     keepOpenOnSelect?: boolean
+    tip?: string
 }

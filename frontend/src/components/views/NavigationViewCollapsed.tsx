@@ -3,16 +3,16 @@ import { useNavigate } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 import {
-    DEFAULT_SECTION_ID,
+    DEFAULT_FOLDER_ID,
+    DONE_FOLDER_ID,
     DONE_FOLDER_NAME,
-    DONE_SECTION_ID,
     TASK_INBOX_NAME,
+    TRASH_FOLDER_ID,
     TRASH_FOLDER_NAME,
-    TRASH_SECTION_ID,
 } from '../../constants'
 import { usePreviewMode } from '../../hooks'
+import { useGetFolders } from '../../services/api/folders.hooks'
 import Log from '../../services/api/log'
-import { useGetTasks } from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -67,7 +67,7 @@ const LowerContainer = styled.div`
     flex-direction: column;
     gap: ${Spacing._8};
 `
-const NOT_DROPDOWN_MENU_ITEM_IDs = [DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID]
+const NOT_DROPDOWN_MENU_ITEM_IDs = [DEFAULT_FOLDER_ID, DONE_FOLDER_ID, TRASH_FOLDER_ID]
 const Beta = styled.div<{ isPreviewMode: boolean }>`
     display: flex;
     align-items: center;
@@ -93,23 +93,23 @@ interface NavigationViewCollapsedProps {
     setIsCollapsed: (isCollapsed: boolean) => void
 }
 const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProps) => {
-    const { data: folders } = useGetTasks()
+    const { data: folders } = useGetFolders()
     const { section: sectionId } = useParams()
     const { showTaskToCalSidebar, setShowTaskToCalSidebar, calendarType } = useCalendarContext()
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const { isPreviewMode, toggle: togglePreviewMode } = usePreviewMode()
     const navigate = useNavigate()
 
-    const DEFAULT_FOLDER = folders?.find((folder) => folder.id === DEFAULT_SECTION_ID)
-    const TRASH_FOLDER = folders?.find((folder) => folder.id === TRASH_SECTION_ID)
-    const DONE_FOLDER = folders?.find((folder) => folder.id === DONE_SECTION_ID)
+    const DEFAULT_FOLDER = folders?.find((folder) => folder.id === DEFAULT_FOLDER_ID)
+    const TRASH_FOLDER = folders?.find((folder) => folder.id === TRASH_FOLDER_ID)
+    const DONE_FOLDER = folders?.find((folder) => folder.id === DONE_FOLDER_ID)
 
     const filteredFolders = folders?.filter((folder) => !NOT_DROPDOWN_MENU_ITEM_IDs.includes(folder.id)) ?? []
     const filteredFoldersIds = filteredFolders?.map((folder) => folder.id) ?? []
 
     const items: GTMenuItem[] =
         filteredFolders?.map((folder) => ({
-            label: `${folder.name} (${folder.tasks.length})`,
+            label: `${folder.name} (${folder.task_ids.length})`,
             onClick: () => {
                 if (!showTaskToCalSidebar && calendarType === 'week') {
                     setShowTaskToCalSidebar(true)
@@ -152,12 +152,12 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                     {DEFAULT_FOLDER && (
                         <Tip shortcutName="goToTaskInbox" side="right">
                             <NavigationLink
-                                link={`/tasks/${DEFAULT_SECTION_ID}`}
+                                link={`/tasks/${DEFAULT_FOLDER_ID}`}
                                 title={TASK_INBOX_NAME}
                                 icon={icons.inbox}
-                                isCurrentPage={sectionId === DEFAULT_SECTION_ID}
-                                taskSection={DEFAULT_FOLDER}
-                                count={DEFAULT_FOLDER.tasks.length}
+                                isCurrentPage={sectionId === DEFAULT_FOLDER_ID}
+                                taskFolder={DEFAULT_FOLDER}
+                                count={DEFAULT_FOLDER.task_ids.length}
                                 isCollapsed
                                 droppable
                             />
@@ -180,24 +180,24 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                     )}
                     {DONE_FOLDER && (
                         <NavigationLink
-                            link={`/tasks/${DONE_SECTION_ID}`}
+                            link={`/tasks/${DONE_FOLDER_ID}`}
                             title={DONE_FOLDER_NAME}
                             icon={icons.checkbox_checked}
-                            isCurrentPage={sectionId === DONE_SECTION_ID}
-                            taskSection={DONE_FOLDER}
-                            count={DONE_FOLDER.tasks.length}
+                            isCurrentPage={sectionId === DONE_FOLDER_ID}
+                            taskFolder={DONE_FOLDER}
+                            count={DONE_FOLDER.task_ids.length}
                             isCollapsed
                             droppable
                         />
                     )}
                     {TRASH_FOLDER && (
                         <NavigationLink
-                            link={`/tasks/${TRASH_SECTION_ID}`}
+                            link={`/tasks/${TRASH_FOLDER_ID}`}
                             title={TRASH_FOLDER_NAME}
                             icon={icons.trash}
-                            isCurrentPage={sectionId === TRASH_SECTION_ID}
-                            taskSection={TRASH_FOLDER}
-                            count={TRASH_FOLDER.tasks.length}
+                            isCurrentPage={sectionId === TRASH_FOLDER_ID}
+                            taskFolder={TRASH_FOLDER}
+                            count={TRASH_FOLDER.task_ids.length}
                             isCollapsed
                             droppable
                         />

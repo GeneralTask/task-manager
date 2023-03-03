@@ -1,9 +1,8 @@
-import { Immutable } from 'immer'
 import { DateTime, Duration, DurationUnit } from 'luxon'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../constants'
 import KEYBOARD_SHORTCUTS from '../constants/shortcuts'
 import { TIconColor, TTextColor } from '../styles/colors'
-import { TLinkedAccount, TLinkedAccountName, TTask, TTaskSection } from './types'
+import { TLinkedAccount, TLinkedAccountName, TParentTask, TTaskV4 } from './types'
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -61,6 +60,9 @@ export const isJiraLinked = (linkedAccounts: TLinkedAccount[]) => {
 export const isLinearLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Linear')
 }
+export const isJiraLinked = (linkedAccounts: TLinkedAccount[]) => {
+    return linkedAccounts.some((account) => account.name === 'Atlassian')
+}
 export const doesAccountNeedRelinking = (linkedAccounts: TLinkedAccount[], accountName: TLinkedAccountName) => {
     return linkedAccounts
         .filter((linkedAccount) => linkedAccount.name === accountName)
@@ -89,81 +91,6 @@ export const countWithOverflow = (count: number, max = 99) => {
         return `${max}+`
     }
     return `${count}`
-}
-
-interface TGetTaskIndexFromSectionsReturnType {
-    taskIndex?: number
-    sectionIndex?: number
-    subtaskIndex?: number
-}
-export const getTaskIndexFromSections = (
-    sections: Immutable<{ id?: string; tasks: TTask[] }[]>,
-    taskId: string,
-    sectionId?: string,
-    subtaskId?: string
-): TGetTaskIndexFromSectionsReturnType => {
-    const invalidResult = { taskIndex: undefined, sectionIndex: undefined }
-    if (sectionId) {
-        const sectionIndex = sections.findIndex((section) => section.id === sectionId)
-        if (sectionIndex === -1) return invalidResult
-        const taskIndex = sections[sectionIndex].tasks.findIndex((task) => task.id === taskId)
-        if (taskIndex === -1) return invalidResult
-        const subtaskIndex = sections[sectionIndex].tasks[taskIndex]?.sub_tasks?.findIndex(
-            (subtask) => subtask.id === subtaskId
-        )
-        return { taskIndex, sectionIndex, subtaskIndex }
-    } else {
-        for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
-            const section = sections[sectionIndex]
-            for (let taskIndex = 0; taskIndex < section.tasks.length; taskIndex++) {
-                const task = section.tasks[taskIndex]
-                if (task.id === taskId) {
-                    if (subtaskId) {
-                        const subtaskIndex = sections[sectionIndex].tasks[taskIndex]?.sub_tasks?.findIndex(
-                            (subtask) => subtask.id === subtaskId
-                        )
-                        return { taskIndex, sectionIndex, subtaskIndex }
-                    }
-                    return { taskIndex, sectionIndex }
-                }
-            }
-        }
-    }
-    return invalidResult
-}
-
-export const getTaskFromSections = (
-    sections: { id?: string; tasks: TTask[] }[],
-    taskId: string,
-    sectionId?: string,
-    subtaskId?: string
-): TTask | undefined => {
-    const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(sections, taskId, sectionId, subtaskId)
-    if (taskIndex === undefined || sectionIndex === undefined) return undefined
-    if (subtaskId !== undefined && subtaskIndex !== undefined) {
-        return sections[sectionIndex].tasks[taskIndex].sub_tasks?.[subtaskIndex]
-    }
-    if (!subtaskId !== undefined) {
-        return sections[sectionIndex].tasks[taskIndex]
-    }
-    return undefined
-}
-
-export const getSectionFromTask = (sections: TTaskSection[], taskId: string): TTaskSection | undefined => {
-    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, taskId)
-    if (taskIndex === undefined || sectionIndex === undefined) return undefined
-    return sections[sectionIndex]
-}
-
-export const getFolderIdFromTask = (folders: TTaskSection[], taskId: string): string | undefined => {
-    for (const folder of folders) {
-        for (const task of folder.tasks) {
-            if (task.id === taskId) {
-                return folder.id
-            }
-        }
-    }
-    return undefined
 }
 
 export const getKeyCode = (e: KeyboardEvent | React.KeyboardEvent): string => {
@@ -260,3 +187,7 @@ export const getFormattedDuration = (duration: Duration, maxUnits?: number) => {
 }
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+export const isTaskParentTask = (task: TTaskV4): task is TParentTask => {
+    return task.id_folder != null
+}

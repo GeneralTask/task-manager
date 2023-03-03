@@ -2,9 +2,9 @@ import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 import { usePreviewMode, useSetting } from '../../hooks'
+import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts, useGetSettings } from '../../services/api/settings.hooks'
-import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { PR_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/pull-requests.config'
@@ -44,7 +44,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     const { isLoading: isSettingsLoading } = useGetSettings()
 
     const { pathname } = useLocation()
-    const { data: folders } = useGetTasks()
+    const { data: activeTasks } = useGetActiveTasks()
 
     const showGitHubSetting = useSetting('sidebar_github_preference')
     const showLinearSetting = useSetting('sidebar_linear_preference')
@@ -56,17 +56,14 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     const showSlack = showSlackSetting.field_value === 'true'
     const showJira = showJiraSetting.field_value === 'true' && isPreviewMode
 
-    const linearTasksCount = useMemo(() => {
-        const tasks =
-            folders?.filter((section) => !section.is_done && !section.is_trash).flatMap((folder) => folder.tasks) ?? []
-        return tasks.filter((task) => task.source.name === 'Linear').length
-    }, [folders])
-
-    const slackTasksCount = useMemo(() => {
-        const tasks =
-            folders?.filter((section) => !section.is_done && !section.is_trash).flatMap((folder) => folder.tasks) ?? []
-        return tasks.filter((task) => task.source.name === 'Slack' && (!task.is_done || task.optimisticId)).length
-    }, [folders])
+    const linearTasksCount = useMemo(
+        () => activeTasks?.filter((task) => task.source.name === 'Linear').length,
+        [activeTasks]
+    )
+    const slackTasksCount = useMemo(
+        () => activeTasks?.filter((task) => task.source.name === 'Slack').length,
+        [activeTasks]
+    )
 
     const jiraTasksCount = useMemo(() => {
         if (!isPreviewMode) return 0

@@ -1,93 +1,79 @@
 import { useCallback } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useCalendarContext } from '../components/calendar/CalendarContext'
+import { DONE_FOLDER_ID, TRASH_FOLDER_ID } from '../constants'
+import { useGetFolders } from '../services/api/folders.hooks'
 import Log from '../services/api/log'
 import { useGetOverviewViews } from '../services/api/overview.hooks'
-import { useGetTasks } from '../services/api/tasks.hooks'
-import { TOverviewView, TTaskSection } from '../utils/types'
+import { useGetTasksV4 } from '../services/api/tasks.hooks'
+import { TOverviewView, TTaskFolder, TTaskV4 } from '../utils/types'
+
+export interface TNavigateToTaskParams {
+    taskId: string
+    tasks?: TTaskV4[]
+    folders?: TTaskFolder[]
+    views?: TOverviewView[]
+}
 
 const useNavigateToTask = () => {
-    const { pathname } = useLocation()
+    const { data: tasksData } = useGetTasksV4()
     const { data: viewsData } = useGetOverviewViews()
-    const { data: sectionsData } = useGetTasks()
+    const { data: foldersData } = useGetFolders()
     const navigate = useNavigate()
     const { setCalendarType } = useCalendarContext()
     const params = useParams()
 
     const getTaskURL = useCallback(
-        (taskID: string, views: TOverviewView[], sections: TTaskSection[], pathname: string, subtaskId?: string) => {
-            const isUserOnOverviewPage = pathname.startsWith('/overview') || pathname.startsWith('/overview')
+        (taskId: string, tasks: TTaskV4[], folders: TTaskFolder[], views: TOverviewView[]) => {
+            const task = tasks.find((task) => task.id === taskId)
+            if (!task) return
+            const folderId = task.is_deleted
+                ? TRASH_FOLDER_ID
+                : task.is_done
+                ? DONE_FOLDER_ID
+                : task.id_folder ??
+                  tasks.find((t) => t.id === task.id_parent)?.id_folder ??
+                  folders.find((folder) => folder.task_ids.includes(task.id))?.id
+            const suffix = task.id_parent ? `${task.id_parent}/${taskId}` : taskId
+
+            const isUserOnOverviewPage = window.location.pathname.startsWith('/overview')
             if (isUserOnOverviewPage) {
                 // first check the current view
                 const currentView = views.find((view) => view.id === params.overviewViewId)
-                if (currentView) {
-                    const item = currentView.view_items.find((item) => item.id === taskID)
-                    if (item) {
-                        navigate(`/overview/${currentView.id}/${item.id}/${subtaskId}`)
-                        Log(`task_navigate__/overview/${currentView.id}/${item.id}/${subtaskId}`)
-                        return
-                    }
+                if (currentView?.view_item_ids.some((id) => id === taskId || id === task.id_parent)) {
+                    navigate(`/overview/${currentView.id}/${suffix}`)
+                    Log(`task_navigate__/overview/${currentView.id}/${suffix}`)
+                    return
                 }
                 // otherwise check all views
                 for (const view of views) {
-                    for (const item of view.view_items) {
-                        if (item.id === taskID) {
-                            setCalendarType('day')
-                            if (subtaskId) {
-                                navigate(`/overview/${view.id}/${item.id}/${subtaskId}`)
-                                Log(`task_navigate__/overview/${view.id}/${item.id}/${subtaskId}`)
-                            } else {
-                                navigate(`/overview/${view.id}/${item.id}`)
-                                Log(`task_navigate__/overview/${view.id}/${item.id}`)
-                            }
-                            return
-                        }
-                    }
-                }
-            }
-            for (const section of sections) {
-                for (const task of section.tasks) {
-                    if (task.id === taskID) {
+                    if (view?.view_item_ids.some((id) => id === taskId || id === task.id_parent)) {
                         setCalendarType('day')
-                        if (task.source.name === 'Slack' && pathname.startsWith('/slack')) {
-                            navigate(`/slack/${task.id}`)
-                            Log(`task_navigate__/slack/${task.id}`)
-                        } else if (task.source.name === 'Linear' && pathname.startsWith('/linear')) {
-                            navigate(`/linear/${task.id}`)
-                            Log(`task_navigate__/linear/${task.id}`)
-                        } else {
-                            if (subtaskId) {
-                                navigate(`/tasks/${section.id}/${task.id}/${subtaskId}`)
-                                Log(`task_navigate__/task/${section.id}/${task.id}/${subtaskId}`)
-                            } else {
-                                navigate(`/tasks/${section.id}/${task.id}`)
-                                Log(`task_navigate__/tasks/${section.id}/${task.id}`)
-                            }
-                        }
+                        navigate(`/overview/${view.id}/${suffix}`)
+                        Log(`task_navigate__/overview/${view.id}/${suffix}`)
                         return
                     }
                 }
             }
-            // If we can't find the task with taskId, we check all subtasks as temporary hack for subtask-to-event View Details
-            for (const section of sections) {
-                for (const task of section.tasks) {
-                    for (const subtask of task.sub_tasks ?? []) {
-                        if (subtask.id === taskID) {
-                            setCalendarType('day')
-                            navigate(`/tasks/${section.id}/${task.id}/${subtask.id}`)
-                            Log(`task_navigate__/tasks/${section.id}/${task.id}/${subtask.id}`)
-                            return
-                        }
-                    }
-                }
+
+            setCalendarType('day')
+            if (task.source.name === 'Slack' && window.location.pathname.startsWith('/slack')) {
+                navigate(`/slack/${suffix}`)
+                Log(`task_navigate__/slack/${suffix}`)
+            } else if (task.source.name === 'Linear' && window.location.pathname.startsWith('/linear')) {
+                navigate(`/linear/${suffix}`)
+                Log(`task_navigate__/linear/${suffix}`)
+            } else {
+                navigate(`/tasks/${folderId}/${suffix}`)
+                Log(`task_navigate__/task/${folderId}/${suffix}`)
             }
-            return isUserOnOverviewPage
+            return
         },
         []
     )
 
-    return (taskID: string, subtaskId?: string) =>
-        getTaskURL(taskID, viewsData ?? [], sectionsData ?? [], pathname, subtaskId)
+    return ({ taskId, tasks, folders, views }: TNavigateToTaskParams) =>
+        getTaskURL(taskId, tasks ?? tasksData ?? [], folders ?? foldersData ?? [], views ?? viewsData ?? [])
 }
 
 export default useNavigateToTask

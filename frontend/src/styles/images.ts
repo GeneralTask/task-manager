@@ -216,7 +216,8 @@ export const buttons: { [key: string]: string } = {
     google_sign_in: '/images/google_sign_in.png', //missing svg
 }
 
-export const linearStatus = Object.freeze({
+export const externalStatusIcons = Object.freeze({
+    // Linear
     backlog: '/images/linear_backlog.svg',
     unstarted: '/images/linear_todo.svg',
     started: '/images/linear_inprogress.svg',
@@ -226,6 +227,11 @@ export const linearStatus = Object.freeze({
     inreview: '/images/linear_inreview.svg',
     triage: '/images/linear_triage.svg',
     duplicate: '/images/linear_duplicate.svg',
+
+    // Jira
+    new: '/images/jira/new.svg',
+    indeterminate: '/images/jira/indeterminate.svg',
+    done: '/images/jira/done.svg',
 })
 
 export const focusModeBackground = '/images/focus_mode_background.jpg'
@@ -233,4 +239,4 @@ export const noteBackground = '/images/note_background.jpg'
 
 export type TLogoImage = keyof typeof logos
 export type TIconImage = keyof typeof icons
-export type TLinearStatusImage = keyof typeof linearStatus
+export type TExternalStatusImage = keyof typeof externalStatusIcons

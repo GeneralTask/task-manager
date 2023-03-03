@@ -16,6 +16,7 @@ export default function useItemSelectionController<T extends { id: string }>(
                 params.pullRequest ??
                 params.linearIssueId ??
                 params.slackTaskId ??
+                params.jiraTaskId ??
                 params.overviewItemId ??
                 params.recurringTaskId ??
                 params.noteId
