@@ -186,8 +186,8 @@ func TestGetMeetingPreparationTasksResult(t *testing.T) {
 		result, err := api.GetMeetingPreparationTasksResult(userID, 0)
 		assert.NoError(t, err)
 		assert.Len(t, result, 2)
-		assert.Equal(t, "Event2", result[0].Title)
-		assert.Equal(t, "Event1", result[1].Title)
+		assert.Equal(t, "Event1", result[0].Title)
+		assert.Equal(t, "Event2", result[1].Title)
 	})
 	t.Run("TaskWithMissingEvent", func(t *testing.T) {
 		_, err = createTestMeetingPreparationTask(taskCollection, userID, "Event3", "missing", false, timeTwoHoursLater, timeOneDayLater, primitive.NilObjectID)
@@ -196,10 +196,10 @@ func TestGetMeetingPreparationTasksResult(t *testing.T) {
 		result, err := api.GetMeetingPreparationTasksResult(userID, 0)
 		assert.NoError(t, err)
 		assert.Len(t, result, 3)
-		assert.Equal(t, "Event2", result[0].Title)
+		assert.Equal(t, "Event1", result[0].Title)
 		assert.Equal(t, "Event3", result[1].Title)
 		assert.True(t, result[1].MeetingPreparationParams.EventMovedOrDeleted)
-		assert.Equal(t, "Event1", result[2].Title)
+		assert.Equal(t, "Event2", result[2].Title)
 	})
 	t.Run("EventIsNotOnOwnedCalendar", func(t *testing.T) {
 		_, err = createTestEvent(calendarEventCollection, userID, "Event4", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NilObjectID, "acctid", "other_calid")
@@ -207,9 +207,9 @@ func TestGetMeetingPreparationTasksResult(t *testing.T) {
 		result, err := api.GetMeetingPreparationTasksResult(userID, 0)
 		assert.NoError(t, err)
 		assert.Len(t, result, 3)
-		assert.Equal(t, "Event2", result[0].Title)
+		assert.Equal(t, "Event1", result[0].Title)
 		assert.Equal(t, "Event3", result[1].Title)
-		assert.Equal(t, "Event1", result[2].Title)
+		assert.Equal(t, "Event2", result[2].Title)
 	})
 	t.Run("MeetingHasEnded", func(t *testing.T) {
 		idExternal := primitive.NewObjectID().Hex()
@@ -230,12 +230,12 @@ func TestGetMeetingPreparationTasksResult(t *testing.T) {
 		assert.NotEqual(t, primitive.DateTime(0), item.CompletedAt)
 		assert.Equal(t, true, item.MeetingPreparationParams.HasBeenAutomaticallyCompleted)
 
+		assert.Equal(t, "Event1", res[0].Title)
+		assert.Equal(t, "Event3", res[1].Title)
+		assert.Equal(t, "Event2", res[2].Title)
+		assert.True(t, res[3].IsDone)
 		assert.Len(t, res, 4)
-		assert.Equal(t, "reticulate splines", res[0].Title)
-		assert.True(t, res[0].IsDone)
-		assert.Equal(t, "Event2", res[1].Title)
-		assert.Equal(t, "Event3", res[2].Title)
-		assert.Equal(t, "Event1", res[3].Title)
+		assert.Equal(t, "reticulate splines", res[3].Title)
 	})
 	t.Run("EventMovedToNextDay", func(t *testing.T) {
 		idExternal := primitive.NewObjectID().Hex()
@@ -259,12 +259,12 @@ func TestGetMeetingPreparationTasksResult(t *testing.T) {
 
 		assert.Len(t, res, 5)
 
-		assert.Equal(t, "reticulate splines", res[0].Title)
-		assert.True(t, res[0].IsDone)
-		assert.Equal(t, "Event2", res[1].Title)
+		assert.Equal(t, "Event6", res[0].Title)
+		assert.Equal(t, "Event1", res[1].Title)
 		assert.Equal(t, "Event3", res[2].Title)
-		assert.Equal(t, "Event1", res[3].Title)
-		assert.Equal(t, "Event6", res[4].Title)
+		assert.Equal(t, "Event2", res[3].Title)
+		assert.Equal(t, "reticulate splines", res[4].Title)
+		assert.True(t, res[4].IsDone)
 	})
 
 }
