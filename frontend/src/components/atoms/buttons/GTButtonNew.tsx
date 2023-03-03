@@ -1,48 +1,108 @@
+import React from 'react'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
-import styled from 'styled-components'
-import { Border } from '../../../styles'
+import styled, { css } from 'styled-components'
+import { Border, Colors, Spacing, Typography } from '../../../styles'
 import { TIconColor, TTextColor } from '../../../styles/colors'
 import { icons } from '../../../styles/images'
 import { Icon } from '../Icon'
 import NoStyleButton from './NoStyleButton'
 
-type TButtonType = 'primary' | 'secondary' | 'destructive' | 'control'
+type TButtonType = 'primary' | 'secondary' | 'destructive' | 'control' | 'icon'
+
+const PrimaryButtonStyles = css`
+    ${Typography.body};
+    padding: ${Spacing._8} ${Spacing._16};
+    color: ${Colors.control.primary.label};
+    background-color: ${Colors.control.primary.bg};
+    &:hover:enabled {
+        background-color: ${Colors.control.primary.hover};
+    }
+    &:active:enabled {
+        background-color: ${Colors.control.primary.highlight};
+        box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.primary.hover};
+    }
+`
+const SecondaryButtonStyles = css`
+    ${Typography.body};
+    padding: ${Spacing._8} ${Spacing._16};
+    color: ${Colors.control.secondary.label};
+    background-color: ${Colors.control.secondary.bg};
+    box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.secondary.stroke};
+    &:hover:enabled {
+        background-color: ${Colors.control.secondary.hover};
+        box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.secondary.stroke};
+    }
+    &:active:enabled {
+        background-color: ${Colors.control.secondary.hover};
+        box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.secondary.highlight};
+    }
+`
+const DestructiveButtonStyles = css`
+    ${Typography.body};
+    padding: ${Spacing._8} ${Spacing._16};
+    color: ${Colors.control.destructive.label};
+    background-color: ${Colors.control.destructive.bg};
+    &:hover:enabled {
+        background-color: ${Colors.control.destructive.hover};
+    }
+    &:active:enabled {
+        background-color: ${Colors.control.destructive.highlight};
+        box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.destructive.hover};
+    }
+`
+const ControlButtonStyles = css`
+    ${Typography.bodySmall};
+    padding: ${Spacing._4} ${Spacing._8};
+    color: ${Colors.text.muted};
+    &:hover:enabled {
+        color: ${Colors.text.base};
+        background-color: ${Colors.background.border};
+    }
+    &:active:enabled {
+        color: ${Colors.text.base};
+        background-color: ${Colors.background.border};
+        box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.accent.pink};
+    }
+`
+const IconButtonStyles = css`
+    ${Typography.bodySmall};
+    padding: ${Spacing._4};
+    color: ${Colors.text.muted};
+    &:hover:enabled {
+        color: ${Colors.text.base};
+        background-color: ${Colors.background.border};
+    }
+    &:active:enabled {
+        color: ${Colors.text.base};
+        background-color: ${Colors.background.border};
+        box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.accent.pink};
+    }
+`
 
 const Button = styled(NoStyleButton)<GTButtonProps>`
+    box-sizing: border-box;
     display: flex;
     justify-content: center;
     align-items: center;
-    border-radius: ${Border.radius.medium};
+    gap: ${Spacing._8};
+    border-radius: ${Border.radius.small};
     text-align: center;
     width: ${({ fitContent }) => (fitContent ? 'fit-content' : '100%')};
-    /* ${(props) => props.styleType !== 'simple' && `box-shadow: ${Shadows.deprecated_button.default};`}; */
     white-space: ${(props) => (props.wrapText ? 'normal' : 'nowrap')};
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: background 0.05s;
-    transition: box-shadow 0.25s;
     user-select: none;
     font-family: inherit;
-    box-sizing: border-box;
-    /* ${(props) => props.styleType === 'primary' && PrimaryButtonStyles};
-    ${(props) => props.styleType === 'secondary' && SecondaryButtonStyles};
-    ${(props) => props.styleType === 'simple' && SimpleButtonStyles};
-    ${(props) => props.size === 'large' && LargeButtonStyle};
-    ${(props) => props.size === 'small' && SmallButtonStyle}; */
-    opacity: ${(props) => (props.disabled ? '0.2' : '1')};
-    &:hover {
-        /* ${(props) =>
-            props.disabled &&
-            (props.styleType === 'primary' || props.styleType === 'secondary') &&
-            `box-shadow: ${Shadows.deprecated_button.default}`};
-        ${(props) =>
-            props.disabled &&
-            `background-color: ${
-                props.type === 'primary' ? Colors.button.primary.default : Colors.button.secondary.default
-            }`}; */
+    ${({ styleType }) => styleType === 'primary' && PrimaryButtonStyles};
+    ${({ styleType }) => styleType === 'secondary' && SecondaryButtonStyles};
+    ${({ styleType }) => styleType === 'destructive' && DestructiveButtonStyles};
+    ${({ styleType }) => styleType === 'control' && ControlButtonStyles};
+    ${({ styleType }) => styleType === 'icon' && IconButtonStyles};
+    ${(props) => props.textColor && `color: ${Colors.text[props.textColor]};`}
+    &:disabled {
+        opacity: 0.5;
+        cursor: default;
     }
-    /* ${(props) => props.textColor && `color: ${Colors.text[props.textColor]};`} */
-    ${(props) => props.disabled && `cursor: default;`}
 `
 const MarginLeftAuto = styled.div`
     margin-left: auto;
