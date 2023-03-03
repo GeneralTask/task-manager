@@ -98,4 +98,80 @@ func TestEventDelete(t *testing.T) {
 		count, _ := eventCollection.CountDocuments(context.Background(), bson.M{"_id": calendarTaskID2})
 		assert.Equal(t, int64(0), count)
 	})
+
+	t.Run("SuccessWithNote", func(t *testing.T) {
+		authToken = login("approved_with_note@generaltask.com", "")
+		userID = getUserIDFromAuthToken(t, db, authToken)
+
+		noteCollection := database.GetNoteCollection(db)
+		noteInsertResult, err := noteCollection.InsertOne(context.Background(), database.Note{
+			UserID: userID,
+		})
+		assert.NoError(t, err)
+		noteID := noteInsertResult.InsertedID.(primitive.ObjectID)
+
+		insertResult, err := eventCollection.InsertOne(context.Background(), database.CalendarEvent{
+			UserID:          userID,
+			SourceAccountID: "account_id_2",
+			CalendarID:      "cal_2",
+			IDExternal:      "sample_calendar_id_2",
+			SourceID:        external.TASK_SOURCE_ID_GCAL,
+			LinkedNoteID:    noteID,
+		})
+		assert.NoError(t, err)
+		calendarTaskID := insertResult.InsertedID.(primitive.ObjectID)
+		calendarTaskIDHex := calendarTaskID.Hex()
+
+		_, err = noteCollection.UpdateOne(
+			context.Background(),
+			bson.M{"$and": []bson.M{
+				{"_id": noteID},
+				{"user_id": userID},
+			}},
+			bson.M{"$set": bson.M{"linked_event_id": calendarTaskID}},
+		)
+		assert.NoError(t, err)
+
+		request, _ := http.NewRequest(
+			"DELETE",
+			"/events/delete/"+calendarTaskIDHex+"/",
+			bytes.NewBuffer([]byte(`{}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		count, _ := eventCollection.CountDocuments(context.Background(), bson.M{"_id": calendarTaskID})
+		assert.Equal(t, int64(0), count)
+
+		var note database.Note
+		err = noteCollection.FindOne(context.Background(), bson.M{"_id": noteID}).Decode(&note)
+		assert.Equal(t, primitive.NilObjectID, note.LinkedEventID)
+	})
+
+	t.Run("SuccessWithNote", func(t *testing.T) {
+		authToken = login("approved_without_note@generaltask.com", "")
+		userID = getUserIDFromAuthToken(t, db, authToken)
+
+		insertResult, err := eventCollection.InsertOne(context.Background(), database.CalendarEvent{
+			UserID:          userID,
+			SourceAccountID: "account_id_2",
+			CalendarID:      "cal_2",
+			IDExternal:      "sample_calendar_id_2",
+			SourceID:        external.TASK_SOURCE_ID_GCAL,
+			LinkedNoteID:    primitive.NewObjectID(),
+		})
+		assert.NoError(t, err)
+		calendarTaskID := insertResult.InsertedID.(primitive.ObjectID)
+		calendarTaskIDHex := calendarTaskID.Hex()
+
+		request, _ := http.NewRequest(
+			"DELETE",
+			"/events/delete/"+calendarTaskIDHex+"/",
+			bytes.NewBuffer([]byte(`{}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+	})
 }
