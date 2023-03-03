@@ -1,9 +1,10 @@
 import { useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { useKeyboardShortcut } from '.'
+import { useKeyboardShortcut, usePreviewMode } from '.'
 
 const useGlobalKeyboardShortcuts = () => {
+    const { isPreviewMode } = usePreviewMode()
     const navigate = useNavigate()
     const { pathname } = useLocation()
 
@@ -30,8 +31,13 @@ const useGlobalKeyboardShortcuts = () => {
         useCallback(() => navigate('/pull-requests'), [])
     )
     useKeyboardShortcut(
+        'goToJiraPage',
+        useCallback(() => navigate('/jira'), [])
+    )
+    useKeyboardShortcut(
         'goToLinearPage',
-        useCallback(() => navigate('/linear'), [])
+        useCallback(() => navigate('/linear'), []),
+        !isPreviewMode
     )
     useKeyboardShortcut(
         'goToRecurringTasksPage',
