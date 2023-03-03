@@ -195,6 +195,10 @@ func GetNote(db *mongo.Database, itemID primitive.ObjectID, userID primitive.Obj
 	return &note, nil
 }
 
+/**
+ * Get the domain of an email address
+ * This only works for emails with a single @
+ */
 func GetEmailDomain(email string) (string, error) {
 	if !strings.Contains(email, "@") {
 		return "", errors.New("invalid email address")

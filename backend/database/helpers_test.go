@@ -321,7 +321,92 @@ func TestGetSharedTask(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, domainTaskID, task.ID)
 	})
+	t.Run("TaskNotShared", func(t *testing.T) {
+		// This case shouldn't happen, but just in case
+		result, err := taskCollection.InsertOne(context.Background(), &Task{
+			UserID:       taskOwnerID,
+			SharedUntil:  primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess: nil,
+		})
+		assert.NoError(t, err)
+		taskID := result.InsertedID.(primitive.ObjectID)
 
+		task, err := GetSharedTask(db, taskID, userSameDomainID)
+		assert.Error(t, err)
+		assert.Equal(t, "task is not shared", err.Error())
+		assert.Nil(t, task)
+	})
+	t.Run("TaskIsDeleted", func(t *testing.T) {
+		isDeleted := true
+		result, err := taskCollection.InsertOne(context.Background(), &Task{
+			UserID:       taskOwnerID,
+			SharedUntil:  primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess: &public,
+			IsDeleted:    &isDeleted,
+		})
+		assert.NoError(t, err)
+		taskID := result.InsertedID.(primitive.ObjectID)
+
+		task, err := GetSharedTask(db, taskID, userSameDomainID)
+		assert.Error(t, err)
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+		assert.Nil(t, task)
+	})
+	t.Run("TaskShareTimeExpired", func(t *testing.T) {
+		result, err := taskCollection.InsertOne(context.Background(), &Task{
+			UserID:       taskOwnerID,
+			SharedUntil:  primitive.NewDateTimeFromTime(time.Now().AddDate(0, 0, -1)),
+			SharedAccess: &public,
+		})
+		assert.NoError(t, err)
+		taskID := result.InsertedID.(primitive.ObjectID)
+
+		task, err := GetSharedTask(db, taskID, userSameDomainID)
+		assert.Error(t, err)
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+		assert.Nil(t, task)
+	})
+	t.Run("InvalidTaskOwnerDomain", func(t *testing.T) {
+		ownerWithInvalidDomainID := primitive.NewObjectID()
+		_, err = GetUserCollection(db).InsertOne(context.Background(), &User{
+			ID:    ownerWithInvalidDomainID,
+			Email: "hello@",
+		})
+		assert.NoError(t, err)
+		result, err := taskCollection.InsertOne(context.Background(), &Task{
+			UserID:       ownerWithInvalidDomainID,
+			SharedUntil:  primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess: &domain,
+		})
+		assert.NoError(t, err)
+		taskID := result.InsertedID.(primitive.ObjectID)
+
+		task, err := GetSharedTask(db, taskID, userSameDomainID)
+		assert.Error(t, err)
+		assert.Equal(t, "invalid email address", err.Error())
+		assert.Nil(t, task)
+	})
+	t.Run("InvalidUserDomain", func(t *testing.T) {
+		result, err := taskCollection.InsertOne(context.Background(), &Task{
+			UserID:       taskOwnerID,
+			SharedUntil:  primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess: &domain,
+		})
+		assert.NoError(t, err)
+		taskID := result.InsertedID.(primitive.ObjectID)
+
+		userWithInvalidDomainID := primitive.NewObjectID()
+		_, err = GetUserCollection(db).InsertOne(context.Background(), &User{
+			ID:    userWithInvalidDomainID,
+			Email: "hello@",
+		})
+		assert.NoError(t, err)
+
+		task, err := GetSharedTask(db, taskID, userWithInvalidDomainID)
+		assert.Error(t, err)
+		assert.Equal(t, "invalid email address", err.Error())
+		assert.Nil(t, task)
+	})
 }
 func TestGetNotes(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
