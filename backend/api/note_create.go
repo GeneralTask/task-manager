@@ -30,7 +30,7 @@ func (api *API) NoteCreate(c *gin.Context) {
 
 	linkedEvent := &database.CalendarEvent{}
 	if noteCreateParams.LinkedEventID != primitive.NilObjectID {
-		// check that the task exists
+		// check that the event exists
 		linkedEvent, err = database.GetCalendarEvent(api.DB, noteCreateParams.LinkedEventID, userID)
 		if err != nil {
 			api.Logger.Error().Err(err).Msgf("linked event not found: %s, err", noteCreateParams.LinkedEventID.Hex())
