@@ -112,6 +112,7 @@ func (api *API) mergeTasksV4(
 func (api *API) taskListToTaskResultListV4(tasks *[]database.Task, userID primitive.ObjectID) []*TaskResultV4 {
 	parentToChildIDs := make(map[primitive.ObjectID][]primitive.ObjectID)
 	taskResults := []*TaskResultV4{}
+	taskIDMap := make(map[primitive.ObjectID]bool)
 	for _, task := range *tasks {
 		if task.ParentTaskID != primitive.NilObjectID {
 			value, exists := parentToChildIDs[task.ParentTaskID]
@@ -124,16 +125,28 @@ func (api *API) taskListToTaskResultListV4(tasks *[]database.Task, userID primit
 		// for implicit memory aliasing
 		tempTask := task
 		taskResults = append(taskResults, api.taskToTaskResultV4(&tempTask, userID))
+		taskIDMap[task.ID] = true
 	}
 
 	// nodes with no valid parent will not appear in task results
+	taskResultsWithoutOrphans := []*TaskResultV4{}
 	for _, node := range taskResults {
+		// if task has subtasks, include them
 		value, exists := parentToChildIDs[node.ID]
 		if exists {
 			node.SubTaskIDs = value
 		}
+		// if task is a subtask without a parent task, remove from results
+		if node.IDParent != "" {
+			idParent, _ := primitive.ObjectIDFromHex(node.IDParent)
+			_, exists = taskIDMap[idParent]
+			if !exists {
+				continue
+			}
+		}
+		taskResultsWithoutOrphans = append(taskResultsWithoutOrphans, node)
 	}
-	return taskResults
+	return taskResultsWithoutOrphans
 }
 
 // shares a lot of duplicate code with taskBaseToTaskResult
