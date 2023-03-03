@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -265,6 +266,30 @@ func TestGetMeetingPreparationTasksResult(t *testing.T) {
 		assert.Equal(t, "Event2", res[3].Title)
 		assert.Equal(t, "reticulate splines", res[4].Title)
 		assert.True(t, res[4].IsDone)
+	})
+	t.Run("LimitResponseTo100Tasks", func(t *testing.T) {
+		authtoken := login("test_limit_100_tasks@generaltask.com", "")
+		db, dbCleanup, err := database.GetDBConnection()
+		assert.NoError(t, err)
+		defer dbCleanup()
+		userID := getUserIDFromAuthToken(t, db, authtoken)
+
+		// Add 200 new meeting preparation tasks
+		for i := 0; i < 200; i++ {
+			eventTitle := fmt.Sprintf("Event%d", i)
+			_, err = createTestMeetingPreparationTask(taskCollection, userID, eventTitle, primitive.NewObjectID().Hex(), false, timeOneHourEarlier, timeOneDayLater, primitive.NilObjectID)
+			assert.NoError(t, err)
+		}
+		// Add a task that should be returned first in the response
+		_, err = createTestMeetingPreparationTask(taskCollection, userID, "Should be first", primitive.NewObjectID().Hex(), false, timeOneHourLater, timeOneDayLater, primitive.NilObjectID)
+		assert.NoError(t, err)
+
+		//Check that only 100 tasks are returned
+		res, err := api.GetMeetingPreparationTasksResult(userID, 0)
+		assert.NoError(t, err)
+		assert.Len(t, res, 100)
+		// Check that the first task is the one we added
+		assert.Equal(t, "Should be first", res[0].Title)
 	})
 
 }
