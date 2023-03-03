@@ -167,6 +167,7 @@ export const icons = Object.freeze({
     inbox: faInbox,
     infinity: faInfinity,
     italic: faItalic,
+    jira: logos.jira,
     label: faTag,
     linear: logos.linear,
     link: faLink,
