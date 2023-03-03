@@ -225,13 +225,16 @@ func GetSharedTask(db *mongo.Database, taskID primitive.ObjectID, userID primiti
 		return nil, err
 	}
 
+	// Check if the task is shared
 	if task.SharedAccess == nil {
 		return nil, errors.New("task is not shared")
 	}
+	// Check if shared access value is valid
 	if *task.SharedAccess != SharedAccessDomain && *task.SharedAccess != SharedAccessPublic {
-		return nil, errors.New("task is not shared")
+		return nil, errors.New("invalid shared access value")
 	}
 
+	// Check if the user is allowed to access the task
 	if *task.SharedAccess == SharedAccessDomain {
 		user, err := GetUser(db, userID)
 		if err != nil {
@@ -254,6 +257,7 @@ func GetSharedTask(db *mongo.Database, taskID primitive.ObjectID, userID primiti
 			return nil, err
 		}
 
+		// Check if the user and the task owner are in the same domain
 		if userDomain != taskOwnerDomain {
 			return nil, errors.New("user domain does not match task owner domain")
 		}
