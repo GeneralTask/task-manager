@@ -8,7 +8,7 @@ import { DropType, TOverviewView } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import StatusLabel from '../atoms/StatusLabel'
-import { Body, Label } from '../atoms/typography/Typography'
+import { DeprecatedBody, DeprecatedLabel } from '../atoms/typography/Typography'
 import { getOverviewAccordionHeaderIcon } from './AccordionItem'
 
 const TriggerTitle = styled.div`
@@ -20,11 +20,11 @@ const TriggerTitle = styled.div`
     margin-right: ${Spacing._8};
     white-space: nowrap;
 `
-const ListTitle = styled(Body)<{ isComplete: boolean }>`
+const ListTitle = styled(DeprecatedBody)<{ isComplete: boolean }>`
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 0;
-    ${Typography.bold}
+    ${Typography.deprecated_bold}
     ${(props) =>
         props.isComplete &&
         `
@@ -37,7 +37,7 @@ const TriggerRightContainer = styled.div`
     align-items: center;
     gap: ${Spacing._16};
 `
-const ItemsRemainingText = styled(Label)`
+const ItemsRemainingText = styled(DeprecatedLabel)`
     white-space: nowrap;
 `
 const StyledFlex = styled(Flex)`

@@ -20,7 +20,7 @@ import { MeetingStartText } from '../atoms/MeetingStartText'
 import TaskTemplate from '../atoms/TaskTemplate'
 import GTButton from '../atoms/buttons/GTButton'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
-import { Mini } from '../atoms/typography/Typography'
+import { DeprecatedMini } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import JiraPriorityDropdown from '../radix/JiraPriorityDropdown'
 import StatusDropdown from '../radix/StatusDropdown'
@@ -50,7 +50,7 @@ const Title = styled.span`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
     padding-right: ${Spacing._8};
 `
 export const PositionedDomino = styled(Domino)`
@@ -251,7 +251,7 @@ const Task = ({
                         {subtasks && subtasks.length > 0 && (
                             <Flex gap={Spacing._4}>
                                 <Icon icon={icons.subtask} />
-                                <Mini>{subtasks.length}</Mini>
+                                <DeprecatedMini>{subtasks.length}</DeprecatedMini>
                             </Flex>
                         )}
                         {meetingStartText ? (

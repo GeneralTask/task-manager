@@ -14,7 +14,7 @@ const EmptyMessage = styled.div`
 `
 const Text = styled.span`
     color: ${Colors.text.light};
-    ${Typography.title};
+    ${Typography.deprecated_title};
 `
 
 interface EmptyDetailsProps {

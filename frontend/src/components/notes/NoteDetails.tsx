@@ -9,7 +9,7 @@ import { TNote } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
-import { Label } from '../atoms/typography/Typography'
+import { DeprecatedLabel } from '../atoms/typography/Typography'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import NoteActionsDropdown from './NoteActionsDropdown'
 import NoteSharingDropdown from './NoteSharingDropdown'
@@ -64,13 +64,13 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                     <Icon icon={icons.note} />
                 </DetailItem>
                 <DetailItem>
-                    <Label color="light">{syncIndicatorText}</Label>
+                    <DeprecatedLabel color="light">{syncIndicatorText}</DeprecatedLabel>
                 </DetailItem>
                 <MarginLeftAuto>
                     {isShared && (
                         <Flex gap={Spacing._8}>
                             <Icon icon={icons.link} color="green" />
-                            <Label color="green">{sharedUntil}</Label>
+                            <DeprecatedLabel color="green">{sharedUntil}</DeprecatedLabel>
                         </Flex>
                     )}
                     <NoteSharingDropdown note={note} />

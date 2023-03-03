@@ -17,15 +17,15 @@ const TopContainer = styled.div`
     color: ${Colors.text.black};
 `
 const BodyContainer = styled.div`
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 const UsernameText = styled.div`
-    ${Typography.bodySmall};
-    ${Typography.bold};
+    ${Typography.deprecated_bodySmall};
+    ${Typography.deprecated_bold};
 `
 const GrayText = styled.span`
     color: ${Colors.text.light};
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 
 interface PullRequestCommentProps {

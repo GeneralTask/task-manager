@@ -19,7 +19,7 @@ import LinearTask from '../molecules/LinearTask'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const LinearBodyHeader = styled.div`
-    ${Typography.body};
+    ${Typography.deprecated_body};
     color: ${Colors.text.light};
     margin: ${Spacing._16} 0;
 `

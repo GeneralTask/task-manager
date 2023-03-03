@@ -33,7 +33,7 @@ import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { Label } from '../atoms/typography/Typography'
+import { DeprecatedLabel } from '../atoms/typography/Typography'
 import CreateLinearComment from '../molecules/CreateLinearComment'
 import FolderSelector from '../molecules/FolderSelector'
 import GTDatePicker from '../molecules/GTDatePicker'
@@ -82,8 +82,8 @@ const MeetingPreparationTimeContainer = styled.div`
     gap: ${Spacing._24};
     margin-left: ${Spacing._8};
     color: ${Colors.text.light};
-    ${Typography.label};
-    ${Typography.bold};
+    ${Typography.deprecated_label};
+    ${Typography.deprecated_bold};
 `
 const CommentContainer = styled.div`
     display: flex;
@@ -95,9 +95,9 @@ const BackButtonContainer = styled(NoStyleButton)`
     align-items: center;
     gap: ${Spacing._8};
     color: ${Colors.text.purple};
-    ${Typography.mini};
+    ${Typography.deprecated_mini};
 `
-const BackButtonText = styled(Label)`
+const BackButtonText = styled(DeprecatedLabel)`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -243,7 +243,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                 {!task.optimisticId && (
                     <>
                         <DetailItem>
-                            <Label color="light">{syncIndicatorText}</Label>
+                            <DeprecatedLabel color="light">{syncIndicatorText}</DeprecatedLabel>
                         </DetailItem>
                         <MarginLeftAuto>
                             {task.is_deleted && (

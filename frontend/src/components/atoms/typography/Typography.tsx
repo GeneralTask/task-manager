@@ -3,48 +3,48 @@ import { Colors, Typography } from '../../../styles'
 import { TTextColor } from '../../../styles/colors'
 
 const SharedStyles = css<{ color?: TTextColor }>`
-    color: ${(props) => (props.color ? Colors.text[props.color] : Colors.text.black)};
+    color: ${(props) => (props.color ? Colors.text[props.color] : Colors.text.base)};
     font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu, Cantarell,
         Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 `
 
-export const Header = styled.span<{ color?: TTextColor }>`
+export const DeprecatedHeader = styled.span<{ color?: TTextColor }>`
     ${SharedStyles};
-    ${Typography.header};
+    ${Typography.deprecated_header};
 `
-export const Title = styled.span<{ color?: TTextColor }>`
+export const DeprecatedTitle = styled.span<{ color?: TTextColor }>`
     ${SharedStyles};
-    ${Typography.title};
+    ${Typography.deprecated_title};
 `
-export const Subtitle = styled.span<{ color?: TTextColor }>`
+export const DeprecatedSubtitle = styled.span<{ color?: TTextColor }>`
     ${SharedStyles};
-    ${Typography.subtitle};
+    ${Typography.deprecated_subtitle};
 `
-export const Body = styled.span<{ color?: TTextColor }>`
+export const DeprecatedBody = styled.span<{ color?: TTextColor }>`
     ${SharedStyles};
-    ${Typography.body};
+    ${Typography.deprecated_body};
 `
-export const BodySmall = styled.span<{ color?: TTextColor }>`
+export const DeprecatedBodySmall = styled.span<{ color?: TTextColor }>`
     ${SharedStyles};
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
-export const Label = styled.span<{ color?: TTextColor }>`
+export const DeprecatedLabel = styled.span<{ color?: TTextColor }>`
     ${SharedStyles};
-    ${Typography.label};
+    ${Typography.deprecated_label};
 `
-export const Eyebrow = styled.span<{ color?: TTextColor }>`
+export const DeprecatedEyebrow = styled.span<{ color?: TTextColor }>`
     ${SharedStyles};
-    ${Typography.eyebrow};
+    ${Typography.deprecated_eyebrow};
 `
-export const Mini = styled.span<{ color?: TTextColor }>`
+export const DeprecatedMini = styled.span<{ color?: TTextColor }>`
     ${SharedStyles};
-    ${Typography.mini};
+    ${Typography.deprecated_mini};
 `
 export const Truncated = styled.span`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 `
-export const Bold = styled.span`
-    ${Typography.bold};
+export const DeprecatedBold = styled.span`
+    ${Typography.deprecated_bold};
 `

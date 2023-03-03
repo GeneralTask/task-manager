@@ -21,9 +21,9 @@ const StyledInput = styled.input<{ fontSize: 'small' | 'medium' | 'large' }>`
     all: unset;
     width: 100%;
     box-sizing: border-box;
-    ${({ fontSize }) => fontSize === 'small' && Typography.bodySmall};
-    ${({ fontSize }) => fontSize === 'medium' && Typography.subtitle};
-    ${({ fontSize }) => fontSize === 'large' && Typography.title};
+    ${({ fontSize }) => fontSize === 'small' && Typography.deprecated_bodySmall};
+    ${({ fontSize }) => fontSize === 'medium' && Typography.deprecated_subtitle};
+    ${({ fontSize }) => fontSize === 'large' && Typography.deprecated_title};
 `
 
 interface GTInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {

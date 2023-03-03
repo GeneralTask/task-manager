@@ -8,13 +8,13 @@ import { getHumanDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import TaskTemplate from '../atoms/TaskTemplate'
-import { Label, Truncated } from '../atoms/typography/Typography'
+import { DeprecatedLabel, Truncated } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import ItemContainer from '../molecules/ItemContainer'
 import NoteContextMenuWrapper from './NoteContextMenuWrapper'
 
 const NoteTitle = styled(Truncated)`
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 const TitleContainer = styled.span<{ deleted?: boolean }>`
     display: flex;
@@ -51,7 +51,9 @@ const Note = ({ note, isSelected, onSelect }: NoteProps) => {
                     </TitleContainer>
                     <Flex gap={Spacing._12} alignItems="center">
                         {isShared && <Icon icon={icons.link} />}
-                        <Label color="light">{getHumanDateTime(DateTime.fromISO(note.created_at))}</Label>
+                        <DeprecatedLabel color="light">
+                            {getHumanDateTime(DateTime.fromISO(note.created_at))}
+                        </DeprecatedLabel>
                     </Flex>
                 </ItemContainer>
             </TaskTemplate>

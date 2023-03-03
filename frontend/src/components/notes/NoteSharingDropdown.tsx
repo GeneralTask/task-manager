@@ -7,13 +7,13 @@ import { icons } from '../../styles/images'
 import { TNote } from '../../utils/types'
 import { getFormattedDuration } from '../../utils/utils'
 import GTButton from '../atoms/buttons/GTButton'
-import { Label } from '../atoms/typography/Typography'
+import { DeprecatedLabel } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTMenuItem, MENU_WIDTH } from '../radix/RadixUIConstants'
 import { SHARED_NOTE_INDEFINITE_DATE } from './NoteDetails'
 import { getNoteURL } from './utils'
 
-const LabelWrap = styled(Label)`
+const LabelWrap = styled(DeprecatedLabel)`
     width: ${MENU_WIDTH};
 `
 

@@ -25,7 +25,7 @@ const ActionsContainer = styled.div`
     margin-bottom: ${Spacing._16};
 `
 const BannerButton = styled(GTButton)`
-    ${Typography.label};
+    ${Typography.deprecated_label};
 `
 const RightActions = styled.div`
     margin-left: auto;

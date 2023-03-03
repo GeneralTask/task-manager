@@ -25,7 +25,7 @@ const LinearSelectableContainer = styled(SelectableContainer)`
     padding: ${Spacing._8} ${Spacing._8} ${Spacing._8} ${Spacing._16};
     margin-bottom: ${Spacing._4};
     align-items: center;
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 
 const LinearTitle = styled.span`

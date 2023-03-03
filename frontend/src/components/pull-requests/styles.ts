@@ -21,8 +21,8 @@ export const Status = styled.div<{ type: TStatusColors }>`
     white-space: nowrap;
     text-overflow: ellipsis;
     max-width: fit-content;
-    ${Typography.label};
-    ${Typography.bold};
+    ${Typography.deprecated_label};
+    ${Typography.deprecated_bold};
 `
 
 export const Repository = styled.div`
@@ -61,7 +61,7 @@ export const HeaderContainer = styled.div`
 `
 export const RepositoryName = styled.div`
     color: ${Colors.text.light};
-    ${Typography.subtitle};
+    ${Typography.deprecated_subtitle};
 `
 export const BranchNameContainer = styled.div`
     display: flex;
@@ -72,8 +72,8 @@ export const BranchNameContainer = styled.div`
     border-radius: ${Border.radius.small};
     padding: ${Spacing._4} ${Spacing._8};
     gap: ${Spacing._8};
-    ${Typography.label};
-    ${Typography.bold};
+    ${Typography.deprecated_label};
+    ${Typography.deprecated_bold};
     cursor: pointer;
 `
 export const LinkButtonContainer = styled.div`
