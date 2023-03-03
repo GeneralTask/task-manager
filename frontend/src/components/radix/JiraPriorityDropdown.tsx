@@ -17,7 +17,7 @@ const JiraPriorityDropdown = ({ taskId, currentPriority, allPriorities, disabled
     const { mutate: modifyTask } = useModifyTask()
 
     const items: GTMenuItem[] = allPriorities.map((priority) => ({
-        label: priority.name + priority.priority_normalized,
+        label: priority.name,
         onClick: () => {
             modifyTask({
                 id: taskId,
@@ -37,7 +37,7 @@ const JiraPriorityDropdown = ({ taskId, currentPriority, allPriorities, disabled
             items={items}
             trigger={
                 <GTButton
-                    value={currentPriority.name + currentPriority.priority_normalized}
+                    value={currentPriority.name}
                     icon={currentPriority.icon_url}
                     size="small"
                     styleType="simple"
