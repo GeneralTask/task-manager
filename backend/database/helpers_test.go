@@ -218,6 +218,111 @@ func TestGetMeetingPreparationTasks(t *testing.T) {
 	})
 }
 
+func TestGetEmailDomain(t *testing.T) {
+	t.Run("EmptyString", func(t *testing.T) {
+		domain, err := GetEmailDomain("")
+		assert.Error(t, err)
+		assert.Equal(t, "invalid email address", err.Error())
+		assert.Equal(t, "", domain)
+	})
+	t.Run("Missing@", func(t *testing.T) {
+		domain, err := GetEmailDomain("foobar")
+		assert.Error(t, err)
+		assert.Equal(t, "invalid email address", err.Error())
+		assert.Equal(t, "", domain)
+	})
+	t.Run("MissingDomain", func(t *testing.T) {
+		domain, err := GetEmailDomain("foobar@")
+		assert.Error(t, err)
+		assert.Equal(t, "invalid email address", err.Error())
+		assert.Equal(t, "", domain)
+	})
+	t.Run("Success", func(t *testing.T) {
+		domain, err := GetEmailDomain("bow@wow.com")
+		assert.NoError(t, err)
+		assert.Equal(t, "wow.com", domain)
+	})
+}
+func TestGetSharedTask(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+
+	taskOwnerID := primitive.NewObjectID()
+	GetUserCollection(db).InsertOne(context.Background(), &User{
+		ID:    taskOwnerID,
+		Email: "taskOwner@generaltask.com",
+	})
+	taskCollection := GetTaskCollection(db)
+	timeTomorrow := time.Now().AddDate(0, 0, 1)
+	public := SharedAccessPublic
+	domain := SharedAccessDomain
+
+	userSameDomainID := primitive.NewObjectID()
+	_, err = GetUserCollection(db).InsertOne(context.Background(), &User{
+		ID:    userSameDomainID,
+		Email: "differentUserSameDomain@generaltask.com",
+	})
+	assert.NoError(t, err)
+
+	userDifferentDomainID := primitive.NewObjectID()
+	_, err = GetUserCollection(db).InsertOne(context.Background(), &User{
+		ID:    userDifferentDomainID,
+		Email: "differentUserDifferentDomain@lamecompany.com",
+	})
+	assert.NoError(t, err)
+
+	t.Run("SuccessPublicTask", func(t *testing.T) {
+		result, err := taskCollection.InsertOne(context.Background(), &Task{
+			UserID:       taskOwnerID,
+			SharedUntil:  primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess: &public,
+		})
+		assert.NoError(t, err)
+		publicTaskID := result.InsertedID.(primitive.ObjectID)
+
+		// Test that the task is returned when the user has same domain
+		task, err := GetSharedTask(db, publicTaskID, userSameDomainID)
+		assert.NoError(t, err)
+		assert.Equal(t, publicTaskID, task.ID)
+
+		// Test that the task is returned when the user has different domain
+		task, err = GetSharedTask(db, publicTaskID, userDifferentDomainID)
+		assert.NoError(t, err)
+		assert.Equal(t, publicTaskID, task.ID)
+
+		// Test that the task is return when owner is same as user
+		task, err = GetSharedTask(db, publicTaskID, taskOwnerID)
+		assert.NoError(t, err)
+		assert.Equal(t, publicTaskID, task.ID)
+	})
+	t.Run("SuccessDomainTask", func(t *testing.T) {
+		result, err := taskCollection.InsertOne(context.Background(), &Task{
+			UserID:       taskOwnerID,
+			SharedUntil:  primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess: &domain,
+		})
+		assert.NoError(t, err)
+		domainTaskID := result.InsertedID.(primitive.ObjectID)
+
+		// Test that the task is returned when the user has same domain
+		task, err := GetSharedTask(db, domainTaskID, userSameDomainID)
+		assert.NoError(t, err)
+		assert.Equal(t, domainTaskID, task.ID)
+
+		// Test that the task is not returned when the user has different domain
+		task, err = GetSharedTask(db, domainTaskID, userDifferentDomainID)
+		assert.Error(t, err)
+		assert.Equal(t, "user domain does not match task owner domain", err.Error())
+		assert.Nil(t, task)
+
+		// Test that the task is return when owner is same as user
+		task, err = GetSharedTask(db, domainTaskID, taskOwnerID)
+		assert.NoError(t, err)
+		assert.Equal(t, domainTaskID, task.ID)
+	})
+
+}
 func TestGetNotes(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
@@ -1202,8 +1307,8 @@ func createTestCalendarEventWithExternalID(db *mongo.Database, userID primitive.
 	result, err := eventsCollection.InsertOne(
 		context.Background(),
 		&CalendarEvent{
-			UserID:        userID,
-			IDExternal:    externalID,
+			UserID:     userID,
+			IDExternal: externalID,
 		},
 	)
 	return result.InsertedID.(primitive.ObjectID), err

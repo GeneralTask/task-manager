@@ -79,6 +79,13 @@ type Oauth1RequestSecret struct {
 	RequestSecret string             `bson:"request_secret"`
 }
 
+type SharedAccess int
+
+const (
+	SharedAccessPublic SharedAccess = iota
+	SharedAccessDomain
+)
+
 type Task struct {
 	ID     primitive.ObjectID `bson:"_id,omitempty"`
 	UserID primitive.ObjectID `bson:"user_id,omitempty"`
@@ -104,6 +111,8 @@ type Task struct {
 	CreatedAtExternal  primitive.DateTime  `bson:"created_at_external,omitempty"`
 	UpdatedAt          primitive.DateTime  `bson:"updated_at,omitempty"`
 	CompletedAt        primitive.DateTime  `bson:"completed_at,omitempty"`
+	SharedUntil        primitive.DateTime  `bson:"shared_until,omitempty"`
+	SharedAccess       *SharedAccess       `bson:"shared_access,omitempty"`
 	DeletedAt          primitive.DateTime  `bson:"deleted_at,omitempty"`
 	PriorityNormalized *float64            `bson:"priority_normalized,omitempty"`
 	TaskNumber         *int                `bson:"task_number,omitempty"`
