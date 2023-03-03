@@ -168,9 +168,9 @@ export const EventFill = styled.div<{
 }>`
     width: 100%;
     height: 100%;
-    outline: ${Border.stroke.medium} solid ${(props) => (props.isSelected ? Colors.border.purple : 'transparent')};
+    outline: ${Border.stroke.medium} solid ${(props) => (props.isSelected ? Colors.legacyColors.purple : 'transparent')};
     box-sizing: border-box;
-    box-shadow: ${Shadows.light};
+    box-shadow: ${Shadows.deprecated_light};
     /* add opacity to background color */
     background-color: ${(props) => `${props.backgroundColorHex}1A`};
     border-top-left-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
@@ -203,7 +203,7 @@ export const DayHeaderText = styled.div<{ isToday: boolean; isPreviewMode: boole
     padding: ${Spacing._4} ${Spacing._8};
     color: ${(props) => (props.isToday ? Colors.text.white : Colors.text.black)};
     background-color: ${(props) =>
-        !props.isToday ? 'transparent' : props.isPreviewMode ? Colors.gtColor.blue : Colors.gtColor.primary};
+        !props.isToday ? 'transparent' : props.isPreviewMode ? Colors.legacyColors.blue : Colors.legacyColors.purple};
     ${Typography.body};
 `
 export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: boolean; hasLeftBorder: boolean }>`
@@ -214,9 +214,10 @@ export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: b
     background-color: ${Colors.background.medium};
     display: flex;
     z-index: 1;
-    box-shadow: ${({ showShadow }) => (showShadow ? Shadows.light : 'none')};
+    box-shadow: ${({ showShadow }) => (showShadow ? Shadows.deprecated_light : 'none')};
     flex-direction: column;
-    border-left: ${({ hasLeftBorder }) => (hasLeftBorder ? Border.stroke.medium : 'none')} solid ${Colors.border.light};
+    border-left: ${({ hasLeftBorder }) => (hasLeftBorder ? Border.stroke.medium : 'none')} solid
+        ${Colors.background.border};
 `
 export const DayAndHeaderContainer = styled.div`
     display: flex;
@@ -234,7 +235,7 @@ export const DropPreview = styled.div<{ isVisible: boolean; offset: number }>`
     position: absolute;
     width: 100%;
     height: ${DEFAULT_EVENT_HEIGHT}px;
-    border: 2px dashed ${Colors.gtColor.primary};
+    border: 2px dashed ${Colors.legacyColors.purple};
     display: ${(props) => (props.isVisible ? 'block' : 'none')};
     border-radius: ${Border.radius.medium};
     box-sizing: border-box;

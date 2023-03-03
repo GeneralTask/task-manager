@@ -26,7 +26,7 @@ const modalProps: Partial<ModalProps> = {
     styles: {
         modal: {
             borderRadius: Border.radius.small,
-            boxShadow: Shadows.medium,
+            boxShadow: Shadows.deprecated_medium,
             overflow: 'hidden',
         },
     },

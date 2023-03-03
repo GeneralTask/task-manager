@@ -8,7 +8,7 @@ import Flex from '../atoms/Flex'
 import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
-import { SectionHeader } from '../molecules/Header'
+import { Header } from '../molecules/Header'
 import AccordionItem from '../overview/AccordionItem'
 import EditModal from '../overview/EditModal'
 import OverviewDetails from '../overview/OverviewDetails'
@@ -40,7 +40,7 @@ const useSelectFirstItemOnFirstLoad = () => {
 
     useEffect(() => {
         if (!isFirstSuccess.current || lists?.length === 0) return
-        const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
+        const firstNonEmptyView = lists?.find((list) => list.view_item_ids.length > 0)
         if (firstNonEmptyView) {
             setOpenListIds((ids) => {
                 if (!ids.includes(firstNonEmptyView.id)) {
@@ -48,7 +48,7 @@ const useSelectFirstItemOnFirstLoad = () => {
                 }
                 return ids
             })
-            navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
+            navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_item_ids[0]}`, { replace: true })
         } else {
             navigate(`/overview`, { replace: true })
         }
@@ -71,7 +71,7 @@ const DailyOverviewView = () => {
         <>
             <Flex>
                 <ScrollableListTemplate>
-                    <SectionHeader sectionName="Daily Overview" />
+                    <Header folderName="Daily Overview" />
                     <ActionsContainer>
                         <BannerButton
                             styleType="simple"

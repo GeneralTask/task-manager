@@ -135,7 +135,6 @@ export const AddListsModalContent = () => {
                                 {!supportedView.is_linked && (
                                     <GTButton
                                         value="Connect"
-                                        color={Colors.gtColor.primary}
                                         icon={icons.external_link}
                                         size="small"
                                         styleType="secondary"
@@ -155,7 +154,7 @@ export const AddListsModalContent = () => {
                         {/* Do not show divider if this is the last item in the list */}
                         {((!supportedView.is_nested && viewIndex !== filteredSupportedViews.length - 1) ||
                             (supportedView.is_nested && supportedView.views.length > 0)) && (
-                            <Divider color={Colors.border.light} />
+                            <Divider color={Colors.background.border} />
                         )}
                         {supportedView.is_nested &&
                             supportedView.views.map((supportedViewItem, viewItemIndex) => (
@@ -174,7 +173,7 @@ export const AddListsModalContent = () => {
                                     </SupportedView>
                                     {(viewIndex !== filteredSupportedViews.length - 1 ||
                                         viewItemIndex !== supportedView.views.length - 1) && (
-                                        <Divider color={Colors.border.light} />
+                                        <Divider color={Colors.background.border} />
                                     )}
                                 </Fragment>
                             ))}

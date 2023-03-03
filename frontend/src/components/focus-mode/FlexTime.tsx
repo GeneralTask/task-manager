@@ -3,14 +3,14 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { useSetting } from '../../hooks'
+import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import { useCreateEvent, useEvents, useGetCalendars } from '../../services/api/events.hooks'
 import Log from '../../services/api/log'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
-import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { getMonthsAroundDate } from '../../utils/time'
-import { TEvent, TTask } from '../../utils/types'
+import { TEvent, TTaskV4 } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import GTHeader from '../atoms/GTHeader'
 import GTTitle from '../atoms/GTTitle'
@@ -117,7 +117,7 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
     const flexTimeText = getFlexTimeText(todayEvents ?? [], nextEvent)
 
     const fifteenMinuteBlock = currentFifteenMinuteBlock(DateTime.local())
-    const { data: taskSections } = useGetTasks()
+    const { data: activeTasks } = useGetActiveTasks()
     const { mutate: createEvent } = useCreateEvent()
     const { data: calendars } = useGetCalendars()
     const { data: views } = useGetOverviewViews()
@@ -125,18 +125,15 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
     const { field_value: taskToCalCalendar } = useSetting('calendar_calendar_id_for_new_tasks')
     const showConnectToast = useConnectGoogleAccountToast()
 
-    const [recommendedTasks, setRecommendedTasks] = useState<[TTask?, TTask?]>([])
+    const [recommendedTasks, setRecommendedTasks] = useState<[TTaskV4?, TTaskV4?]>([])
 
     const getNewRecommendedTasks = useCallback(() => {
-        if (!taskSections) return
-        const allTasks = taskSections
-            .filter((section) => !section.is_done && !section.is_trash)
-            .flatMap((section) => section.tasks)
-        const [firstId, secondId] = getRandomUniqueTaskIds(allTasks.length)
-        const firstTask = firstId !== undefined ? allTasks[firstId] : undefined
-        const secondTask = secondId !== undefined ? allTasks[secondId] : undefined
+        if (!activeTasks) return
+        const [firstId, secondId] = getRandomUniqueTaskIds(activeTasks.length)
+        const firstTask = firstId !== undefined ? activeTasks[firstId] : undefined
+        const secondTask = secondId !== undefined ? activeTasks[secondId] : undefined
         setRecommendedTasks([firstTask, secondTask])
-    }, [taskSections, views])
+    }, [activeTasks, views])
 
     useLayoutEffect(() => {
         if (!recommendedTasks[0] && !recommendedTasks[1]) {
@@ -144,19 +141,21 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
                 getNewRecommendedTasks()
                 return
             }
-            const allViewTasks = views
+            const allViewTaskIds = views
                 .filter((view) => view.type === 'slack' || view.type === 'task_section' || view.type === 'linear')
-                .flatMap((view) => view.view_items)
-            const firstTask = allViewTasks.length > 0 ? allViewTasks[0] : undefined
-            const secondTask = allViewTasks.length > 1 ? allViewTasks[1] : undefined
+                .flatMap((view) => view.view_item_ids)
+            const firstTask =
+                allViewTaskIds.length > 0 ? activeTasks?.find(({ id }) => allViewTaskIds[0] === id) : undefined
+            const secondTask =
+                allViewTaskIds.length > 1 ? activeTasks?.find(({ id }) => allViewTaskIds[1] === id) : undefined
             setRecommendedTasks([firstTask, secondTask])
             if (!firstTask && !secondTask) {
                 getNewRecommendedTasks()
             }
         }
-    }, [taskSections])
+    }, [activeTasks])
 
-    const onClickHandler = (task: TTask) => {
+    const onClickHandler = (task: TTaskV4) => {
         if (!calendars?.length) {
             showConnectToast()
             return

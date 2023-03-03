@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import produce from 'immer'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { SINGLE_SECOND_INTERVAL } from '../../constants'
 import { useInterval, useSetting } from '../../hooks'
+import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import { useGetCalendars } from '../../services/api/events.hooks'
-import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing } from '../../styles'
 import { useCalendarContext } from './CalendarContext'
 import TaskDueBody from './TaskDueBody'
@@ -15,8 +14,8 @@ import TasksDueHeader from './TasksDueHeader'
 const CONTAINER_MAX_HEIGHT = '130px'
 
 const TasksDueContainer = styled.div<{ hasTopBorder?: boolean }>`
-    ${({ hasTopBorder }) => hasTopBorder && `border-top: ${Border.stroke.medium} solid ${Colors.border.light};`}
-    border-bottom: ${Border.stroke.medium} solid ${Colors.border.light};
+    ${({ hasTopBorder }) => hasTopBorder && `border-top: ${Border.stroke.medium} solid ${Colors.background.border};`}
+    border-bottom: ${Border.stroke.medium} solid ${Colors.background.border};
 `
 export const PaddedTasksScroll = styled.div`
     padding: 0 ${Spacing._12} ${Spacing._8};
@@ -44,7 +43,7 @@ interface TasksDueProps {
 }
 const TasksDue = ({ date }: TasksDueProps) => {
     const { isTasksDueViewCollapsed, isTasksOverdueViewCollapsed, setDate } = useCalendarContext()
-    const { data: taskFolders } = useGetTasks()
+    const { data: activeTasks } = useGetActiveTasks()
     const [currentTime, setCurrentTime] = useState(DateTime.local())
 
     useInterval(
@@ -61,41 +60,24 @@ const TasksDue = ({ date }: TasksDueProps) => {
         }
     }, [currentTime])
 
-    const incompleteTasks = useMemo(() => {
-        const allTasks = taskFolders?.flatMap((section) => section.tasks) ?? []
-        const allSubtasks = allTasks
-            .filter((task) => task.sub_tasks !== undefined)
-            .map((task) => {
-                return produce(task, (draft) => {
-                    for (const subtask of draft.sub_tasks || []) {
-                        subtask.parent_task_id = draft.id
-                        subtask.isSubtask = true
-                    }
-                })
-            })
-            .flatMap((task) => task.sub_tasks || [])
-        const allTasksAndSubtasks = [...allTasks, ...allSubtasks]
-        return allTasksAndSubtasks.filter((task) => !task.is_done && !task.is_deleted)
-    }, [taskFolders])
-
     const tasksDueToday = useMemo(
         () =>
-            incompleteTasks.filter(
+            activeTasks?.filter(
                 (task) =>
                     DateTime.fromISO(task.due_date).hasSame(date, 'day') ||
                     (task.meeting_preparation_params &&
                         DateTime.fromISO(task.meeting_preparation_params.datetime_start).hasSame(date, 'day'))
-            ),
-        [incompleteTasks, date]
+            ) || [],
+        [activeTasks, date]
     )
 
     const tasksOverdue = useMemo(
         () =>
-            incompleteTasks.filter(
+            activeTasks?.filter(
                 (task) =>
                     !DateTime.fromISO(task.due_date).hasSame(date, 'day') && DateTime.fromISO(task.due_date) < date
-            ),
-        [incompleteTasks, date]
+            ) || [],
+        [activeTasks, date]
     )
 
     const hasTopBorder = useHasTopBorder()

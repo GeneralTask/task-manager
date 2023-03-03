@@ -903,8 +903,14 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 			UserID:     userID,
 			IDExternal: "acctid",
 			Calendars: []database.Calendar{
-				{"owner", "calid", "", ""},
-				{"reader", "other_calid", "", ""},
+				{
+					AccessRole: constants.AccessControlOwner,
+					CalendarID: "calid",
+				},
+				{
+					AccessRole: constants.AccessControlReader,
+					CalendarID: "other_calid",
+				},
 			},
 		}, nil)
 	assert.NoError(t, err)
@@ -1102,18 +1108,21 @@ func createTestEvent(calendarEventCollection *mongo.Collection, userID primitive
 }
 
 func createTestMeetingPreparationTask(taskCollection *mongo.Collection, userID primitive.ObjectID, title string, IDExternal string, isCompleted bool, dateTimeStart time.Time, dateTimeEnd time.Time, eventID primitive.ObjectID) (*mongo.InsertOneResult, error) {
+	isDeleted := false
 	return taskCollection.InsertOne(context.Background(), database.Task{
 		UserID:                   userID,
 		SourceID:                 external.TASK_SOURCE_ID_GCAL,
 		Title:                    &title,
 		IsCompleted:              &isCompleted,
+		IsDeleted:                &isDeleted,
 		IsMeetingPreparationTask: true,
 		MeetingPreparationParams: &database.MeetingPreparationParams{
-			CalendarEventID:     eventID,
-			IDExternal:          IDExternal,
-			DatetimeStart:       primitive.NewDateTimeFromTime(dateTimeStart),
-			DatetimeEnd:         primitive.NewDateTimeFromTime(dateTimeEnd),
-			EventMovedOrDeleted: false,
+			CalendarEventID:               eventID,
+			IDExternal:                    IDExternal,
+			DatetimeStart:                 primitive.NewDateTimeFromTime(dateTimeStart),
+			DatetimeEnd:                   primitive.NewDateTimeFromTime(dateTimeEnd),
+			HasBeenAutomaticallyCompleted: false,
+			EventMovedOrDeleted:           false,
 		},
 	})
 }

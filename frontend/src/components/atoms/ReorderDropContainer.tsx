@@ -18,7 +18,7 @@ const DropOverlay = styled.div<{ isLast?: boolean }>`
 const DropIndicatorStyles = css<{ isVisible: boolean }>`
     position: relative;
     width: 100%;
-    background-color: ${Colors.border.purple};
+    background-color: ${Colors.legacyColors.purple};
     visibility: ${(props) => (props.isVisible ? 'visible' : 'hidden')};
     position: absolute;
     height: ${INDICATOR_HEIGHT}px;
@@ -32,7 +32,7 @@ const DropIndicatorBelow = styled.div`
     bottom: -${INDICATOR_HEIGHT}px;
 `
 const WholeDropIndicatorStyle = css`
-    border: ${Border.stroke.medium} solid ${Colors.border.purple};
+    border: ${Border.stroke.medium} solid ${Colors.legacyColors.purple};
     border-radius: ${Border.radius.small};
 `
 const WholeDropIndicator = styled.div<{ isVisible: boolean }>`

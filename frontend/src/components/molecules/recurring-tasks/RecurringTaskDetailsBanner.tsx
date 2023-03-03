@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import * as Sentry from '@sentry/browser'
 import styled from 'styled-components'
-import { useGetTasks } from '../../../services/api/tasks.hooks'
+import { useGetFolders } from '../../../services/api/folders.hooks'
 import { Colors } from '../../../styles'
 import { Bold } from '../../atoms/typography/Typography'
 import { Banner } from './RecurringTaskTemplateDetailsBanner'
@@ -19,7 +19,7 @@ interface RecurringTaskDetailsBannerProps {
     templateId: string
 }
 const RecurringTaskDetailsBanner = ({ templateId }: RecurringTaskDetailsBannerProps) => {
-    const { data: folders } = useGetTasks()
+    const { data: folders } = useGetFolders()
 
     const [isEditTemplateModalOpen, setIsEditTemplateModalOpen] = useState(false)
 

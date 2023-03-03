@@ -5,17 +5,20 @@ import (
 
 	"golang.org/x/exp/slices"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 type CalendarResult struct {
-	CalendarID string `json:"calendar_id,omitempty"`
-	ColorID    string `json:"color_id,omitempty"`
-	Title      string `json:"title,omitempty"`
-	CanWrite   bool   `json:"can_write,omitempty"`
-	AccessRole string `json:"access_role,omitempty"`
+	CalendarID      string `json:"calendar_id,omitempty"`
+	ColorID         string `json:"color_id,omitempty"`
+	Title           string `json:"title,omitempty"`
+	CanWrite        bool   `json:"can_write,omitempty"`
+	AccessRole      string `json:"access_role,omitempty"`
+	ColorBackground string `json:"color_background,omitempty"`
+	ColorForeground string `json:"color_foreground,omitempty"`
 }
 
 type CalendarAccountResult struct {
@@ -50,8 +53,10 @@ func (api *API) CalendarsList(c *gin.Context) {
 				CalendarID: calendar.CalendarID,
 				ColorID:    calendar.ColorID,
 				Title:      calendar.Title,
-				CanWrite:   slices.Contains([]string{"owner", "writer"}, calendar.AccessRole),
+				CanWrite:   slices.Contains([]string{constants.AccessControlOwner, "writer"}, calendar.AccessRole),
 				AccessRole: calendar.AccessRole,
+        ColorBackground: calendar.ColorBackground,
+				ColorForeground: calendar.ColorForeground,
 			}
 			calendars = append(calendars, calendarResult)
 

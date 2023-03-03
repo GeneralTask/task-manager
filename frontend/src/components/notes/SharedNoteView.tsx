@@ -67,7 +67,7 @@ const BottomContainer = styled.div`
 const NoteBody = styled.div`
     background: ${Colors.background.white};
     border-radius: ${Border.radius.small};
-    box-shadow: ${Shadows.medium};
+    box-shadow: ${Shadows.deprecated_medium};
     display: flex;
     flex-direction: column;
     padding: ${Spacing._24};
@@ -170,7 +170,7 @@ const SharedNoteView = () => {
                                         disabled
                                         readOnly
                                     />
-                                    <Divider color={Colors.border.light} />
+                                    <Divider color={Colors.background.border} />
                                     <FlexPadding8Horizontal justifyContent="space-between" alignItems="center">
                                         <Flex gap={Spacing._4}>
                                             {isLoggedIn && isUserNoteOwner ? (

@@ -190,10 +190,12 @@ type PullRequestComment struct {
 }
 
 type Calendar struct {
-	AccessRole string `bson:"access_role,omitempty"`
-	CalendarID string `bson:"calendar_id,omitempty"`
-	ColorID    string `bson:"color_id,omitempty"`
-	Title      string `bson:"title,omitempty"`
+	AccessRole      string `bson:"access_role,omitempty"`
+	CalendarID      string `bson:"calendar_id,omitempty"`
+	ColorID         string `bson:"color_id,omitempty"`
+	Title           string `bson:"title,omitempty"`
+	ColorBackground string `bson:"color_background,omitempty"`
+	ColorForeground string `bson:"color_foreground,omitempty"`
 }
 
 type CalendarAccount struct {
@@ -230,6 +232,8 @@ type CalendarEvent struct {
 	LinkedViewID        primitive.ObjectID `bson:"linked_view_id,omitempty"`
 	LinkedPullRequestID primitive.ObjectID `bson:"linked_pull_request_id,omitempty"`
 	LinkedSourceID      string             `bson:"linked_task_source_id,omitempty"`
+	ColorBackground     string             `bson:"color_background,omitempty"`
+	ColorForeground     string             `bson:"color_foreground,omitempty"`
 }
 
 type MeetingPreparationParams struct {
@@ -299,7 +303,6 @@ type ExternalTaskStatus struct {
 	IsCompletedStatus bool    `json:"is_completed_status" bson:"is_completed_status"`
 	Position          float64 `json:"position" bson:"position"`
 	Color             string  `json:"color" bson:"color"`
-	IconURL           string  `json:"icon_url" bson:"icon_url"`
 	IsValidTransition bool    `json:"is_valid_transition,omitempty" bson:"is_valid_transition,omitempty"`
 }
 

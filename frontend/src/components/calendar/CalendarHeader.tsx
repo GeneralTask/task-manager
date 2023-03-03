@@ -144,7 +144,7 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                         </Flex>
                         <Flex gap={Spacing._8} alignItems="center">
                             <GTIconButton
-                                shortcutName={calendarType === 'week' ? 'showDailyCalendar' : 'showWeeklyCalendar'}
+                                shortcutName={calendarType === 'week' ? 'toggleDailyCalendar' : 'toggleWeeklyCalendar'}
                                 onClick={toggleCalendar}
                                 icon={calendarType === 'week' ? icons.arrows_in : icons.arrows_out}
                             />
@@ -155,7 +155,7 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                             />
                         </Flex>
                     </PaddedContainer>
-                    <Divider color={Colors.border.light} />
+                    <Divider color={Colors.background.border} />
                     {!isCalendarExpanded && (
                         <PaddedContainer>
                             {nextPreviousButtons}

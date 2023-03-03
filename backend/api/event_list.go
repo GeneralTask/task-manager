@@ -37,6 +37,8 @@ type EventResult struct {
 	LinkedViewID        string               `json:"linked_view_id"`
 	LinkedPullRequestID string               `json:"linked_pull_request_id"`
 	Logo                string               `json:"logo"`
+	ColorBackground     string               `json:"color_background,omitempty"`
+	ColorForeground     string               `json:"color_foreground,omitempty"`
 }
 
 func (api *API) EventsList(c *gin.Context) {
@@ -162,6 +164,8 @@ func (api *API) EventsList(c *gin.Context) {
 				LinkedTaskID:        linkedTaskID,
 				LinkedViewID:        linkedViewID,
 				LinkedPullRequestID: linkedPRID,
+				ColorBackground:     event.ColorBackground,
+				ColorForeground:     event.ColorForeground,
 			})
 		}
 		err := api.adjustForCompletedEvents(userID, &calendarEvents, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd)

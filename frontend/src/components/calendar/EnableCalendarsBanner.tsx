@@ -137,7 +137,7 @@ const EnableCalendarsBanner = () => {
             {calendarsNeedingMultical.length > 0 && (
                 <>
                     {calendarsNeedingMultical.length > 0 && calendarsWithBadTokens.length > 0 && (
-                        <Divider color={Colors.border.light} />
+                        <Divider color={Colors.background.border} />
                     )}
                     <Flex justifyContent="space-between" alignItems="center">
                         <Label color="light">
