@@ -29,7 +29,7 @@ const AddTaskbutton = styled.div`
     box-sizing: border-box;
     :hover {
         border-color: ${Colors.background.border};
-        border-radius: ${Border.radius.small};
+        border-radius: ${Border.radius.medium};
     }
 `
 const MarginBottomDiv = styled.div`

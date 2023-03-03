@@ -23,8 +23,8 @@ const Trigger = styled.div<{ isOpen: boolean }>`
     padding: ${Spacing._16};
     display: flex;
     justify-content: space-between;
-    border-radius: ${Border.radius.small};
-    ${(props) => props.isOpen && `border-radius: ${Border.radius.small} ${Border.radius.small} 0 0;`}
+    border-radius: ${Border.radius.medium};
+    ${(props) => props.isOpen && `border-radius: ${Border.radius.medium} ${Border.radius.medium} 0 0;`}
     cursor: pointer;
     box-shadow: ${Shadows.deprecated_button.default};
 `
@@ -32,7 +32,7 @@ const Trigger = styled.div<{ isOpen: boolean }>`
 const ListContent = styled.div`
     padding: ${Spacing._16};
     background-color: ${Colors.background.white};
-    border-radius: 0 0 ${Border.radius.small} ${Border.radius.small};
+    border-radius: 0 0 ${Border.radius.medium} ${Border.radius.medium};
     box-shadow: ${Shadows.deprecated_button.default};
 `
 

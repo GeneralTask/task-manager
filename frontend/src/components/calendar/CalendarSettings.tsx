@@ -17,7 +17,7 @@ import { getCalendarAuthButton, getCalendarName } from './utils/utils'
 const Calendar = styled(Flex)`
     cursor: pointer;
     border: ${Border.stroke.small} solid transparent;
-    border-radius: ${Border.radius.mini};
+    border-radius: ${Border.radius.small};
     padding: ${Spacing._8} ${Spacing._4};
     box-sizing: border-box;
     :hover {
