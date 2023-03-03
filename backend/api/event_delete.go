@@ -60,23 +60,5 @@ func (api *API) EventDelete(c *gin.Context) {
 		return
 	}
 
-	if event.LinkedNoteID != primitive.NilObjectID {
-		noteCollection := database.GetNoteCollection(api.DB)
-		// check that the note exists
-		res, err := noteCollection.UpdateOne(
-			context.Background(),
-			bson.M{"$and": []bson.M{
-				{"_id": event.LinkedNoteID},
-				{"user_id": userID},
-			}},
-			bson.M{"$set": bson.M{"linked_event_id": primitive.NilObjectID}},
-		)
-		if err != nil || res.MatchedCount != 1 {
-			api.Logger.Error().Err(err).Msg("failed to update linked note")
-			Handle500(c)
-			return
-		}
-	}
-
 	c.JSON(200, gin.H{})
 }

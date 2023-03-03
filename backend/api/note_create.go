@@ -7,7 +7,6 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -28,10 +27,9 @@ func (api *API) NoteCreate(c *gin.Context) {
 	}
 	userID := getUserIDFromContext(c)
 
-	linkedEvent := &database.CalendarEvent{}
 	if noteCreateParams.LinkedEventID != primitive.NilObjectID {
 		// check that the event exists
-		linkedEvent, err = database.GetCalendarEvent(api.DB, noteCreateParams.LinkedEventID, userID)
+		_, err = database.GetCalendarEvent(api.DB, noteCreateParams.LinkedEventID, userID)
 		if err != nil {
 			api.Logger.Error().Err(err).Msgf("linked event not found: %s, err", noteCreateParams.LinkedEventID.Hex())
 			c.JSON(400, gin.H{"detail": fmt.Sprintf("linked event not found: %s", noteCreateParams.LinkedEventID.Hex())})
@@ -53,14 +51,6 @@ func (api *API) NoteCreate(c *gin.Context) {
 	if err != nil {
 		c.JSON(503, gin.H{"detail": "failed to create note"})
 		return
-	}
-
-	if (*linkedEvent != database.CalendarEvent{}) {
-		_, err = database.UpdateOrCreateCalendarEvent(api.DB, userID, linkedEvent.IDExternal, linkedEvent.SourceID, bson.M{"linked_note_id": insertResult.InsertedID.(primitive.ObjectID)}, nil)
-		if err != nil {
-			Handle500(c)
-			return
-		}
 	}
 
 	c.JSON(200, gin.H{"note_id": insertResult.InsertedID.(primitive.ObjectID)})

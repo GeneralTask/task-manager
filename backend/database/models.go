@@ -231,7 +231,6 @@ type CalendarEvent struct {
 	LinkedTaskID        primitive.ObjectID `bson:"linked_task_id,omitempty"`
 	LinkedViewID        primitive.ObjectID `bson:"linked_view_id,omitempty"`
 	LinkedPullRequestID primitive.ObjectID `bson:"linked_pull_request_id,omitempty"`
-	LinkedNoteID        primitive.ObjectID `bson:"linked_note_id,omitempty"`
 	LinkedSourceID      string             `bson:"linked_task_source_id,omitempty"`
 	ColorBackground     string             `bson:"color_background,omitempty"`
 	ColorForeground     string             `bson:"color_foreground,omitempty"`
