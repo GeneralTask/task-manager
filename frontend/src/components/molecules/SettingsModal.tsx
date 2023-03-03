@@ -156,7 +156,6 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                             <Body>Add a new service</Body>
                             <ServicesContainer>
                                 {supportedTypes
-                                    ?.filter((supportedType) => isPreviewMode || supportedType.name !== 'Atlassian')
                                     ?.sort((a, b) => a.name.localeCompare(b.name))
                                     .map((supportedType) => (
                                         <Service key={supportedType.name}>
