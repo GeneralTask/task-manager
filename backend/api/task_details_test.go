@@ -98,7 +98,7 @@ func TestTaskDetail(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t,
-			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Linear","logo":"/images/linear.png","logo_v2":"linear","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"2019-04-20T00:00:00Z","is_done":true,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","created_at":"2019-04-20T00:00:00Z","updated_at":"2019-04-29T00:00:00Z"}`, linearTaskIDHex),
+			fmt.Sprintf(`{"id":"%s","id_ordering":0,"id_folder":"000000000000000000000000","source":{"name":"Linear","logo":"linear"},"deeplink":"","title":"","body":"","due_date":"","priority_normalized":0,"is_done":true,"is_deleted":false,"recurring_task_template_id":"000000000000000000000000","created_at":"2019-04-20T00:00:00Z","updated_at":"2019-04-29T00:00:00Z"}`, linearTaskIDHex),
 			string(body))
 	})
 	t.Run("SuccessLinear", func(t *testing.T) {
@@ -114,25 +114,12 @@ func TestTaskDetail(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t,
-			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Linear","logo":"/images/linear.png","logo_v2":"linear","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","external_status":{"state":"Done","type":"completed"},"created_at":"1970-01-01T00:00:00Z","updated_at":"1970-01-01T00:00:00Z"}`, linearTaskIDHex2),
+			fmt.Sprintf(`{"id":"%s","id_ordering":0,"id_folder":"000000000000000000000000","source":{"name":"Linear","logo":"linear"},"deeplink":"","title":"","body":"","due_date":"","priority_normalized":0,"is_done":true,"is_deleted":false,"recurring_task_template_id":"000000000000000000000000","external_status":{"state":"Done","type":"completed"},"created_at":"1970-01-01T00:00:00Z","updated_at":"1970-01-01T00:00:00Z"}`, linearTaskIDHex2),
 			string(body))
 	})
 }
 
 func insertTestTask(t *testing.T, userID primitive.ObjectID, task database.Task) string {
-	db, dbCleanup, err := database.GetDBConnection()
-	assert.NoError(t, err)
-	defer dbCleanup()
-	taskCollection := database.GetTaskCollection(db)
-
-	insertResult, err := taskCollection.InsertOne(context.Background(), task)
-	assert.NoError(t, err)
-	taskID := insertResult.InsertedID.(primitive.ObjectID)
-	taskIDHex := taskID.Hex()
-	return taskIDHex
-}
-
-func insertTestItem(t *testing.T, userID primitive.ObjectID, task database.Task) string {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
