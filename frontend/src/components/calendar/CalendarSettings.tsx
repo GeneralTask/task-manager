@@ -12,7 +12,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Body, BodySmall, Label } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
-import { getCalendarAuthButton, getCalendarColor, getCalendarName } from './utils/utils'
+import { getCalendarAuthButton, getCalendarName } from './utils/utils'
 
 const Calendar = styled(Flex)`
     cursor: pointer;
@@ -117,14 +117,7 @@ const CalendarSettings = () => {
                                             )
                                         }
                                     />
-                                    <Icon
-                                        icon={icons.square}
-                                        colorHex={
-                                            isPreviewMode
-                                                ? calendar.color_background
-                                                : getCalendarColor(calendar.color_id)
-                                        }
-                                    />
+                                    <Icon icon={icons.square} colorHex={calendar.color_background} />
                                     <BodySmall>{getCalendarName(account.account_id, calendar.title)}</BodySmall>
                                 </Calendar>
                             ))}
