@@ -105,6 +105,7 @@ export const useFetchExternalTasks = () => {
             queryClient.invalidateQueries('tasks_v4')
             queryClient.invalidateQueries('folders')
             queryClient.invalidateQueries('overview')
+            queryClient.invalidateQueries('meeting_preparation_tasks')
         },
         ...getBackgroundQueryOptions(),
     })
