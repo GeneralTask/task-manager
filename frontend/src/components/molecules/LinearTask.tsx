@@ -44,7 +44,7 @@ const LeftContainer = styled.div`
 const RightContainer = styled.div`
     display: flex;
     align-items: center;
-    gap: ${Spacing._24};
+    gap: ${Spacing._8};
     margin-left: auto;
 `
 
