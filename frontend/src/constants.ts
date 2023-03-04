@@ -72,11 +72,11 @@ export interface TTaskPriority {
     color: TIconColor
 }
 export const TASK_PRIORITIES: TTaskPriority[] = [
-    { icon: icons.priority_none, label: 'No Priority', color: 'black' },
+    { icon: icons.priority_none, label: 'No priority', color: 'black' },
     { icon: icons.priority_urgent, label: 'Urgent priority', color: 'red' },
-    { icon: icons.priority_high, label: 'High Priority', color: 'yellow' },
-    { icon: icons.priority_medium, label: 'Medium Priority', color: 'blue' },
-    { icon: icons.priority_low, label: 'Low Priority', color: 'green' },
+    { icon: icons.priority_high, label: 'High priority', color: 'yellow' },
+    { icon: icons.priority_medium, label: 'Medium priority', color: 'blue' },
+    { icon: icons.priority_low, label: 'Low priority', color: 'green' },
 ]
 
 export const GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME = 'Google Calendar'
