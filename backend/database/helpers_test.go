@@ -296,7 +296,7 @@ func TestGetSharedTask(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, publicTaskID, task.ID)
 	})
-	t.Run("SuccessDomainTask", func(t *testing.T) {
+	t.Run("DifferentUserSameDomain", func(t *testing.T) {
 		result, err := taskCollection.InsertOne(context.Background(), &Task{
 			UserID:       taskOwnerID,
 			SharedUntil:  primitive.NewDateTimeFromTime(timeTomorrow),
@@ -309,18 +309,37 @@ func TestGetSharedTask(t *testing.T) {
 		task, err := GetSharedTask(db, domainTaskID, userSameDomainID)
 		assert.NoError(t, err)
 		assert.Equal(t, domainTaskID, task.ID)
+	})
+	t.Run("DifferentUserDifferentDomain", func(t *testing.T) {
+		result, err := taskCollection.InsertOne(context.Background(), &Task{
+			UserID:       taskOwnerID,
+			SharedUntil:  primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess: &domain,
+		})
+		assert.NoError(t, err)
+		domainTaskID := result.InsertedID.(primitive.ObjectID)
 
 		// Test that the task is not returned when the user has different domain
-		task, err = GetSharedTask(db, domainTaskID, userDifferentDomainID)
+		task, err := GetSharedTask(db, domainTaskID, userDifferentDomainID)
 		assert.Error(t, err)
 		assert.Equal(t, "user domain does not match task owner domain", err.Error())
 		assert.Nil(t, task)
+	})
+	t.Run("UserIsOwnerSameDomain", func(t *testing.T) {
+		result, err := taskCollection.InsertOne(context.Background(), &Task{
+			UserID:       taskOwnerID,
+			SharedUntil:  primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess: &domain,
+		})
+		assert.NoError(t, err)
+		domainTaskID := result.InsertedID.(primitive.ObjectID)
 
-		// Test that the task is return when owner is same as user
-		task, err = GetSharedTask(db, domainTaskID, taskOwnerID)
+		// Test that the task is returned when owner is the user
+		task, err := GetSharedTask(db, domainTaskID, taskOwnerID)
 		assert.NoError(t, err)
 		assert.Equal(t, domainTaskID, task.ID)
 	})
+
 	t.Run("TaskNotShared", func(t *testing.T) {
 		// This case shouldn't happen, but just in case
 		result, err := taskCollection.InsertOne(context.Background(), &Task{
