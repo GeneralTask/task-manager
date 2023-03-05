@@ -125,6 +125,17 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			}
 			task.Comments = &dbComments
 		}
+		if linearIssue.Cycle.Id != nil {
+			startsAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.Cycle.StartsAt))
+			endsAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.Cycle.EndsAt))
+			task.LinearCycle = database.LinearCycle{
+				ID:       linearIssue.Cycle.Id.(string),
+				Name:     string(linearIssue.Cycle.Name),
+				Number:   float32(linearIssue.Cycle.Number),
+				StartsAt: primitive.NewDateTimeFromTime(startsAt),
+				EndsAt:   primitive.NewDateTimeFromTime(endsAt),
+			}
+		}
 
 		updateFields := database.Task{
 			Title:              task.Title,
@@ -134,6 +145,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			CompletedStatus:    task.CompletedStatus,
 			IsCompleted:        task.IsCompleted,
 			PriorityNormalized: task.PriorityNormalized,
+			LinearCycle:        task.LinearCycle,
 		}
 
 		if linearIssue.DueDate != "" {

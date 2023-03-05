@@ -284,6 +284,13 @@ type linearAssignedIssuesQuery struct {
 					}
 				}
 			}
+			Cycle struct {
+				Id       graphql.ID
+				Name     graphql.String
+				Number   graphql.Float
+				StartsAt graphql.String
+				EndsAt   graphql.String
+			}
 		}
 	} `graphql:"issues(filter: {state: {type: {nin: [\"completed\", \"canceled\"]}}, assignee: {email: {eq: $email}}})"`
 }

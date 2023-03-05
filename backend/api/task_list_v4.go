@@ -16,7 +16,14 @@ type TaskSourceV4 struct {
 	Name string `json:"name"`
 	Logo string `json:"logo"`
 }
-
+type LinearCycle struct {
+	ID              string  `bson:"_id,omitempty"`
+	Name            string  `bson:"name,omitempty"`
+	Number          float32 `bson:"number,omitempty"`
+	IsCurrentCycle  bool    `bson:"is_current_cycle,omitempty"`
+	IsPreviousCycle bool    `bson:"is_previous_cycle,omitempty"`
+	IsNextCycle     bool    `bson:"is_next_cycle,omitempty"`
+}
 type TaskResultV4 struct {
 	ID                       primitive.ObjectID           `json:"id"`
 	IDOrdering               int                          `json:"id_ordering"`
@@ -42,6 +49,7 @@ type TaskResultV4 struct {
 	NUXNumber                int                          `json:"id_nux_number,omitempty"`
 	CreatedAt                string                       `json:"created_at,omitempty"`
 	UpdatedAt                string                       `json:"updated_at,omitempty"`
+	LinearCycle              *LinearCycle                 `json:"linear_cycle,omitempty"`
 }
 
 func (api *API) TasksListV4(c *gin.Context) {
@@ -281,6 +289,27 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 
 	if t.RecurringTaskTemplateID != primitive.NilObjectID {
 		taskResult.RecurringTaskTemplateID = t.RecurringTaskTemplateID
+	}
+
+	if t.LinearCycle.ID != "" {
+		taskResult.LinearCycle = &LinearCycle{
+			ID:     t.LinearCycle.ID,
+			Name:   t.LinearCycle.Name,
+			Number: t.LinearCycle.Number,
+		}
+		now := time.Now().Local()
+		if t.LinearCycle.StartsAt.Time().Before(now) && t.LinearCycle.EndsAt.Time().After(now) {
+			taskResult.LinearCycle.IsCurrentCycle = true
+
+		} else {
+			cycleDuration := t.LinearCycle.EndsAt.Time().Sub(t.LinearCycle.StartsAt.Time())
+			// check if this cycle is directly before the current cycle
+			if t.LinearCycle.EndsAt.Time().Before(now) && t.LinearCycle.EndsAt.Time().Add(cycleDuration).After(now) {
+				taskResult.LinearCycle.IsPreviousCycle = true
+			} else if t.LinearCycle.StartsAt.Time().After(now) && t.LinearCycle.StartsAt.Time().Add(-cycleDuration).Before(now) {
+				taskResult.LinearCycle.IsNextCycle = true
+			}
+		}
 	}
 
 	return taskResult
