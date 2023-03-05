@@ -59,6 +59,13 @@ func TestLoadLinearTasks(t *testing.T) {
 									}
 								}
 							]
+						},
+						"cycle": {
+							"id": "cycle-id",
+							"name": "test cycle",
+							"number": 420,
+							"startsAt": "2016-04-20T00:00:00.000Z",
+							"endsAt": "2016-04-21T00:00:00.000Z"
 						}
 					}
 				]
@@ -236,6 +243,8 @@ func TestLoadLinearTasks(t *testing.T) {
 		description := "test description"
 		dueDate := primitive.NewDateTimeFromTime(time.Unix(0, 0))
 		priority := 3.0
+		cycleStartsAt, _ := time.Parse("2006-01-02T15:04:05.000Z", "2016-04-20T00:00:00.000Z")
+		cycleEndsAt, _ := time.Parse("2006-01-02T15:04:05.000Z", "2016-04-21T00:00:00.000Z")
 		expectedTask := database.Task{
 			IDOrdering:         0,
 			IDExternal:         "test-issue-id-1",
@@ -271,6 +280,13 @@ func TestLoadLinearTasks(t *testing.T) {
 					},
 					CreatedAt: primitive.NewDateTimeFromTime(commentCreatedAt),
 				},
+			},
+			LinearCycle: database.LinearCycle{
+				ID:       "cycle-id",
+				Name:     "test cycle",
+				Number:   float32(420),
+				StartsAt: primitive.NewDateTimeFromTime(cycleStartsAt),
+				EndsAt:   primitive.NewDateTimeFromTime(cycleEndsAt),
 			},
 		}
 
@@ -346,6 +362,8 @@ func TestLoadLinearTasks(t *testing.T) {
 		description := "wrong test description"
 		priority := 3.0
 		dueDate := primitive.NewDateTimeFromTime(time.Unix(0, 0))
+		cycleStartsAt, _ := time.Parse("2006-01-02T15:04:05.000Z", "2016-04-20T00:00:00.000Z")
+		cycleEndsAt, _ := time.Parse("2006-01-02T15:04:05.000Z", "2016-04-21T00:00:00.000Z")
 		expectedTask := database.Task{
 			IDOrdering:         0,
 			IDExternal:         "test-issue-id-1",
@@ -371,6 +389,13 @@ func TestLoadLinearTasks(t *testing.T) {
 				Type:       "completed",
 			},
 			Comments: nil,
+			LinearCycle: database.LinearCycle{
+				ID:       "cycle-id",
+				Name:     "test cycle",
+				Number:   float32(420),
+				StartsAt: primitive.NewDateTimeFromTime(cycleStartsAt),
+				EndsAt:   primitive.NewDateTimeFromTime(cycleEndsAt),
+			},
 		}
 		// need to update, because the previous test case has already created this task
 		database.UpdateOrCreateTask(
@@ -862,4 +887,9 @@ func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
 			assert.Equal(t, expectedComments, actualComments)
 		}
 	}
+	assert.Equal(t, a.LinearCycle.ID, b.LinearCycle.ID)
+	assert.Equal(t, a.LinearCycle.Name, b.LinearCycle.Name)
+	assert.Equal(t, a.LinearCycle.Number, b.LinearCycle.Number)
+	assert.Equal(t, a.LinearCycle.StartsAt, b.LinearCycle.StartsAt)
+	assert.Equal(t, a.LinearCycle.EndsAt, b.LinearCycle.EndsAt)
 }
