@@ -81,15 +81,13 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 		return
 	}
 
-	params := c.Request.URL.Query()
-
-	showMovedOrDeleted, err := GetBooleanQueryParameter(params, constants.ShowMovedOrDeleted)
+	showMovedOrDeleted, err := GetBooleanQueryParameter(c, constants.ShowMovedOrDeleted)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	ignoreMeetingPreparation, err := GetBooleanQueryParameter(params, constants.IgnoreMeetingPreparation)
+	ignoreMeetingPreparation, err := GetBooleanQueryParameter(c, constants.IgnoreMeetingPreparation)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return

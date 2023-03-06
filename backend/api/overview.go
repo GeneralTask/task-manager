@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/url"
 	"sort"
 	"time"
 
@@ -65,7 +64,8 @@ type SupportedView struct {
 	Views            []SupportedViewItem `json:"views"`
 }
 
-func GetBooleanQueryParameter(params url.Values, key string) (bool, error) {
+func GetBooleanQueryParameter(c *gin.Context, key string) (bool, error) {
+	params := c.Request.URL.Query()
 	values := params[key]
 	if len(values) == 0 {
 		return false, nil
@@ -79,13 +79,12 @@ func GetBooleanQueryParameter(params url.Values, key string) (bool, error) {
 }
 
 func (api *API) OverviewViewsList(c *gin.Context) {
-	params := c.Request.URL.Query()
-	showMovedOrDeleted, err := GetBooleanQueryParameter(params, constants.ShowMovedOrDeleted)
+	showMovedOrDeleted, err := GetBooleanQueryParameter(c, constants.ShowMovedOrDeleted)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	ignoreMeetingPreparation, err := GetBooleanQueryParameter(params, constants.IgnoreMeetingPreparation)
+	ignoreMeetingPreparation, err := GetBooleanQueryParameter(c, constants.IgnoreMeetingPreparation)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -622,7 +621,7 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 			HasTasksCompletedToday: taskCompletedInLastDay,
 		}, nil
 	}
-	
+
 	meetingTasks, err := api.CreateMeetingPreparationTaskList(userID, timezoneOffset, showMovedOrDeleted)
 	if err != nil {
 		return nil, err

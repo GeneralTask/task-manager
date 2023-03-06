@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"sort"
 	"time"
 
@@ -109,7 +108,6 @@ func (api *API) CreateMeetingPreparationTasksFromEvent(userID primitive.ObjectID
 		if err != nil {
 			return err
 		}
-		fmt.Printf("count: %d", count)
 		// If meeting preparation task does not exist, create it
 		if count == 0 {
 			isCompleted := false
@@ -189,7 +187,6 @@ func (api *API) UpdateMeetingPreparationTasks(userID primitive.ObjectID, meeting
 			}
 			// Update meeting prep task to completed if event has ended and task has not been auto completed
 			if associatedEvent.DatetimeEnd.Time().Before(timeNow) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
-				fmt.Print("Completing the task")
 				completedAt := primitive.NewDateTimeFromTime(time.Now())
 				isCompleted := true
 				(*meetingPreparationTasks)[index].IsCompleted = &isCompleted
