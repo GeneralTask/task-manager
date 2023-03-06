@@ -48,10 +48,10 @@ const useToast = () => {
         toastIdRef.current = toastifyToast(<ToastTemplate {...toastTemplateProps} />, options)
     }
 
-    const requestFailed = (message: string) => {
+    const requestFailed = (requestDescription: string) => {
         show(
             {
-                title: `Failed to ${message}:`,
+                title: `Failed to ${requestDescription}:`,
                 message: 'Request failed.',
             },
             {
