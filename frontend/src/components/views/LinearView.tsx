@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { useItemSelectionController } from '../../hooks'
+import { useItemSelectionController, usePreviewMode } from '../../hooks'
 import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import Log from '../../services/api/log'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
@@ -29,6 +29,7 @@ const LinearBodyHeader = styled.div`
 `
 
 const LinearView = () => {
+    const { isPreviewMode } = usePreviewMode()
     const { data: activeTasks } = useGetActiveTasks()
     const { linearIssueId } = useParams()
     const navigate = useNavigate()
@@ -39,15 +40,15 @@ const LinearView = () => {
         '_linear_page'
     )
 
-    const linearTasks = useMemo(
-        () =>
-            sortAndFilterItems<TTaskV4>({
-                items: activeTasks?.filter((task) => task.source.name === 'Linear') || [],
-                filter: sortAndFilterSettings.selectedFilter,
-                tieBreakerField: LINEAR_SORT_AND_FILTER_CONFIG.tieBreakerField,
-            }),
-        [activeTasks, sortAndFilterSettings.selectedFilter]
-    )
+    const linearTasks = useMemo(() => {
+        const filteredLinearTasks = activeTasks?.filter((task) => task.source.name === 'Linear') || []
+        if (!isPreviewMode) return filteredLinearTasks
+        return sortAndFilterItems<TTaskV4>({
+            items: filteredLinearTasks,
+            filter: sortAndFilterSettings.selectedFilter,
+            tieBreakerField: LINEAR_SORT_AND_FILTER_CONFIG.tieBreakerField,
+        })
+    }, [activeTasks, sortAndFilterSettings.selectedFilter])
 
     const selectTask = useCallback((task: TTaskV4) => {
         navigate(`/linear/${task.id}`)
@@ -80,7 +81,7 @@ const LinearView = () => {
                     {isLinearIntegrationLinked ? (
                         <>
                             <LinearBodyHeader>All issues assigned to you.</LinearBodyHeader>
-                            <SortAndFilterSelectors settings={sortAndFilterSettings} />
+                            {isPreviewMode && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
                             {linearTasks?.map((task) => (
                                 <LinearTask key={task.id} task={task} />
                             ))}
