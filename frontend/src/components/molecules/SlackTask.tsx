@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDrag } from 'react-dnd'
+import { getEmptyImage } from 'react-dnd-html5-backend'
 import styled from 'styled-components'
 import { Spacing, Typography } from '../../styles'
 import { DropType, TTaskV4 } from '../../utils/types'
@@ -36,13 +37,19 @@ interface SlackTaskProps {
 }
 const SlackTask = ({ task, isSelected, onClick }: SlackTaskProps) => {
     const [isHovered, setIsHovered] = useState(false)
-    const [, drag] = useDrag(
+    const [, drag, dragPreview] = useDrag(
         () => ({
             type: DropType.NON_REORDERABLE_TASK,
             item: { id: task.id, task },
         }),
         [task]
     )
+
+    // hide default drag preview
+    useEffect(() => {
+        dragPreview(getEmptyImage())
+    }, [])
+
     return (
         <Container key={task.id}>
             <SlackSelectableContainer
