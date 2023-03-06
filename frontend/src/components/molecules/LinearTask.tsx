@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useDrag } from 'react-dnd'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
+import { usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
@@ -52,6 +53,7 @@ interface LinearTaskProps {
     task: TTaskV4
 }
 const LinearTask = ({ task }: LinearTaskProps) => {
+    const { isPreviewMode } = usePreviewMode()
     const navigate = useNavigate()
     const { linearIssueId } = useParams()
     const { calendarType, setCalendarType, setDate, dayViewDate } = useCalendarContext()
@@ -116,7 +118,7 @@ const LinearTask = ({ task }: LinearTaskProps) => {
             </LeftContainer>
             <RightContainer>
                 {task.comments && task.comments.length > 0 && <CommentCount count={task.comments.length} />}
-                {task.linear_cycle && <LinearCycle cycle={task.linear_cycle} isCondensed />}
+                {isPreviewMode && task.linear_cycle && <LinearCycle cycle={task.linear_cycle} isCondensed />}
                 <ExternalLinkButton link={task.deeplink} />
             </RightContainer>
         </LinearSelectableContainer>
