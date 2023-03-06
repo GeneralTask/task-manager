@@ -30,15 +30,17 @@ type TaskChangeable struct {
 }
 
 type TaskItemChangeableFields struct {
-	Task           TaskChangeable     `json:"task,omitempty" bson:"task,omitempty"`
-	Title          *string            `json:"title,omitempty" bson:"title,omitempty"`
-	Body           *string            `json:"body,omitempty" bson:"body,omitempty"`
-	DueDate        *string            `json:"due_date,omitempty" bson:"due_date,omitempty"`
-	TimeAllocation *int64             `json:"time_duration,omitempty" bson:"time_allocated,omitempty"`
-	IsCompleted    *bool              `json:"is_completed,omitempty" bson:"is_completed,omitempty"`
-	CompletedAt    primitive.DateTime `json:"completed_at,omitempty" bson:"completed_at"`
-	IsDeleted      *bool              `json:"is_deleted,omitempty" bson:"is_deleted,omitempty"`
-	DeletedAt      primitive.DateTime `json:"deleted_at,omitempty" bson:"deleted_at"`
+	Task           TaskChangeable      `json:"task,omitempty" bson:"task,omitempty"`
+	Title          *string             `json:"title,omitempty" bson:"title,omitempty"`
+	Body           *string             `json:"body,omitempty" bson:"body,omitempty"`
+	DueDate        *string             `json:"due_date,omitempty" bson:"due_date,omitempty"`
+	TimeAllocation *int64              `json:"time_duration,omitempty" bson:"time_allocated,omitempty"`
+	IsCompleted    *bool               `json:"is_completed,omitempty" bson:"is_completed,omitempty"`
+	CompletedAt    primitive.DateTime  `json:"completed_at,omitempty" bson:"completed_at"`
+	IsDeleted      *bool               `json:"is_deleted,omitempty" bson:"is_deleted,omitempty"`
+	DeletedAt      primitive.DateTime  `json:"deleted_at,omitempty" bson:"deleted_at"`
+	SharedAccess   *string             `json:"shared_access,omitempty" bson:"shared_access,omitempty"` // "public" or "domain"
+	SharedUntil    *primitive.DateTime `json:"shared_until,omitempty" bson:"shared_until,omitempty"`
 }
 
 type TaskModifyParams struct {
@@ -145,6 +147,27 @@ func (api *API) TaskModify(c *gin.Context) {
 				return
 			}
 			updateTask.RecurringTaskTemplateID = recurring_task_template_id
+		}
+
+		if modifyParams.TaskItemChangeableFields.SharedUntil != nil && modifyParams.TaskItemChangeableFields.SharedAccess == nil {
+			c.JSON(400, gin.H{"detail": "shared_until and shared_access must both be set"})
+			return
+		} else if modifyParams.TaskItemChangeableFields.SharedUntil == nil && modifyParams.TaskItemChangeableFields.SharedAccess != nil {
+			c.JSON(400, gin.H{"detail": "shared_until and shared_access must both be set"})
+			return
+		} else if modifyParams.TaskItemChangeableFields.SharedUntil != nil && modifyParams.TaskItemChangeableFields.SharedAccess != nil {
+			if *modifyParams.TaskItemChangeableFields.SharedAccess != "public" && *modifyParams.TaskItemChangeableFields.SharedAccess != "domain" {
+				c.JSON(400, gin.H{"detail": "shared_access must be either 'public' or 'domain'"})
+				return
+			}
+			updateTask.SharedUntil = modifyParams.TaskItemChangeableFields.SharedUntil
+			if *modifyParams.TaskItemChangeableFields.SharedAccess == "public" {
+				shareAccessPublic := database.SharedAccessPublic
+				updateTask.SharedAccess = &shareAccessPublic
+			} else {
+				shareAccessDomain := database.SharedAccessDomain
+				updateTask.SharedAccess = &shareAccessDomain
+			}
 		}
 
 		err = taskSourceResult.Source.ModifyTask(api.DB, userID, task.SourceAccountID, task.IDExternal, &updateTask, task)
