@@ -4,8 +4,8 @@ import { TTaskV4 } from '../types'
 import { emptyFunction } from '../utils'
 
 export const LINEAR_FILTER_OPTIONS: FilterOptions<TTaskV4> = {
-    none: {
-        id: 'none',
+    all_cycles: {
+        id: 'all_cycles',
         label: 'All cycles',
         icon: icons.linear_cycle_next,
         lambda: () => true,
