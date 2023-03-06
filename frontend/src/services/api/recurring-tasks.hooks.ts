@@ -67,6 +67,7 @@ export const useCreateRecurringTask = () => {
     return useGTMutation((payload: TCreateRecurringTaskPayload) => createRecurringTask(payload), {
         tag: 'recurring-tasks',
         invalidateTagsOnSettled: ['recurring-tasks'],
+        errorMessage: 'create recurring task',
         onMutate: async (payload) => {
             await Promise.all([queryClient.cancelQueries('recurring-tasks'), queryClient.cancelQueries('tasks')])
 
@@ -136,6 +137,7 @@ export const useModifyRecurringTask = () => {
     return useGTMutation((payload: TModifyRecurringTaskPayload) => modifyRecurringTask(payload), {
         tag: 'recurring-tasks',
         invalidateTagsOnSettled: ['recurring-tasks'],
+        errorMessage: 'modify recurring task',
         onMutate: async (payload) => {
             await queryClient.cancelQueries('recurring-tasks')
 

@@ -61,6 +61,7 @@ export const useCreateNote = () => {
     return useGTMutation((data: TCreateNoteData) => createNote(data), {
         tag: 'notes',
         invalidateTagsOnSettled: ['notes'],
+        errorMessage: 'create note',
         onMutate: async (data: TCreateNoteData) => {
             await queryClient.cancelQueries('notes')
             const notes = queryClient.getImmutableQueryData<TNote[]>('notes')
@@ -111,6 +112,7 @@ export const useModifyNote = () => {
     return useGTMutation((data: TModifyNoteData) => modifyNote(data), {
         tag: 'notes',
         invalidateTagsOnSettled: ['notes'],
+        errorMessage: 'modify note',
         onMutate: async (data: TModifyNoteData) => {
             await queryClient.cancelQueries('notes')
 

@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 import { DONE_FOLDER_ID, TASK_MARK_AS_DONE_TIMEOUT, TRASH_FOLDER_ID } from '../../constants'
 import useOverviewContext from '../../context/OverviewContextProvider'
 import useQueryContext from '../../context/QueryContext'
-import { useGTLocalStorage, useNavigateToTask, useToast } from '../../hooks'
+import { useGTLocalStorage, useNavigateToTask } from '../../hooks'
 import apiClient from '../../utils/api'
 import navigateToNextItemAfterOverviewCompletion from '../../utils/navigateToNextItemAfterOverviewCompletion'
 import { TExternalStatus, TOverviewView, TTaskFolder, TTaskV4, TUserInfo } from '../../utils/types'
@@ -122,11 +122,11 @@ export const useCreateTask = () => {
     const queryClient = useGTQueryClient()
     const { setOptimisticId } = useQueryContext()
     const navigateToTask = useNavigateToTask()
-    const toast = useToast()
 
     return useGTMutation((data: TCreateTaskData) => createTask(data), {
         tag: 'tasks_v4',
         invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
+        errorMessage: 'create task',
         onMutate: async (data: TCreateTaskData) => {
             await Promise.all([
                 queryClient.cancelQueries('tasks_v4'),
@@ -208,9 +208,6 @@ export const useCreateTask = () => {
                 })
             }
         },
-        onError: () => {
-            toast.requestFailed('create task')
-        },
     })
 }
 export const createTask = async (data: TCreateTaskData) => {
@@ -260,11 +257,11 @@ const optimisticallyUpdateTask = async (queryClient: GTQueryClient, data: TModif
 
 export const useModifyTask = () => {
     const queryClient = useGTQueryClient()
-    const toast = useToast()
 
     return useGTMutation((data: TModifyTaskData) => modifyTask(data), {
         tag: 'tasks_v4',
         invalidateTagsOnSettled: ['tasks_v4', 'overview', 'folders', 'meeting_preparation_tasks'],
+        errorMessage: 'modify task',
         onMutate: async (data: TModifyTaskData) => {
             await Promise.all([
                 queryClient.cancelQueries('overview'),
@@ -297,9 +294,6 @@ export const useModifyTask = () => {
                 }
             })
             queryClient.setQueryData('overview', updatedLists)
-        },
-        onError: () => {
-            toast.requestFailed('modify task')
         },
     })
 }
@@ -334,12 +328,12 @@ export const useMarkTaskDoneOrDeleted = () => {
     const queryClient = useGTQueryClient()
     const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
     const navigate = useNavigate()
-    const toast = useToast()
     const { setOpenListIds } = useOverviewContext()
 
     return useGTMutation((data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data), {
         tag: 'tasks_v4',
         invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
+        errorMessage: 'complete task',
         onMutate: async (data: TMarkTaskDoneOrDeletedData) => {
             await Promise.all([
                 queryClient.cancelQueries('tasks_v4'),
@@ -454,9 +448,6 @@ export const useMarkTaskDoneOrDeleted = () => {
             updateLists()
             updateMeetingTasks()
         },
-        onError: () => {
-            toast.requestFailed('complete task')
-        },
     })
 }
 export const markTaskDoneOrDeleted = async (data: TMarkTaskDoneOrDeletedData) => {
@@ -473,11 +464,11 @@ export const markTaskDoneOrDeleted = async (data: TMarkTaskDoneOrDeletedData) =>
 
 export const useReorderTask = () => {
     const queryClient = useGTQueryClient()
-    const toast = useToast()
 
     return useGTMutation((data: TReorderTaskData) => reorderTask(data), {
         tag: 'tasks_v4',
         invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
+        errorMessage: 'move task',
         onMutate: async (data: TReorderTaskData) => {
             await Promise.all([
                 queryClient.cancelQueries('tasks_v4'),
@@ -542,9 +533,6 @@ export const useReorderTask = () => {
                 queryClient.setQueryData('overview', updatedLists)
             }
         },
-        onError: () => {
-            toast.requestFailed('move task')
-        },
     })
 }
 
@@ -567,11 +555,11 @@ export const reorderTask = async (data: TReorderTaskData) => {
 
 export const usePostComment = () => {
     const queryClient = useGTQueryClient()
-    const toast = useToast()
 
     return useGTMutation((data: TPostCommentData) => postComment(data), {
         tag: 'tasks_v4',
         invalidateTagsOnSettled: ['tasks_v4'],
+        errorMessage: 'post comment',
         onMutate: async (data: TPostCommentData) => {
             await queryClient.cancelQueries('tasks_v4')
 
@@ -596,9 +584,6 @@ export const usePostComment = () => {
 
                 queryClient.setQueryData('tasks_v4', updatedTasks)
             }
-        },
-        onError: () => {
-            toast.requestFailed('post comment')
         },
     })
 }
