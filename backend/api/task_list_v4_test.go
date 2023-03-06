@@ -91,7 +91,7 @@ func TestLinearCycleSerialization(t *testing.T) {
 	t.Run("TwoCyclesAgo", func(t *testing.T) {
 		// week-long cycle ended over a week ago
 		endsAt := time.Now().AddDate(0, 0, -8)
-		startsAt := endsAt.AddDate(0, 0, -15)
+		startsAt := endsAt.AddDate(0, 0, -7)
 		result := api.taskToTaskResultV4(&database.Task{
 			LinearCycle: database.LinearCycle{
 				ID:       "3",
@@ -113,7 +113,7 @@ func TestLinearCycleSerialization(t *testing.T) {
 	t.Run("TwoCyclesInTheFuture", func(t *testing.T) {
 		// week-long cycle that will start in more than a week
 		startsAt := time.Now().AddDate(0, 0, 8)
-		endsAt := startsAt.AddDate(0, 0, 15)
+		endsAt := startsAt.AddDate(0, 0, 7)
 		result := api.taskToTaskResultV4(&database.Task{
 			LinearCycle: database.LinearCycle{
 				ID:       "7",
