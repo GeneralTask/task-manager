@@ -181,7 +181,6 @@ export const useAddView = () => {
                             task_section_id: supportedViewItem.task_section_id,
                             is_reorderable: false,
                             logo: supportedView.logo,
-                            view_items: [],
                             view_item_ids: [],
                             sources: [],
                             is_linked: true,

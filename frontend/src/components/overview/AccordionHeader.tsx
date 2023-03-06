@@ -10,6 +10,7 @@ import { Icon } from '../atoms/Icon'
 import StatusLabel from '../atoms/StatusLabel'
 import { Body, Label } from '../atoms/typography/Typography'
 import { getOverviewAccordionHeaderIcon } from './AccordionItem'
+import useOverviewItems from './useOverviewItems'
 
 const TriggerTitle = styled.div`
     display: flex;
@@ -58,26 +59,30 @@ const AccordionHeader = ({ list, isOpen }: AccordionHeaderProps) => {
         dragPreview(getEmptyImage(), { captureDraggingState: true })
     }, [dragPreview])
 
+    const { sortedAndFilteredItems } = useOverviewItems(list)
+
     return (
         <StyledFlex justifyContent="space-between" ref={drag}>
             <TriggerTitle>
                 <Icon
                     icon={getOverviewAccordionHeaderIcon(list.logo, list.task_section_id)}
-                    color={list.view_items.length === 0 ? 'gray' : 'black'}
+                    color={sortedAndFilteredItems?.length === 0 ? 'gray' : 'black'}
                 />
-                <ListTitle isComplete={list.view_items.length === 0 && list.is_linked}>{list.name}</ListTitle>
+                <ListTitle isComplete={sortedAndFilteredItems?.length === 0 && list.is_linked}>{list.name}</ListTitle>
             </TriggerTitle>
             <TriggerRightContainer>
-                {list.view_items.length > 0 && (
-                    <ItemsRemainingText>{list.view_items.length} remaining</ItemsRemainingText>
+                {sortedAndFilteredItems && sortedAndFilteredItems.length > 0 && (
+                    <ItemsRemainingText>{sortedAndFilteredItems?.length} remaining</ItemsRemainingText>
                 )}
-                {list.view_items.length === 0 && list.is_linked && list.has_tasks_completed_today !== undefined && (
-                    <StatusLabel
-                        status={list.has_tasks_completed_today ? 'List complete' : 'Empty'}
-                        color={list.has_tasks_completed_today ? 'green' : 'gray'}
-                        icon={icons.check}
-                    />
-                )}
+                {sortedAndFilteredItems?.length === 0 &&
+                    list.is_linked &&
+                    list.has_tasks_completed_today !== undefined && (
+                        <StatusLabel
+                            status={list.has_tasks_completed_today ? 'List complete' : 'Empty'}
+                            color={list.has_tasks_completed_today ? 'green' : 'gray'}
+                            icon={icons.check}
+                        />
+                    )}
                 <Icon icon={isOpen ? icons.caret_up : icons.caret_down} className="AccordionChevron" />
             </TriggerRightContainer>
         </StyledFlex>

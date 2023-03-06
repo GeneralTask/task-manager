@@ -7,6 +7,7 @@ import { EVENT_UNDO_TIMEOUT, NO_TITLE, SINGLE_SECOND_INTERVAL } from '../../cons
 import { useGlobalKeyboardShortcuts, useInterval, useKeyboardShortcut, usePageFocus, useToast } from '../../hooks'
 import { useDeleteEvent, useEvents } from '../../services/api/events.hooks'
 import Log from '../../services/api/log'
+import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { focusModeBackground, icons, logos } from '../../styles/images'
 import { getMonthsAroundDate, isDateToday } from '../../utils/time'
@@ -302,6 +303,10 @@ const FocusModeScreen = () => {
     }, [chosenEvent, deleteEvent, deleteEventInCache, setSelectedEvent, gtToast, undoDeleteEventInCache])
 
     const navigate = useNavigate()
+
+    const { data: lists } = useGetOverviewViews()
+    const list = lists?.find((list) => list.id === chosenEvent?.linked_view_id)
+
     return (
         <SingleViewTemplate>
             <TemplateViewContainer>
@@ -349,8 +354,8 @@ const FocusModeScreen = () => {
                                     </GTTitle>
                                     {chosenEvent && <EventMeetingAction event={chosenEvent} />}
                                     <div>
-                                        {chosenEvent.linked_view_id ? (
-                                            <CardSwitcher viewId={chosenEvent.linked_view_id} />
+                                        {list ? (
+                                            <CardSwitcher list={list} />
                                         ) : (
                                             <>
                                                 <BodyHeader>EVENT DESCRIPTON</BodyHeader>

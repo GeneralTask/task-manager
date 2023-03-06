@@ -1,15 +1,15 @@
 import { useParams } from 'react-router-dom'
 import { useGetMeetingPreparationTasks } from '../../services/api/meeting-preparation-tasks.hooks'
+import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetTasksV4 } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import TaskDetails from '../details/TaskDetails'
-import useOverviewLists from './useOverviewLists'
 
 const OverviewDetails = () => {
-    const { lists, isLoading, flattenedLists } = useOverviewLists()
+    const { data: lists, isLoading } = useGetOverviewViews()
     const { overviewViewId, overviewItemId, subtaskId } = useParams()
     const selectedList = lists?.find((list) => list.id === overviewViewId)
     const { data: repositories, isLoading: isGetPullRequestLoading } = useGetPullRequests()
@@ -17,8 +17,9 @@ const OverviewDetails = () => {
     const { data: meetingPreparationTasks, isLoading: isMeetingPreparationTasksLoading } =
         useGetMeetingPreparationTasks()
 
-    if (isLoading || isGetPullRequestLoading || isGetAllTasksLoading || isMeetingPreparationTasksLoading) return null
-    else if (lists.length > 0 && flattenedLists.length === 0)
+    if (!lists || isLoading || isGetPullRequestLoading || isGetAllTasksLoading || isMeetingPreparationTasksLoading)
+        return null
+    else if (lists.length > 0 && lists.flatMap((l) => l.view_item_ids).length === 0)
         return <EmptyDetails icon={icons.check} text="Your lists are all empty" />
     else if (lists.length === 0) return <EmptyDetails icon={icons.list} text="You have no lists" />
     else if (!selectedList) {

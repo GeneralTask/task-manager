@@ -3,13 +3,11 @@ import styled from 'styled-components'
 import { DEFAULT_FOLDER_ID } from '../../constants'
 import useOverviewContext from '../../context/OverviewContextProvider'
 import useGetViewItems from '../../hooks/useGetViewItems'
-import useGetVisibleItemCount, { PAGE_SIZE } from '../../hooks/useGetVisibleItemCount'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { TLogoImage, icons, logos } from '../../styles/images'
 import { TOverviewView } from '../../utils/types'
 import GTAccordionHeader from './AccordionHeader'
 import AuthBanner from './AuthBanner'
-import { PaginateTextButton } from './styles'
 
 const AccordionContainer = styled.div`
     margin-bottom: ${Spacing._8};
@@ -49,7 +47,7 @@ const AccordionItem = ({ list }: AccordionItemProps) => {
     const { setOpenListIds, openListIds } = useOverviewContext()
     const isOpen = openListIds.includes(list.id)
 
-    const toggerAccordion = () => {
+    const toggleAccordion = () => {
         if (isOpen) setOpenListIds(openListIds.filter((id) => id !== list.id))
         else setOpenListIds([...openListIds, list.id])
     }
@@ -59,28 +57,15 @@ const AccordionItem = ({ list }: AccordionItemProps) => {
         if (list.view_item_ids.length === 0) setOpenListIds(openListIds.filter((id) => id !== list.id))
     }, [list.view_item_ids.length])
 
-    const [visibleItemsCount, setVisibleItemsCount] = useGetVisibleItemCount(list, list.id)
-
-    const nextPageLength = Math.min(list.view_items.length - visibleItemsCount, PAGE_SIZE)
-
     return (
         <AccordionContainer>
-            <Trigger onClick={toggerAccordion} isOpen={isOpen}>
+            <Trigger onClick={toggleAccordion} isOpen={isOpen}>
                 <GTAccordionHeader list={list} isOpen={isOpen} />
             </Trigger>
             {isOpen && (
                 <ListContent>
                     {list.is_linked ? (
-                        <>
-                            <ViewItems view={list} visibleItemsCount={visibleItemsCount} hideHeader />
-                            {visibleItemsCount < list.view_items.length && (
-                                <PaginateTextButton
-                                    onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}
-                                >
-                                    View more ({nextPageLength})
-                                </PaginateTextButton>
-                            )}
-                        </>
+                        <ViewItems view={list} hideHeader />
                     ) : (
                         list.sources.map((source) => (
                             <AuthBanner

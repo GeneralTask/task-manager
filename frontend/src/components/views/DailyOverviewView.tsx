@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import useOverviewContext from '../../context/OverviewContextProvider'
+import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
@@ -13,7 +14,6 @@ import AccordionItem from '../overview/AccordionItem'
 import EditModal from '../overview/EditModal'
 import OverviewDetails from '../overview/OverviewDetails'
 import SmartPrioritizationBanner from '../overview/SmartPrioritizationBanner'
-import useOverviewLists from '../overview/useOverviewLists'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const ActionsContainer = styled.div`
@@ -34,7 +34,7 @@ const RightActions = styled.div`
 
 const useSelectFirstItemOnFirstLoad = () => {
     const { setOpenListIds } = useOverviewContext()
-    const { lists, isSuccess } = useOverviewLists()
+    const { data: lists, isSuccess } = useGetOverviewViews()
     const isFirstSuccess = useRef(true)
     const navigate = useNavigate()
 
@@ -64,7 +64,7 @@ const DailyOverviewView = () => {
     useSelectFirstItemOnFirstLoad()
     const { expandAll, collapseAll } = useOverviewContext()
 
-    const { lists, isLoading } = useOverviewLists()
+    const { data: lists, isLoading } = useGetOverviewViews()
 
     if (isLoading) return <Spinner />
     return (
@@ -119,7 +119,7 @@ const DailyOverviewView = () => {
                         </RightActions>
                     </ActionsContainer>
                     <SmartPrioritizationBanner />
-                    {lists.map((list) => (
+                    {lists?.map((list) => (
                         <AccordionItem key={list.id} list={list} />
                     ))}
                 </ScrollableListTemplate>

@@ -422,8 +422,8 @@ export const useMarkTaskDoneOrDeleted = (useQueueing = true) => {
                         }
                         if (overviewAutomaticEmptySort) {
                             draft.sort((a, b) => {
-                                if (a.view_items.length === 0 && b.view_items.length > 0) return 1
-                                if (a.view_items.length > 0 && b.view_items.length === 0) return -1
+                                if (a.view_item_ids.length === 0 && b.view_item_ids.length > 0) return 1
+                                if (a.view_item_ids.length > 0 && b.view_item_ids.length === 0) return -1
                                 return 0
                             })
                         }

@@ -2,9 +2,10 @@ import { useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
 import { checkboxSize } from '../../styles/dimensions'
+import { TOverviewItem, TOverviewView } from '../../utils/types'
 import GTShadowContainer from '../atoms/GTShadowContainer'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
-import useOverviewLists from '../overview/useOverviewLists'
+import useOverviewItems from '../overview/useOverviewItems'
 
 const Header = styled.div`
     display: flex;
@@ -33,15 +34,14 @@ const mod = (n: number, m: number) => {
     return ((n % m) + m) % m
 }
 interface CardSwitcherProps {
-    viewId: string
+    list: TOverviewView
 }
 
-const CardSwitcher = ({ viewId }: CardSwitcherProps) => {
-    const { lists } = useOverviewLists()
-    const list = useMemo(() => lists?.find(({ id }) => id === viewId), [lists, viewId])
+const CardSwitcher = ({ list }: CardSwitcherProps) => {
+    const { sortedAndFilteredItems: items } = useOverviewItems(list)
 
     const [cardIndex, setCardIndex] = useState(0)
-    const card = useMemo(() => list?.view_items[cardIndex], [cardIndex, viewId, list])
+    const card = useMemo(() => items?.at(cardIndex), [cardIndex, list]) as TOverviewItem
 
     const onClickPrevious = () => {
         if (list == null) return

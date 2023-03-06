@@ -1,7 +1,7 @@
 import { Fragment, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { useGTLocalStorage } from '../../../hooks'
-import { TOverviewSuggestion, useBulkModifyViews } from '../../../services/api/overview.hooks'
+import { TOverviewSuggestion, useBulkModifyViews, useGetOverviewViews } from '../../../services/api/overview.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import { TIconColor } from '../../../styles/colors'
 import { icons } from '../../../styles/images'
@@ -10,7 +10,6 @@ import { Icon, TIconType } from '../../atoms/Icon'
 import { Divider } from '../../atoms/SectionDivider'
 import GTButton from '../../atoms/buttons/GTButton'
 import { getOverviewAccordionHeaderIcon } from '../AccordionItem'
-import useOverviewLists from '../useOverviewLists'
 
 const TopButtons = styled(Flex)`
     margin-top: ${Spacing._16};
@@ -45,12 +44,12 @@ interface SmartSuggestionProps {
 }
 const SmartSuggestion = ({ suggestions, onRevertToManual }: SmartSuggestionProps) => {
     const [isSaved, setIsSaved] = useState(false)
-    const { lists } = useOverviewLists()
+    const { data: lists } = useGetOverviewViews()
     const [initialLists] = useState(lists) // saves initial lists to revert back to
     const { mutate: bulkModifyViews } = useBulkModifyViews()
     const [, setIsUsingSmartPrioritization] = useGTLocalStorage('isUsingSmartPrioritization', false, true)
 
-    const idToList = useMemo(() => new Map(lists.map((list) => [list.id, list])), [lists])
+    const idToList = useMemo(() => new Map(lists?.map((list) => [list.id, list])), [lists])
 
     const handleSaveSuggestion = () => {
         setIsSaved(true)
@@ -63,7 +62,7 @@ const SmartSuggestion = ({ suggestions, onRevertToManual }: SmartSuggestionProps
     const handleRevertToManual = () => {
         if (isSaved) {
             bulkModifyViews({
-                ordered_view_ids: initialLists.map((list) => list.id),
+                ordered_view_ids: initialLists?.map((list) => list.id),
             })
         }
         onRevertToManual()

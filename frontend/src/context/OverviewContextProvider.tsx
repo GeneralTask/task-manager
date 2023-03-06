@@ -1,5 +1,5 @@
 import { Dispatch, ReactNode, SetStateAction, createContext, useContext, useState } from 'react'
-import useOverviewLists from '../components/overview/useOverviewLists'
+import { useGetOverviewViews } from '../services/api/overview.hooks'
 import { emptyFunction } from '../utils/utils'
 
 interface TOverviewContext {
@@ -19,9 +19,9 @@ interface OverviewContextProps {
     children: ReactNode
 }
 export const OverviewContextProvider = ({ children }: OverviewContextProps) => {
-    const { lists } = useOverviewLists()
+    const { data: lists } = useGetOverviewViews()
     const [openListIds, setOpenListIds] = useState<string[]>([])
-    const expandAll = () => setOpenListIds(lists.map((list) => list.id))
+    const expandAll = () => setOpenListIds(lists?.map((list) => list.id) ?? [])
     const collapseAll = () => setOpenListIds([])
 
     return (

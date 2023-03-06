@@ -1,42 +1,52 @@
 import { Ref, forwardRef } from 'react'
 import { useParams } from 'react-router-dom'
+import useGetVisibleItemCount, { PAGE_SIZE } from '../../../hooks/useGetVisibleItemCount'
 import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSelectors'
-import { PR_SORT_AND_FILTER_CONFIG } from '../../../utils/sortAndFilter/pull-requests.config'
-import useSortAndFilterSettings from '../../../utils/sortAndFilter/useSortAndFilterSettings'
+import { SortAndFilterSettings } from '../../../utils/sortAndFilter/types'
 import { TPullRequest } from '../../../utils/types'
 import PullRequest from '../../pull-requests/PullRequest'
 import { Repository } from '../../pull-requests/styles'
-import { ViewHeader, ViewName } from '../styles'
+import { PaginateTextButton, ViewHeader, ViewName } from '../styles'
+import useOverviewItems from '../useOverviewItems'
 import EmptyListMessage from './EmptyListMessage'
 import { ViewItemsProps } from './viewItems.types'
 
-const PullRequestViewItems = forwardRef(
-    ({ view, visibleItemsCount, hideHeader }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
-        const { overviewItemId } = useParams()
-        const sortAndFilterSettings = useSortAndFilterSettings<TPullRequest>(PR_SORT_AND_FILTER_CONFIG, view.id)
+const PullRequestViewItems = forwardRef(({ view, hideHeader }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
+    const { overviewItemId } = useParams()
 
-        return (
-            <>
-                {!hideHeader && (
-                    <ViewHeader ref={ref}>
-                        <ViewName>{view.name}</ViewName>
-                    </ViewHeader>
+    const { sortedAndFilteredItems, sortAndFilterSettings } = useOverviewItems(view)
+    const items = sortedAndFilteredItems as TPullRequest[]
+    const settings = sortAndFilterSettings as SortAndFilterSettings<TPullRequest>
+
+    const [visibleItemsCount, setVisibleItemsCount] = useGetVisibleItemCount(view, items.length)
+    const nextPageLength = Math.min(items.length - visibleItemsCount, PAGE_SIZE)
+
+    return (
+        <>
+            {!hideHeader && (
+                <ViewHeader ref={ref}>
+                    <ViewName>{view.name}</ViewName>
+                </ViewHeader>
+            )}
+            {view.view_item_ids.length !== 0 && <SortAndFilterSelectors settings={settings} />}
+            {items.length === 0 && view.is_linked && <EmptyListMessage list={view} />}
+            <Repository>
+                {items.slice(0, visibleItemsCount).map((pr) => (
+                    <PullRequest
+                        key={pr.id}
+                        pullRequest={pr}
+                        link={`/overview/${view.id}/${pr.id}`}
+                        isSelected={pr.id === overviewItemId}
+                    />
+                ))}
+                {visibleItemsCount < items.length && (
+                    <PaginateTextButton onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}>
+                        View more ({nextPageLength})
+                    </PaginateTextButton>
                 )}
-                {view.total_view_items !== 0 && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
-                {view.view_items.length === 0 && view.is_linked && <EmptyListMessage list={view} />}
-                <Repository>
-                    {view.view_items.slice(0, visibleItemsCount).map((pr) => (
-                        <PullRequest
-                            key={pr.id}
-                            pullRequest={pr}
-                            link={`/overview/${view.id}/${pr.id}`}
-                            isSelected={pr.id === overviewItemId}
-                        />
-                    ))}
-                </Repository>
-            </>
-        )
-    }
-)
+            </Repository>
+        </>
+    )
+})
 
 export default PullRequestViewItems

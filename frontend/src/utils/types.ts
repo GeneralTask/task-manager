@@ -335,9 +335,9 @@ export interface TOverviewView {
     task_section_id?: string
     is_reorderable: boolean
     logo: TLogoImage
-    view_items: TOverviewItem[]
+    // view_items: TOverviewItem[]
     view_item_ids: string[]
-    total_view_items?: number // the total number of items in the view without filters applied
+    // total_view_items?: number // the total number of items in the view without filters applied
     sources: TSourcesResult[]
     is_linked: boolean
     has_tasks_completed_today: boolean
