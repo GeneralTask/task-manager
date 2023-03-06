@@ -21,14 +21,9 @@ const getSortAndFilterSettings = <T>(
         (setting) => setting.field_key === `${settingPrefix}${config.filterPreferenceId}${settingSuffix}`
     ) ?? { field_value: '' }
 
-    // all settings come from one endpoint so we can just check if one is loading
-    if (!sortingPreference || !sortDirection || !filterPreference) {
-        return config.defaultSortsAndFilters
-    }
+    const selectedSort = config.sortOptions[sortingPreference?.field_value ?? '']
 
-    const selectedSort = config.sortOptions[sortingPreference.field_value]
-
-    const selectedSortDirection = sortDirection.field_value as SORT_DIRECTION
+    const selectedSortDirection = sortDirection?.field_value as SORT_DIRECTION
 
     const selectedFilter = config.filterOptions[filterPreference.field_value]
 
