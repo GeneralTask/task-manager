@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -60,7 +59,7 @@ func (api *API) NoteModify(c *gin.Context) {
 	sharedAccessValid := database.CheckNoteSharingAccessValid(modifyParams.NoteChangeable.SharedAccess)
 	if !sharedAccessValid {
 		api.Logger.Error().Err(err).Msg("invalid shared access token")
-		c.JSON(400, gin.H{"detail": fmt.Sprintf("invalid shared access token")})
+		c.JSON(400, gin.H{"detail": "invalid shared access token"})
 		return
 	}
 

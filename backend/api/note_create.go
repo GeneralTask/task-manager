@@ -41,7 +41,7 @@ func (api *API) NoteCreate(c *gin.Context) {
 	sharedAccessValid := database.CheckNoteSharingAccessValid(noteCreateParams.SharedAccess)
 	if !sharedAccessValid {
 		api.Logger.Error().Err(err).Msg("invalid shared access token")
-		c.JSON(400, gin.H{"detail": fmt.Sprintf("invalid shared access token")})
+		c.JSON(400, gin.H{"detail": "invalid shared access token"})
 		return
 	}
 
