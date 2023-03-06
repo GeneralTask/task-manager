@@ -209,17 +209,7 @@ export const useCreateTask = () => {
             }
         },
         onError: async () => {
-            toast.show(
-                {
-                    title: 'Request Failed:',
-                    message: 'create task',
-                },
-                {
-                    autoClose: 4000,
-                    pauseOnFocusLoss: false,
-                    theme: 'light',
-                }
-            )
+            toast.requestFailed('create task')
         },
     })
 }
@@ -309,17 +299,7 @@ export const useModifyTask = () => {
             queryClient.setQueryData('overview', updatedLists)
         },
         onError: async () => {
-            toast.show(
-                {
-                    title: 'Request Failed:',
-                    message: 'modify task',
-                },
-                {
-                    autoClose: 4000,
-                    pauseOnFocusLoss: false,
-                    theme: 'light',
-                }
-            )
+            toast.requestFailed('modify task')
         },
     })
 }
@@ -475,17 +455,7 @@ export const useMarkTaskDoneOrDeleted = () => {
             updateMeetingTasks()
         },
         onError: async () => {
-            toast.show(
-                {
-                    title: 'Request Failed:',
-                    message: 'complete task',
-                },
-                {
-                    autoClose: 4000,
-                    pauseOnFocusLoss: false,
-                    theme: 'light',
-                }
-            )
+            toast.requestFailed('complete task')
         },
     })
 }
@@ -573,17 +543,7 @@ export const useReorderTask = () => {
             }
         },
         onError: async () => {
-            toast.show(
-                {
-                    title: 'Request Failed:',
-                    message: 'move task',
-                },
-                {
-                    autoClose: 4000,
-                    pauseOnFocusLoss: false,
-                    theme: 'light',
-                }
-            )
+            toast.requestFailed('move task')
         },
     })
 }
@@ -638,17 +598,7 @@ export const usePostComment = () => {
             }
         },
         onError: async () => {
-            toast.show(
-                {
-                    title: 'Request Failed:',
-                    message: 'post comment',
-                },
-                {
-                    autoClose: 4000,
-                    pauseOnFocusLoss: false,
-                    theme: 'light',
-                }
-            )
+            toast.requestFailed('post comment')
         },
     })
 }
