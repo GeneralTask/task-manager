@@ -19,7 +19,7 @@ const LinearCycle = ({ cycle, isCondensed }: LinearCycleProps) => {
     return (
         <Flex alignItems="center" gap={Spacing._8}>
             <Icon icon={getIcon()} />
-            <Label color="muted">{isCondensed ? cycle.number : cycle.name}</Label>
+            <Label color="muted">{isCondensed ? cycle.number : cycle.name ?? `Cycle ${cycle.number}`}</Label>
         </Flex>
     )
 }

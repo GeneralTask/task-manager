@@ -38,7 +38,7 @@ export interface TExternalPriority {
 
 export interface TLinearCycle {
     id: string
-    name: string
+    name?: string
     number: number
     is_current_cycle?: boolean
     is_previous_cycle?: boolean

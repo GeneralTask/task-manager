@@ -23,6 +23,7 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { TRecurringTaskTemplate, TTaskV4 } from '../../utils/types'
 import { EMPTY_ARRAY, isTaskParentTask } from '../../utils/utils'
+import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
@@ -60,12 +61,6 @@ const DetailsTopContainer = styled.div`
     align-items: center;
     flex-basis: 50px;
     flex-shrink: 0;
-`
-const MarginLeftAuto = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-left: auto;
 `
 const DetailItem = styled.div`
     display: flex;
@@ -246,7 +241,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                         <DetailItem>
                             <Label color="light">{syncIndicatorText}</Label>
                         </DetailItem>
-                        <MarginLeftAuto>
+                        <Flex alignItems="center" marginLeftAuto>
                             {task.is_deleted && (
                                 <GTButton
                                     value="Restore Task"
@@ -291,7 +286,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                             {isRecurringTaskTemplate && (
                                 <DeleteRecurringTaskTemplateButton template={task as TRecurringTaskTemplate} />
                             )}
-                        </MarginLeftAuto>
+                        </Flex>
                     </>
                 )}
             </DetailsTopContainer>
@@ -354,7 +349,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                         />
                     )
                 )}
-                <MarginLeftAuto>
+                <Flex alignItems="center" gap={Spacing._8} marginLeftAuto>
                     {task.linear_cycle && <LinearCycle cycle={task.linear_cycle} />}
                     {!isRecurringTaskTemplate &&
                         task.external_status &&
@@ -362,7 +357,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                         (task.source?.name === 'Linear' || task.source?.name === 'Jira') && (
                             <StatusDropdown task={taskv4} disabled={task.is_deleted} />
                         )}
-                </MarginLeftAuto>
+                </Flex>
             </TaskStatusContainer>
             {task.optimisticId ? (
                 <Spinner />
