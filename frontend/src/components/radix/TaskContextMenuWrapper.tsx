@@ -13,6 +13,7 @@ import {
 } from '../../services/api/tasks.hooks'
 import { externalStatusIcons, icons } from '../../styles/images'
 import { TTaskFolder, TTaskV4 } from '../../utils/types'
+import adf2md from '../atoms/GTTextField/AtlassianEditor/adfToMd'
 import GTDatePicker from '../molecules/GTDatePicker'
 import RecurringTaskTemplateModal from '../molecules/recurring-tasks/RecurringTaskTemplateModal'
 import GTContextMenu from './GTContextMenu'
@@ -204,9 +205,14 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                       icon: icons.clone,
                       onClick: () => {
                           const optimisticId = uuidv4()
+                          let body = task.body
+                          if (task.source.name === 'Jira') {
+                              const json = JSON.parse(body)
+                              body = adf2md.convert(json).result
+                          }
                           createTask({
                               title: `${task.title} (copy)`,
-                              body: task.body,
+                              body,
                               id_folder: task.id_folder,
                               id_parent: task.id_parent,
                               optimisticId,
@@ -214,7 +220,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                           modifyTask(
                               {
                                   id: optimisticId,
-                                  priorityNormalized: task.priority_normalized || undefined,
+                                  priorityNormalized: Math.round(task.priority_normalized) || undefined,
                                   dueDate: DateTime.fromISO(task.due_date).toISO() || undefined,
                                   recurringTaskTemplateId: task.recurring_task_template_id || undefined,
                               },

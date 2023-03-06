@@ -37,7 +37,7 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     margin: 0 ${Spacing._8};
     flex: 1;
     min-width: 0;
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     background-color: ${({ isOver, isSelected }) =>
         isOver ? Colors.background.white : isSelected ? Colors.background.medium : 'inherit'};
     mix-blend-mode: ${({ isOver, isSelected }) => (isSelected && !isOver ? 'multiply' : 'inherit')};

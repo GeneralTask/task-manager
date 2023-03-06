@@ -9,7 +9,7 @@ const TextContainerWidth = '40%'
 const MessageContainer = styled.div`
     ${Typography.bodySmall};
     border: ${Border.stroke.medium} solid ${Colors.background.border};
-    border-radius: ${Border.radius.mini};
+    border-radius: ${Border.radius.small};
     padding: ${Spacing._16};
     display: flex;
 `

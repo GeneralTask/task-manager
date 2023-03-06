@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import styled from 'styled-components'
-import { useSetting } from '../../hooks'
+import { usePreviewMode, useSetting } from '../../hooks'
 import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts, useGetSettings } from '../../services/api/settings.hooks'
@@ -10,7 +10,13 @@ import { icons, logos } from '../../styles/images'
 import { PR_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/pull-requests.config'
 import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
 import { TPullRequest } from '../../utils/types'
-import { doesAccountNeedRelinking, isGithubLinked, isLinearLinked, isSlackLinked } from '../../utils/utils'
+import {
+    doesAccountNeedRelinking,
+    isGithubLinked,
+    isJiraLinked,
+    isLinearLinked,
+    isSlackLinked,
+} from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import Skeleton from '../atoms/Skeleton'
 import ServiceVisibilityDropdown from '../radix/ServiceVisibilityDropdown'
@@ -33,6 +39,7 @@ interface IntegrationLinksProps {
     isCollapsed?: boolean
 }
 const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
+    const { isPreviewMode } = usePreviewMode()
     const { data: pullRequestRepositories } = useGetPullRequests()
     const { isLoading: isSettingsLoading } = useGetSettings()
 
@@ -42,10 +49,12 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     const showGitHubSetting = useSetting('sidebar_github_preference')
     const showLinearSetting = useSetting('sidebar_linear_preference')
     const showSlackSetting = useSetting('sidebar_slack_preference')
+    const showJiraSetting = useSetting('sidebar_jira_preference')
 
     const showGithub = showGitHubSetting.field_value === 'true'
     const showLinear = showLinearSetting.field_value === 'true'
     const showSlack = showSlackSetting.field_value === 'true'
+    const showJira = showJiraSetting.field_value === 'true' && isPreviewMode
 
     const linearTasksCount = useMemo(
         () => activeTasks?.filter((task) => task.source.name === 'Linear').length,
@@ -55,12 +64,17 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
         () => activeTasks?.filter((task) => task.source.name === 'Slack').length,
         [activeTasks]
     )
+    const jiraTasksCount = useMemo(
+        () => activeTasks?.filter((task) => task.source.name === 'Jira').length,
+        [activeTasks]
+    )
 
     const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
 
     const isGithubIntegrationLinked = isGithubLinked(linkedAccounts || [])
     const isLinearIntegrationLinked = isLinearLinked(linkedAccounts || [])
     const isSlackIntegrationLinked = isSlackLinked(linkedAccounts || [])
+    const isJiraIntegrationLinked = isJiraLinked(linkedAccounts || [])
 
     const { selectedFilter: pullRequestFilter } = useSortAndFilterSettings<TPullRequest>(PR_SORT_AND_FILTER_CONFIG)
     const githubCount = isGithubIntegrationLinked
@@ -71,6 +85,8 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
         : undefined
     const linearCount = isLinearIntegrationLinked ? linearTasksCount : undefined
     const slackCount = isSlackIntegrationLinked ? slackTasksCount : undefined
+    const jiraCount = isJiraIntegrationLinked ? jiraTasksCount : undefined
+
     return (
         <>
             <Flex gap={isCollapsed ? Spacing._8 : undefined} column>
@@ -149,6 +165,19 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                             count={slackCount}
                             needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Slack')}
                             isCurrentPage={pathname.split('/')[1] === 'slack'}
+                            isCollapsed={isCollapsed}
+                        />
+                    </Tip>
+                )}
+                {showJira && (
+                    <Tip shortcutName="goToJiraPage" side="right">
+                        <NavigationLink
+                            link="/jira"
+                            title="Jira"
+                            icon={logos.jira}
+                            count={jiraCount}
+                            needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Jira')}
+                            isCurrentPage={pathname.split('/')[1] === 'jira'}
                             isCollapsed={isCollapsed}
                         />
                     </Tip>

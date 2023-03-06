@@ -240,6 +240,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Navigation',
         icon: 'headphones',
     },
+    goToJiraPage: {
+        label: 'Go to Jira page',
+        key: `${OPT_ALT.key}+${SHIFT}+J|${OPT_ALT.key}+${SHIFT}+Ô`,
+        keyLabel: `${OPT_ALT.label}+${SHIFT}+J`,
+        category: 'Navigation',
+        icon: 'jira',
+    },
     goToNotesPage: {
         label: 'Go to Notes page',
         key: `${OPT_ALT.key}+${SHIFT}+N|${OPT_ALT.key}+${SHIFT}+˜`,

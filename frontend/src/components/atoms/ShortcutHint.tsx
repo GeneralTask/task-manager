@@ -4,7 +4,7 @@ import { Border, Colors, Typography } from '../../styles'
 const ShortcutHintContainer = styled.div`
     display: flex;
     flex-direction: row;
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     padding: 0;
     text-align: center;
     background-color: ${Colors.background.white};
