@@ -51,8 +51,8 @@ const useToast = () => {
     const requestFailed = (message: string) => {
         show(
             {
-                title: 'Request Failed:',
-                message,
+                title: `Failed to ${message}:`,
+                message: 'Request failed.',
             },
             {
                 autoClose: 4000,
