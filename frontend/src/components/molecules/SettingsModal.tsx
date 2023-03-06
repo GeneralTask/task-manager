@@ -89,7 +89,7 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
         'Google Calendar': 'See your upcoming events and schedule tasks by dragging them onto your calendar.',
         Linear: 'See, update, and schedule the issues assigned to you.',
         GitHub: 'See pull requests from the repos that matter to you.',
-        Atlassian: 'See, update, and schedule the issues assigned to you.',
+        Jira: 'See, update, and schedule the issues assigned to you.',
     }
 
     const { isDarkMode, toggleTernaryDarkMode } = useTernaryDarkMode()
@@ -98,7 +98,7 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
     const showGitHubSetting = useSetting('sidebar_github_preference')
     const showLinearSetting = useSetting('sidebar_linear_preference')
     const showSlackSetting = useSetting('sidebar_slack_preference')
-    const showAtlassianSetting = useSetting('sidebar_jira_preference')
+    const showJiraSetting = useSetting('sidebar_jira_preference')
 
     const nameToSetting = {
         GitHub: {
@@ -113,9 +113,9 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
             setting: showSlackSetting,
             show: showSlackSetting.field_value === 'true',
         },
-        Atlassian: {
-            setting: showAtlassianSetting,
-            show: showAtlassianSetting.field_value === 'true',
+        Jira: {
+            setting: showJiraSetting,
+            show: showJiraSetting.field_value === 'true',
         },
     }
     type TNameToSetting = keyof typeof nameToSetting

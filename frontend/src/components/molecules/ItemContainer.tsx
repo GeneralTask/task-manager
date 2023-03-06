@@ -12,7 +12,7 @@ const ItemContainerDiv = styled.div<{ isSelected?: boolean; isCompact?: boolean;
     height: 100%;
     background-color: ${Colors.background.white};
     box-shadow: ${Shadows.deprecated_button.default};
-    border-radius: ${Border.radius.mini};
+    border-radius: ${Border.radius.small};
     :hover {
         outline: ${Border.stroke.medium} solid ${Colors.background.border};
         background-color: ${Colors.background.medium};

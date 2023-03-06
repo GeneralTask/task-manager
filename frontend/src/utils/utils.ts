@@ -1,8 +1,8 @@
 import { DateTime, Duration, DurationUnit } from 'luxon'
-import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../constants'
+import { DONE_FOLDER_ID, GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME, TRASH_FOLDER_ID } from '../constants'
 import KEYBOARD_SHORTCUTS from '../constants/shortcuts'
 import { TIconColor, TTextColor } from '../styles/colors'
-import { TLinkedAccount, TLinkedAccountName, TParentTask, TTaskV4 } from './types'
+import { TLinkedAccount, TLinkedAccountName, TParentTask, TTaskFolder, TTaskV4 } from './types'
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -187,4 +187,21 @@ export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 export const isTaskParentTask = (task: TTaskV4): task is TParentTask => {
     return task.id_folder != null
+}
+
+/**
+ * If a task is a subtask, we return the folder of the parent task
+ */
+export const getFolderIdFromTask = (task: TTaskV4, tasks: TTaskV4[], folders: TTaskFolder[]) => {
+    let folderId = null
+    if (task.is_deleted) {
+        folderId = TRASH_FOLDER_ID
+    } else if (task.is_done) {
+        folderId = DONE_FOLDER_ID
+    } else if (task.id_parent) {
+        folderId = tasks.find((t) => t.id === task.id_parent)?.id_folder
+    } else {
+        folderId = folders.find((folder) => folder.task_ids.includes(task.id))?.id
+    }
+    return folderId
 }

@@ -24,11 +24,6 @@ func (api *API) TaskDetail(c *gin.Context) {
 		return
 	}
 
-	taskResult := api.taskBaseToTaskResult(task, userID)
-	// should fetch subTasks as we only have a single task in memory
-	subTasks := api.getSubtaskResults(task.ID, userID)
-	if subTasks != nil {
-		taskResult.SubTasks = subTasks
-	}
+	taskResult := api.taskToTaskResultV4(task, userID)
 	c.JSON(200, taskResult)
 }

@@ -223,6 +223,8 @@ export const createTask = async (data: TCreateTaskData) => {
     }
 }
 
+const COMPLETED_TASK_TYPES = ['completed', 'canceled', 'done']
+
 const optimisticallyUpdateTask = async (queryClient: GTQueryClient, data: TModifyTaskData, queryKey: QueryKey) => {
     const queryData = queryClient.getImmutableQueryData<TTaskV4[]>(queryKey)
     if (!queryData) return
@@ -239,6 +241,7 @@ const optimisticallyUpdateTask = async (queryClient: GTQueryClient, data: TModif
         task.body = data.body ?? task.body
         task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
         task.external_status = data.status ?? task.external_status
+        task.is_done = COMPLETED_TASK_TYPES.includes(data.status?.type ?? '') ?? task.is_done
         task.recurring_task_template_id = data.recurringTaskTemplateId ?? task.recurring_task_template_id
         if (data.external_priority_id) {
             const newPriority = task.all_priorities?.find(
@@ -255,11 +258,39 @@ export const useModifyTask = () => {
     const queryClient = useGTQueryClient()
     return useGTMutation((data: TModifyTaskData) => modifyTask(data), {
         tag: 'tasks_v4',
-        invalidateTagsOnSettled: ['tasks_v4', 'overview', 'meeting_preparation_tasks'],
+        invalidateTagsOnSettled: ['tasks_v4', 'overview', 'folders', 'meeting_preparation_tasks'],
         onMutate: async (data: TModifyTaskData) => {
-            await Promise.all([queryClient.cancelQueries('overview'), queryClient.cancelQueries('tasks_v4')])
+            await Promise.all([
+                queryClient.cancelQueries('overview'),
+                queryClient.cancelQueries('folders'),
+                queryClient.cancelQueries('tasks_v4'),
+                queryClient.cancelQueries('meeting_preparation_tasks'),
+            ])
             optimisticallyUpdateTask(queryClient, data, 'tasks_v4')
             optimisticallyUpdateTask(queryClient, data, 'meeting_preparation_tasks')
+
+            if (!COMPLETED_TASK_TYPES.includes(data.status?.type ?? '')) return
+            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('folders')
+            if (!folders) return
+            const updatedFolders = produce(folders, (draft) => {
+                const currentFolder = draft.find((folder) => folder.task_ids.includes(data.id))
+                const doneFolder = draft.find((folder) => folder.id === DONE_FOLDER_ID)
+                if (!currentFolder || !doneFolder) return
+                currentFolder.task_ids = currentFolder.task_ids.filter((id) => id !== data.id)
+                doneFolder.task_ids.unshift(data.id)
+            })
+            queryClient.setQueryData('folders', updatedFolders)
+
+            const lists = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+            if (!lists) return
+            const updatedLists = produce(lists, (draft) => {
+                const currentLists = draft.filter((list) => list.view_item_ids.includes(data.id))
+                if (!currentLists) return
+                for (const list of currentLists) {
+                    list.view_item_ids = list.view_item_ids.filter((id) => id !== data.id)
+                }
+            })
+            queryClient.setQueryData('overview', updatedLists)
         },
     })
 }
@@ -576,7 +607,7 @@ export const createNewTaskV4Helper = (data: Partial<TTaskV4> & { optimisticId: s
         is_deleted: data.is_deleted ?? false,
         created_at: data.created_at ?? DateTime.utc().toISO(),
         updated_at: data.updated_at ?? DateTime.utc().toISO(),
-        id_folder: data.id_folder ?? '',
+        id_folder: data.id_folder ?? undefined,
         id_nux_number: data.id_nux_number,
         id_parent: data.id_parent,
         subtask_ids: data.subtask_ids,

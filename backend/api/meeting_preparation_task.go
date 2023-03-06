@@ -62,6 +62,13 @@ func (api *API) GetMeetingPreparationTasksResult(userID primitive.ObjectID, time
 	sort.Slice(*meetingTasks, func(i, j int) bool {
 		return (*meetingTasks)[i].MeetingPreparationParams.DatetimeStart > (*meetingTasks)[j].MeetingPreparationParams.DatetimeStart
 	})
+	if len(*meetingTasks) > 100 {
+		*meetingTasks = (*meetingTasks)[:100]
+	}
+	//Reverse the order of the tasks
+	sort.Slice(*meetingTasks, func(i, j int) bool {
+		return (*meetingTasks)[i].MeetingPreparationParams.DatetimeStart < (*meetingTasks)[j].MeetingPreparationParams.DatetimeStart
+	})
 
 	meetingTaskResult := api.taskListToTaskResultListV4(meetingTasks, userID)
 	// Limit to 100 tasks in response
