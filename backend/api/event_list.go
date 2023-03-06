@@ -230,9 +230,7 @@ func (api *API) getLinkedNoteID(eventID primitive.ObjectID, userID primitive.Obj
 	var note database.Note
 	err := mongoResult.Decode(&note)
 	if err != nil {
-		log.Print("no results here! why????")
 		return ""
 	}
-	log.Print("oh now we're here!!!")
 	return note.ID.Hex()
 }
