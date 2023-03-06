@@ -36,6 +36,15 @@ export interface TExternalPriority {
     icon_url: string
 }
 
+export interface TLinearCycle {
+    id: string
+    name: string
+    number: number
+    is_current_cycle?: boolean
+    is_previous_cycle?: boolean
+    is_next_cycle?: boolean
+}
+
 export interface TTask {
     id: string
     optimisticId?: string
@@ -93,6 +102,7 @@ export interface TTaskV4 {
     recurring_task_template_id?: string
     priority?: TExternalPriority
     all_priorities?: TExternalPriority[]
+    linear_cycle?: TLinearCycle
 
     all_statuses?: TExternalStatus[] // Deprecated but still in response (will be moved to userInfo)
 }

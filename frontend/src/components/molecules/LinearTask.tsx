@@ -13,6 +13,7 @@ import SelectableContainer, { EdgeHighlight } from '../atoms/SelectableContainer
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
+import LinearCycle from './LinearCycle'
 import { GTButtonHack } from './Task'
 
 const DominoIconContainer = styled.div`
@@ -115,6 +116,7 @@ const LinearTask = ({ task }: LinearTaskProps) => {
             </LeftContainer>
             <RightContainer>
                 {task.comments && task.comments.length > 0 && <CommentCount count={task.comments.length} />}
+                {task.linear_cycle && <LinearCycle cycle={task.linear_cycle} isCondensed />}
                 <ExternalLinkButton link={task.deeplink} />
             </RightContainer>
         </LinearSelectableContainer>
