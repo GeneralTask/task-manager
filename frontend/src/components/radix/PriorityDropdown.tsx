@@ -21,7 +21,7 @@ const PriorityDropdown = ({ value, onChange, disabled, condensedTrigger }: Prior
             setIsOpen={setIsOpen}
             disabled={disabled}
             items={TASK_PRIORITIES.map((priority, index) => ({
-                label: `${priority.label}`,
+                label: priority.label,
                 onClick: () => onChange(index),
                 icon: priority.icon,
                 iconColor: TASK_PRIORITIES[index].color,
