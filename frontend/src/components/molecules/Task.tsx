@@ -1,11 +1,13 @@
-import { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react'
+import { MouseEventHandler, MutableRefObject, useCallback, useEffect, useRef, useState } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
+import useSelectionContext from '../../context/SelectionContextProvider'
 import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
+import useGetSortedFolderTasks from '../../hooks/useGetSortedFolderTasks'
 import Log from '../../services/api/log'
 import { useMarkTaskDoneOrDeleted } from '../../services/api/tasks.hooks'
 import { useGetTasksV4 } from '../../services/api/tasks.hooks'
@@ -94,6 +96,13 @@ const Task = ({
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const { calendarType, setCalendarType, setDate, dayViewDate } = useCalendarContext()
+    const { onClickHandler: onMultiSelectClick, isTaskSelected: isTaskMultiSelected } = useSelectionContext()
+    const { task: idTaskRoute, overviewItemId } = useParams()
+    const { data: allTasks } = useGetTasksV4()
+
+    const { inMultiSelectMode } = useSelectionContext()
+
+    const sortedTasks = useGetSortedFolderTasks(task.id_folder ?? '')
 
     useInterval(() => {
         if (!meeting_preparation_params) return
@@ -154,14 +163,18 @@ const Task = ({
         [isSelected, isScrolling.current, shouldScrollToTask]
     )
 
-    const onClick = useCallback(() => {
-        navigate(link)
-        Log(`task_select__${link}`)
-        if (calendarType === 'week' && isSelected) {
-            setCalendarType('day')
-            setDate(dayViewDate)
-        }
-    }, [link, isSelected, dayViewDate])
+    const onClick = useCallback<MouseEventHandler>(
+        (e) => {
+            if (e.metaKey || e.shiftKey) return
+            navigate(link)
+            Log(`task_select__${link}`)
+            if (calendarType === 'week' && isSelected) {
+                setCalendarType('day')
+                setDate(dayViewDate)
+            }
+        },
+        [link, isSelected, dayViewDate, inMultiSelectMode]
+    )
 
     const [, drag, dragPreview] = useDrag(
         () => ({
@@ -195,7 +208,6 @@ const Task = ({
 
     const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(task.recurring_task_template_id)
 
-    const { data: allTasks } = useGetTasksV4()
     const subtasks = allTasks?.filter((t) => t.id_parent === task.id && !t.is_deleted)
 
     return (
@@ -205,8 +217,23 @@ const Task = ({
                 isVisible={isVisible}
                 onMouseLeave={() => setIsHovered(false)}
                 onMouseEnter={() => setIsHovered(true)}
+                onClick={(e) =>
+                    onMultiSelectClick(
+                        e,
+                        task.id,
+                        task.is_deleted || task.is_done,
+                        (idTaskRoute || overviewItemId) ?? '',
+                        sortedTasks
+                    )
+                }
             >
-                <ItemContainer isSelected={isSelected} onClick={onClick} ref={drag} forceHoverStyle={contextMenuOpen}>
+                <ItemContainer
+                    isSelected={isSelected}
+                    isMultiSelected={isTaskMultiSelected(task.id)}
+                    onClick={onClick}
+                    ref={drag}
+                    forceHoverStyle={contextMenuOpen}
+                >
                     <MarginRight>
                         {isPreviewMode && task.meeting_preparation_params?.event_moved_or_deleted ? (
                             <Tip content="Event has been moved or deleted">
