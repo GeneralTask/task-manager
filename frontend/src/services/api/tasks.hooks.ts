@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 import { DONE_FOLDER_ID, TASK_MARK_AS_DONE_TIMEOUT, TRASH_FOLDER_ID } from '../../constants'
 import useOverviewContext from '../../context/OverviewContextProvider'
 import useQueryContext from '../../context/QueryContext'
-import { useGTLocalStorage, useNavigateToTask } from '../../hooks'
+import { useGTLocalStorage, useNavigateToTask, useToast } from '../../hooks'
 import apiClient from '../../utils/api'
 import navigateToNextItemAfterOverviewCompletion from '../../utils/navigateToNextItemAfterOverviewCompletion'
 import { TExternalStatus, TOverviewView, TTaskFolder, TTaskV4, TUserInfo } from '../../utils/types'
@@ -122,6 +122,7 @@ export const useCreateTask = () => {
     const queryClient = useGTQueryClient()
     const { setOptimisticId } = useQueryContext()
     const navigateToTask = useNavigateToTask()
+    const toast = useToast()
 
     return useGTMutation((data: TCreateTaskData) => createTask(data), {
         tag: 'tasks_v4',
@@ -207,6 +208,19 @@ export const useCreateTask = () => {
                 })
             }
         },
+        onError: async () => {
+            toast.show(
+                {
+                    title: 'Request Failed:',
+                    message: 'create task',
+                },
+                {
+                    autoClose: 4000,
+                    pauseOnFocusLoss: false,
+                    theme: 'light',
+                }
+            )
+        },
     })
 }
 export const createTask = async (data: TCreateTaskData) => {
@@ -256,6 +270,8 @@ const optimisticallyUpdateTask = async (queryClient: GTQueryClient, data: TModif
 
 export const useModifyTask = () => {
     const queryClient = useGTQueryClient()
+    const toast = useToast()
+
     return useGTMutation((data: TModifyTaskData) => modifyTask(data), {
         tag: 'tasks_v4',
         invalidateTagsOnSettled: ['tasks_v4', 'overview', 'folders', 'meeting_preparation_tasks'],
@@ -292,6 +308,19 @@ export const useModifyTask = () => {
             })
             queryClient.setQueryData('overview', updatedLists)
         },
+        onError: async () => {
+            toast.show(
+                {
+                    title: 'Request Failed:',
+                    message: 'modify task',
+                },
+                {
+                    autoClose: 4000,
+                    pauseOnFocusLoss: false,
+                    theme: 'light',
+                }
+            )
+        },
     })
 }
 const modifyTask = async (data: TModifyTaskData) => {
@@ -325,6 +354,7 @@ export const useMarkTaskDoneOrDeleted = () => {
     const queryClient = useGTQueryClient()
     const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
     const navigate = useNavigate()
+    const toast = useToast()
     const { setOpenListIds } = useOverviewContext()
 
     return useGTMutation((data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data), {
@@ -444,6 +474,19 @@ export const useMarkTaskDoneOrDeleted = () => {
             updateLists()
             updateMeetingTasks()
         },
+        onError: async () => {
+            toast.show(
+                {
+                    title: 'Request Failed:',
+                    message: 'complete task',
+                },
+                {
+                    autoClose: 4000,
+                    pauseOnFocusLoss: false,
+                    theme: 'light',
+                }
+            )
+        },
     })
 }
 export const markTaskDoneOrDeleted = async (data: TMarkTaskDoneOrDeletedData) => {
@@ -460,6 +503,8 @@ export const markTaskDoneOrDeleted = async (data: TMarkTaskDoneOrDeletedData) =>
 
 export const useReorderTask = () => {
     const queryClient = useGTQueryClient()
+    const toast = useToast()
+
     return useGTMutation((data: TReorderTaskData) => reorderTask(data), {
         tag: 'tasks_v4',
         invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
@@ -527,6 +572,19 @@ export const useReorderTask = () => {
                 queryClient.setQueryData('overview', updatedLists)
             }
         },
+        onError: async () => {
+            toast.show(
+                {
+                    title: 'Request Failed:',
+                    message: 'move task',
+                },
+                {
+                    autoClose: 4000,
+                    pauseOnFocusLoss: false,
+                    theme: 'light',
+                }
+            )
+        },
     })
 }
 
@@ -549,6 +607,8 @@ export const reorderTask = async (data: TReorderTaskData) => {
 
 export const usePostComment = () => {
     const queryClient = useGTQueryClient()
+    const toast = useToast()
+
     return useGTMutation((data: TPostCommentData) => postComment(data), {
         tag: 'tasks_v4',
         invalidateTagsOnSettled: ['tasks_v4'],
@@ -576,6 +636,19 @@ export const usePostComment = () => {
 
                 queryClient.setQueryData('tasks_v4', updatedTasks)
             }
+        },
+        onError: async () => {
+            toast.show(
+                {
+                    title: 'Request Failed:',
+                    message: 'post comment',
+                },
+                {
+                    autoClose: 4000,
+                    pauseOnFocusLoss: false,
+                    theme: 'light',
+                }
+            )
         },
     })
 }
