@@ -223,6 +223,8 @@ export const createTask = async (data: TCreateTaskData) => {
     }
 }
 
+const COMPLETED_TASK_TYPES = ['completed', 'canceled', 'done']
+
 const optimisticallyUpdateTask = async (queryClient: GTQueryClient, data: TModifyTaskData, queryKey: QueryKey) => {
     const queryData = queryClient.getImmutableQueryData<TTaskV4[]>(queryKey)
     if (!queryData) return
@@ -239,9 +241,7 @@ const optimisticallyUpdateTask = async (queryClient: GTQueryClient, data: TModif
         task.body = data.body ?? task.body
         task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
         task.external_status = data.status ?? task.external_status
-        task.is_done =
-            (data.status?.type === 'completed' || data.status?.type === 'canceled' || data.status?.type === 'done') ??
-            task.is_done
+        task.is_done = COMPLETED_TASK_TYPES.includes(data.status?.type ?? '') ?? task.is_done
         task.recurring_task_template_id = data.recurringTaskTemplateId ?? task.recurring_task_template_id
         if (data.external_priority_id) {
             const newPriority = task.all_priorities?.find(
@@ -269,10 +269,7 @@ export const useModifyTask = () => {
             optimisticallyUpdateTask(queryClient, data, 'tasks_v4')
             optimisticallyUpdateTask(queryClient, data, 'meeting_preparation_tasks')
 
-            if (
-                !(data.status?.type === 'completed' || data.status?.type === 'canceled' || data.status?.type === 'done')
-            )
-                return
+            if (!COMPLETED_TASK_TYPES.includes(data.status?.type ?? '')) return
             const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('folders')
             if (!folders) return
             const updatedFolders = produce(folders, (draft) => {
