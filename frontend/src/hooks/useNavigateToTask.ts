@@ -1,12 +1,13 @@
 import { useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import * as Sentry from '@sentry/browser'
 import { useCalendarContext } from '../components/calendar/CalendarContext'
-import { DONE_FOLDER_ID, TRASH_FOLDER_ID } from '../constants'
 import { useGetFolders } from '../services/api/folders.hooks'
 import Log from '../services/api/log'
 import { useGetOverviewViews } from '../services/api/overview.hooks'
 import { useGetTasksV4 } from '../services/api/tasks.hooks'
 import { TOverviewView, TTaskFolder, TTaskV4 } from '../utils/types'
+import { getFolderIdFromTask } from '../utils/utils'
 
 export interface TNavigateToTaskParams {
     taskId: string
@@ -27,13 +28,7 @@ const useNavigateToTask = () => {
         (taskId: string, tasks: TTaskV4[], folders: TTaskFolder[], views: TOverviewView[]) => {
             const task = tasks.find((task) => task.id === taskId)
             if (!task) return
-            const folderId = task.is_deleted
-                ? TRASH_FOLDER_ID
-                : task.is_done
-                ? DONE_FOLDER_ID
-                : task.id_folder ??
-                  tasks.find((t) => t.id === task.id_parent)?.id_folder ??
-                  folders.find((folder) => folder.task_ids.includes(task.id))?.id
+            const folderId = getFolderIdFromTask(task, tasks, folders)
             const suffix = task.id_parent ? `${task.id_parent}/${taskId}` : taskId
 
             const isUserOnOverviewPage = window.location.pathname.startsWith('/overview')
@@ -63,9 +58,11 @@ const useNavigateToTask = () => {
             } else if (task.source.name === 'Linear' && window.location.pathname.startsWith('/linear')) {
                 navigate(`/linear/${suffix}`)
                 Log(`task_navigate__/linear/${suffix}`)
-            } else {
+            } else if (folderId && suffix) {
                 navigate(`/tasks/${folderId}/${suffix}`)
                 Log(`task_navigate__/task/${folderId}/${suffix}`)
+            } else {
+                Sentry.captureMessage(`Could not navigate to task ${taskId}`)
             }
             return
         },
