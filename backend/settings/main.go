@@ -192,13 +192,13 @@ var HasDismissedMulticalPromptSetting = SettingDefinition{
 }
 
 var LinearTaskFilteringSetting = SettingDefinition{
-	DefaultChoice: "none",
+	DefaultChoice: "all_cycles",
 	Choices: []SettingChoice{
 		{Key: "all_cycles"},
-		{Key: "no_cycle"},
-		{Key: "previous_cycle"},
 		{Key: "current_cycle"},
 		{Key: "next_cycle"},
+		{Key: "no_cycle"},
+		{Key: "previous_cycle"},
 	},
 }
 
