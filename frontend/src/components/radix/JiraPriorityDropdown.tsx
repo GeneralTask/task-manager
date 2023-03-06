@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { TExternalPriority } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTDropdownMenu from './GTDropdownMenu'
 import { GTMenuItem } from './RadixUIConstants'
 
@@ -10,14 +11,21 @@ interface JiraPriorityDropdownProps {
     currentPriority: TExternalPriority
     allPriorities: TExternalPriority[]
     disabled?: boolean
+    condensedTrigger?: boolean
 }
 
-const JiraPriorityDropdown = ({ taskId, currentPriority, allPriorities, disabled }: JiraPriorityDropdownProps) => {
+const JiraPriorityDropdown = ({
+    taskId,
+    currentPriority,
+    allPriorities,
+    disabled,
+    condensedTrigger,
+}: JiraPriorityDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const { mutate: modifyTask } = useModifyTask()
 
     const items: GTMenuItem[] = allPriorities.map((priority) => ({
-        label: priority.name,
+        label: `${priority.name} priority`,
         onClick: () => {
             modifyTask({
                 id: taskId,
@@ -35,17 +43,27 @@ const JiraPriorityDropdown = ({ taskId, currentPriority, allPriorities, disabled
             setIsOpen={setIsOpen}
             disabled={disabled}
             items={items}
+            unstyledTrigger
             trigger={
-                <GTButton
-                    value={currentPriority.name}
-                    icon={currentPriority.icon_url}
-                    size="small"
-                    styleType="simple"
-                    onClick={() => setIsOpen(!isOpen)}
-                    active={isOpen}
-                    disabled={disabled}
-                    asDiv
-                />
+                condensedTrigger ? (
+                    <GTIconButton
+                        icon={currentPriority.icon_url}
+                        tooltipText={`${currentPriority.name} priority`}
+                        forceShowHoverEffect={isOpen}
+                        asDiv
+                    />
+                ) : (
+                    <GTButton
+                        value={`${currentPriority.name} priority`}
+                        icon={currentPriority.icon_url}
+                        size="small"
+                        styleType="simple"
+                        onClick={() => setIsOpen(!isOpen)}
+                        active={isOpen}
+                        disabled={disabled}
+                        asDiv
+                    />
+                )
             }
         />
     )

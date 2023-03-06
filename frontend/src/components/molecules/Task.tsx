@@ -4,12 +4,12 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useNavigate, useParams } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
+import { SINGLE_SECOND_INTERVAL } from '../../constants'
 import useSelectionContext from '../../context/SelectionContextProvider'
 import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import useGetSortedFolderTasks from '../../hooks/useGetSortedFolderTasks'
 import Log from '../../services/api/log'
-import { useMarkTaskDoneOrDeleted } from '../../services/api/tasks.hooks'
+import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { useGetTasksV4 } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -25,6 +25,7 @@ import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
 import { Mini } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import JiraPriorityDropdown from '../radix/JiraPriorityDropdown'
+import PriorityDropdown from '../radix/PriorityDropdown'
 import StatusDropdown from '../radix/StatusDropdown'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
 import Tip from '../radix/Tip'
@@ -96,6 +97,7 @@ const Task = ({
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const { calendarType, setCalendarType, setDate, dayViewDate } = useCalendarContext()
+    const { mutate: modifyTask } = useModifyTask()
     const { onClickHandler: onMultiSelectClick, isTaskSelected: isTaskMultiSelected } = useSelectionContext()
     const { task: idTaskRoute, overviewItemId } = useParams()
     const { data: allTasks } = useGetTasksV4()
@@ -210,6 +212,34 @@ const Task = ({
 
     const subtasks = allTasks?.filter((t) => t.id_parent === task.id && !t.is_deleted)
 
+    const getPriorityDropdown = () => {
+        if (task.priority && task.all_priorities && task.source.name === 'Jira') {
+            return (
+                <JiraPriorityDropdown
+                    taskId={task.id}
+                    currentPriority={task.priority}
+                    allPriorities={task.all_priorities}
+                    condensedTrigger
+                />
+            )
+        }
+        if (
+            task.source?.name !== 'Jira' &&
+            task.priority_normalized !== 0 &&
+            Number.isInteger(task.priority_normalized)
+        ) {
+            return (
+                <PriorityDropdown
+                    value={task.priority_normalized}
+                    onChange={(priority) =>
+                        modifyTask({ id: task.id, priorityNormalized: priority }, task.optimisticId)
+                    }
+                    condensedTrigger
+                />
+            )
+        }
+    }
+
     return (
         <TaskContextMenuWrapper task={task} onOpenChange={setContextMenuOpen}>
             <TaskTemplate
@@ -260,21 +290,7 @@ const Task = ({
                     <RightContainer>
                         {recurringTaskTemplate && <Icon icon={icons.arrows_repeat} />}
                         <DueDate date={dueDate} isDoneOrDeleted={task.is_done || task.is_deleted} />
-                        {task.priority && task.all_priorities && (
-                            <JiraPriorityDropdown
-                                taskId={task.id}
-                                currentPriority={task.priority}
-                                allPriorities={task.all_priorities}
-                            />
-                        )}
-                        {task.source?.name !== 'Jira' &&
-                            task.priority_normalized !== 0 &&
-                            Number.isInteger(task.priority_normalized) && (
-                                <Icon
-                                    icon={TASK_PRIORITIES[task.priority_normalized].icon}
-                                    color={TASK_PRIORITIES[task.priority_normalized].color}
-                                />
-                            )}
+                        {getPriorityDropdown()}
                         {subtasks && subtasks.length > 0 && (
                             <Flex gap={Spacing._4}>
                                 <Icon icon={icons.subtask} />

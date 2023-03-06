@@ -14,6 +14,7 @@ import SelectableContainer, { EdgeHighlight } from '../atoms/SelectableContainer
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
+import PriorityDropdown from '../radix/PriorityDropdown'
 import { GTButtonHack } from './Task'
 
 const DominoIconContainer = styled.div`
@@ -44,7 +45,7 @@ const LeftContainer = styled.div`
 const RightContainer = styled.div`
     display: flex;
     align-items: center;
-    gap: ${Spacing._24};
+    gap: ${Spacing._8};
     margin-left: auto;
 `
 
@@ -120,6 +121,15 @@ const LinearTask = ({ task }: LinearTaskProps) => {
                 <LinearTitle>{task.title}</LinearTitle>
             </LeftContainer>
             <RightContainer>
+                {task.priority_normalized !== 0 && Number.isInteger(task.priority_normalized) && (
+                    <PriorityDropdown
+                        value={task.priority_normalized}
+                        onChange={(priority) =>
+                            modifyTask({ id: task.id, priorityNormalized: priority }, task.optimisticId)
+                        }
+                        condensedTrigger
+                    />
+                )}
                 {task.comments && task.comments.length > 0 && <CommentCount count={task.comments.length} />}
                 <ExternalLinkButton link={task.deeplink} />
             </RightContainer>
