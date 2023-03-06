@@ -41,7 +41,7 @@ const CardSwitcher = ({ list }: CardSwitcherProps) => {
     const { sortedAndFilteredItems: items } = useOverviewItems(list)
 
     const [cardIndex, setCardIndex] = useState(0)
-    const card = useMemo(() => items?.at(cardIndex), [cardIndex, list]) as TOverviewItem
+    const card = useMemo(() => items?.[cardIndex], [cardIndex, list]) as TOverviewItem
 
     const onClickPrevious = () => {
         if (list == null) return
