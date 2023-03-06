@@ -1,7 +1,11 @@
+import { TIconType } from '../../components/atoms/Icon'
 import {
     GHFilterPreference,
     GHSortDirection,
     GHSortPreference,
+    LinearFilterPreference,
+    LinearSortDirection,
+    LinearSortPreference,
     NoteFilterPreference,
     NoteSortDirection,
     NoteSortPreference,
@@ -41,8 +45,9 @@ export interface Sort<T> {
 export interface Filter<T> {
     id: string
     label: string
+    icon?: TIconType
     // should return true if item should be included in the filtered list
-    lambda: (item: T) => boolean
+    lambda: (item: T) => boolean | undefined
 }
 
 export interface SortAndFilterItemsArgs<T> {
@@ -64,9 +69,9 @@ export interface FilterOptions<T> {
 export interface SortAndFilterSettingsConfig<T> {
     sortOptions: SortOptions<T>
     filterOptions: FilterOptions<T>
-    sortPreferenceId: GHSortPreference | TaskSortPreference | NoteSortPreference
-    sortDirectionId: GHSortDirection | TaskSortDirection | NoteSortDirection
-    filterPreferenceId: GHFilterPreference | TaskFilterPreference | NoteFilterPreference
+    sortPreferenceId: GHSortPreference | TaskSortPreference | NoteSortPreference | LinearSortPreference
+    sortDirectionId: GHSortDirection | TaskSortDirection | NoteSortDirection | LinearSortDirection
+    filterPreferenceId: GHFilterPreference | TaskFilterPreference | NoteFilterPreference | LinearFilterPreference
     tieBreakerField: keyof T
     defaultSortsAndFilters: SortAndFilterSettings<T>
 }

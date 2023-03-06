@@ -5,13 +5,13 @@ import { Filter, SORT_DIRECTION, Sort, SortAndFilterSettings, SortAndFilterSetti
 const useSortAndFilterSettings = <T>(
     config: SortAndFilterSettingsConfig<T>,
     groupId?: string,
-    suffix?: '_main' | '_overview' // main if a folder, overview if the overview page
+    suffix?: '_main' | '_overview' | '_linear_page' // main if a folder, overview if the overview page
 ): SortAndFilterSettings<T> => {
     const settingPrefix = groupId ? `${groupId}_` : ''
     const settingSuffix = suffix ?? ''
     const sortingPreference = useSetting(`${settingPrefix}${config.sortPreferenceId}${settingSuffix}`)
     const sortDirection = useSetting(`${settingPrefix}${config.sortDirectionId}${settingSuffix}`)
-    const filterPreference = useSetting(`${settingPrefix}${config.filterPreferenceId}`)
+    const filterPreference = useSetting(`${settingPrefix}${config.filterPreferenceId}${settingSuffix}`)
 
     // all settings come from one endpoint so if any are finished loading, they all are
     if (sortingPreference.isLoading && sortDirection.isLoading && filterPreference.isLoading) {
