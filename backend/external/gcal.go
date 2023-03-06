@@ -16,6 +16,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/utils"
+	"github.com/google/go-cmp/cmp"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -34,10 +35,12 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 	}
 
 	//exclude events we declined.
+	attendeeEmails := []string{}
 	for _, attendee := range event.Attendees {
 		if attendee.Self && attendee.ResponseStatus == "declined" {
 			return &database.CalendarEvent{}
 		}
+		attendeeEmails = append(attendeeEmails, attendee.Email)
 	}
 
 	dbStartTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
@@ -69,6 +72,7 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 		CallURL:         conferenceCall.URL,
 		CallLogo:        conferenceCall.Logo,
 		CallPlatform:    conferenceCall.Platform,
+		AttendeeEmails:  attendeeEmails,
 	}
 	if colors != nil {
 		dbEvent.ColorBackground = colors.Event[event.ColorId].Background
@@ -116,7 +120,7 @@ func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar
 	var events []*database.CalendarEvent
 	for _, event := range calendarResponse.Items {
 		dbEvent := processAndStoreEvent(event, db, userID, accountID, calendarId, colors)
-		if dbEvent != nil && *dbEvent != (database.CalendarEvent{}) {
+		if dbEvent != nil && !cmp.Equal(*dbEvent, (database.CalendarEvent{})) {
 			events = append(events, dbEvent)
 		}
 	}
