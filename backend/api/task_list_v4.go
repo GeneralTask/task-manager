@@ -303,7 +303,7 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 
 		} else {
 			cycleDuration := t.LinearCycle.EndsAt.Time().Sub(t.LinearCycle.StartsAt.Time())
-			// check if this cycle is directly before the current cycle
+			// check if this cycle is directly before or after the current cycle
 			if t.LinearCycle.EndsAt.Time().Before(now) && t.LinearCycle.EndsAt.Time().Add(cycleDuration).After(now) {
 				taskResult.LinearCycle.IsPreviousCycle = true
 			} else if t.LinearCycle.StartsAt.Time().After(now) && t.LinearCycle.StartsAt.Time().Add(-cycleDuration).Before(now) {
