@@ -2,7 +2,6 @@ import { SORT_DIRECTION, SortAndFilterItemsArgs } from './types'
 
 const sortAndFilterItems = <T>({ items, sort, sortDirection, filter, tieBreakerField }: SortAndFilterItemsArgs<T>) => {
     const sortedAndFiltered = filter ? items.filter(filter.lambda) : [...items]
-    console.log({ sortedAndFiltered, filter })
     if (sort && sortDirection) {
         sortedAndFiltered.sort((a, b) => {
             const sortDirectionMultiplier = (sort.forceDirection ?? sortDirection) === SORT_DIRECTION.ASC ? 1 : -1
