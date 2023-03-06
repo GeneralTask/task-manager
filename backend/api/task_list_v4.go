@@ -17,12 +17,12 @@ type TaskSourceV4 struct {
 	Logo string `json:"logo"`
 }
 type LinearCycle struct {
-	ID              string  `bson:"_id,omitempty"`
-	Name            string  `bson:"name,omitempty"`
-	Number          float32 `bson:"number,omitempty"`
-	IsCurrentCycle  bool    `bson:"is_current_cycle,omitempty"`
-	IsPreviousCycle bool    `bson:"is_previous_cycle,omitempty"`
-	IsNextCycle     bool    `bson:"is_next_cycle,omitempty"`
+	ID              string  `json:"_id,omitempty"`
+	Name            string  `json:"name,omitempty"`
+	Number          float32 `json:"number,omitempty"`
+	IsCurrentCycle  bool    `json:"is_current_cycle,omitempty"`
+	IsPreviousCycle bool    `json:"is_previous_cycle,omitempty"`
+	IsNextCycle     bool    `json:"is_next_cycle,omitempty"`
 }
 type TaskResultV4 struct {
 	ID                       primitive.ObjectID           `json:"id"`
