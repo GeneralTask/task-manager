@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { DEFAULT_FOLDER_ID, TRASH_FOLDER_ID } from '../../constants'
+import { DEFAULT_FOLDER_ID } from '../../constants'
 import { useCreateTask, useMarkTaskDoneOrDeleted, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
@@ -66,15 +66,12 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
                           ]
                         : []),
                     {
-                        label: task.id_folder !== TRASH_FOLDER_ID ? 'Delete task' : 'Restore task',
+                        label: task.is_deleted ? 'Restore task' : 'Delete task',
                         icon: icons.trash,
                         iconColor: 'red',
                         textColor: 'red',
                         onClick: () =>
-                            markTaskDoneOrDeleted(
-                                { id: task.id, isDeleted: task.id_folder !== TRASH_FOLDER_ID },
-                                task.optimisticId
-                            ),
+                            markTaskDoneOrDeleted({ id: task.id, isDeleted: !task.is_deleted }, task.optimisticId),
                     },
                 ],
                 [
