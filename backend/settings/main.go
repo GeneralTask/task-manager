@@ -191,6 +191,17 @@ var HasDismissedMulticalPromptSetting = SettingDefinition{
 	},
 }
 
+var LinearTaskFilteringSetting = SettingDefinition{
+	DefaultChoice: "none",
+	Choices: []SettingChoice{
+		{Key: "none"},
+		{Key: "no_cycle"},
+		{Key: "previous_cycle"},
+		{Key: "current_cycle"},
+		{Key: "next_cycle"},
+	},
+}
+
 var TaskSectionSettingTypes = []string{"main", "overview"}
 
 var hardcodedSettings = []SettingDefinition{
@@ -313,6 +324,15 @@ func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]Setti
 		DefaultChoice: calendarIDChoices[0].Key,
 		Choices:       calendarIDChoices,
 	})
+
+	// linear task filtering
+	lineartaskFilterSettingLinearPage := LinearTaskFilteringSetting
+	lineartaskFilterSettingLinearPage.FieldKey = constants.SettingFieldLinearTaskFilteringPreference + "_linear_page"
+	settingsOptions = append(settingsOptions, lineartaskFilterSettingLinearPage)
+
+	lineartaskFilterSettingOverviewPage := LinearTaskFilteringSetting
+	lineartaskFilterSettingOverviewPage.FieldKey = constants.SettingFieldLinearTaskFilteringPreference + "_overview"
+	settingsOptions = append(settingsOptions, lineartaskFilterSettingOverviewPage)
 
 	return &settingsOptions, nil
 }
