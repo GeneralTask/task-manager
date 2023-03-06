@@ -95,7 +95,10 @@ export const useGTMutation = <TData = unknown, TError = unknown, TVariables = vo
                 mutationOptions.invalidateTagsOnSettled?.forEach((tag) => queryClient.invalidateQueries(tag))
             }
         },
-        onError: () => toast.requestFailed(mutationOptions.errorMessage),
+        onError: (error, variables, context) => {
+            mutationOptions.onError?.(error, variables, context)
+            toast.requestFailed(mutationOptions.errorMessage)
+        },
     })
     const newMutate = (variables: TVariables, optimisticId?: string) => {
         mutationOptions.onMutate?.(variables)
