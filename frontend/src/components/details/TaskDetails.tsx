@@ -37,6 +37,7 @@ import { Label } from '../atoms/typography/Typography'
 import CreateLinearComment from '../molecules/CreateLinearComment'
 import FolderSelector from '../molecules/FolderSelector'
 import GTDatePicker from '../molecules/GTDatePicker'
+import LinearCycle from '../molecules/LinearCycle'
 import DeleteRecurringTaskTemplateButton from '../molecules/recurring-tasks/DeleteRecurringTaskTemplateButton'
 import RecurringTaskDetailsBanner from '../molecules/recurring-tasks/RecurringTaskDetailsBanner'
 import RecurringTaskTemplateDetailsBanner from '../molecules/recurring-tasks/RecurringTaskTemplateDetailsBanner'
@@ -354,6 +355,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                     )
                 )}
                 <MarginLeftAuto>
+                    {task.linear_cycle && <LinearCycle cycle={task.linear_cycle} />}
                     {!isRecurringTaskTemplate &&
                         task.external_status &&
                         task.all_statuses &&
