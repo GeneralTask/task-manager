@@ -57,7 +57,6 @@ const useOverviewLists = () => {
                     undefined,
                     '_overview'
                 )
-                console.log('pahhhh')
                 const linearTasks =
                     (activeTasks?.filter((task) => list.view_item_ids.includes(task.id)) as TOverviewItem[]) || []
                 const sortedAndFiltered = !isPreviewMode
