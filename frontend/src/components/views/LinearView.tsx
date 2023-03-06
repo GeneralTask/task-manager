@@ -48,7 +48,7 @@ const LinearView = () => {
             filter: sortAndFilterSettings.selectedFilter,
             tieBreakerField: LINEAR_SORT_AND_FILTER_CONFIG.tieBreakerField,
         })
-    }, [activeTasks, sortAndFilterSettings.selectedFilter])
+    }, [activeTasks, sortAndFilterSettings.selectedFilter, isPreviewMode])
 
     const selectTask = useCallback((task: TTaskV4) => {
         navigate(`/linear/${task.id}`)
