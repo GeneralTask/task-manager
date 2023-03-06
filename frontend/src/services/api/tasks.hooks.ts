@@ -208,7 +208,7 @@ export const useCreateTask = () => {
                 })
             }
         },
-        onError: async () => {
+        onError: () => {
             toast.requestFailed('create task')
         },
     })
@@ -298,7 +298,7 @@ export const useModifyTask = () => {
             })
             queryClient.setQueryData('overview', updatedLists)
         },
-        onError: async () => {
+        onError: () => {
             toast.requestFailed('modify task')
         },
     })
@@ -454,7 +454,7 @@ export const useMarkTaskDoneOrDeleted = () => {
             updateLists()
             updateMeetingTasks()
         },
-        onError: async () => {
+        onError: () => {
             toast.requestFailed('complete task')
         },
     })
@@ -542,7 +542,7 @@ export const useReorderTask = () => {
                 queryClient.setQueryData('overview', updatedLists)
             }
         },
-        onError: async () => {
+        onError: () => {
             toast.requestFailed('move task')
         },
     })
@@ -597,7 +597,7 @@ export const usePostComment = () => {
                 queryClient.setQueryData('tasks_v4', updatedTasks)
             }
         },
-        onError: async () => {
+        onError: () => {
             toast.requestFailed('post comment')
         },
     })
