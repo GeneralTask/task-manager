@@ -322,11 +322,14 @@ func GetCalendarEventByExternalId(db *mongo.Database, externalID string, userID 
 	logger := logging.GetSentryLogger()
 	eventCollection := GetCalendarEventCollection(db)
 	mongoResult := FindOneExternalWithCollection(eventCollection, userID, externalID)
+	if mongoResult.Err() != nil {
+		return nil, mongoResult.Err()
+	}
 
 	var event CalendarEvent
 	err := mongoResult.Decode(&event)
 	if err != nil {
-		logger.Error().Err(err).Msgf("failed to get event: %+v", externalID)
+		logger.Error().Err(err).Msgf("failed to decode event: %+v", externalID)
 		return nil, err
 	}
 	return &event, nil
