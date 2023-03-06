@@ -20,7 +20,6 @@ const LinearViewItems = forwardRef(
             undefined,
             '_overview'
         )
-        console.log(view.view_items)
 
         return (
             <>
