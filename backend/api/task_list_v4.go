@@ -302,6 +302,7 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 			taskResult.LinearCycle.IsCurrentCycle = true
 
 		} else {
+			// Linear docs indicate "It is not possible to create cycles with different durations or to start or end on specific dates" https://linear.app/docs/configure-cycles
 			cycleDuration := t.LinearCycle.EndsAt.Time().Sub(t.LinearCycle.StartsAt.Time())
 			// check if this cycle is directly before or after the current cycle
 			if t.LinearCycle.EndsAt.Time().Before(now) && t.LinearCycle.EndsAt.Time().Add(cycleDuration).After(now) {
