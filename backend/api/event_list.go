@@ -36,6 +36,7 @@ type EventResult struct {
 	LinkedTaskID        string               `json:"linked_task_id"`
 	LinkedViewID        string               `json:"linked_view_id"`
 	LinkedPullRequestID string               `json:"linked_pull_request_id"`
+	LinkedNoteID        string               `json:"linked_note_id,omitempty"`
 	Logo                string               `json:"logo"`
 	ColorBackground     string               `json:"color_background,omitempty"`
 	ColorForeground     string               `json:"color_foreground,omitempty"`
@@ -143,6 +144,7 @@ func (api *API) EventsList(c *gin.Context) {
 					api.Logger.Error().Err(err).Msg("linked task source ID is empty")
 				}
 			}
+			linkedNoteID := api.getLinkedNoteID(event.ID, userID)
 			calendarEvents = append(calendarEvents, EventResult{
 				ID:            event.ID,
 				AccountID:     event.SourceAccountID,
@@ -164,6 +166,7 @@ func (api *API) EventsList(c *gin.Context) {
 				LinkedTaskID:        linkedTaskID,
 				LinkedViewID:        linkedViewID,
 				LinkedPullRequestID: linkedPRID,
+				LinkedNoteID:        linkedNoteID,
 				ColorBackground:     event.ColorBackground,
 				ColorForeground:     event.ColorForeground,
 			})
@@ -215,4 +218,19 @@ func (api *API) adjustForCompletedEvents(userID primitive.ObjectID, calendarEven
 	}
 
 	return nil
+}
+
+func (api *API) getLinkedNoteID(eventID primitive.ObjectID, userID primitive.ObjectID) string {
+	mongoResult := database.GetNoteCollection(api.DB).FindOne(
+		context.Background(),
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"linked_event_id": eventID},
+		}})
+	var note database.Note
+	err := mongoResult.Decode(&note)
+	if err != nil {
+		return ""
+	}
+	return note.ID.Hex()
 }
