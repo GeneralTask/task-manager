@@ -233,7 +233,7 @@ const Task = ({
                     <Title title={task.title}>{task.title}</Title>
                     <RightContainer>
                         {recurringTaskTemplate && <Icon icon={icons.arrows_repeat} />}
-                        {task.linear_cycle && <LinearCycle cycle={task.linear_cycle} isCondensed />}
+                        {isPreviewMode && task.linear_cycle && <LinearCycle cycle={task.linear_cycle} isCondensed />}
                         <DueDate date={dueDate} isDoneOrDeleted={task.is_done || task.is_deleted} />
                         {task.priority && task.all_priorities && (
                             <JiraPriorityDropdown
