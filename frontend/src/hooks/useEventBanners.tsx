@@ -93,9 +93,10 @@ export default function useEventBanners(date: DateTime) {
     useKeyboardShortcut(
         'joinCurrentMeeting',
         useCallback(() => {
-            const currentMeeting = eventsWithinTenMinutes.current.find((event) => isEventWithinTenMinutes(event))
-            if (currentMeeting?.conference_call.url) {
-                window.open(currentMeeting.conference_call.url, '_blank')
+            for (const event of eventsWithinTenMinutes.current) {
+                if (isEventWithinTenMinutes(event) && event.conference_call.url) {
+                    window.open(event.conference_call.url, '_blank')
+                }
             }
         }, [eventsWithinTenMinutes]),
         !eventsWithinTenMinutes.current.find((event) => isEventWithinTenMinutes(event))?.conference_call.url
