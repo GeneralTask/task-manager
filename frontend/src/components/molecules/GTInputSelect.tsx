@@ -10,7 +10,7 @@ const InputContainer = styled.div<{ valid: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
-    border: ${Border.stroke.large} solid ${Colors.background.dark};
+    border: ${Border.stroke.medium} solid ${Colors.background.dark};
     border-radius: 8px;
     outline: ${(props) => (props.valid ? 'none' : `1px solid ${Colors.status.red.default}`)};
     margin-bottom: 4px;

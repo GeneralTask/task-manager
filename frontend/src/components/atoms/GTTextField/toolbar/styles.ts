@@ -9,8 +9,8 @@ export const MenuContainer = styled.div`
     align-items: center;
     background-color: ${Colors.background.medium};
     padding: 0 ${Spacing._8};
-    border-bottom-left-radius: ${Border.radius.small};
-    border-bottom-right-radius: ${Border.radius.small};
+    border-bottom-left-radius: ${Border.radius.medium};
+    border-bottom-right-radius: ${Border.radius.medium};
     gap: ${Spacing._8};
     bottom: 0;
     left: 0;
@@ -18,7 +18,7 @@ export const MenuContainer = styled.div`
     overflow-x: auto;
 `
 export const Divider = styled.div`
-    border-left: ${Border.stroke.large} solid ${Colors.background.border};
+    border-left: ${Border.stroke.medium} solid ${Colors.background.border};
     height: ${Spacing._16};
 `
 export const MarginLeftGap = styled.div`

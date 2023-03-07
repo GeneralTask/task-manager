@@ -21,11 +21,11 @@ func (api *API) NotePreview(c *gin.Context) {
 
 	note, err := database.GetSharedNote(api.DB, noteID)
 	if err != nil {
-		Handle404(c)
+		notFoundRedirect(c, noteIDHex)
 		return
 	}
 	if note.SharedUntil < primitive.NewDateTimeFromTime(time.Now()) {
-		Handle404(c)
+		notFoundRedirect(c, noteIDHex)
 		return
 	}
 
@@ -33,7 +33,7 @@ func (api *API) NotePreview(c *gin.Context) {
 	if note.Title != nil {
 		previewTitle = html.EscapeString(*note.Title)
 	}
-	noteURL := config.GetConfigValue("HOME_URL") + "note/" + note.ID.Hex()
+	noteURL := getNoteURL(note.ID.Hex())
 	body := []byte(`
 <!DOCTYPE html>
 <html>
@@ -54,4 +54,22 @@ func (api *API) NotePreview(c *gin.Context) {
 </body>
 </html>`)
 	c.Data(200, "text/html; charset=utf-8", body)
+}
+
+func notFoundRedirect(c *gin.Context, noteIDHex string) {
+	noteURL := getNoteURL(noteIDHex)
+	body := []byte(`
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Refresh" content="0; url='` + noteURL + `'" />
+</head>
+<body>
+</body>
+</html>`)
+	c.Data(200, "text/html; charset=utf-8", body)
+}
+
+func getNoteURL(noteIDHex string) string {
+	return config.GetConfigValue("HOME_URL") + "note/" + noteIDHex
 }

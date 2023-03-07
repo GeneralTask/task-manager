@@ -31,4 +31,7 @@ const (
 	MAX_OVERVIEW_SUGGESTION int = 5
 )
 
-const ShowMovedOrDeleted = "show_moved_or_deleted"
+const (
+	ShowMovedOrDeleted       = "show_moved_or_deleted"
+	IgnoreMeetingPreparation = "ignore_meeting_preparation"
+)

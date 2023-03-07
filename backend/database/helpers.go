@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	"golang.org/x/exp/slices"
@@ -194,6 +195,77 @@ func GetNote(db *mongo.Database, itemID primitive.ObjectID, userID primitive.Obj
 	return &note, nil
 }
 
+/**
+ * Get the domain of an email address
+ * This only works for emails with a single @
+ */
+func GetEmailDomain(email string) (string, error) {
+	if !strings.Contains(email, "@") {
+		return "", errors.New("invalid email address")
+	}
+	domain := strings.Split(email, "@")[1]
+	if domain == "" {
+		return "", errors.New("invalid email address")
+	}
+	return domain, nil
+}
+func GetSharedTask(db *mongo.Database, taskID primitive.ObjectID, userID primitive.ObjectID) (*Task, error) {
+	logger := logging.GetSentryLogger()
+	mongoResult := GetTaskCollection(db).FindOne(
+		context.Background(),
+		bson.M{"$and": []bson.M{
+			{"_id": taskID},
+			{"shared_until": bson.M{"$gte": time.Now()}},
+			{"is_deleted": bson.M{"$ne": true}},
+		}})
+	var task Task
+	err := mongoResult.Decode(&task)
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to get task: %+v", taskID)
+		return nil, err
+	}
+
+	// Check if the task is shared
+	if task.SharedAccess == nil {
+		return nil, errors.New("task is not shared")
+	}
+	// Check if shared access value is valid
+	if *task.SharedAccess != SharedAccessDomain && *task.SharedAccess != SharedAccessPublic {
+		return nil, errors.New("invalid shared access value")
+	}
+
+	// Check if the user is allowed to access the task
+	if *task.SharedAccess == SharedAccessDomain {
+		user, err := GetUser(db, userID)
+		if err != nil {
+			logger.Error().Err(err).Msgf("failed to get user: %+v", userID)
+			return nil, err
+		}
+		taskOwner, err := GetUser(db, task.UserID)
+		if err != nil {
+			logger.Error().Err(err).Msgf("failed to get user: %+v", task.UserID)
+			return nil, err
+		}
+		userDomain, err := GetEmailDomain(user.Email)
+		if err != nil {
+			logger.Error().Err(err).Msgf("failed to get user domain: %+v", user.Email)
+			return nil, err
+		}
+		taskOwnerDomain, err := GetEmailDomain(taskOwner.Email)
+		if err != nil {
+			logger.Error().Err(err).Msgf("failed to get task owner domain: %+v", taskOwner.Email)
+			return nil, err
+		}
+
+		// Check if the user and the task owner are in the same domain
+		if userDomain != taskOwnerDomain {
+			return nil, errors.New("user domain does not match task owner domain")
+		}
+	}
+
+	return &task, nil
+}
+
 func GetSharedNote(db *mongo.Database, itemID primitive.ObjectID) (*Note, error) {
 	logger := logging.GetSentryLogger()
 	mongoResult := GetNoteCollection(db).FindOne(
@@ -250,11 +322,14 @@ func GetCalendarEventByExternalId(db *mongo.Database, externalID string, userID 
 	logger := logging.GetSentryLogger()
 	eventCollection := GetCalendarEventCollection(db)
 	mongoResult := FindOneExternalWithCollection(eventCollection, userID, externalID)
+	if mongoResult.Err() != nil {
+		return nil, mongoResult.Err()
+	}
 
 	var event CalendarEvent
 	err := mongoResult.Decode(&event)
 	if err != nil {
-		logger.Error().Err(err).Msgf("failed to get event: %+v", externalID)
+		logger.Error().Err(err).Msgf("failed to decode event: %+v", externalID)
 		return nil, err
 	}
 	return &event, nil

@@ -208,7 +208,7 @@ var TaskServiceAsana = TaskServiceDetails{
 }
 var TaskServiceAtlassian = TaskServiceDetails{
 	ID:           TASK_SERVICE_ID_ATLASSIAN,
-	Name:         "Atlassian",
+	Name:         "Jira",
 	Logo:         "/images/jira.svg",
 	LogoV2:       "jira",
 	AuthType:     AuthTypeOauth2,
