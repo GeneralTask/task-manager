@@ -735,6 +735,27 @@ func TestGetSharedNoteWithAuth(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, noteID, note.ID)
 	})
+	t.Run("SuccessAttendeesDifferentDomain", func(t *testing.T) {
+		eventCollection := GetCalendarEventCollection(db)
+		event, err := eventCollection.InsertOne(context.Background(), &CalendarEvent{
+			UserID:         noteOwnerID,
+			AttendeeEmails: []string{"differentUserDifferentDomain@lamecompany.com"},
+		})
+		assert.NoError(t, err)
+
+		result, err := noteCollection.InsertOne(context.Background(), &Note{
+			UserID:        noteOwnerID,
+			SharedUntil:   primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess:  &attendee,
+			LinkedEventID: event.InsertedID.(primitive.ObjectID),
+		})
+		assert.NoError(t, err)
+		noteID := result.InsertedID.(primitive.ObjectID)
+
+		note, err := GetSharedNoteWithAuth(db, noteID, userDifferentDomainID)
+		assert.NoError(t, err)
+		assert.Equal(t, noteID, note.ID)
+	})
 	t.Run("NotAttendee", func(t *testing.T) {
 		eventCollection := GetCalendarEventCollection(db)
 		event, err := eventCollection.InsertOne(context.Background(), &CalendarEvent{

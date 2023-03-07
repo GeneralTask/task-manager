@@ -19,7 +19,7 @@ type NoteChangeable struct {
 	Body         *string                `json:"body,omitempty"`
 	Author       string                 `json:"author,omitempty"`
 	SharedUntil  *primitive.DateTime    `json:"shared_until,omitempty"`
-	SharedAccess *database.SharedAccess `bson:"shared_access,omitempty"`
+	SharedAccess *database.SharedAccess `json:"shared_access,omitempty"`
 	IsDeleted    *bool                  `json:"is_deleted,omitempty"`
 }
 

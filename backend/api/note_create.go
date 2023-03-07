@@ -15,7 +15,7 @@ type NoteCreateParams struct {
 	Body          string                 `json:"body"`
 	Author        string                 `json:"author"`
 	SharedUntil   primitive.DateTime     `json:"shared_until"`
-	SharedAccess  *database.SharedAccess `bson:"shared_access,omitempty"`
+	SharedAccess  *database.SharedAccess `json:"shared_access,omitempty"`
 	LinkedEventID primitive.ObjectID     `json:"linked_event_id,omitempty"`
 }
 
