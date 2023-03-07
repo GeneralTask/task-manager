@@ -43,6 +43,7 @@ type TaskResultV4 struct {
 	CreatedAt                string                       `json:"created_at,omitempty"`
 	UpdatedAt                string                       `json:"updated_at,omitempty"`
 	CompletedAt              string                       `json:"completed_at,omitempty"`
+	DeletedAt                string                       `json:"deleted_at,omitempty"`
 }
 
 func (api *API) TasksListV4(c *gin.Context) {
@@ -211,6 +212,7 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 		CreatedAt:          t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
 		UpdatedAt:          t.UpdatedAt.Time().UTC().Format(time.RFC3339),
 		CompletedAt:        t.CompletedAt.Time().UTC().Format(time.RFC3339),
+		DeletedAt:          t.DeletedAt.Time().UTC().Format(time.RFC3339),
 	}
 
 	if t.ParentTaskID != primitive.NilObjectID {
