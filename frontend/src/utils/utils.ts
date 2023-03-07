@@ -55,7 +55,7 @@ export const isSlackLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Slack')
 }
 export const isJiraLinked = (linkedAccounts: TLinkedAccount[]) => {
-    return linkedAccounts.some((account) => account.name === 'Atlassian')
+    return linkedAccounts.some((account) => account.name === 'Jira')
 }
 export const isLinearLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Linear')
