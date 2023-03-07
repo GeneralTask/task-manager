@@ -3,7 +3,7 @@ import { useAuthWindow } from '../../hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { TLogoImage, icons, logos } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
-import GTButton from '../atoms/buttons/GTButton'
+import GTButton from '../atoms/buttons/GTButtonNew'
 
 const BannerContainer = styled.div<{ hasBorder: boolean }>`
     box-sizing: border-box;
@@ -48,7 +48,6 @@ const AuthBanner = ({ authorizationUrl, name, logo, hasBorder, isGoogleSignIn }:
                     value="Connect"
                     color={Colors.legacyColors.purple}
                     icon={icons.external_link}
-                    size="small"
                     styleType="secondary"
                     onClick={() => openAuthWindow({ url: authorizationUrl, isGoogleSignIn })}
                 />

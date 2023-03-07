@@ -1,7 +1,7 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
 import { Spacing, Typography } from '../../../styles'
-import GTButton from '../buttons/GTButton'
+import GTButton from '../buttons/GTButtonNew'
 
 const ToastContainer = styled.div`
     display: flex;
@@ -82,7 +82,6 @@ const ToastTemplate = ({ title, message, leftAction, rightAction }: ToastTemplat
                         icon={rightAction.icon}
                         iconColor="black"
                         styleType="secondary"
-                        size="small"
                         onClick={stopPropogationWrapper(rightAction.onClick)}
                         value={rightAction.label}
                     />

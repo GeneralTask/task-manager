@@ -7,7 +7,7 @@ import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
 import { Divider } from '../atoms/SectionDivider'
-import GTButton from '../atoms/buttons/GTButton'
+import GTButton from '../atoms/buttons/GTButtonNew'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Subtitle } from '../atoms/typography/Typography'
 import { useCalendarContext } from './CalendarContext'
@@ -89,13 +89,7 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
     useKeyboardShortcut(isCalendarExpanded ? 'previousWeek' : 'previousDay', selectPrevious, isFocusMode)
 
     const goToTodayButton = (
-        <GTButton
-            value="Today"
-            onClick={selectToday}
-            size="small"
-            styleType="secondary"
-            disabled={isCalendarShowingToday}
-        />
+        <GTButton value="Today" onClick={selectToday} styleType="secondary" disabled={isCalendarShowingToday} />
     )
     const nextPreviousButtons = (
         <Flex gap={Spacing._8} alignItems="center">
@@ -125,7 +119,6 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                                     icon={icons.hamburger}
                                     iconColor="black"
                                     value="Open task list"
-                                    size="small"
                                     styleType="secondary"
                                     onClick={() => {
                                         setShowTaskToCalSidebar(true)

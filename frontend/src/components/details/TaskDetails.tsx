@@ -30,7 +30,7 @@ import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
-import GTButton from '../atoms/buttons/GTButton'
+import GTButton from '../atoms/buttons/GTButtonNew'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Label } from '../atoms/typography/Typography'
@@ -256,7 +256,6 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                                         )
                                     }
                                     styleType="secondary"
-                                    size="small"
                                 />
                             )}
                             {!isMeetingPreparationTask && !isRecurringTaskTemplate && task.id_folder && !isSubtask && (

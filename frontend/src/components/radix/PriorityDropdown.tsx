@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { TASK_PRIORITIES } from '../../constants'
-import GTButton from '../atoms/buttons/GTButton'
+import GTButton from '../atoms/buttons/GTButtonNew'
 import GTDropdownMenu from './GTDropdownMenu'
 
 interface PriorityDropdownProps {
@@ -29,8 +29,7 @@ const PriorityDropdown = ({ value, onChange, disabled }: PriorityDropdownProps) 
                 <GTButton
                     value={TASK_PRIORITIES[value].label}
                     icon={TASK_PRIORITIES[value].icon}
-                    size="small"
-                    styleType="simple"
+                    styleType="control"
                     iconColor={TASK_PRIORITIES[value].color}
                     onClick={() => setIsOpen(!isOpen)}
                     active={isOpen}

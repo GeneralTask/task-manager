@@ -8,7 +8,7 @@ import { icons, logos } from '../../styles/images'
 import { TLinkedAccountName, TSupportedType } from '../../utils/types'
 import GTShadowContainer from '../atoms/GTShadowContainer'
 import { Icon } from '../atoms/Icon'
-import GTButton from '../atoms/buttons/GTButton'
+import GTButton from '../atoms/buttons/GTButtonNew'
 
 const Container = styled(GTShadowContainer)`
     display: flex;
@@ -113,10 +113,10 @@ const ConnectIntegration = ({ type, reconnect = false, reauthorizeAccountName }:
             <Text>{getTitle()}</Text>
             <ButtonWrapper>
                 <GTButton
+                    styleType="primary"
                     disabled={isAuthWindowOpen}
                     value={getButtonLabel()}
                     color={Colors.legacyColors.purple}
-                    size="small"
                     onClick={onClick}
                 />
             </ButtonWrapper>

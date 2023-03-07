@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { externalStatusIcons } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
-import GTButton from '../atoms/buttons/GTButton'
+import GTButton from '../atoms/buttons/GTButtonNew'
 import { GTButtonHack } from '../molecules/Task'
 import GTDropdownMenu from './GTDropdownMenu'
 import Tip from './Tip'
@@ -47,8 +47,7 @@ const StatusDropdown = ({ task, disabled, condensedTrigger }: StatusDropdownProp
                         <GTButtonHack
                             value={status}
                             icon={externalStatusIcons[externalStatus.type]}
-                            size="small"
-                            styleType="simple"
+                            styleType="control"
                             active={isOpen}
                             disabled={disabled}
                             asDiv
@@ -58,8 +57,7 @@ const StatusDropdown = ({ task, disabled, condensedTrigger }: StatusDropdownProp
                     <GTButton
                         value={externalStatus.state}
                         icon={externalStatusIcons[externalStatus.type]}
-                        size="small"
-                        styleType="simple"
+                        styleType="control"
                         isDropdown
                         active={isOpen}
                         disabled={disabled}

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
-import GTButton from '../atoms/buttons/GTButton'
+import GTButton from '../atoms/buttons/GTButtonNew'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { CollapsedIconContainer } from '../navigation_sidebar/NavigationLink'
 import Tip from '../radix/Tip'
@@ -23,7 +23,6 @@ const SettingsModalButton = ({ type, label = 'Settings', defaultTabIndex }: Sett
                 <GTButton
                     value="Settings"
                     styleType="secondary"
-                    size="small"
                     fitContent={false}
                     onClick={() => setModalIsOpen(true)}
                 />

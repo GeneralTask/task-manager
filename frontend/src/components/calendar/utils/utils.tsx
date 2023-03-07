@@ -1,5 +1,5 @@
 import { TCalendarAccount } from '../../../utils/types'
-import GTButton from '../../atoms/buttons/GTButton'
+import GTButton from '../../atoms/buttons/GTButtonNew'
 
 // backend sends empty string for title if it is the primary calendar, so fall back to account id
 export const getCalendarName = (accountId: string, calendarTitle?: string): string => calendarTitle || accountId
@@ -36,14 +36,13 @@ export const getCalendarAuthButton = (
                 onClick={onClick}
                 value={getValue()}
                 styleType="secondary"
-                size="small"
                 textColor="red"
                 disabled={isAuthorizing}
             />
         )
     }
     if (account.has_primary_calendar_scopes && !account.has_multical_scopes) {
-        return <GTButton value={getValue()} size="small" onClick={onClick} disabled={isAuthorizing} />
+        return <GTButton styleType="primary" value={getValue()} onClick={onClick} disabled={isAuthorizing} />
     }
     return null
 }

@@ -11,7 +11,7 @@ import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
-import GTButton from '../atoms/buttons/GTButton'
+import GTButton from '../atoms/buttons/GTButtonNew'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import RefreshSpinner from '../atoms/buttons/RefreshSpinner'
@@ -142,7 +142,6 @@ export const Header = (props: HeaderProps) => {
                 {calendarType === 'week' && (
                     <GTButton
                         styleType="secondary"
-                        size="small"
                         value="Close task list"
                         icon={icons.x}
                         onClick={() => setShowTaskToCalSidebar(false)}

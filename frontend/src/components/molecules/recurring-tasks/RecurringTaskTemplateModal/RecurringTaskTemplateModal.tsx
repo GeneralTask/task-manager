@@ -9,7 +9,7 @@ import { RecurrenceRate } from '../../../../utils/enums'
 import { TRecurringTaskTemplate, TTaskV4 } from '../../../../utils/types'
 import { stopKeydownPropogation } from '../../../../utils/utils'
 import Flex from '../../../atoms/Flex'
-import GTButton from '../../../atoms/buttons/GTButton'
+import GTButton from '../../../atoms/buttons/GTButtonNew'
 import { BodySmall } from '../../../atoms/typography/Typography'
 import GTModal from '../../../mantine/GTModal'
 import CreateNewItemInput from '../../CreateNewItemInput'
@@ -139,7 +139,7 @@ const RecurringTaskTemplateModal = ({
                             <DatePicker date={selectedDate} setDate={setSelectedDate} recurrenceRate={recurrenceRate} />
                         </Flex>
                         <Footer>
-                            <GTButton value="Save" onClick={handleSave} disabled={!isValid} />
+                            <GTButton styleType="primary" value="Save" onClick={handleSave} disabled={!isValid} />
                         </Footer>
                     </>
                 ),

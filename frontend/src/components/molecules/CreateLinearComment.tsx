@@ -4,7 +4,7 @@ import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
 import { useKeyboardShortcut } from '../../hooks'
 import { usePostComment } from '../../services/api/tasks.hooks'
 import GTTextField from '../atoms/GTTextField'
-import GTButton from '../atoms/buttons/GTButton'
+import GTButton from '../atoms/buttons/GTButtonNew'
 
 const LINEAR_ADD_COMMENT_HEIGHT = 100
 
@@ -35,7 +35,7 @@ const CreateLinearComment = ({ taskId, numComments }: CreateLinearCommentProps) 
             minHeight={LINEAR_ADD_COMMENT_HEIGHT}
             onChange={setComment}
             keyDownExceptions={[KEYBOARD_SHORTCUTS.submit.key]}
-            actions={<GTButton value="Comment" styleType="secondary" size="small" onClick={() => submitComment()} />}
+            actions={<GTButton value="Comment" styleType="secondary" onClick={() => submitComment()} />}
         />
     )
 }

@@ -8,7 +8,7 @@ import { icons, logos } from '../../styles/images'
 import { TCalendar, TCalendarAccount } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
-import GTButton from '../atoms/buttons/GTButton'
+import GTButton from '../atoms/buttons/GTButtonNew'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Body, BodySmall, Label } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
@@ -132,7 +132,6 @@ const CalendarSettings = () => {
                     </BodySmall>
                     <GTButton
                         value="Un-dismiss"
-                        size="small"
                         styleType="secondary"
                         onClick={() => setHasDismissedMulticalPrompt('false')}
                     />

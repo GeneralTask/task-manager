@@ -10,7 +10,7 @@ import NoStyleButton from './NoStyleButton'
 type TButtonType = 'primary' | 'secondary' | 'destructive' | 'control' | 'icon'
 
 const PrimaryButtonStyles = css`
-    ${Typography.body};
+    ${Typography.bodySmall};
     padding: ${Spacing._8} ${Spacing._16};
     color: ${Colors.control.primary.label};
     background-color: ${Colors.control.primary.bg};
@@ -23,7 +23,7 @@ const PrimaryButtonStyles = css`
     }
 `
 const SecondaryButtonStyles = css`
-    ${Typography.body};
+    ${Typography.bodySmall};
     padding: ${Spacing._8} ${Spacing._16};
     color: ${Colors.control.secondary.label};
     background-color: ${Colors.control.secondary.bg};
@@ -38,7 +38,7 @@ const SecondaryButtonStyles = css`
     }
 `
 const DestructiveButtonStyles = css`
-    ${Typography.body};
+    ${Typography.bodySmall};
     padding: ${Spacing._8} ${Spacing._16};
     color: ${Colors.control.destructive.label};
     background-color: ${Colors.control.destructive.bg};
@@ -51,7 +51,7 @@ const DestructiveButtonStyles = css`
     }
 `
 const ControlButtonStyles = css`
-    ${Typography.bodySmall};
+    ${Typography.label};
     padding: ${Spacing._4} ${Spacing._8};
     color: ${Colors.text.muted};
     &:hover:enabled {
@@ -65,7 +65,7 @@ const ControlButtonStyles = css`
     }
 `
 const IconButtonStyles = css`
-    ${Typography.bodySmall};
+    ${Typography.label};
     padding: ${Spacing._4};
     color: ${Colors.text.muted};
     &:hover:enabled {

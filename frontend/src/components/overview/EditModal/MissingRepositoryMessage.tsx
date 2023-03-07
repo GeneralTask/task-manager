@@ -3,7 +3,7 @@ import { GITHUB_SUPPORTED_TYPE_NAME } from '../../../constants'
 import { useAuthWindow } from '../../../hooks'
 import { useGetSupportedTypes } from '../../../services/api/settings.hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
-import GTButton from '../../atoms/buttons/GTButton'
+import GTButton from '../../atoms/buttons/GTButtonNew'
 
 const TextContainerWidth = '40%'
 const MessageContainer = styled.div`
@@ -46,7 +46,7 @@ const MissingRepositoryMessage = () => {
             </TextContainer>
             <ButtonContainer>
                 <GTButton
-                    size="large"
+                    styleType="primary"
                     value="Request access"
                     onClick={() => openAuthWindow({ url: githubAuthorizationUrl })}
                 />

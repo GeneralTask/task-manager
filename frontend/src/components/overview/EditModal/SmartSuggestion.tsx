@@ -8,7 +8,7 @@ import { icons } from '../../../styles/images'
 import Flex from '../../atoms/Flex'
 import { Icon, TIconType } from '../../atoms/Icon'
 import { Divider } from '../../atoms/SectionDivider'
-import GTButton from '../../atoms/buttons/GTButton'
+import GTButton from '../../atoms/buttons/GTButtonNew'
 import { getOverviewAccordionHeaderIcon } from '../AccordionItem'
 import useOverviewLists from '../useOverviewLists'
 
@@ -97,7 +97,7 @@ const SmartSuggestion = ({ suggestions, onRevertToManual }: SmartSuggestionProps
         <>
             <TopButtons justifyContent="space-between" alignItems="center">
                 <GTButton
-                    size="small"
+                    styleType="primary"
                     value={
                         isSaved ? (
                             <Flex alignItems="center" gap={Spacing._8}>
@@ -111,12 +111,7 @@ const SmartSuggestion = ({ suggestions, onRevertToManual }: SmartSuggestionProps
                     onClick={handleSaveSuggestion}
                     disabled={isSaved}
                 />
-                <GTButton
-                    size="small"
-                    value="Revert to manual sorting"
-                    styleType="secondary"
-                    onClick={handleRevertToManual}
-                />
+                <GTButton value="Revert to manual sorting" styleType="secondary" onClick={handleRevertToManual} />
             </TopButtons>
             {suggestions.map(({ id, reasoning }, index) => (
                 <Fragment key={id}>

@@ -16,7 +16,7 @@ import GTModal from '../../atoms/GTModal'
 import { Icon } from '../../atoms/Icon'
 import { Divider } from '../../atoms/SectionDivider'
 import Spinner from '../../atoms/Spinner'
-import GTButton from '../../atoms/buttons/GTButton'
+import GTButton from '../../atoms/buttons/GTButtonNew'
 import MissingRepositoryMessage from './MissingRepositoryMessage'
 
 const SupportedView = styled.div<{ isIndented?: boolean }>`
@@ -136,7 +136,6 @@ export const AddListsModalContent = () => {
                                     <GTButton
                                         value="Connect"
                                         icon={icons.external_link}
-                                        size="small"
                                         styleType="secondary"
                                         onClick={() => openAuthWindow({ url: supportedView.authorization_url })}
                                     />

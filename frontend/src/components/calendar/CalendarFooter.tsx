@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
-import GTButton from '../atoms/buttons/GTButton'
+import GTButton from '../atoms/buttons/GTButtonNew'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Truncated } from '../atoms/typography/Typography'
 import SettingsModalButton from '../molecules/SettingsModalButton'
@@ -49,7 +49,6 @@ const CalendarFooter = () => {
                                 asDiv
                                 isDropdown
                                 styleType="secondary"
-                                size="small"
                                 fitContent={false}
                             />
                         </Tip>

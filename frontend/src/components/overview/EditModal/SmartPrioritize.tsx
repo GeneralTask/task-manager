@@ -11,7 +11,7 @@ import { Border, Colors, Spacing } from '../../../styles'
 import { icons } from '../../../styles/images'
 import Flex from '../../atoms/Flex'
 import { Icon } from '../../atoms/Icon'
-import GTButton from '../../atoms/buttons/GTButton'
+import GTButton from '../../atoms/buttons/GTButtonNew'
 import RefreshSpinner from '../../atoms/buttons/RefreshSpinner'
 import { BodySmall, Label, Mini } from '../../atoms/typography/Typography'
 import Tip from '../../radix/Tip'
@@ -87,7 +87,7 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                 return (
                     <Flex gap={Spacing._16} alignItems="center">
                         <GTButton
-                            size="small"
+                            styleType="primary"
                             value="Enable"
                             onClick={getSuggestion}
                             disabled={!hasSuggestionsRemaining && !isPreviewMode}
@@ -119,16 +119,15 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                                 : null}
                         </Label>
                         <GTButton
-                            size="small"
                             value="Cancel"
                             styleType="secondary"
                             onClick={() => setState(SmartPrioritizeState.MANUAL)}
                         />
                         {hasSuggestionsRemaining || isPreviewMode ? (
-                            <GTButton size="small" value="Retry" onClick={getSuggestion} />
+                            <GTButton styleType="primary" value="Retry" onClick={getSuggestion} />
                         ) : (
                             <Tip content="You have no uses remaining">
-                                <GTButton size="small" value="Retry" onClick={getSuggestion} disabled />
+                                <GTButton styleType="primary" value="Retry" onClick={getSuggestion} disabled />
                             </Tip>
                         )}
                     </Flex>
@@ -148,16 +147,15 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                         </Flex>
                         <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
                             <GTButton
-                                size="small"
                                 value="Cancel"
                                 styleType="secondary"
                                 onClick={() => setState(SmartPrioritizeState.MANUAL)}
                             />
                             {hasSuggestionsRemaining || isPreviewMode ? (
-                                <GTButton size="small" value="Retry" onClick={getSuggestion} />
+                                <GTButton styleType="primary" value="Retry" onClick={getSuggestion} />
                             ) : (
                                 <Tip content="You have no uses remaining">
-                                    <GTButton size="small" value="Retry" onClick={getSuggestion} disabled />
+                                    <GTButton styleType="primary" value="Retry" onClick={getSuggestion} disabled />
                                 </Tip>
                             )}
                         </Flex>

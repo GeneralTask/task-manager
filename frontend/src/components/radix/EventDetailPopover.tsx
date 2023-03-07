@@ -9,7 +9,7 @@ import { icons, logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
-import GTButton from '../atoms/buttons/GTButton'
+import GTButton from '../atoms/buttons/GTButtonNew'
 import { Label } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import {
@@ -142,7 +142,6 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                 {event.linked_task_id && (
                     <GTButton
                         styleType="secondary"
-                        size="small"
                         value="View task details"
                         fitContent={false}
                         onClick={() => {
@@ -154,7 +153,6 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                 {event.linked_pull_request_id && (
                     <GTButton
                         styleType="secondary"
-                        size="small"
                         value="View PR details"
                         fitContent={false}
                         onClick={() => {
@@ -166,7 +164,6 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                 <FlexAnchor href={event.deeplink}>
                     <GTButton
                         styleType="secondary"
-                        size="small"
                         value="Google Calendar"
                         icon={icons.external_link}
                         fitContent={false}
@@ -178,7 +175,6 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                     <FlexAnchor href={event.conference_call.url}>
                         <GTButton
                             styleType="secondary"
-                            size="small"
                             value="Join"
                             icon={event.conference_call.logo}
                             fitContent={false}

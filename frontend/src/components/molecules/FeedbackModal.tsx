@@ -7,7 +7,7 @@ import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
-import GTButton from '../atoms/buttons/GTButton'
+import GTButton from '../atoms/buttons/GTButtonNew'
 import { BodySmall } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
 import { CollapsedIconContainer } from '../navigation_sidebar/NavigationLink'
@@ -60,7 +60,6 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
                 <GTButton
                     value="Share feedback"
                     styleType="secondary"
-                    size="small"
                     fitContent={false}
                     onClick={() => setModalIsOpen(true)}
                 />
@@ -90,7 +89,6 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
                                 disabled={feedback.trim().length === 0}
                                 value="Send feedback"
                                 styleType="primary"
-                                size="small"
                                 fitContent
                             />
                         </Flex>

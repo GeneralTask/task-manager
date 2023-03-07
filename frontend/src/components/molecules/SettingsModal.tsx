@@ -16,7 +16,7 @@ import Flex from '../atoms/Flex'
 import GTCheckbox from '../atoms/GTCheckbox'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
-import GTButton from '../atoms/buttons/GTButton'
+import GTButton from '../atoms/buttons/GTButtonNew'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Body, BodySmall, Label } from '../atoms/typography/Typography'
 import CalendarSettings from '../calendar/CalendarSettings'
@@ -175,7 +175,6 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                                                         })
                                                     }
                                                     styleType="secondary"
-                                                    size="small"
                                                 />
                                             </div>
                                         </Service>
@@ -222,7 +221,6 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                                                     onClick={() => onRelink(account.name)}
                                                     value="Re-link account"
                                                     styleType="secondary"
-                                                    size="small"
                                                     textColor="red"
                                                 />
                                             ) : (
@@ -233,7 +231,6 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                                                     onClick={() => onUnlink(account.id)}
                                                     value="Disconnect account"
                                                     styleType="secondary"
-                                                    size="small"
                                                 />
                                             )}
                                         </Flex>

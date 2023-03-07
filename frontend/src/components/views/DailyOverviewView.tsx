@@ -6,7 +6,7 @@ import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
 import Spinner from '../atoms/Spinner'
-import GTButton from '../atoms/buttons/GTButton'
+import GTButton from '../atoms/buttons/GTButtonNew'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import { Header } from '../molecules/Header'
 import AccordionItem from '../overview/AccordionItem'
@@ -74,8 +74,7 @@ const DailyOverviewView = () => {
                     <Header folderName="Daily Overview" />
                     <ActionsContainer>
                         <BannerButton
-                            styleType="simple"
-                            size="small"
+                            styleType="control"
                             onClick={() => {
                                 setEditListTabIndex(1)
                                 setIsEditListsModalOpen(true)
@@ -90,24 +89,21 @@ const DailyOverviewView = () => {
                         />
                         <RightActions>
                             <BannerButton
-                                styleType="simple"
-                                size="small"
+                                styleType="control"
                                 onClick={collapseAll}
                                 icon={icons.squareMinus}
                                 iconColor="gray"
                                 value="Collapse all"
                             />
                             <BannerButton
-                                styleType="simple"
-                                size="small"
+                                styleType="control"
                                 onClick={expandAll}
                                 icon={icons.squarePlus}
                                 iconColor="gray"
                                 value="Expand all"
                             />
                             <BannerButton
-                                styleType="simple"
-                                size="small"
+                                styleType="control"
                                 onClick={() => {
                                     setEditListTabIndex(0)
                                     setIsEditListsModalOpen(true)

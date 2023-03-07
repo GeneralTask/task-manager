@@ -7,7 +7,7 @@ import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { getFormattedDate } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
-import GTButton from '../atoms/buttons/GTButton'
+import GTButton from '../atoms/buttons/GTButtonNew'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTPopover from '../radix/GTPopover'
 
@@ -139,8 +139,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                 align="start"
                 trigger={
                     <GTButton
-                        styleType="simple"
-                        size="small"
+                        styleType="control"
                         icon={showIcon ? icons.clock : undefined}
                         value={formattedDate.dateString}
                         textColor={formattedDate.textColor}

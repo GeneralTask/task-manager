@@ -6,7 +6,7 @@ import { useModifyNote } from '../../services/api/notes.hooks'
 import { icons } from '../../styles/images'
 import { TNote } from '../../utils/types'
 import { getFormattedDuration } from '../../utils/utils'
-import GTButton from '../atoms/buttons/GTButton'
+import GTButton from '../atoms/buttons/GTButtonNew'
 import { Label } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTMenuItem, MENU_WIDTH } from '../radix/RadixUIConstants'
@@ -131,7 +131,6 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
             unstyledTrigger
             trigger={
                 <GTButton
-                    size="small"
                     styleType="secondary"
                     icon={icons.share}
                     value="Share"
