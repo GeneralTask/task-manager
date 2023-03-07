@@ -82,7 +82,7 @@ const TaskSectionView = () => {
             return [
                 ...(meetingPreparationTasks?.filter((t) => t.is_done && !t.is_deleted) || []),
                 ...(allTasks?.filter((t) => t.is_done && !t.is_deleted && !t.id_parent) || []),
-            ].sort((a, b) => +DateTime.fromISO(b.updated_at) - +DateTime.fromISO(a.updated_at))
+            ].sort((a, b) => +DateTime.fromISO(b.completed_at) - +DateTime.fromISO(a.completed_at))
         } else if (folder.id === TRASH_FOLDER_ID) {
             return [
                 ...(meetingPreparationTasks?.filter((t) => t.is_deleted) || []),
