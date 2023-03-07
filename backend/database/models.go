@@ -84,6 +84,7 @@ type SharedAccess int
 const (
 	SharedAccessPublic SharedAccess = iota
 	SharedAccessDomain
+	SharedAccessMeetingAttendees
 )
 
 type Task struct {
@@ -243,6 +244,7 @@ type CalendarEvent struct {
 	LinkedSourceID      string             `bson:"linked_task_source_id,omitempty"`
 	ColorBackground     string             `bson:"color_background,omitempty"`
 	ColorForeground     string             `bson:"color_foreground,omitempty"`
+	AttendeeEmails      []string           `bson:"attendee_emails,omitempty"`
 }
 
 type MeetingPreparationParams struct {
@@ -423,5 +425,6 @@ type Note struct {
 	CreatedAt     primitive.DateTime `bson:"created_at,omitempty"`
 	UpdatedAt     primitive.DateTime `bson:"updated_at,omitempty"`
 	SharedUntil   primitive.DateTime `bson:"shared_until,omitempty"`
+	SharedAccess  *SharedAccess      `bson:"shared_access,omitempty"`
 	IsDeleted     *bool              `bson:"is_deleted,omitempty"`
 }
