@@ -1090,7 +1090,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.NoError(t, err)
 		assert.True(t, item.MeetingPreparationParams.EventMovedOrDeleted)
 	})
-	t.Run("IngoreMeetingPrepResult", func(t *testing.T) {
+	t.Run("IgnoreMeetingPrepResult", func(t *testing.T) {
 		res, err := api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, true, true)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
