@@ -5,6 +5,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -107,7 +108,7 @@ func (api *API) EventsList(c *gin.Context) {
 			continue
 		}
 		for _, event := range calendarResult.CalendarEvents {
-			if event == nil || *event == (database.CalendarEvent{}) {
+			if event == nil || cmp.Equal(*event, (database.CalendarEvent{})) {
 				log.Debug().Msg("event is empty")
 				continue
 			}
