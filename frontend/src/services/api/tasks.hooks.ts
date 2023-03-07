@@ -619,6 +619,7 @@ export const createNewTaskV4Helper = (data: Partial<TTaskV4> & { optimisticId: s
         is_deleted: data.is_deleted ?? false,
         created_at: data.created_at ?? DateTime.utc().toISO(),
         updated_at: data.updated_at ?? DateTime.utc().toISO(),
+        deleted_at: data.deleted_at ?? DateTime.utc().toISO(),
         completed_at: data.completed_at ?? DateTime.utc().toISO(),
         id_folder: data.id_folder ?? undefined,
         id_nux_number: data.id_nux_number,

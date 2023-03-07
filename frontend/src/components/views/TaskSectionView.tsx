@@ -87,7 +87,7 @@ const TaskSectionView = () => {
             return [
                 ...(meetingPreparationTasks?.filter((t) => t.is_deleted) || []),
                 ...(allTasks?.filter((t) => t.is_deleted) || []),
-            ].sort((a, b) => +DateTime.fromISO(b.updated_at) - +DateTime.fromISO(a.updated_at))
+            ].sort((a, b) => +DateTime.fromISO(b.deleted_at) - +DateTime.fromISO(a.deleted_at))
         }
         return allTasks?.filter((t) => t.id_folder === folder.id && !t.is_done && !t.is_deleted) || []
     }, [allTasks, folder, meetingPreparationTasks])
