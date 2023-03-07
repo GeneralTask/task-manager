@@ -82,6 +82,7 @@ export interface TTaskV4 {
     is_deleted: boolean
     created_at: string
     updated_at: string
+    deleted_at: string
     id_folder?: string
     id_nux_number?: number
     id_parent?: string
