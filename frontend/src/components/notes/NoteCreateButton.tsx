@@ -16,7 +16,8 @@ const NoteCreateButton = ({ type }: NoteCreateButtonProps) => {
 
     useKeyboardShortcut(
         'newNote',
-        useCallback(() => setModalIsOpen(true), [])
+        useCallback(() => setModalIsOpen(true), []),
+        type === 'button'
     )
 
     return (
@@ -40,7 +41,7 @@ const NoteCreateButton = ({ type }: NoteCreateButtonProps) => {
                     </CollapsedIconContainer>
                 </Tip>
             )}
-            <NoteCreateModal isOpen={modalIsOpen} setIsOpen={setModalIsOpen} />
+            {type !== 'button' && <NoteCreateModal isOpen={modalIsOpen} setIsOpen={setModalIsOpen} />}
         </>
     )
 }
