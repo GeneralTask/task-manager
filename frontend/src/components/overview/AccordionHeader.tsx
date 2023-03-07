@@ -63,7 +63,7 @@ const AccordionHeader = ({ list, isOpen }: AccordionHeaderProps) => {
     const { data: meetingPreparationTasks } = useGetMeetingPreparationTasks()
     const activeMeetingPreparationTasks = useMemo(() => {
         return meetingPreparationTasks?.filter((task) => !task.is_deleted && !task.is_done) ?? []
-    }, meetingPreparationTasks)
+    }, meetingPreparationTasks ?? [])
 
     const viewItemLength =
         list.type === 'meeting_preparation' ? activeMeetingPreparationTasks.length : list.view_item_ids.length
