@@ -12,7 +12,12 @@ export const useGetOverviewViews = () => {
 }
 const getOverviewViews = async ({ signal }: QueryFunctionContext) => {
     try {
-        const res = await apiClient.get('/overview/views/', { signal })
+        const res = await apiClient.get('/overview/views', {
+            signal,
+            params: {
+                ignore_meeting_preparation: true,
+            },
+        })
         return castImmutable(res.data)
     } catch {
         throw new Error('getTasks failed')
