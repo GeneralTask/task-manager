@@ -66,7 +66,7 @@ const AccordionHeader = ({ list, isOpen }: AccordionHeaderProps) => {
     }, [meetingPreparationTasks])
 
     const viewItemLength =
-        list.type === 'meeting_preparation' ? activeMeetingPreparationTasks.length : list.view_item_ids.length
+        list.type === 'meeting_preparation' ? activeMeetingPreparationTasks.length : list.view_items.length
 
     return (
         <StyledFlex justifyContent="space-between" ref={drag}>
