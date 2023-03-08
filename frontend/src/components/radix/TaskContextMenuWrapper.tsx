@@ -212,7 +212,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
         ...(task.id_folder && folders ? [getMoveFolderMenuItem(task, folders, onSingleSelectFolderClick)] : []),
         getSetDueDateMenuItem(task, onSingleSetDueDateClick),
         getPriorityOption(task),
-        ...(!task.id_parent && !task.is_deleted && !task.is_done
+        ...(!task.id_parent && !task.is_deleted && !task.is_done && task.source.name !== 'Jira'
             ? [
                   {
                       label: 'Duplicate task',
