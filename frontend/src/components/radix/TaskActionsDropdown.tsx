@@ -10,6 +10,7 @@ import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Mini } from '../atoms/typography/Typography'
 import GTDropdownMenu from './GTDropdownMenu'
 import { GTMenuItem } from './RadixUIConstants'
+import { getDeleteLabel } from './TaskContextMenuWrapper'
 
 interface TaskActionsDropdownProps {
     task: TTaskV4
@@ -57,7 +58,7 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
     })
 
     const getDeleteTaskAction = (): GTMenuItem => ({
-        label: task.is_deleted ? 'Restore task' : 'Delete task',
+        label: getDeleteLabel(task),
         icon: icons.trash,
         iconColor: 'red',
         textColor: 'red',

@@ -19,7 +19,7 @@ import RecurringTaskTemplateModal from '../molecules/recurring-tasks/RecurringTa
 import GTContextMenu from './GTContextMenu'
 import { GTMenuItem } from './RadixUIConstants'
 
-const getDeleteLabel = (task: TTaskV4) => {
+export const getDeleteLabel = (task: TTaskV4) => {
     if (task.is_deleted) {
         return 'Restore task'
     }
