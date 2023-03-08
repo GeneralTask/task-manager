@@ -1,6 +1,6 @@
 import { TStatusColors } from '../styles/colors'
 import { TIconImage, TLogoImage } from '../styles/images'
-import { RecurrenceRate } from './enums'
+import { RecurrenceRate, SharedAccess } from './enums'
 
 export type EmptyString = ''
 
@@ -412,12 +412,6 @@ export interface TNote {
     shared_access?: SharedAccess
     is_deleted: boolean
     optimisticId?: string
-}
-
-export enum SharedAccess {
-    PUBLIC = 0,
-    SAME_DOMAIN,
-    MEETING_ATTENDEES,
 }
 
 export interface TCalendar {

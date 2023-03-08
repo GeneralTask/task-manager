@@ -37,3 +37,9 @@ export enum RecurrenceRate {
     MONTHLY = 3,
     YEARLY = 4,
 }
+
+export enum SharedAccess {
+    PUBLIC,
+    SAME_DOMAIN,
+    MEETING_ATTENDEES,
+}

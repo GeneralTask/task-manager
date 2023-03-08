@@ -3,7 +3,8 @@ import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
-import { SharedAccess, TNote } from '../../utils/types'
+import { SharedAccess } from '../../utils/enums'
+import { TNote } from '../../utils/types'
 import { getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 
 export interface TCreateNoteData {
