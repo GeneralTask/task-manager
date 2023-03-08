@@ -76,10 +76,10 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
     })
 
     const getItems = (): GTMenuItem[] | GTMenuItem[][] => {
-        if (task.source.name === 'Jira') {
+        if (task.source.name === 'Jira' || task.is_deleted) {
             return [getTaskInfo()]
         }
-        if (task.is_deleted || task.is_done) {
+        if (task.is_done) {
             return [[getDeleteTaskAction()], [getTaskInfo()]]
         }
         return [[getDuplicateTaskAction(), getDeleteTaskAction()], [getTaskInfo()]]
