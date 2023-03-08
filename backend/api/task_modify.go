@@ -149,7 +149,7 @@ func (api *API) TaskModify(c *gin.Context) {
 			updateTask.RecurringTaskTemplateID = recurring_task_template_id
 		}
 
-		// Check if shared_until and shared_access are both set
+		// Check that shared_until and shared_access are both set, or neither is set
 		if modifyParams.TaskItemChangeableFields.SharedUntil != nil && modifyParams.TaskItemChangeableFields.SharedAccess == nil {
 			c.JSON(400, gin.H{"detail": "shared_until and shared_access must both be set"})
 			return
@@ -157,7 +157,8 @@ func (api *API) TaskModify(c *gin.Context) {
 			c.JSON(400, gin.H{"detail": "shared_until and shared_access must both be set"})
 			return
 		} else if modifyParams.TaskItemChangeableFields.SharedUntil != nil && modifyParams.TaskItemChangeableFields.SharedAccess != nil {
-			if database.CheckTaskSharingAccessValid(*modifyParams.TaskItemChangeableFields.SharedAccess) {
+			// Check that shared_access is a valid date
+			if !database.CheckTaskSharingAccessValid(*modifyParams.TaskItemChangeableFields.SharedAccess) {
 				c.JSON(400, gin.H{"detail": "shared_access must be either 'public' or 'domain'"})
 				return
 			}
