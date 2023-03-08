@@ -10,6 +10,7 @@ import NoteCreateModal from './NoteCreateModal'
 
 interface NoteCreateButtonProps {
     type: 'icon' | 'button' | 'collapsed'
+    disableShortcut?: boolean
 }
 const NoteCreateButton = ({ type }: NoteCreateButtonProps) => {
     const [modalIsOpen, setModalIsOpen] = useState(false)
@@ -41,7 +42,7 @@ const NoteCreateButton = ({ type }: NoteCreateButtonProps) => {
                     </CollapsedIconContainer>
                 </Tip>
             )}
-            {type !== 'button' && <NoteCreateModal isOpen={modalIsOpen} setIsOpen={setModalIsOpen} />}
+            <NoteCreateModal isOpen={modalIsOpen} setIsOpen={setModalIsOpen} />
         </>
     )
 }
