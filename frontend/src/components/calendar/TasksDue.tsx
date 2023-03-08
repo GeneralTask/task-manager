@@ -79,6 +79,7 @@ const TasksDue = ({ date }: TasksDueProps) => {
                 (task) =>
                     !DateTime.fromISO(task.due_date).hasSame(date, 'day') &&
                     DateTime.fromISO(task.due_date) < date &&
+                    // make sure parent task is not deleted
                     (!task.id_parent || activeTasks.some((t) => t.id === task.id_parent))
             ) || [],
         [activeTasks, date]
