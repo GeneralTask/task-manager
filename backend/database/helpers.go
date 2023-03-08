@@ -220,8 +220,9 @@ func CheckNoteSharingAccessValid(sharedAccess *SharedAccess) bool {
 	return true
 }
 
-func CheckTaskSharingAccessValid(sharedAccess string) bool {
-	return sharedAccess == "public" || sharedAccess == "domain"
+func CheckTaskSharingAccessValid(sharedAccess SharedAccess) bool {
+	return sharedAccess == SharedAccessDomain || sharedAccess == SharedAccessPublic
+
 }
 
 func GetSharedTask(db *mongo.Database, taskID primitive.ObjectID, userID primitive.ObjectID) (*Task, error) {
