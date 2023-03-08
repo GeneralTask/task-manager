@@ -267,15 +267,15 @@ func TestCheckNoteSharingAccessValid(t *testing.T) {
 
 func TestCheckTaskSharingAccessValid(t *testing.T) {
 	t.Run("Invalid", func(t *testing.T) {
-		result := CheckTaskSharingAccessValid("oopsie")
+		result := CheckTaskSharingAccessValid(-1)
 		assert.False(t, result)
 	})
 	t.Run("SuccessPublic", func(t *testing.T) {
-		result := CheckTaskSharingAccessValid("public")
+		result := CheckTaskSharingAccessValid(0)
 		assert.True(t, result)
 	})
 	t.Run("SuccessDomain", func(t *testing.T) {
-		result := CheckTaskSharingAccessValid("domain")
+		result := CheckTaskSharingAccessValid(1)
 		assert.True(t, result)
 	})
 }
