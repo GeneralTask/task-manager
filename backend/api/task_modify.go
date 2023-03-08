@@ -150,19 +150,12 @@ func (api *API) TaskModify(c *gin.Context) {
 		}
 
 		// Check that shared_until and shared_access are both set, or neither is set
-		if modifyParams.TaskItemChangeableFields.SharedUntil != nil && modifyParams.TaskItemChangeableFields.SharedAccess == nil {
-			c.JSON(400, gin.H{"detail": "shared_until and shared_access must both be set"})
-			return
-		} else if modifyParams.TaskItemChangeableFields.SharedUntil == nil && modifyParams.TaskItemChangeableFields.SharedAccess != nil {
-			c.JSON(400, gin.H{"detail": "shared_until and shared_access must both be set"})
-			return
-		} else if modifyParams.TaskItemChangeableFields.SharedUntil != nil && modifyParams.TaskItemChangeableFields.SharedAccess != nil {
+		if modifyParams.TaskItemChangeableFields.SharedUntil != nil && modifyParams.TaskItemChangeableFields.SharedAccess != nil {
 			// Check that shared_access is a valid date
 			if !database.CheckTaskSharingAccessValid(*modifyParams.TaskItemChangeableFields.SharedAccess) {
 				c.JSON(400, gin.H{"detail": "shared_access must be either 'public' or 'domain'"})
 				return
 			}
-			updateTask.SharedUntil = *modifyParams.TaskItemChangeableFields.SharedUntil
 			if *modifyParams.TaskItemChangeableFields.SharedAccess == "public" {
 				shareAccessPublic := database.SharedAccessPublic
 				updateTask.SharedAccess = &shareAccessPublic
@@ -170,6 +163,9 @@ func (api *API) TaskModify(c *gin.Context) {
 				shareAccessDomain := database.SharedAccessDomain
 				updateTask.SharedAccess = &shareAccessDomain
 			}
+		}
+		if modifyParams.TaskItemChangeableFields.SharedUntil != nil {
+			updateTask.SharedUntil = *modifyParams.TaskItemChangeableFields.SharedUntil
 		}
 
 		err = taskSourceResult.Source.ModifyTask(api.DB, userID, task.SourceAccountID, task.IDExternal, &updateTask, task)

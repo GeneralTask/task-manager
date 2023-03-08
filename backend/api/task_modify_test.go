@@ -1396,59 +1396,6 @@ func TestShareableTask(t *testing.T) {
 		PriorityNormalized: &taskPriorityNormalized,
 		TaskNumber:         &taskNumber,
 	}
-
-	t.Run("MissingShareUntilField", func(t *testing.T) {
-		expectedTask := sampleTask
-		expectedTask.UserID = userID
-		insertResult, err := taskCollection.InsertOne(
-			context.Background(),
-			expectedTask,
-		)
-		assert.NoError(t, err)
-		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
-
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+insertedTaskID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"shared_access":"public"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, `{"detail":"shared_until and shared_access must both be set"}`, string(body))
-	})
-	t.Run("MissingSharedAccessField", func(t *testing.T) {
-		expectedTask := sampleTask
-		expectedTask.UserID = userID
-		insertResult, err := taskCollection.InsertOne(
-			context.Background(),
-			expectedTask,
-		)
-		assert.NoError(t, err)
-		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
-
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+insertedTaskID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"shared_until":"2021-01-01T00:00:00Z"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, `{"detail":"shared_until and shared_access must both be set"}`, string(body))
-	})
 	t.Run("InvalidSharedAccessField", func(t *testing.T) {
 		expectedTask := sampleTask
 		expectedTask.UserID = userID
