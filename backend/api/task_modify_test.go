@@ -1421,7 +1421,7 @@ func TestShareableTask(t *testing.T) {
 
 		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"shared_until and shared_access must both be set\"}", string(body))
+		assert.Equal(t, `{"detail":"shared_until and shared_access must both be set"}`, string(body))
 	})
 	t.Run("MissingSharedAccessField", func(t *testing.T) {
 		expectedTask := sampleTask
@@ -1447,6 +1447,99 @@ func TestShareableTask(t *testing.T) {
 
 		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"shared_until and shared_access must both be set\"}", string(body))
+		assert.Equal(t, `{"detail":"shared_until and shared_access must both be set"}`, string(body))
 	})
+	t.Run("InvalidSharedAccessField", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		insertResult, err := taskCollection.InsertOne(
+			context.Background(),
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"shared_access": "boop", "shared_until":"2021-01-01T00:00:00Z"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		body, err := io.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, `{"detail":"shared_access must be either 'public' or 'domain'"}`, string(body))
+	})
+	t.Run("SuccessPublic", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		insertResult, err := taskCollection.InsertOne(
+			context.Background(),
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"shared_access": "public", "shared_until":"2021-01-01T00:00:00Z"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		// Get the task from the database and make sure it's been updated
+		var updatedTask database.Task
+		err = taskCollection.FindOne(
+			context.Background(),
+			bson.M{"_id": insertedTaskID},
+		).Decode(&updatedTask)
+		assert.NoError(t, err)
+		assert.Equal(t, database.SharedAccess(0), *updatedTask.SharedAccess)
+		expectedDateTime := primitive.NewDateTimeFromTime(time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC))
+		assert.Equal(t, expectedDateTime, updatedTask.SharedUntil)
+	})
+	t.Run("SuccessDomain", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		insertResult, err := taskCollection.InsertOne(
+			context.Background(),
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"shared_access": "domain", "shared_until":"2021-01-01T00:00:00Z"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		// Get the task from the database and make sure it's been updated
+		var updatedTask database.Task
+		err = taskCollection.FindOne(
+			context.Background(),
+			bson.M{"_id": insertedTaskID},
+		).Decode(&updatedTask)
+		assert.NoError(t, err)
+		assert.Equal(t, database.SharedAccess(1), *updatedTask.SharedAccess)
+		expectedDateTime := primitive.NewDateTimeFromTime(time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC))
+		assert.Equal(t, expectedDateTime, updatedTask.SharedUntil)
+	})
+
 }
