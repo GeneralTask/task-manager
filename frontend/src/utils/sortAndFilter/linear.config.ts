@@ -26,10 +26,7 @@ export const LINEAR_FILTER_OPTIONS: FilterOptions<TTaskV4> = {
         id: 'no_cycle',
         label: 'No cycle',
         icon: icons.linear_cycle_none,
-        lambda: (task) => {
-            // console.log(task.linear_cycle)
-            return !task.linear_cycle
-        },
+        lambda: (task) => !task.linear_cycle,
     },
     previous_cycle: {
         id: 'previous_cycle',
