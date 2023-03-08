@@ -265,6 +265,21 @@ func TestCheckNoteSharingAccessValid(t *testing.T) {
 	})
 }
 
+func TestCheckTaskSharingAccessValid(t *testing.T) {
+	t.Run("Invalid", func(t *testing.T) {
+		result := CheckTaskSharingAccessValid("oopsie")
+		assert.False(t, result)
+	})
+	t.Run("SuccessPublic", func(t *testing.T) {
+		result := CheckTaskSharingAccessValid("public")
+		assert.True(t, result)
+	})
+	t.Run("SuccessDomain", func(t *testing.T) {
+		result := CheckTaskSharingAccessValid("domain")
+		assert.True(t, result)
+	})
+}
+
 func TestGetSharedTask(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)

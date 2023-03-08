@@ -39,7 +39,7 @@ type TaskItemChangeableFields struct {
 	CompletedAt    primitive.DateTime  `json:"completed_at,omitempty" bson:"completed_at"`
 	IsDeleted      *bool               `json:"is_deleted,omitempty" bson:"is_deleted,omitempty"`
 	DeletedAt      primitive.DateTime  `json:"deleted_at,omitempty" bson:"deleted_at"`
-	SharedAccess   *string             `json:"shared_access,omitempty" bson:"shared_access,omitempty"` // "public" or "domain"
+	SharedAccess   *string             `json:"shared_access,omitempty" bson:"shared_access,omitempty"`
 	SharedUntil    *primitive.DateTime `json:"shared_until,omitempty" bson:"shared_until,omitempty"`
 }
 
@@ -149,6 +149,7 @@ func (api *API) TaskModify(c *gin.Context) {
 			updateTask.RecurringTaskTemplateID = recurring_task_template_id
 		}
 
+		// Check if shared_until and shared_access are both set
 		if modifyParams.TaskItemChangeableFields.SharedUntil != nil && modifyParams.TaskItemChangeableFields.SharedAccess == nil {
 			c.JSON(400, gin.H{"detail": "shared_until and shared_access must both be set"})
 			return
@@ -156,11 +157,11 @@ func (api *API) TaskModify(c *gin.Context) {
 			c.JSON(400, gin.H{"detail": "shared_until and shared_access must both be set"})
 			return
 		} else if modifyParams.TaskItemChangeableFields.SharedUntil != nil && modifyParams.TaskItemChangeableFields.SharedAccess != nil {
-			if *modifyParams.TaskItemChangeableFields.SharedAccess != "public" && *modifyParams.TaskItemChangeableFields.SharedAccess != "domain" {
+			if database.CheckTaskSharingAccessValid(*modifyParams.TaskItemChangeableFields.SharedAccess) {
 				c.JSON(400, gin.H{"detail": "shared_access must be either 'public' or 'domain'"})
 				return
 			}
-			updateTask.SharedUntil = modifyParams.TaskItemChangeableFields.SharedUntil
+			updateTask.SharedUntil = *modifyParams.TaskItemChangeableFields.SharedUntil
 			if *modifyParams.TaskItemChangeableFields.SharedAccess == "public" {
 				shareAccessPublic := database.SharedAccessPublic
 				updateTask.SharedAccess = &shareAccessPublic

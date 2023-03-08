@@ -220,6 +220,10 @@ func CheckNoteSharingAccessValid(sharedAccess *SharedAccess) bool {
 	return true
 }
 
+func CheckTaskSharingAccessValid(sharedAccess string) bool {
+	return sharedAccess == "public" || sharedAccess == "domain"
+}
+
 func GetSharedTask(db *mongo.Database, taskID primitive.ObjectID, userID primitive.ObjectID) (*Task, error) {
 	logger := logging.GetSentryLogger()
 	mongoResult := GetTaskCollection(db).FindOne(
