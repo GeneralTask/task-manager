@@ -402,14 +402,22 @@ export type TLinkedAccountName = 'Atlassian' | 'GitHub' | 'Google Calendar' | 'S
 
 export interface TNote {
     id: string
+    linked_event_id?: string
     title: string
     body: string
     author: string
     created_at: string
     updated_at: string
-    is_deleted: boolean
     shared_until?: string
+    shared_access?: SharedAccess
+    is_deleted: boolean
     optimisticId?: string
+}
+
+export enum SharedAccess {
+    PUBLIC = 0,
+    SAME_DOMAIN,
+    MEETING_ATTENDEES,
 }
 
 export interface TCalendar {

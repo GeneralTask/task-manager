@@ -3,7 +3,7 @@ import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
-import { TNote } from '../../utils/types'
+import { SharedAccess, TNote } from '../../utils/types'
 import { getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 
 export interface TCreateNoteData {
@@ -11,8 +11,9 @@ export interface TCreateNoteData {
     body?: string
     author: string
     shared_until?: string
+    shared_access?: SharedAccess
+    linked_event_id?: string
     optimisticId: string
-    callback?: (data: TNoteResponse) => void
 }
 
 export interface TNoteResponse {
@@ -75,8 +76,6 @@ export const useCreateNote = () => {
         onSuccess: async (response: TNoteResponse, createData: TCreateNoteData) => {
             // check response to see if we get anything back for this endpoint
             setOptimisticId(createData.optimisticId, response.note_id)
-
-            if (createData.callback) createData.callback(response)
 
             const notes = queryClient.getImmutableQueryData<TNote[]>('notes')
             if (!notes) return
@@ -152,5 +151,7 @@ export const createNewNoteHelper = (
         updated_at: data.updated_at ?? DateTime.utc().toISO(),
         is_deleted: data.is_deleted ?? false,
         shared_until: data.shared_until,
+        shared_access: data.shared_access,
+        linked_event_id: data.linked_event_id,
     }
 }
