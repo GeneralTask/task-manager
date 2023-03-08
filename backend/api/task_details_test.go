@@ -1,7 +1,9 @@
 package api
 
 import (
+	"context"
 	"fmt"
+	"time"
 
 	"net/http"
 	"net/http/httptest"
@@ -21,6 +23,8 @@ func TestTaskDetails(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
+
+	taskCollection := database.GetTaskCollection(db)
 	userID := getUserIDFromAuthToken(t, db, authToken)
 	notSharedTask, err := database.GetOrCreateTask(
 		db,
@@ -98,6 +102,19 @@ func TestTaskDetails(t *testing.T) {
 	t.Run("DifferentDomain", func(t *testing.T) {
 		differentDomainUserToken := login("wrongDomain@applesauce.com", "")
 		ServeRequest(t, differentDomainUserToken, "GET", fmt.Sprintf("/tasks/detail/%s/", domainSharedTask.ID.Hex()), nil, 404, api)
+	})
+	t.Run("TaskSharedUntilExpired", func(t *testing.T) {
+		expiredTime := primitive.NewDateTimeFromTime(time.Now().Add(-1 * time.Hour))
+		mongoResult, err := taskCollection.InsertOne(context.Background(), &database.Task{
+			UserID:      userID,
+			Title:      &title,
+			SharedUntil: expiredTime,
+			SharedAccess: &publicSharedAccess,
+		})
+		expiredTaskID := mongoResult.InsertedID.(primitive.ObjectID)
+
+		assert.NoError(t, err)
+		ServeRequest(t, authToken, "GET", fmt.Sprintf("/tasks/detail/%s/", expiredTaskID), nil, 404, api)
 	})
 
 }
