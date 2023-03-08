@@ -76,16 +76,6 @@ const getSetPriorityMenuItem = (task: TTaskV4, setPriority: (priority: number) =
     }
 }
 
-const getDeleteMenuItem = (task: TTaskV4, deleteTask: () => void): GTMenuItem => {
-    return {
-        label: getDeleteLabel(task),
-        icon: icons.trash,
-        iconColor: 'red',
-        textColor: 'red',
-        onClick: deleteTask,
-    }
-}
-
 interface TaskContextMenuProps {
     task: TTaskV4
     children: React.ReactNode
@@ -194,6 +184,30 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
         }
     }
 
+    const getDeleteMenuItem = (): GTMenuItem => {
+        if (inMultiSelectMode) {
+            const disabled = selectedTaskIds.some(
+                (selectedTask) => allTasks?.find((t) => t.id === selectedTask)?.source.name === 'Jira'
+            )
+            return {
+                label: getDeleteLabel(task),
+                icon: icons.trash,
+                iconColor: 'red',
+                textColor: 'red',
+                onClick: onMultiDeleteClick,
+                disabled,
+                tip: disabled ? 'Cannot delete Jira tasks' : undefined,
+            }
+        }
+        return {
+            label: getDeleteLabel(task),
+            icon: icons.trash,
+            iconColor: 'red',
+            textColor: 'red',
+            onClick: onSingleDeleteClick,
+        }
+    }
+
     const contextMenuItems: GTMenuItem[] = [
         ...(task.id_folder && folders ? [getMoveFolderMenuItem(task, folders, onSingleSelectFolderClick)] : []),
         getSetDueDateMenuItem(task, onSingleSetDueDateClick),
@@ -261,14 +275,14 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                   },
               ]
             : []),
-        ...(task.source.name !== 'Jira' ? [getDeleteMenuItem(task, onSingleDeleteClick)] : []),
+        ...(task.source.name !== 'Jira' ? [getDeleteMenuItem()] : []),
     ]
 
     const multiSelectContextMenuItems: GTMenuItem[] = [
         ...(task.id_folder && folders ? [getMoveFolderMenuItem(task, folders, onMultiSelectFolderClick)] : []),
         getSetDueDateMenuItem(task, onMultiSetDueDateClick),
         getSetPriorityMenuItem(task, onMultiSetPriorityClick),
-        getDeleteMenuItem(task, onMultiDeleteClick),
+        getDeleteMenuItem(),
     ]
     return (
         <>
