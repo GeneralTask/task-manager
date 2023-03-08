@@ -261,7 +261,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                   },
               ]
             : []),
-        getDeleteMenuItem(task, onSingleDeleteClick),
+        ...(task.source.name !== 'Jira' ? [getDeleteMenuItem(task, onSingleDeleteClick)] : []),
     ]
 
     const multiSelectContextMenuItems: GTMenuItem[] = [
