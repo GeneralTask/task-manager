@@ -2,6 +2,7 @@ package external
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -38,6 +39,7 @@ func TestLoadLinearTasks(t *testing.T) {
 							"type": "started"
 						},
 						"team": {
+							"id": "Backend",
 							"name": "Backend",
 							"mergeWorkflowState": {
 								"name": "Done",
@@ -59,6 +61,13 @@ func TestLoadLinearTasks(t *testing.T) {
 									}
 								}
 							]
+						},
+						"cycle": {
+							"id": "cycle-id",
+							"name": "test cycle",
+							"number": 420,
+							"startsAt": "2016-04-20T00:00:00.000Z",
+							"endsAt": "2016-04-21T00:00:00.000Z"
 						}
 					}
 				]
@@ -236,6 +245,8 @@ func TestLoadLinearTasks(t *testing.T) {
 		description := "test description"
 		dueDate := primitive.NewDateTimeFromTime(time.Unix(0, 0))
 		priority := 3.0
+		cycleStartsAt, _ := time.Parse("2006-01-02T15:04:05.000Z", "2016-04-20T00:00:00.000Z")
+		cycleEndsAt, _ := time.Parse("2006-01-02T15:04:05.000Z", "2016-04-21T00:00:00.000Z")
 		expectedTask := database.Task{
 			IDOrdering:         0,
 			IDExternal:         "test-issue-id-1",
@@ -271,6 +282,13 @@ func TestLoadLinearTasks(t *testing.T) {
 					},
 					CreatedAt: primitive.NewDateTimeFromTime(commentCreatedAt),
 				},
+			},
+			LinearCycle: database.LinearCycle{
+				ID:       "cycle-id",
+				Name:     "test cycle",
+				Number:   float32(420),
+				StartsAt: primitive.NewDateTimeFromTime(cycleStartsAt),
+				EndsAt:   primitive.NewDateTimeFromTime(cycleEndsAt),
 			},
 		}
 
@@ -346,6 +364,8 @@ func TestLoadLinearTasks(t *testing.T) {
 		description := "wrong test description"
 		priority := 3.0
 		dueDate := primitive.NewDateTimeFromTime(time.Unix(0, 0))
+		cycleStartsAt, _ := time.Parse("2006-01-02T15:04:05.000Z", "2016-04-20T00:00:00.000Z")
+		cycleEndsAt, _ := time.Parse("2006-01-02T15:04:05.000Z", "2016-04-21T00:00:00.000Z")
 		expectedTask := database.Task{
 			IDOrdering:         0,
 			IDExternal:         "test-issue-id-1",
@@ -371,6 +391,13 @@ func TestLoadLinearTasks(t *testing.T) {
 				Type:       "completed",
 			},
 			Comments: nil,
+			LinearCycle: database.LinearCycle{
+				ID:       "cycle-id",
+				Name:     "test cycle",
+				Number:   float32(420),
+				StartsAt: primitive.NewDateTimeFromTime(cycleStartsAt),
+				EndsAt:   primitive.NewDateTimeFromTime(cycleEndsAt),
+			},
 		}
 		// need to update, because the previous test case has already created this task
 		database.UpdateOrCreateTask(
@@ -418,6 +445,292 @@ func TestLoadLinearTasks(t *testing.T) {
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
 		assert.False(t, *taskFromDB.IsCompleted)
 		assert.Equal(t, "sample_account@email.com", taskFromDB.SourceAccountID) // doesn't get updated
+	})
+}
+
+func TestLoadLinearTaskCycles(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+
+	userInfoServerSuccess := testutils.GetMockAPIServer(t, 200, `{"data": {
+		"viewer": {
+			"id": "6942069420",
+			"name": "Test User",
+			"displayName": "Test Display Name",
+			"email": "test@generaltask.com"
+		}
+	}}`)
+	linearStatusServerSuccess := testutils.GetMockAPIServer(t, 200, `{"data": {
+		"workflowStates": {
+			"nodes": [
+				{
+					"id": "6942069419",
+					"name": "Triage",
+					"type": "triage",
+					"team": {
+						"name": "Backend"
+					}
+				},
+				{
+					"id": "6942069420",
+					"name": "Todo",
+					"type": "started",
+					"team": {
+						"name": "Backend"
+					}
+				},
+				{
+					"id": "6942069421",
+					"name": "In Progress",
+					"type": "started",
+					"team": {
+						"name": "Backend"
+					}
+				}
+			]
+		}
+	}}`)
+	baseLinearIssuesQueryResponse := `{
+		"data": {
+			"issues": {
+				"nodes": [
+					{
+						"id": "test id",
+						"title": "test title",
+						"description": "test description",
+						"url": "https://example.com/",
+						"createdAt": "2022-06-06T23:13:24.037Z",
+						"priority": 3.0,
+						"state": {
+							"id": "state-id",
+							"name": "Todo",
+							"type": "started"
+						},
+						"team": {
+							"id": "Backend",
+							"name": "Backend",
+							"mergeWorkflowState": {
+								"name": "Done",
+								"id": "merge-workflow-state-id",
+								"type": "completed"
+							}
+						},
+						"comments": {
+							"nodes": [
+								{
+									"id": "example external id",
+									"body": "test comment body",
+									"createdAt": "2019-04-21T00:00:00.000Z",
+									"user": {
+										"id": "test-commenter-id",
+										"name": "Test Commenter",
+										"displayName": "test comm",
+										"email": "testCommenter@generaltask.com"
+									}
+								}
+							]
+						},
+						"cycle": %s
+					}
+				]
+			},
+			"activeCycles": {
+				"nodes": [
+					{
+						"number": 420,
+						"team": {
+							"id": "Backend"
+						}
+					},
+					{
+						"number": 69,
+						"team": {
+							"id": "Other team ID"
+						}
+					}
+				]
+			},
+			"previousCycles": {
+				"nodes": [
+					{
+						"number": 419,
+						"team": {
+							"id": "Backend"
+						}
+					},
+					{
+						"number": 68,
+						"team": {
+							"id": "Other team ID"
+						}
+					}
+				]
+			},
+			"nextCycles": {
+				"nodes": [
+					{
+						"number": 421,
+						"team": {
+							"id": "Backend"
+						}
+					},
+					{
+						"number": 71,
+						"team": {
+							"id": "Other team ID"
+						}
+					}
+				]
+			}
+		}
+	}`
+
+	getLinearTaskWithCycles := func(taskCycle string) *database.Task {
+		taskServerSuccess := testutils.GetMockAPIServer(t, 200, fmt.Sprintf(baseLinearIssuesQueryResponse, taskCycle))
+
+		linearTaskSource := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					UserInfoURL:    &userInfoServerSuccess.URL,
+					TaskFetchURL:   &taskServerSuccess.URL,
+					StatusFetchURL: &linearStatusServerSuccess.URL,
+				},
+			},
+		}}
+		var taskResult = make(chan TaskResult)
+		go linearTaskSource.GetTasks(db, userID, "sample_account@email.com", taskResult)
+		result := <-taskResult
+		assert.NoError(t, result.Error)
+		assert.Equal(t, 1, len(result.Tasks))
+		return result.Tasks[0]
+	}
+
+	startsAt, _ := time.Parse(time.RFC3339, "2023-03-13T07:00:00.000Z")
+	endsAt, _ := time.Parse(time.RFC3339, "2023-03-20T07:00:00.000Z")
+
+	t.Run("NoCycle", func(t *testing.T) {
+		task := getLinearTaskWithCycles("null")
+		expectedCycle := database.LinearCycle{}
+		assertLinearCyclesEqual(t, expectedCycle, task.LinearCycle)
+	})
+	t.Run("CurrentCycle", func(t *testing.T) {
+		taskCycleResponse := `{
+			"id": "cycle-id",
+			"name": "cycle name",
+			"number": 420,
+			"startsAt": "2023-03-13T07:00:00.000Z",
+			"endsAt": "2023-03-20T07:00:00.000Z"
+		}`
+
+		task := getLinearTaskWithCycles(taskCycleResponse)
+		expectedCycle := database.LinearCycle{
+			ID:             "cycle-id",
+			Name:           "cycle name",
+			Number:         420,
+			StartsAt:       primitive.NewDateTimeFromTime(startsAt),
+			EndsAt:         primitive.NewDateTimeFromTime(endsAt),
+			IsCurrentCycle: true,
+		}
+		assertLinearCyclesEqual(t, expectedCycle, task.LinearCycle)
+	})
+	t.Run("PreviousCycle", func(t *testing.T) {
+		taskCycleResponse := `{
+			"id": "cycle-id",
+			"name": "cycle name",
+			"number": 419,
+			"startsAt": "2023-03-13T07:00:00.000Z",
+			"endsAt": "2023-03-20T07:00:00.000Z"
+		}`
+
+		task := getLinearTaskWithCycles(taskCycleResponse)
+		expectedCycle := database.LinearCycle{
+			ID:              "cycle-id",
+			Name:            "cycle name",
+			Number:          419,
+			StartsAt:        primitive.NewDateTimeFromTime(startsAt),
+			EndsAt:          primitive.NewDateTimeFromTime(endsAt),
+			IsPreviousCycle: true,
+		}
+		assertLinearCyclesEqual(t, expectedCycle, task.LinearCycle)
+	})
+	t.Run("NextCycle", func(t *testing.T) {
+		taskCycleResponse := `{
+			"id": "cycle-id",
+			"name": "cycle name",
+			"number": 421,
+			"startsAt": "2023-03-13T07:00:00.000Z",
+			"endsAt": "2023-03-20T07:00:00.000Z"
+		}`
+
+		task := getLinearTaskWithCycles(taskCycleResponse)
+		expectedCycle := database.LinearCycle{
+			ID:          "cycle-id",
+			Name:        "cycle name",
+			Number:      421,
+			StartsAt:    primitive.NewDateTimeFromTime(startsAt),
+			EndsAt:      primitive.NewDateTimeFromTime(endsAt),
+			IsNextCycle: true,
+		}
+		assertLinearCyclesEqual(t, expectedCycle, task.LinearCycle)
+	})
+	t.Run("TwoCyclesAgo", func(t *testing.T) {
+		taskCycleResponse := `{
+			"id": "cycle-id",
+			"name": "cycle name",
+			"number": 418,
+			"startsAt": "2023-03-13T07:00:00.000Z",
+			"endsAt": "2023-03-20T07:00:00.000Z"
+		}`
+
+		task := getLinearTaskWithCycles(taskCycleResponse)
+		expectedCycle := database.LinearCycle{
+			ID:       "cycle-id",
+			Name:     "cycle name",
+			Number:   418,
+			StartsAt: primitive.NewDateTimeFromTime(startsAt),
+			EndsAt:   primitive.NewDateTimeFromTime(endsAt),
+		}
+		assertLinearCyclesEqual(t, expectedCycle, task.LinearCycle)
+	})
+	t.Run("TwoCyclesInTheFuture", func(t *testing.T) {
+		taskCycleResponse := `{
+			"id": "cycle-id",
+			"name": "cycle name",
+			"number": 422,
+			"startsAt": "2023-03-13T07:00:00.000Z",
+			"endsAt": "2023-03-20T07:00:00.000Z"
+		}`
+
+		task := getLinearTaskWithCycles(taskCycleResponse)
+		expectedCycle := database.LinearCycle{
+			ID:       "cycle-id",
+			Name:     "cycle name",
+			Number:   422,
+			StartsAt: primitive.NewDateTimeFromTime(startsAt),
+			EndsAt:   primitive.NewDateTimeFromTime(endsAt),
+		}
+		assertLinearCyclesEqual(t, expectedCycle, task.LinearCycle)
+	})
+	t.Run("CycleNumberWrongTeam", func(t *testing.T) {
+		taskCycleResponse := `{
+			"id": "cycle-id",
+			"name": "cycle name",
+			"number": 69,
+			"startsAt": "2023-03-13T07:00:00.000Z",
+			"endsAt": "2023-03-20T07:00:00.000Z"
+		}`
+
+		task := getLinearTaskWithCycles(taskCycleResponse)
+		expectedCycle := database.LinearCycle{
+			ID:       "cycle-id",
+			Name:     "cycle name",
+			Number:   69,
+			StartsAt: primitive.NewDateTimeFromTime(startsAt),
+			EndsAt:   primitive.NewDateTimeFromTime(endsAt),
+		}
+		assertLinearCyclesEqual(t, expectedCycle, task.LinearCycle)
 	})
 }
 
@@ -862,4 +1175,16 @@ func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
 			assert.Equal(t, expectedComments, actualComments)
 		}
 	}
+	assertLinearCyclesEqual(t, a.LinearCycle, b.LinearCycle)
+}
+
+func assertLinearCyclesEqual(t *testing.T, a database.LinearCycle, b database.LinearCycle) {
+	assert.Equal(t, a.ID, b.ID)
+	assert.Equal(t, a.Name, b.Name)
+	assert.Equal(t, a.Number, b.Number)
+	assert.Equal(t, a.StartsAt, b.StartsAt)
+	assert.Equal(t, a.EndsAt, b.EndsAt)
+	assert.Equal(t, a.IsCurrentCycle, b.IsCurrentCycle)
+	assert.Equal(t, a.IsPreviousCycle, b.IsPreviousCycle)
+	assert.Equal(t, a.IsNextCycle, b.IsNextCycle)
 }

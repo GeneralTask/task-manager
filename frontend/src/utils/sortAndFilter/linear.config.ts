@@ -14,28 +14,25 @@ export const LINEAR_FILTER_OPTIONS: FilterOptions<TTaskV4> = {
         id: 'current_cycle',
         label: 'Current cycle',
         icon: icons.linear_cycle_current,
-        lambda: (task) => task.linear_cycle?.is_current_cycle,
+        lambda: (task) => task.linear_cycle?.is_current_cycle == true,
     },
     next_cycle: {
         id: 'next_cycle',
         label: 'Next cycle',
         icon: icons.linear_cycle_next,
-        lambda: (task) => task.linear_cycle?.is_next_cycle,
+        lambda: (task) => task.linear_cycle?.is_next_cycle == true,
     },
     no_cycle: {
         id: 'no_cycle',
         label: 'No cycle',
         icon: icons.linear_cycle_none,
-        lambda: (task) => {
-            // console.log(task.linear_cycle)
-            return !task.linear_cycle
-        },
+        lambda: (task) => !task.linear_cycle,
     },
     previous_cycle: {
         id: 'previous_cycle',
         label: 'Previous cycle',
         icon: icons.linear_cycle_previous,
-        lambda: (task) => task.linear_cycle?.is_previous_cycle,
+        lambda: (task) => task.linear_cycle?.is_previous_cycle == true,
     },
 }
 

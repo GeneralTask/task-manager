@@ -256,32 +256,36 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                                     size="small"
                                 />
                             )}
-                            {!isMeetingPreparationTask && !isRecurringTaskTemplate && task.id_folder && !isSubtask && (
-                                <FolderSelector
-                                    value={task.id_folder}
-                                    onChange={(newFolderId) =>
-                                        reorderTask(
-                                            {
-                                                id: task.id,
-                                                dropSectionId: newFolderId,
-                                                dragSectionId: task.id_folder,
-                                                orderingId: 1,
-                                            },
-                                            task.optimisticId
-                                        )
-                                    }
-                                    renderTrigger={(isOpen, setIsOpen) => (
-                                        <GTIconButton
-                                            icon={icons.folder}
-                                            shortcutName="moveTaskToFolder"
-                                            onClick={() => setIsOpen(!isOpen)}
-                                            forceShowHoverEffect={isOpen}
-                                            asDiv
-                                        />
-                                    )}
-                                    enableKeyboardShortcut
-                                />
-                            )}
+                            {!isMeetingPreparationTask &&
+                                !isRecurringTaskTemplate &&
+                                task.id_folder &&
+                                !isSubtask &&
+                                !task.is_deleted && (
+                                    <FolderSelector
+                                        value={task.id_folder}
+                                        onChange={(newFolderId) =>
+                                            reorderTask(
+                                                {
+                                                    id: task.id,
+                                                    dropSectionId: newFolderId,
+                                                    dragSectionId: task.id_folder,
+                                                    orderingId: 1,
+                                                },
+                                                task.optimisticId
+                                            )
+                                        }
+                                        renderTrigger={(isOpen, setIsOpen) => (
+                                            <GTIconButton
+                                                icon={icons.folder}
+                                                shortcutName="moveTaskToFolder"
+                                                onClick={() => setIsOpen(!isOpen)}
+                                                forceShowHoverEffect={isOpen}
+                                                asDiv
+                                            />
+                                        )}
+                                        enableKeyboardShortcut
+                                    />
+                                )}
                             {task.deeplink && <ExternalLinkButton link={task.deeplink} />}
                             {!isRecurringTaskTemplate && <TaskActionsDropdown task={taskv4} />}
                             {isRecurringTaskTemplate && (

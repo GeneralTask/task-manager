@@ -24,7 +24,7 @@ const sortAndFilterItems = <T>({ items, sort, sortDirection, filter, tieBreakerF
                     }
                 }
             } else {
-                if (a[sort.field] != null && b[sort.field] != null) {
+                if (a[sort.field] && b[sort.field]) {
                     if (sort.customComparator) {
                         result = sort.customComparator(a, b)
                     } else {
