@@ -241,6 +241,57 @@ func TestEventList(t *testing.T) {
 	})
 }
 
+func TestEventDetail(t *testing.T) {
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+
+	startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
+	endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
+	sourceAccountID := "TestEventDetail@generaltask.com"
+	authToken := login("TestEventDetail@generaltask.com", "")
+	userID := getUserIDFromAuthToken(t, api.DB, authToken)
+
+	eventCollection := database.GetCalendarEventCollection(api.DB)
+	calendarEvent := database.CalendarEvent{
+		Title:           "Normal Event",
+		IDExternal:      "normal_event",
+		SourceAccountID: sourceAccountID,
+		SourceID:        external.TASK_SOURCE_ID_GCAL,
+		UserID:          userID,
+		DatetimeStart:   primitive.NewDateTimeFromTime(startTime),
+		DatetimeEnd:     primitive.NewDateTimeFromTime(endTime),
+	}
+	insertResult, err := eventCollection.InsertOne(context.Background(), calendarEvent)
+	assert.NoError(t, err)
+	eventID := insertResult.InsertedID.(primitive.ObjectID)
+
+	UnauthorizedTest(t, "GET", "/events/", nil)
+	t.Run("WrongID", func(t *testing.T) {
+		eventID2 := primitive.NewObjectID()
+		_ = ServeRequest(t, authToken, "GET", "/events/"+eventID2.Hex()+"/", nil, http.StatusNotFound, api)
+	})
+	t.Run("WrongUser", func(t *testing.T) {
+		authToken2 := login("wronguserforeventdetails@generaltask.com", "")
+		_ = ServeRequest(t, authToken2, "GET", "/events/"+eventID.Hex()+"/", nil, http.StatusNotFound, api)
+	})
+	t.Run("Success", func(t *testing.T) {
+		expectedResult, err := api.calendarEventToResult(&calendarEvent, userID)
+		assert.NoError(t, err)
+
+		output := ServeRequest(t, authToken, "GET", "/events/"+eventID.Hex()+"/", nil, http.StatusOK, api)
+		var eventResult EventResult
+		err = json.Unmarshal(output, &eventResult)
+
+		assert.Equal(t, expectedResult.DatetimeStart, eventResult.DatetimeStart)
+		assert.Equal(t, expectedResult.DatetimeEnd, eventResult.DatetimeEnd)
+		assert.Equal(t, expectedResult.Deeplink, eventResult.Deeplink)
+		assert.Equal(t, expectedResult.CalendarID, eventResult.CalendarID)
+		assert.Equal(t, expectedResult.Title, eventResult.Title)
+		assert.Equal(t, expectedResult.Body, eventResult.Body)
+		assert.Equal(t, expectedResult.Location, eventResult.Location)
+	})
+}
+
 func TestGetLinkedNoteID(t *testing.T) {
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
