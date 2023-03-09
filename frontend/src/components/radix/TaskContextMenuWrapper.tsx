@@ -19,7 +19,7 @@ import RecurringTaskTemplateModal from '../molecules/recurring-tasks/RecurringTa
 import GTContextMenu from './GTContextMenu'
 import { GTMenuItem } from './RadixUIConstants'
 
-const getDeleteLabel = (task: TTaskV4) => {
+export const getDeleteLabel = (task: TTaskV4) => {
     if (task.is_deleted) {
         return 'Restore task'
     }
@@ -73,16 +73,6 @@ const getSetPriorityMenuItem = (task: TTaskV4, setPriority: (priority: number) =
             iconColor: priority.color,
             onClick: () => setPriority(val),
         })),
-    }
-}
-
-const getDeleteMenuItem = (task: TTaskV4, deleteTask: () => void): GTMenuItem => {
-    return {
-        label: getDeleteLabel(task),
-        icon: icons.trash,
-        iconColor: 'red',
-        textColor: 'red',
-        onClick: deleteTask,
     }
 }
 
@@ -194,11 +184,35 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
         }
     }
 
+    const getDeleteMenuItem = (): GTMenuItem => {
+        if (inMultiSelectMode) {
+            const disabled = selectedTaskIds.some(
+                (selectedTask) => allTasks?.find((t) => t.id === selectedTask)?.source.name === 'Jira'
+            )
+            return {
+                label: getDeleteLabel(task),
+                icon: icons.trash,
+                iconColor: 'red',
+                textColor: 'red',
+                onClick: onMultiDeleteClick,
+                disabled,
+                tip: disabled ? 'Cannot delete Jira tasks' : undefined,
+            }
+        }
+        return {
+            label: getDeleteLabel(task),
+            icon: icons.trash,
+            iconColor: 'red',
+            textColor: 'red',
+            onClick: onSingleDeleteClick,
+        }
+    }
+
     const contextMenuItems: GTMenuItem[] = [
         ...(task.id_folder && folders ? [getMoveFolderMenuItem(task, folders, onSingleSelectFolderClick)] : []),
         getSetDueDateMenuItem(task, onSingleSetDueDateClick),
         getPriorityOption(task),
-        ...(!task.id_parent && !task.is_deleted && !task.is_done
+        ...(!task.id_parent && !task.is_deleted && !task.is_done && task.source.name !== 'Jira'
             ? [
                   {
                       label: 'Duplicate task',
@@ -261,14 +275,14 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                   },
               ]
             : []),
-        getDeleteMenuItem(task, onSingleDeleteClick),
+        ...(task.source.name !== 'Jira' ? [getDeleteMenuItem()] : []),
     ]
 
     const multiSelectContextMenuItems: GTMenuItem[] = [
         ...(task.id_folder && folders ? [getMoveFolderMenuItem(task, folders, onMultiSelectFolderClick)] : []),
         getSetDueDateMenuItem(task, onMultiSetDueDateClick),
         getSetPriorityMenuItem(task, onMultiSetPriorityClick),
-        getDeleteMenuItem(task, onMultiDeleteClick),
+        getDeleteMenuItem(),
     ]
     return (
         <>

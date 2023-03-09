@@ -3,6 +3,7 @@ import Spinner from '../components/atoms/Spinner'
 import { OptimisticItemsContainer } from '../components/overview/styles'
 import DueTodayViewItems from '../components/overview/viewItems/DueTodayViewItems'
 import ExternalViewItems from '../components/overview/viewItems/ExternalViewItems'
+import LinearViewItems from '../components/overview/viewItems/LinearViewItems'
 import MeetingPreparationViewItems from '../components/overview/viewItems/MeetingPreparationViewItems'
 import PullRequestViewItems from '../components/overview/viewItems/PullRequestViewItems'
 import TaskSectionViewItems from '../components/overview/viewItems/TaskSectionViewItems'
@@ -21,6 +22,7 @@ const useGetViewItems = (list: TOverviewView) => {
             case 'task_section':
                 return TaskSectionViewItems
             case 'linear':
+                return LinearViewItems
             case 'slack':
             case 'jira':
                 return ExternalViewItems
