@@ -149,11 +149,11 @@ func (api *API) TaskModify(c *gin.Context) {
 			updateTask.RecurringTaskTemplateID = recurring_task_template_id
 		}
 
-		if taskSourceResult.Details.ID != external.TASK_SOURCE_ID_GT_TASK && modifyParams.TaskItemChangeableFields.SharedUntil != 0 {
+		if task.SourceID != external.TASK_SOURCE_ID_GT_TASK && modifyParams.TaskItemChangeableFields.SharedUntil != 0 {
 			c.JSON(400, gin.H{"detail": "only General Task tasks can be shared"})
 			return
 		}
-		if taskSourceResult.Details.ID != external.TASK_SOURCE_ID_GT_TASK && modifyParams.TaskItemChangeableFields.SharedAccess != nil {
+		if task.SourceID != external.TASK_SOURCE_ID_GT_TASK && modifyParams.TaskItemChangeableFields.SharedAccess != nil {
 			c.JSON(400, gin.H{"detail": "only General Task tasks can be shared"})
 			return
 		}
