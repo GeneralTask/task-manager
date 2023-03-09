@@ -202,7 +202,7 @@ func (api *API) EventDetail(c *gin.Context) {
 	eventIDHex := c.Param("event_id")
 	eventID, err := primitive.ObjectIDFromHex(eventIDHex)
 	if err != nil {
-		// This means the task ID is improperly formatted
+		// This means the event ID is improperly formatted
 		Handle404(c)
 		return
 	}
