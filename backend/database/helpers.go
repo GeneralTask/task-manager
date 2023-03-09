@@ -209,6 +209,21 @@ func GetEmailDomain(email string) (string, error) {
 	}
 	return domain, nil
 }
+
+func CheckNoteSharingAccessValid(sharedAccess *SharedAccess) bool {
+	if sharedAccess == nil {
+		// want backwards compatibility
+		return true
+	} else if *sharedAccess != SharedAccessMeetingAttendees && *sharedAccess != SharedAccessDomain && *sharedAccess != SharedAccessPublic {
+		return false
+	}
+	return true
+}
+
+func CheckTaskSharingAccessValid(sharedAccess SharedAccess) bool {
+	return sharedAccess == SharedAccessDomain || sharedAccess == SharedAccessPublic
+}
+
 func GetSharedTask(db *mongo.Database, taskID primitive.ObjectID, userID primitive.ObjectID) (*Task, error) {
 	logger := logging.GetSentryLogger()
 	mongoResult := GetTaskCollection(db).FindOne(
@@ -281,6 +296,91 @@ func GetSharedNote(db *mongo.Database, itemID primitive.ObjectID) (*Note, error)
 		logger.Error().Err(err).Msgf("failed to get note: %+v", itemID)
 		return nil, err
 	}
+
+	if note.SharedAccess != nil && *note.SharedAccess != SharedAccessPublic {
+		return nil, errors.New("unable to fetch note without auth")
+	}
+
+	return &note, nil
+}
+
+func GetSharedNoteWithAuth(db *mongo.Database, itemID primitive.ObjectID, userID primitive.ObjectID) (*Note, error) {
+	logger := logging.GetSentryLogger()
+	mongoResult := GetNoteCollection(db).FindOne(
+		context.Background(),
+		bson.M{"$and": []bson.M{
+			{"_id": itemID},
+			{"shared_until": bson.M{"$gte": time.Now()}},
+			{"is_deleted": bson.M{"$ne": true}},
+		}})
+	var note Note
+	err := mongoResult.Decode(&note)
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to get note: %+v", itemID)
+		return nil, err
+	}
+
+	// Check if the note is shared
+	if note.SharedAccess != nil && *note.SharedAccess != SharedAccessPublic {
+		if !CheckNoteSharingAccessValid(note.SharedAccess) {
+			return nil, errors.New("invalid shared access value")
+		}
+
+		user, err := GetUser(db, userID)
+		if err != nil {
+			logger.Error().Err(err).Msgf("failed to get user: %+v", userID)
+			return nil, err
+		}
+
+		// Check if the user is allowed to access the task
+		if *note.SharedAccess == SharedAccessDomain {
+			noteOwner, err := GetUser(db, note.UserID)
+			if err != nil {
+				logger.Error().Err(err).Msgf("failed to get user: %+v", note.UserID)
+				return nil, err
+			}
+			userDomain, err := GetEmailDomain(user.Email)
+			if err != nil {
+				logger.Error().Err(err).Msgf("failed to get user domain: %+v", user.Email)
+				return nil, err
+			}
+			noteOwnerDomain, err := GetEmailDomain(noteOwner.Email)
+			if err != nil {
+				logger.Error().Err(err).Msgf("failed to get note owner domain: %+v", noteOwner.Email)
+				return nil, err
+			}
+
+			// Check if the user and the task owner are in the same domain
+			if userDomain != noteOwnerDomain {
+				return nil, errors.New("user domain does not match note owner domain")
+			}
+		} else if *note.SharedAccess == SharedAccessMeetingAttendees {
+			if note.LinkedEventID == primitive.NilObjectID {
+				return nil, errors.New("linked event required for note's shared access type")
+			}
+
+			var event CalendarEvent
+			err := GetCalendarEventCollection(db).FindOne(
+				context.Background(),
+				bson.M{
+					"$and": []bson.M{
+						{"_id": note.LinkedEventID},
+					},
+				},
+			).Decode(&event)
+			if err != nil {
+				logger.Error().Err(err).Msgf("failed to get linked event: %+v", note.LinkedEventID)
+				return nil, err
+			}
+
+			for _, attendeeEmail := range event.AttendeeEmails {
+				if user.Email == attendeeEmail {
+					return &note, nil
+				}
+			}
+			return nil, errors.New("user not found in list of attendees")
+		}
+	}
 	return &note, nil
 }
 
@@ -322,11 +422,14 @@ func GetCalendarEventByExternalId(db *mongo.Database, externalID string, userID 
 	logger := logging.GetSentryLogger()
 	eventCollection := GetCalendarEventCollection(db)
 	mongoResult := FindOneExternalWithCollection(eventCollection, userID, externalID)
+	if mongoResult.Err() != nil {
+		return nil, mongoResult.Err()
+	}
 
 	var event CalendarEvent
 	err := mongoResult.Decode(&event)
 	if err != nil {
-		logger.Error().Err(err).Msgf("failed to get event: %+v", externalID)
+		logger.Error().Err(err).Msgf("failed to decode event: %+v", externalID)
 		return nil, err
 	}
 	return &event, nil

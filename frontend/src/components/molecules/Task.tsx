@@ -1,13 +1,15 @@
-import { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react'
+import { MouseEventHandler, MutableRefObject, useCallback, useEffect, useRef, useState } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
+import { SINGLE_SECOND_INTERVAL } from '../../constants'
+import useSelectionContext from '../../context/SelectionContextProvider'
 import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
+import useGetSortedFolderTasks from '../../hooks/useGetSortedFolderTasks'
 import Log from '../../services/api/log'
-import { useMarkTaskDoneOrDeleted } from '../../services/api/tasks.hooks'
+import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { useGetTasksV4 } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -23,6 +25,7 @@ import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
 import { Mini } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import JiraPriorityDropdown from '../radix/JiraPriorityDropdown'
+import PriorityDropdown from '../radix/PriorityDropdown'
 import StatusDropdown from '../radix/StatusDropdown'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
 import Tip from '../radix/Tip'
@@ -95,6 +98,14 @@ const Task = ({
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const { calendarType, setCalendarType, setDate, dayViewDate } = useCalendarContext()
+    const { mutate: modifyTask } = useModifyTask()
+    const { onClickHandler: onMultiSelectClick, isTaskSelected: isTaskMultiSelected } = useSelectionContext()
+    const { task: idTaskRoute, overviewItemId } = useParams()
+    const { data: allTasks } = useGetTasksV4()
+
+    const { inMultiSelectMode } = useSelectionContext()
+
+    const sortedTasks = useGetSortedFolderTasks(task.id_folder ?? '')
 
     useInterval(() => {
         if (!meeting_preparation_params) return
@@ -155,14 +166,18 @@ const Task = ({
         [isSelected, isScrolling.current, shouldScrollToTask]
     )
 
-    const onClick = useCallback(() => {
-        navigate(link)
-        Log(`task_select__${link}`)
-        if (calendarType === 'week' && isSelected) {
-            setCalendarType('day')
-            setDate(dayViewDate)
-        }
-    }, [link, isSelected, dayViewDate])
+    const onClick = useCallback<MouseEventHandler>(
+        (e) => {
+            if (e.metaKey || e.shiftKey) return
+            navigate(link)
+            Log(`task_select__${link}`)
+            if (calendarType === 'week' && isSelected) {
+                setCalendarType('day')
+                setDate(dayViewDate)
+            }
+        },
+        [link, isSelected, dayViewDate, inMultiSelectMode]
+    )
 
     const [, drag, dragPreview] = useDrag(
         () => ({
@@ -196,8 +211,35 @@ const Task = ({
 
     const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(task.recurring_task_template_id)
 
-    const { data: allTasks } = useGetTasksV4()
     const subtasks = allTasks?.filter((t) => t.id_parent === task.id && !t.is_deleted)
+
+    const getPriorityDropdown = () => {
+        if (task.priority && task.all_priorities && task.source.name === 'Jira') {
+            return (
+                <JiraPriorityDropdown
+                    taskId={task.id}
+                    currentPriority={task.priority}
+                    allPriorities={task.all_priorities}
+                    condensedTrigger
+                />
+            )
+        }
+        if (
+            task.source?.name !== 'Jira' &&
+            task.priority_normalized !== 0 &&
+            Number.isInteger(task.priority_normalized)
+        ) {
+            return (
+                <PriorityDropdown
+                    value={task.priority_normalized}
+                    onChange={(priority) =>
+                        modifyTask({ id: task.id, priorityNormalized: priority }, task.optimisticId)
+                    }
+                    condensedTrigger
+                />
+            )
+        }
+    }
 
     return (
         <TaskContextMenuWrapper task={task} onOpenChange={setContextMenuOpen}>
@@ -206,8 +248,23 @@ const Task = ({
                 isVisible={isVisible}
                 onMouseLeave={() => setIsHovered(false)}
                 onMouseEnter={() => setIsHovered(true)}
+                onClick={(e) =>
+                    onMultiSelectClick(
+                        e,
+                        task.id,
+                        task.is_deleted || task.is_done,
+                        (idTaskRoute || overviewItemId) ?? '',
+                        sortedTasks
+                    )
+                }
             >
-                <ItemContainer isSelected={isSelected} onClick={onClick} ref={drag} forceHoverStyle={contextMenuOpen}>
+                <ItemContainer
+                    isSelected={isSelected}
+                    isMultiSelected={isTaskMultiSelected(task.id)}
+                    onClick={onClick}
+                    ref={drag}
+                    forceHoverStyle={contextMenuOpen}
+                >
                     <MarginRight>
                         {isPreviewMode && task.meeting_preparation_params?.event_moved_or_deleted ? (
                             <Tip content="Event has been moved or deleted">
@@ -235,21 +292,7 @@ const Task = ({
                         {recurringTaskTemplate && <Icon icon={icons.arrows_repeat} />}
                         {isPreviewMode && task.linear_cycle && <LinearCycle cycle={task.linear_cycle} isCondensed />}
                         <DueDate date={dueDate} isDoneOrDeleted={task.is_done || task.is_deleted} />
-                        {task.priority && task.all_priorities && (
-                            <JiraPriorityDropdown
-                                taskId={task.id}
-                                currentPriority={task.priority}
-                                allPriorities={task.all_priorities}
-                            />
-                        )}
-                        {task.source?.name !== 'Jira' &&
-                            task.priority_normalized !== 0 &&
-                            Number.isInteger(task.priority_normalized) && (
-                                <Icon
-                                    icon={TASK_PRIORITIES[task.priority_normalized].icon}
-                                    color={TASK_PRIORITIES[task.priority_normalized].color}
-                                />
-                            )}
+                        {getPriorityDropdown()}
                         {subtasks && subtasks.length > 0 && (
                             <Flex gap={Spacing._4}>
                                 <Icon icon={icons.subtask} />

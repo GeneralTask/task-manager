@@ -34,6 +34,8 @@ const (
 	ChoiceKeyShowDeleted                = "show_deleted"
 	// Recurring task filtering
 	SettingFieldRecurringTaskFilteringPreference = "recurring_task_filtering_preference"
+	// Linear task filtering
+	SettingFieldLinearTaskFilteringPreference = "linear_task_filtering_preference"
 	// Calendar choice
 	SettingFieldCalendarForNewTasks   = "calendar_account_id_for_new_tasks"
 	SettingFieldCalendarIDForNewTasks = "calendar_calendar_id_for_new_tasks"
