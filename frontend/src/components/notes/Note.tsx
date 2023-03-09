@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
+import { useGetEvent } from '../../services/api/events.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { TNote } from '../../utils/types'
-import { getHumanDateTime } from '../../utils/utils'
+import { getFormattedEventTime, getHumanDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import TaskTemplate from '../atoms/TaskTemplate'
@@ -34,6 +35,7 @@ const Note = ({ note, isSelected, onSelect }: NoteProps) => {
     const [contextMenuOpen, setContextMenuOpen] = useState(false)
     const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
     const isMeetingNote = note.linked_event_id != null
+    const { data: linkedEvent } = useGetEvent({ id: note.linked_event_id })
     const { calendarType, setCalendarType, setDate, dayViewDate } = useCalendarContext()
     const onClick = () => {
         onSelect(note)
@@ -55,7 +57,15 @@ const Note = ({ note, isSelected, onSelect }: NoteProps) => {
                         {isShared && <Icon icon={icons.link} />}
                         {isMeetingNote ? (
                             <>
-                                <Label color="base">{'PLACEHOLDER EVENT DATE'}</Label>
+                                {linkedEvent && (
+                                    <Label color="base">
+                                        {getFormattedEventTime(
+                                            DateTime.fromISO(linkedEvent.datetime_start),
+                                            DateTime.fromISO(linkedEvent.datetime_end),
+                                            'short'
+                                        )}
+                                    </Label>
+                                )}
                                 <Icon icon={icons.calendar_blank} />
                             </>
                         ) : (

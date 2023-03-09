@@ -80,11 +80,14 @@ interface TDeleteEventData {
 }
 
 interface TGetEventParams {
-    id: string
+    id?: string
 }
 
 export const useGetEvent = (params: TGetEventParams) => {
-    return useQuery<TEvent>(['events', params.id], (context) => getEvent(params, context), getBackgroundQueryOptions())
+    return useQuery<TEvent>(['events', params.id], (context) => getEvent(params, context), {
+        ...getBackgroundQueryOptions(),
+        enabled: !!params.id,
+    })
 }
 const getEvent = async ({ id }: TGetEventParams, { signal }: QueryFunctionContext) => {
     try {
