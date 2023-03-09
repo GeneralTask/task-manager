@@ -9,7 +9,7 @@ import { icons, logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
-import GTButton from '../atoms/buttons/GTButtonNew'
+import GTButton from '../atoms/buttons/GTButton'
 import { Label } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import {

@@ -4,7 +4,7 @@ import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
 import { useKeyboardShortcut } from '../../hooks'
 import { usePostComment } from '../../services/api/tasks.hooks'
 import GTTextField from '../atoms/GTTextField'
-import GTButton from '../atoms/buttons/GTButtonNew'
+import GTButton from '../atoms/buttons/GTButton'
 
 const LINEAR_ADD_COMMENT_HEIGHT = 100
 

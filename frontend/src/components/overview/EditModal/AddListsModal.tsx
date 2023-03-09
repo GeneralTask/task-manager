@@ -16,7 +16,7 @@ import GTModal from '../../atoms/GTModal'
 import { Icon } from '../../atoms/Icon'
 import { Divider } from '../../atoms/SectionDivider'
 import Spinner from '../../atoms/Spinner'
-import GTButton from '../../atoms/buttons/GTButtonNew'
+import GTButton from '../../atoms/buttons/GTButton'
 import MissingRepositoryMessage from './MissingRepositoryMessage'
 
 const SupportedView = styled.div<{ isIndented?: boolean }>`

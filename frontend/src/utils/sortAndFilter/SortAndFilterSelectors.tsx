@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import styled from 'styled-components'
-import GTButton from '../../components/atoms/buttons/GTButtonNew'
+import GTButton from '../../components/atoms/buttons/GTButton'
 import { Bold } from '../../components/atoms/typography/Typography'
 import GTDropdownMenu from '../../components/radix/GTDropdownMenu'
 import { GTMenuItem } from '../../components/radix/RadixUIConstants'

@@ -1,6 +1,6 @@
 import { TConferenceCall } from '../../../utils/types'
 import NoStyleAnchor from '../NoStyleAnchor'
-import GTButton from './GTButtonNew'
+import GTButton from './GTButton'
 
 interface JoinMeetingButtonProps {
     conferenceCall: TConferenceCall

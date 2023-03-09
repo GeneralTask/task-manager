@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
-import GTButton from '../atoms/buttons/GTButtonNew'
+import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { CollapsedIconContainer } from '../navigation_sidebar/NavigationLink'
 import Tip from '../radix/Tip'

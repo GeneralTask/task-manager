@@ -9,7 +9,7 @@ import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TermsOfServiceSummary } from '../atoms/CompanyPoliciesHTML'
 import { Icon } from '../atoms/Icon'
-import GTButton from '../atoms/buttons/GTButtonNew'
+import GTButton from '../atoms/buttons/GTButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import RedirectButton from '../atoms/buttons/RedirectButton'
 

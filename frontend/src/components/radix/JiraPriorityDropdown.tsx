@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { TExternalPriority } from '../../utils/types'
-import GTButton from '../atoms/buttons/GTButtonNew'
+import GTButton from '../atoms/buttons/GTButton'
 import GTDropdownMenu from './GTDropdownMenu'
 import { GTMenuItem } from './RadixUIConstants'
 

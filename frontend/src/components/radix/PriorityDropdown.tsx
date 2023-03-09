@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { TASK_PRIORITIES } from '../../constants'
-import GTButton from '../atoms/buttons/GTButtonNew'
+import GTButton from '../atoms/buttons/GTButton'
 import GTDropdownMenu from './GTDropdownMenu'
 
 interface PriorityDropdownProps {

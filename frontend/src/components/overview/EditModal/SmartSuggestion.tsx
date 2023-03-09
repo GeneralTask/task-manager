@@ -8,7 +8,7 @@ import { icons } from '../../../styles/images'
 import Flex from '../../atoms/Flex'
 import { Icon, TIconType } from '../../atoms/Icon'
 import { Divider } from '../../atoms/SectionDivider'
-import GTButton from '../../atoms/buttons/GTButtonNew'
+import GTButton from '../../atoms/buttons/GTButton'
 import { getOverviewAccordionHeaderIcon } from '../AccordionItem'
 import useOverviewLists from '../useOverviewLists'
 

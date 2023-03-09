@@ -7,7 +7,7 @@ import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { getFormattedDate } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
-import GTButton from '../atoms/buttons/GTButtonNew'
+import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTPopover from '../radix/GTPopover'
 

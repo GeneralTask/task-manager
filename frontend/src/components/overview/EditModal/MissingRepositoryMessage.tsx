@@ -3,7 +3,7 @@ import { GITHUB_SUPPORTED_TYPE_NAME } from '../../../constants'
 import { useAuthWindow } from '../../../hooks'
 import { useGetSupportedTypes } from '../../../services/api/settings.hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
-import GTButton from '../../atoms/buttons/GTButtonNew'
+import GTButton from '../../atoms/buttons/GTButton'
 
 const TextContainerWidth = '40%'
 const MessageContainer = styled.div`

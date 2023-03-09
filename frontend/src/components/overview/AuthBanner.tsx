@@ -3,7 +3,7 @@ import { useAuthWindow } from '../../hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { TLogoImage, icons, logos } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
-import GTButton from '../atoms/buttons/GTButtonNew'
+import GTButton from '../atoms/buttons/GTButton'
 
 const BannerContainer = styled.div<{ hasBorder: boolean }>`
     box-sizing: border-box;

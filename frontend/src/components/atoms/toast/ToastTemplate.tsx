@@ -1,7 +1,7 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
 import { Spacing, Typography } from '../../../styles'
-import GTButton from '../buttons/GTButtonNew'
+import GTButton from '../buttons/GTButton'
 
 const ToastContainer = styled.div`
     display: flex;

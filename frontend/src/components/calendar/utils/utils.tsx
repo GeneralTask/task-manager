@@ -1,5 +1,5 @@
 import { TCalendarAccount } from '../../../utils/types'
-import GTButton from '../../atoms/buttons/GTButtonNew'
+import GTButton from '../../atoms/buttons/GTButton'
 
 // backend sends empty string for title if it is the primary calendar, so fall back to account id
 export const getCalendarName = (accountId: string, calendarTitle?: string): string => calendarTitle || accountId

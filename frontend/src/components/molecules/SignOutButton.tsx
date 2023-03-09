@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { authSignOut } from '../../utils/auth'
 import GTModal from '../atoms/GTModal'
-import GTButton from '../atoms/buttons/GTButtonNew'
+import GTButton from '../atoms/buttons/GTButton'
 
 const SignOutButton = () => {
     const [modalIsOpen, setModalIsOpen] = useState(false)

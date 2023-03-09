@@ -8,7 +8,7 @@ import { icons, logos } from '../../styles/images'
 import { TLinkedAccountName, TSupportedType } from '../../utils/types'
 import GTShadowContainer from '../atoms/GTShadowContainer'
 import { Icon } from '../atoms/Icon'
-import GTButton from '../atoms/buttons/GTButtonNew'
+import GTButton from '../atoms/buttons/GTButton'
 
 const Container = styled(GTShadowContainer)`
     display: flex;
