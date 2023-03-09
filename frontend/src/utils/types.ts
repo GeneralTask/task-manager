@@ -179,6 +179,7 @@ export interface TEvent {
     linked_task_id: string
     linked_view_id: string
     linked_pull_request_id: string
+    linked_note_id?: string
 }
 
 export interface TMeetingBanner {
