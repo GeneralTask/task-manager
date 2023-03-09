@@ -17,14 +17,9 @@ func (api *API) ShareableTaskDetails(c *gin.Context) {
 	}
 
 	userIDRaw, _ := c.Get("user")
-	userID := new(primitive.ObjectID)
-	if userIDRaw != nil {
-		userIDRawCast := userIDRaw.(primitive.ObjectID)
-		userID = &userIDRawCast
-	}
-	
+	userID := userIDRaw.(primitive.ObjectID)
 
-	task, err := database.GetSharedTask(api.DB, taskID, userID)
+	task, err := database.GetSharedTask(api.DB, taskID, &userID)
 	if err != nil {
 		Handle404(c)
 		return
