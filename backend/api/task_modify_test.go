@@ -173,30 +173,28 @@ func TestMarkAsComplete(t *testing.T) {
 
 	taskCollection := database.GetTaskCollection(db)
 
+	previousStatus := &database.ExternalTaskStatus{
+		ExternalID: "previous-status-id",
+		State:      "In Progress",
+		Type:       "in-progress",
+	}
+	doneStatus := &database.ExternalTaskStatus{
+		ExternalID:        "new-status-id",
+		State:             "DONE",
+		Type:              "completed",
+		IsCompletedStatus: true,
+	}
+
 	completed := false
 	insertResult, err := taskCollection.InsertOne(context.Background(), database.Task{
-		UserID:      userID,
-		IDExternal:  "sample_linear_id",
-		SourceID:    external.TASK_SOURCE_ID_LINEAR,
-		IsCompleted: &completed,
-		PreviousStatus: &database.ExternalTaskStatus{
-			ExternalID: "previous-status-id",
-			State:      "In Progress",
-			Type:       "in-progress",
-		},
+		UserID:         userID,
+		IDExternal:     "sample_linear_id",
+		SourceID:       external.TASK_SOURCE_ID_LINEAR,
+		IsCompleted:    &completed,
+		PreviousStatus: previousStatus,
 		AllStatuses: []*database.ExternalTaskStatus{
-			{
-				ExternalID:        "previous-status-id",
-				State:             "In Progress",
-				Type:              "in-progress",
-				IsCompletedStatus: false,
-			},
-			{
-				ExternalID:        "new-status-id",
-				State:             "DONE",
-				Type:              "completed",
-				IsCompletedStatus: true,
-			},
+			previousStatus,
+			doneStatus,
 		},
 	})
 	assert.NoError(t, err)
@@ -357,6 +355,7 @@ func TestMarkAsComplete(t *testing.T) {
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": linearTaskID}).Decode(&task)
 		assert.Equal(t, true, *task.IsCompleted)
 		assert.NotEqual(t, primitive.DateTime(0), task.CompletedAt)
+		assert.Equal(t, *doneStatus, *task.CompletedStatus)
 	})
 
 	t.Run("CalendarSuccess", func(t *testing.T) {
