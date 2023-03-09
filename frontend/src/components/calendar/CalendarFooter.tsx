@@ -37,20 +37,20 @@ const CalendarFooter = () => {
                 <CalendarSelector
                     mode="task-to-cal"
                     renderTrigger={(calendar, accountId) => (
-                        <Tip content="Choose the default calendar to create new events in">
-                            <GTButton
-                                value={
+                        <GTButton
+                            value={
+                                <Tip content="Choose the default calendar to create new events in">
                                     <Truncated>
                                         {getCalendarName(accountId, calendar?.title) || 'Select a calendar'}
                                     </Truncated>
-                                }
-                                icon={icons.square}
-                                iconColorHex={calendar?.color_background || ''}
-                                isDropdown
-                                styleType="secondary"
-                                fitContent={false}
-                            />
-                        </Tip>
+                                </Tip>
+                            }
+                            icon={icons.square}
+                            iconColorHex={calendar?.color_background || ''}
+                            isDropdown
+                            styleType="secondary"
+                            fitContent={false}
+                        />
                     )}
                     useTriggerWidth={calendarType === 'week'}
                 />
