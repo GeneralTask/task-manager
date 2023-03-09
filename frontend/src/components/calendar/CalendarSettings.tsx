@@ -86,9 +86,7 @@ const CalendarSettings = () => {
                                         onClick: () => handleDeleteAccount(account.account_id),
                                     },
                                 ]}
-                                trigger={
-                                    <GTIconButton icon={icons.ellipsisVertical} tooltipText="More options" asDiv />
-                                }
+                                trigger={<GTIconButton icon={icons.ellipsisVertical} tooltipText="More options" />}
                             />
                         </Flex>
                     </Flex>

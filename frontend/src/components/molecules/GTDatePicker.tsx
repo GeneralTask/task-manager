@@ -147,7 +147,6 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                         onClick={() => setIsOpen(!isOpen)}
                         active={isOpen}
                         disabled={disabled}
-                        asDiv
                     />
                 }
             />

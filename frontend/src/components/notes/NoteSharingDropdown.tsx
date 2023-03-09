@@ -128,15 +128,8 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
             isOpen={isOpen}
             setIsOpen={setIsOpen}
             items={dropdownItems}
-            unstyledTrigger
             trigger={
-                <GTButton
-                    styleType="secondary"
-                    icon={icons.share}
-                    value="Share"
-                    onClick={() => setIsOpen(!isOpen)}
-                    asDiv
-                />
+                <GTButton styleType="secondary" icon={icons.share} value="Share" onClick={() => setIsOpen(!isOpen)} />
             }
         />
     )

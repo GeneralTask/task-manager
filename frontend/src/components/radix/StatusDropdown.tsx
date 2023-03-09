@@ -40,7 +40,6 @@ const StatusDropdown = ({ task, disabled, condensedTrigger }: StatusDropdownProp
             isOpen={isOpen}
             setIsOpen={setIsOpen}
             items={dropdownItems}
-            unstyledTrigger
             trigger={
                 condensedTrigger ? (
                     <Tip content={externalStatus.state}>
@@ -50,7 +49,6 @@ const StatusDropdown = ({ task, disabled, condensedTrigger }: StatusDropdownProp
                             styleType="control"
                             active={isOpen}
                             disabled={disabled}
-                            asDiv
                         />
                     </Tip>
                 ) : (
@@ -61,7 +59,6 @@ const StatusDropdown = ({ task, disabled, condensedTrigger }: StatusDropdownProp
                         isDropdown
                         active={isOpen}
                         disabled={disabled}
-                        asDiv
                     />
                 )
             }

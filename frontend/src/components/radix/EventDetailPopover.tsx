@@ -195,7 +195,6 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
             content={hidePopover ? undefined : content}
             side="left"
             trigger={children}
-            unstyledTrigger
             modal={false}
         />
     )

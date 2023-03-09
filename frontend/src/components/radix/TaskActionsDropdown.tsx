@@ -90,14 +90,12 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
                     },
                 ],
             ]}
-            unstyledTrigger
             trigger={
                 <GTIconButton
                     icon={icons.ellipsisVertical}
                     tooltipText="Task Actions"
                     onClick={() => setIsOpen(!isOpen)}
                     forceShowHoverEffect={isOpen}
-                    asDiv
                 />
             }
         />

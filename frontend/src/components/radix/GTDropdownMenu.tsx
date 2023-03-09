@@ -14,15 +14,11 @@ import {
     MenuContentShared,
     MenuItemLabel,
     MenuItemShared,
-    MenuTriggerShared,
 } from './RadixUIConstants'
 import Tip from './Tip'
 
 const DROPDOWN_MENU_ITEM_MAX_WIDTH = '240px'
 const DROPDOWN_MENU_ITEM_MAX_HEIGHT = '75vh'
-const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
-    ${MenuTriggerShared};
-`
 const DropdownMenuContent = styled(DropdownMenu.Content)<{
     $menuInModal?: boolean
     $width?: number
@@ -73,7 +69,6 @@ interface GTDropdownMenuProps {
     hideCheckmark?: boolean
     menuInModal?: boolean
     useTriggerWidth?: boolean
-    unstyledTrigger?: boolean
     keepOpenOnSelect?: boolean
     fontStyle?: 'body' | 'bodySmall' | 'label'
     description?: string
@@ -90,7 +85,6 @@ const GTDropdownMenu = ({
     hideCheckmark = false,
     menuInModal = false,
     useTriggerWidth = false,
-    unstyledTrigger = false,
     keepOpenOnSelect = false,
     fontStyle = 'body',
     description,
@@ -113,9 +107,9 @@ const GTDropdownMenu = ({
     return (
         <div onClick={(e) => e.stopPropagation()}>
             <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen}>
-                <DropdownMenuTrigger ref={triggerRef} disabled={disabled} $unstyled={unstyledTrigger}>
+                <DropdownMenu.Trigger ref={triggerRef} disabled={disabled} asChild>
                     {trigger}
-                </DropdownMenuTrigger>
+                </DropdownMenu.Trigger>
                 <DropdownMenu.Portal>
                     <DropdownMenuContent
                         onKeyDown={(e) => stopKeydownPropogation(e, ['Escape'], true)}

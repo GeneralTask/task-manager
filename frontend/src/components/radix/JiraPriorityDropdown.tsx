@@ -43,7 +43,6 @@ const JiraPriorityDropdown = ({ taskId, currentPriority, allPriorities, disabled
                     onClick={() => setIsOpen(!isOpen)}
                     active={isOpen}
                     disabled={disabled}
-                    asDiv
                 />
             }
         />

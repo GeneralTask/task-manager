@@ -101,10 +101,8 @@ const LinearTask = ({ task }: LinearTaskProps) => {
                             }))}
                             trigger={
                                 <GTButtonHack
-                                    value={status}
                                     icon={externalStatusIcons[task.external_status.type]}
                                     styleType="control"
-                                    asDiv
                                 />
                             }
                         />

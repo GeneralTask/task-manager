@@ -82,7 +82,6 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
                     ],
                 ]}
                 keepOpenOnSelect
-                unstyledTrigger
                 trigger={
                     <GTIconButton
                         icon={icons.ellipsisVertical}
@@ -90,7 +89,6 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
                         disabled={disabled}
                         forceShowHoverEffect={isOpen}
                         tooltipText="Hide/show services"
-                        asDiv
                     />
                 }
             />

@@ -42,7 +42,6 @@ const FolderSelector = ({
             menuInModal
             fontStyle={fontStyle}
             useTriggerWidth={useTriggerWidth}
-            unstyledTrigger
             items={
                 folders
                     ? folders

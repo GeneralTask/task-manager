@@ -50,14 +50,12 @@ const NoteActionsDropdown = ({ note, isOwner = true }: NoteActionsDropdownProps)
                     },
                 ],
             ]}
-            unstyledTrigger
             trigger={
                 <GTIconButton
                     icon={icons.ellipsisVertical}
                     tooltipText="Note Actions"
                     onClick={() => setIsOpen(!isOpen)}
                     forceShowHoverEffect={isOpen}
-                    asDiv
                 />
             }
         />

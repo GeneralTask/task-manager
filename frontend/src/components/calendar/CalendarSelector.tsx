@@ -92,7 +92,6 @@ const CalendarSelector = ({ mode, useTriggerWidth, renderTrigger }: CalendarSele
             items={items}
             trigger={renderTrigger(selectedTaskToCalCalendar, taskToCalAccount)}
             align={mode === 'cal-selection' ? 'start' : 'center'}
-            unstyledTrigger
             fontStyle="bodySmall"
             description={
                 mode === 'cal-selection'

@@ -100,7 +100,6 @@ const SortAndFilterDropdowns = <T,>({
                                 </span>
                             }
                             styleType="control"
-                            asDiv
                         />
                     }
                 />
@@ -118,7 +117,6 @@ const SortAndFilterDropdowns = <T,>({
                                 </span>
                             }
                             styleType="control"
-                            asDiv
                         />
                     }
                 />

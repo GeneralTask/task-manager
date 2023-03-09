@@ -89,7 +89,6 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
                                 disabled={feedback.trim().length === 0}
                                 value="Send feedback"
                                 styleType="primary"
-                                fitContent
                             />
                         </Flex>
                     ),

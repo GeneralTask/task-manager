@@ -34,7 +34,6 @@ const PriorityDropdown = ({ value, onChange, disabled }: PriorityDropdownProps) 
                     onClick={() => setIsOpen(!isOpen)}
                     active={isOpen}
                     disabled={disabled}
-                    asDiv
                 />
             }
         />

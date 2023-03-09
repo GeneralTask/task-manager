@@ -278,7 +278,6 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                                             shortcutName="moveTaskToFolder"
                                             onClick={() => setIsOpen(!isOpen)}
                                             forceShowHoverEffect={isOpen}
-                                            asDiv
                                         />
                                     )}
                                     enableKeyboardShortcut

@@ -9,7 +9,7 @@ import NoStyleButton from './NoStyleButton'
 
 type TButtonType = 'primary' | 'secondary' | 'destructive' | 'control' | 'icon'
 
-const PrimaryButtonStyles = css`
+const PrimaryButtonStyles = css<GTButtonProps>`
     ${Typography.bodySmall};
     padding: ${Spacing._8} ${Spacing._16};
     color: ${Colors.control.primary.label};
@@ -21,8 +21,15 @@ const PrimaryButtonStyles = css`
         background-color: ${Colors.control.primary.highlight};
         box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.primary.hover};
     }
+    ${({ active }) =>
+        active
+            ? css`
+                  background-color: ${Colors.control.primary.highlight};
+                  box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.primary.hover};
+              `
+            : ''}
 `
-const SecondaryButtonStyles = css`
+const SecondaryButtonStyles = css<GTButtonProps>`
     ${Typography.bodySmall};
     padding: ${Spacing._8} ${Spacing._16};
     color: ${Colors.control.secondary.label};
@@ -36,8 +43,15 @@ const SecondaryButtonStyles = css`
         background-color: ${Colors.control.secondary.hover};
         box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.secondary.highlight};
     }
+    ${({ active }) =>
+        active
+            ? css`
+                  background-color: ${Colors.control.secondary.hover};
+                  box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.secondary.highlight};
+              `
+            : ''}
 `
-const DestructiveButtonStyles = css`
+const DestructiveButtonStyles = css<GTButtonProps>`
     ${Typography.bodySmall};
     padding: ${Spacing._8} ${Spacing._16};
     color: ${Colors.control.destructive.label};
@@ -49,8 +63,15 @@ const DestructiveButtonStyles = css`
         background-color: ${Colors.control.destructive.highlight};
         box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.destructive.hover};
     }
+    ${({ active }) =>
+        active
+            ? css`
+                  background-color: ${Colors.control.destructive.highlight};
+                  box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.destructive.hover};
+              `
+            : ''}
 `
-const ControlButtonStyles = css`
+const ControlButtonStyles = css<GTButtonProps>`
     ${Typography.label};
     padding: ${Spacing._4} ${Spacing._8};
     color: ${Colors.text.muted};
@@ -63,6 +84,14 @@ const ControlButtonStyles = css`
         background-color: ${Colors.background.border};
         box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.accent.pink};
     }
+    ${({ active }) =>
+        active
+            ? css`
+                  color: ${Colors.text.base};
+                  background-color: ${Colors.background.border};
+                  box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.accent.pink};
+              `
+            : ''}
 `
 const IconButtonStyles = css`
     ${Typography.label};
@@ -116,47 +145,50 @@ const MarginLeftAuto = styled.div`
 `
 interface GTButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value'> {
     styleType: TButtonType
+    value?: React.ReactNode
     icon?: IconProp | string
     iconColor?: TIconColor
     iconColorHex?: string
     textColor?: TTextColor
-    value?: React.ReactNode
     fitContent?: boolean
     active?: boolean
     isDropdown?: boolean
-    asDiv?: boolean
 }
-const GTButton = ({
-    styleType,
-    fitContent = true,
-    icon,
-    iconColor,
-    iconColorHex,
-    textColor,
-    value,
-    active,
-    isDropdown = false,
-    asDiv = false,
-    ...rest
-}: GTButtonProps) => {
-    return (
-        <Button
-            styleType={styleType}
-            fitContent={fitContent}
-            textColor={textColor}
-            active={active}
-            as={asDiv ? 'div' : 'button'}
-            {...rest}
-        >
-            {icon && <Icon icon={icon} color={iconColor} colorHex={iconColorHex} />}
-            {value}
-            {isDropdown && (
-                <MarginLeftAuto>
-                    <Icon icon={icons.caret_down_solid} color="gray" />
-                </MarginLeftAuto>
-            )}
-        </Button>
-    )
-}
+const GTButton = React.forwardRef(
+    (
+        {
+            styleType,
+            fitContent = true,
+            icon,
+            iconColor,
+            iconColorHex,
+            textColor,
+            value,
+            active,
+            isDropdown = false,
+            ...rest
+        }: GTButtonProps,
+        ref: React.Ref<HTMLButtonElement>
+    ) => {
+        return (
+            <Button
+                styleType={styleType}
+                fitContent={fitContent}
+                textColor={textColor}
+                active={active}
+                ref={ref}
+                {...rest}
+            >
+                {icon && <Icon icon={icon} color={iconColor} colorHex={iconColorHex} />}
+                {value}
+                {isDropdown && (
+                    <MarginLeftAuto>
+                        <Icon icon={icons.caret_down_solid} color="gray" />
+                    </MarginLeftAuto>
+                )}
+            </Button>
+        )
+    }
+)
 
 export default GTButton

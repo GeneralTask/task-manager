@@ -31,7 +31,7 @@ const CalendarFooter = () => {
         <Container>
             <CalendarSelector
                 mode="cal-selection"
-                renderTrigger={() => <GTIconButton icon={icons.eye} tooltipText="Show/hide calendars" asDiv />}
+                renderTrigger={() => <GTIconButton icon={icons.eye} tooltipText="Show/hide calendars" />}
             />
             <TaskToCalContainer>
                 <CalendarSelector
@@ -46,7 +46,6 @@ const CalendarFooter = () => {
                                 }
                                 icon={icons.square}
                                 iconColorHex={calendar?.color_background || ''}
-                                asDiv
                                 isDropdown
                                 styleType="secondary"
                                 fitContent={false}
