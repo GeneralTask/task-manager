@@ -404,6 +404,23 @@ func GetTaskByExternalIDWithoutUser(db *mongo.Database, externalID string, logEr
 	return &task, nil
 }
 
+func GetCalendarEventWithoutUserID(db *mongo.Database, itemID primitive.ObjectID) (*CalendarEvent, error) {
+	logger := logging.GetSentryLogger()
+	mongoResult := GetCalendarEventCollection(db).FindOne(
+		context.Background(),
+		bson.M{"$and": []bson.M{
+			{"_id": itemID},
+		}})
+	var event CalendarEvent
+	err := mongoResult.Decode(&event)
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to get event: %+v", itemID)
+		return nil, err
+	}
+
+	return &event, nil
+}
+
 func GetCalendarEvent(db *mongo.Database, itemID primitive.ObjectID, userID primitive.ObjectID) (*CalendarEvent, error) {
 	logger := logging.GetSentryLogger()
 	eventCollection := GetCalendarEventCollection(db)

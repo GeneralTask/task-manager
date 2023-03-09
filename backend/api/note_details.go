@@ -26,6 +26,6 @@ func (api *API) NoteDetails(c *gin.Context) {
 		return
 	}
 
-	noteResult := api.noteToNoteResult(note, getUserIDFromContext(c))
+	noteResult := api.noteToNoteResult(note)
 	c.JSON(200, noteResult)
 }

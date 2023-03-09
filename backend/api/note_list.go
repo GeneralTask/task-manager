@@ -43,22 +43,22 @@ func (api *API) NotesList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	noteResults := api.noteListToNoteResultList(notes, userID)
+	noteResults := api.noteListToNoteResultList(notes)
 	c.JSON(200, noteResults)
 }
 
-func (api *API) noteListToNoteResultList(notes *[]database.Note, userID primitive.ObjectID) []*NoteResult {
+func (api *API) noteListToNoteResultList(notes *[]database.Note) []*NoteResult {
 	noteResults := []*NoteResult{}
 	for _, note := range *notes {
 		// for implicit memory aliasing
 		tempNote := note
-		result := api.noteToNoteResult(&tempNote, userID)
+		result := api.noteToNoteResult(&tempNote)
 		noteResults = append(noteResults, result)
 	}
 	return noteResults
 }
 
-func (api *API) noteToNoteResult(note *database.Note, userID primitive.ObjectID) *NoteResult {
+func (api *API) noteToNoteResult(note *database.Note) *NoteResult {
 	body := ""
 	if note.Body != nil {
 		body = *note.Body
@@ -84,7 +84,7 @@ func (api *API) noteToNoteResult(note *database.Note, userID primitive.ObjectID)
 	}
 	if note.LinkedEventID != primitive.NilObjectID {
 		noteResult.LinkedEventID = note.LinkedEventID.Hex()
-		calEvent, err := database.GetCalendarEvent(api.DB, note.LinkedEventID, userID)
+		calEvent, err := database.GetCalendarEventWithoutUserID(api.DB, note.LinkedEventID)
 		if err != nil {
 			logging.GetSentryLogger().Error().Err(err).Msgf("could not fetch calendar event ID: %s", note.LinkedEventID)
 		} else {
