@@ -1366,7 +1366,7 @@ func TestShareableTask(t *testing.T) {
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 
-	authToken := login("share@generaltask.com", "")
+	authToken := login("test_modify_shareable_task@generaltask.com", "")
 	userID := getUserIDFromAuthToken(t, db, authToken)
 
 	notCompleted := false
