@@ -240,3 +240,38 @@ func TestEventList(t *testing.T) {
 		assert.Equal(t, int64(1), count)
 	})
 }
+
+func TestGetLinkedNoteID(t *testing.T) {
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+
+	userID := primitive.NewObjectID()
+	eventID := primitive.NewObjectID()
+
+	insertResult, err := database.GetOrCreateNote(
+		api.DB,
+		userID,
+		"external_id",
+		"source_id",
+		&database.Note{
+			UserID:        userID,
+			Author:        "author1",
+			CreatedAt:     *testutils.CreateDateTime("2020-04-20"),
+			UpdatedAt:     *testutils.CreateDateTime("2020-04-20"),
+			SharedUntil:   *testutils.CreateDateTime("9999-01-01"),
+			LinkedEventID: eventID,
+		},
+	)
+	assert.NoError(t, err)
+	noteID := insertResult.ID
+
+	t.Run("WrongID", func(t *testing.T) {
+		testID := primitive.NewObjectID()
+		noteIDHex := api.getLinkedNoteID(testID, userID)
+		assert.Equal(t, "", noteIDHex)
+	})
+	t.Run("Success", func(t *testing.T) {
+		noteIDHex := api.getLinkedNoteID(eventID, userID)
+		assert.Equal(t, noteID.Hex(), noteIDHex)
+	})
+}

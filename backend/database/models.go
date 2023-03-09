@@ -84,6 +84,7 @@ type SharedAccess int
 const (
 	SharedAccessPublic SharedAccess = iota
 	SharedAccessDomain
+	SharedAccessMeetingAttendees
 )
 
 type Task struct {
@@ -244,6 +245,7 @@ type CalendarEvent struct {
 	LinkedSourceID      string             `bson:"linked_task_source_id,omitempty"`
 	ColorBackground     string             `bson:"color_background,omitempty"`
 	ColorForeground     string             `bson:"color_foreground,omitempty"`
+	AttendeeEmails      []string           `bson:"attendee_emails,omitempty"`
 }
 
 type MeetingPreparationParams struct {
@@ -426,13 +428,15 @@ type DefaultSectionSettings struct {
 }
 
 type Note struct {
-	ID          primitive.ObjectID `bson:"_id,omitempty"`
-	UserID      primitive.ObjectID `bson:"user_id"`
-	Title       *string            `bson:"title,omitempty"`
-	Body        *string            `bson:"body,omitempty"`
-	Author      string             `bson:"author,omitempty"`
-	CreatedAt   primitive.DateTime `bson:"created_at,omitempty"`
-	UpdatedAt   primitive.DateTime `bson:"updated_at,omitempty"`
-	SharedUntil primitive.DateTime `bson:"shared_until,omitempty"`
-	IsDeleted   *bool              `bson:"is_deleted,omitempty"`
+	ID            primitive.ObjectID `bson:"_id,omitempty"`
+	UserID        primitive.ObjectID `bson:"user_id"`
+	LinkedEventID primitive.ObjectID `bson:"linked_event_id,omitempty"`
+	Title         *string            `bson:"title,omitempty"`
+	Body          *string            `bson:"body,omitempty"`
+	Author        string             `bson:"author,omitempty"`
+	CreatedAt     primitive.DateTime `bson:"created_at,omitempty"`
+	UpdatedAt     primitive.DateTime `bson:"updated_at,omitempty"`
+	SharedUntil   primitive.DateTime `bson:"shared_until,omitempty"`
+	SharedAccess  *SharedAccess      `bson:"shared_access,omitempty"`
+	IsDeleted     *bool              `bson:"is_deleted,omitempty"`
 }

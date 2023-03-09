@@ -81,13 +81,19 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 		return
 	}
 
-	showMovedOrDeleted, err := GetShowMovedOrDeletedQueryParam(c)
+	showMovedOrDeleted, err := GetBooleanQueryParameter(c, constants.ShowMovedOrDeleted)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	overviewResponse, err := api.GetOverviewResults(views, userID, timezoneOffset, showMovedOrDeleted)
+	ignoreMeetingPreparation, err := GetBooleanQueryParameter(c, constants.IgnoreMeetingPreparation)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	overviewResponse, err := api.GetOverviewResults(views, userID, timezoneOffset, showMovedOrDeleted, ignoreMeetingPreparation)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to load views")
 		Handle500(c)

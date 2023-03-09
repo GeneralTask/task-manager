@@ -40,9 +40,11 @@ type TaskResultV4 struct {
 	MeetingPreparationParams *MeetingPreparationParams    `json:"meeting_preparation_params,omitempty"`
 	SubTaskIDs               []primitive.ObjectID         `json:"subtask_ids,omitempty"`
 	NUXNumber                int                          `json:"id_nux_number,omitempty"`
+	LinearCycle              database.LinearCycle         `json:"linear_cycle,omitempty"`
 	CreatedAt                string                       `json:"created_at,omitempty"`
 	UpdatedAt                string                       `json:"updated_at,omitempty"`
-	LinearCycle              database.LinearCycle         `json:"linear_cycle,omitempty"`
+	CompletedAt              string                       `json:"completed_at,omitempty"`
+	DeletedAt                string                       `json:"deleted_at,omitempty"`
 }
 
 func (api *API) TasksListV4(c *gin.Context) {
@@ -208,9 +210,11 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 		IsDeleted:          deleted,
 		Comments:           t.Comments,
 		NUXNumber:          t.NUXNumber,
+		LinearCycle:        t.LinearCycle,
 		CreatedAt:          t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
 		UpdatedAt:          t.UpdatedAt.Time().UTC().Format(time.RFC3339),
-		LinearCycle:        t.LinearCycle,
+		CompletedAt:        t.CompletedAt.Time().UTC().Format(time.RFC3339),
+		DeletedAt:          t.DeletedAt.Time().UTC().Format(time.RFC3339),
 	}
 
 	if t.ParentTaskID != primitive.NilObjectID {
