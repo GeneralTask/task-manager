@@ -106,12 +106,12 @@ func (api *API) mergeTasksV4(
 	allTasks = append(allTasks, *activeTasks...)
 	allTasks = append(allTasks, *completedTasks...)
 	allTasks = append(allTasks, *deletedTasks...)
-	return api.taskListToTaskResultListV4(&allTasks, userID), nil
+	return api.taskListToTaskResultListV4(&allTasks), nil
 }
 
 // shares a lot of duplicate code with taskListToTaskResultList
 // TODO: remove taskListToTaskResultList when frontend switches to new endpoint
-func (api *API) taskListToTaskResultListV4(tasks *[]database.Task, userID primitive.ObjectID) []*TaskResultV4 {
+func (api *API) taskListToTaskResultListV4(tasks *[]database.Task) []*TaskResultV4 {
 	parentToChildIDs := make(map[primitive.ObjectID][]primitive.ObjectID)
 	taskResults := []*TaskResultV4{}
 	taskIDMap := make(map[primitive.ObjectID]bool)
@@ -126,7 +126,7 @@ func (api *API) taskListToTaskResultListV4(tasks *[]database.Task, userID primit
 		}
 		// for implicit memory aliasing
 		tempTask := task
-		taskResults = append(taskResults, api.taskToTaskResultV4(&tempTask, userID))
+		taskResults = append(taskResults, api.taskToTaskResultV4(&tempTask))
 		taskIDMap[task.ID] = true
 	}
 
@@ -153,7 +153,7 @@ func (api *API) taskListToTaskResultListV4(tasks *[]database.Task, userID primit
 
 // shares a lot of duplicate code with taskBaseToTaskResult
 // TODO: remove taskBaseToTaskResult when frontend switches to new endpoint
-func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) *TaskResultV4 {
+func (api *API) taskToTaskResultV4(t *database.Task) *TaskResultV4 {
 	var dueDate string
 	if t.DueDate != nil {
 		if t.DueDate.Time().UTC().Year() <= 1971 {

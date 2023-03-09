@@ -59,6 +59,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/notes/detail/:note_id/", handlers.NoteDetails)
 	router.GET("/note/:note_id/", handlers.NotePreview)
 
+
 	// Unauthenticated endpoints only for dev environment
 	router.POST("/create_test_user/", handlers.CreateTestUser)
 
@@ -77,6 +78,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.POST("/events/create/:source_id/", handlers.EventCreate)
 	router.DELETE("/events/delete/:event_id/", handlers.EventDelete)
 	router.PATCH("/events/modify/:event_id/", handlers.EventModify)
+	router.GET("/shareable_tasks/detail/:task_id/", handlers.ShareableTaskDetails)
 
 	router.GET("/tasks/fetch/", handlers.TasksFetch)
 	router.GET("/tasks/v3/", handlers.TasksListV3)
