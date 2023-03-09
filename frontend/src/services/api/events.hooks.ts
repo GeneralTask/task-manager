@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useQuery } from 'react-query'
+import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { useCalendarContext } from '../../components/calendar/CalendarContext'
@@ -79,6 +79,21 @@ interface TDeleteEventData {
     datetime_end: string
 }
 
+interface TGetEventParams {
+    id: string
+}
+
+export const useGetEvent = (params: TGetEventParams) => {
+    return useQuery<TEvent>(['events', params.id], (context) => getEvent(params, context), getBackgroundQueryOptions())
+}
+const getEvent = async ({ id }: TGetEventParams, { signal }: QueryFunctionContext) => {
+    try {
+        const res = await apiClient.get(`/events/${id}/`, { signal })
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('getEvent failed')
+    }
+}
 const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
     const queryClient = useGTQueryClient()
     return useQuery<TEvent[]>(
