@@ -48,7 +48,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
     const { data: userInfo } = useGetUserInfo()
     const { data: calendars } = useGetCalendars()
     const navigate = useNavigate()
-    const isPreviewMode = usePreviewMode()
+    const { isPreviewMode } = usePreviewMode()
 
     useEffect(() => {
         if (isOpen || hidePopover) return

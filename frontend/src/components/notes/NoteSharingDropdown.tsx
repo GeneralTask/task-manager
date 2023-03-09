@@ -24,7 +24,7 @@ interface NoteSharingDropdownProps {
 const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const { mutate: modifyNote } = useModifyNote()
-    const isPreviewMode = usePreviewMode()
+    const { isPreviewMode } = usePreviewMode()
     const toast = useToast()
 
     const shareNote = (sharedUntil?: string, sharedAccess?: SharedAccess) => {
