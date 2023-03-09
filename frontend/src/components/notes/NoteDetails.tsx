@@ -4,7 +4,7 @@ import { NOTE_SYNC_TIMEOUT } from '../../constants'
 import { useDebouncedEdit } from '../../hooks'
 import { useModifyNote } from '../../services/api/notes.hooks'
 import { Spacing } from '../../styles'
-import { icons } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import { TNote } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
@@ -70,7 +70,7 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
         <DetailsViewTemplate>
             <DetailsTopContainer>
                 <DetailItem>
-                    <Icon icon={icons.note} />
+                    <Icon icon={isMeetingNote ? logos.gcal : icons.note} />
                 </DetailItem>
                 <DetailItem>
                     <Label color="light">{syncIndicatorText}</Label>

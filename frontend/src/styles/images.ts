@@ -76,6 +76,7 @@ import {
     faTrash,
     faUnderline,
     faUser,
+    faUsers,
     faVideo,
     faXmark,
 } from '@fortawesome/pro-light-svg-icons'
@@ -206,6 +207,7 @@ export const icons = Object.freeze({
     trash: faTrash,
     underline: faUnderline,
     user: faUser,
+    users: faUsers,
     video: faVideo,
     warning: faCircleExclamation,
     warningTriangle: faExclamationTriangle,

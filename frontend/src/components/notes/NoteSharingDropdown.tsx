@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { useToast } from '../../hooks'
+import { usePreviewMode, useToast } from '../../hooks'
 import { useModifyNote } from '../../services/api/notes.hooks'
 import { icons } from '../../styles/images'
+import { SharedAccess } from '../../utils/enums'
 import { TNote } from '../../utils/types'
 import { getFormattedDuration } from '../../utils/utils'
 import GTButton from '../atoms/buttons/GTButton'
@@ -23,10 +24,11 @@ interface NoteSharingDropdownProps {
 const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const { mutate: modifyNote } = useModifyNote()
+    const isPreviewMode = usePreviewMode()
     const toast = useToast()
 
-    const shareNote = (expiryDate: string) => {
-        modifyNote({ id: note.id, shared_until: expiryDate })
+    const shareNote = (sharedUntil?: string, sharedAccess?: SharedAccess) => {
+        modifyNote({ id: note.id, shared_until: sharedUntil, shared_access: sharedAccess })
     }
     const unshareNote = () => {
         modifyNote({ id: note.id, shared_until: DateTime.fromMillis(1).toISO() })
@@ -40,7 +42,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
             {
                 autoClose: 2000,
                 pauseOnFocusLoss: false,
-                theme: 'dark',
+                theme: 'light',
             }
         )
     }
@@ -123,11 +125,75 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
               },
           ]
 
+    const previewSharingMenuItems: GTMenuItem[] = [
+        {
+            icon: icons.user,
+            label: 'Share with attendees',
+            hideCheckmark: !isShared,
+            selected: note.shared_access === SharedAccess.MEETING_ATTENDEES,
+            onClick: () => {
+                shareNote(SHARED_NOTE_INDEFINITE_DATE, SharedAccess.MEETING_ATTENDEES)
+                copyNoteLink()
+            },
+        },
+        {
+            icon: icons.users,
+            label: 'Share with company',
+            hideCheckmark: !isShared,
+            selected: note.shared_access === SharedAccess.SAME_DOMAIN,
+            onClick: () => {
+                shareNote(SHARED_NOTE_INDEFINITE_DATE, SharedAccess.SAME_DOMAIN)
+                copyNoteLink()
+            },
+        },
+        {
+            icon: icons.globe,
+            label: 'Share with everyone',
+            hideCheckmark: !isShared,
+            selected: note.shared_access === SharedAccess.PUBLIC,
+            onClick: () => {
+                shareNote(SHARED_NOTE_INDEFINITE_DATE, SharedAccess.PUBLIC)
+                copyNoteLink()
+            },
+        },
+    ]
+
+    const previewDropdownItems: GTMenuItem[] = isShared
+        ? [
+              {
+                  icon: icons.share,
+                  label: 'Share note',
+                  hideCheckmark: true,
+                  subItems: previewSharingMenuItems,
+              },
+              {
+                  icon: icons.external_link,
+                  label: 'Go to shared note page',
+                  hideCheckmark: true,
+                  onClick: goToSharedLink,
+              },
+              {
+                  icon: icons.copy,
+                  label: 'Copy link',
+                  hideCheckmark: true,
+                  onClick: copyNoteLink,
+              },
+              {
+                  icon: icons.link_slashed,
+                  iconColor: 'red',
+                  label: 'Disable shared link',
+                  textColor: 'red',
+                  hideCheckmark: true,
+                  onClick: unshareNote,
+              },
+          ]
+        : previewSharingMenuItems
+
     return (
         <GTDropdownMenu
             isOpen={isOpen}
             setIsOpen={setIsOpen}
-            items={dropdownItems}
+            items={isPreviewMode ? previewDropdownItems : dropdownItems}
             unstyledTrigger
             trigger={
                 <GTButton

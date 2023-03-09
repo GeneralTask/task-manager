@@ -30,6 +30,7 @@ export interface TModifyNoteData {
     title?: string
     body?: string
     shared_until?: string
+    shared_access?: SharedAccess
     is_deleted?: boolean
 }
 
@@ -118,6 +119,7 @@ export const useModifyNote = () => {
                 note.title = data.title || note.title
                 note.body = data.body ?? note.body
                 note.shared_until = data.shared_until ?? note.shared_until
+                note.shared_access = data.shared_access ?? note.shared_access
                 note.updated_at = DateTime.utc().toISO()
                 note.is_deleted = data.is_deleted ?? note.is_deleted
             })
