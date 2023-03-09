@@ -88,7 +88,7 @@ const Button = styled(NoStyleButton)<GTButtonProps>`
     border-radius: ${Border.radius.small};
     text-align: center;
     width: ${({ fitContent }) => (fitContent ? 'fit-content' : '100%')};
-    white-space: ${(props) => (props.wrapText ? 'normal' : 'nowrap')};
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     user-select: none;
@@ -116,7 +116,6 @@ const MarginLeftAuto = styled.div`
 `
 interface GTButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value'> {
     styleType: TButtonType
-    wrapText?: boolean
     icon?: IconProp | string
     iconColor?: TIconColor
     iconColorHex?: string
@@ -129,7 +128,6 @@ interface GTButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 const GTButton = ({
     styleType,
-    wrapText = false,
     fitContent = true,
     icon,
     iconColor,
@@ -144,7 +142,6 @@ const GTButton = ({
     return (
         <Button
             styleType={styleType}
-            wrapText={wrapText}
             fitContent={fitContent}
             textColor={textColor}
             active={active}
