@@ -114,6 +114,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
             optimisticId,
         })
         navigate(`/notes/${optimisticId}`)
+        return optimisticId
     }
 
     useKeyboardShortcut(
@@ -198,11 +199,8 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                         onClick={() => {
                             setIsOpen(false)
                             const note = notes?.find((n) => n.linked_event_id === event.id && !n.is_deleted)
-                            if (!note) {
-                                createMeetingNote()
-                            } else {
-                                navigate(`/notes/${note.id}`)
-                            }
+                            const id = note ? note.id : createMeetingNote()
+                            navigate(`/notes/${id}`)
                         }}
                     />
                 )}
