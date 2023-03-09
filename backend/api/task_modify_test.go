@@ -1360,7 +1360,7 @@ func TestEditFields(t *testing.T) {
 	})
 }
 
-func TestShareableTask(t *testing.T) {
+func TestModifyShareableTask(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
