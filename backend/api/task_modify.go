@@ -40,7 +40,7 @@ type TaskItemChangeableFields struct {
 	IsDeleted      *bool                  `json:"is_deleted,omitempty" bson:"is_deleted,omitempty"`
 	DeletedAt      primitive.DateTime     `json:"deleted_at,omitempty" bson:"deleted_at"`
 	SharedAccess   *database.SharedAccess `json:"shared_access,omitempty" bson:"shared_access,omitempty"`
-	SharedUntil    *primitive.DateTime    `json:"shared_until,omitempty" bson:"shared_until,omitempty"`
+	SharedUntil    primitive.DateTime     `json:"shared_until,omitempty" bson:"shared_until,omitempty"`
 }
 
 type TaskModifyParams struct {
@@ -117,7 +117,6 @@ func (api *API) TaskModify(c *gin.Context) {
 			dueDate = &result
 		}
 	}
-
 	if modifyParams.TaskItemChangeableFields != (TaskItemChangeableFields{}) {
 		updateTask := database.Task{
 			Title:              modifyParams.TaskItemChangeableFields.Title,
@@ -127,6 +126,7 @@ func (api *API) TaskModify(c *gin.Context) {
 			CompletedAt:        modifyParams.TaskItemChangeableFields.CompletedAt,
 			IsDeleted:          modifyParams.TaskItemChangeableFields.IsDeleted,
 			DeletedAt:          modifyParams.TaskItemChangeableFields.DeletedAt,
+			SharedUntil:        modifyParams.TaskItemChangeableFields.SharedUntil,
 			UpdatedAt:          primitive.NewDateTimeFromTime(time.Now()),
 			PriorityNormalized: modifyParams.TaskItemChangeableFields.Task.PriorityNormalized,
 			ExternalPriority:   modifyParams.TaskItemChangeableFields.Task.ExternalPriority,
@@ -155,9 +155,6 @@ func (api *API) TaskModify(c *gin.Context) {
 				return
 			}
 			updateTask.SharedAccess = modifyParams.TaskItemChangeableFields.SharedAccess
-		}
-		if modifyParams.TaskItemChangeableFields.SharedUntil != nil {
-			updateTask.SharedUntil = *modifyParams.TaskItemChangeableFields.SharedUntil
 		}
 
 		err = taskSourceResult.Source.ModifyTask(api.DB, userID, task.SourceAccountID, task.IDExternal, &updateTask, task)
