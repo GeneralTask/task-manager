@@ -39,7 +39,7 @@ export enum RecurrenceRate {
 }
 
 export enum SharedAccess {
-    PUBLIC,
-    SAME_DOMAIN,
-    MEETING_ATTENDEES,
+    PUBLIC = 0,
+    SAME_DOMAIN = 1,
+    MEETING_ATTENDEES = 2,
 }
