@@ -80,7 +80,7 @@ const NoteListView = () => {
                     <ActionsContainer>
                         <SortAndFilterSelectors settings={sortAndFilterSettings} />
                         <CreateButtonContainer>
-                            <NoteCreateButton type="button" />
+                            <NoteCreateButton type="button" disableShortcut />
                         </CreateButtonContainer>
                     </ActionsContainer>
                     {!notes ? (

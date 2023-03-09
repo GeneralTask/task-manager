@@ -93,6 +93,7 @@ const SubtaskList = ({ parentTask }: SubtasksProps) => {
                                 title: title,
                                 id_parent: parentTask.id,
                                 optimisticId: uuidv4(),
+                                id_folder: undefined,
                             })
                         }
                         onBlur={() => setShowCreateNewSubtask(false)}

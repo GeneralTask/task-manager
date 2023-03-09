@@ -59,5 +59,6 @@ func (api *API) EventDelete(c *gin.Context) {
 		Handle404(c)
 		return
 	}
+
 	c.JSON(200, gin.H{})
 }

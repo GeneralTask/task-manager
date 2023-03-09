@@ -84,6 +84,7 @@ type SharedAccess int
 const (
 	SharedAccessPublic SharedAccess = iota
 	SharedAccessDomain
+	SharedAccessMeetingAttendees
 )
 
 type Task struct {
@@ -134,6 +135,7 @@ type Task struct {
 	// meeting prep fields
 	MeetingPreparationParams *MeetingPreparationParams `bson:"meeting_preparation_params,omitempty"`
 	IsMeetingPreparationTask bool                      `bson:"is_meeting_preparation_task,omitempty"`
+	LinearCycle              LinearCycle               `bson:"linear_cycle,omitempty"`
 }
 
 type RecurringTaskTemplate struct {
@@ -243,6 +245,7 @@ type CalendarEvent struct {
 	LinkedSourceID      string             `bson:"linked_task_source_id,omitempty"`
 	ColorBackground     string             `bson:"color_background,omitempty"`
 	ColorForeground     string             `bson:"color_foreground,omitempty"`
+	AttendeeEmails      []string           `bson:"attendee_emails,omitempty"`
 }
 
 type MeetingPreparationParams struct {
@@ -252,6 +255,17 @@ type MeetingPreparationParams struct {
 	DatetimeEnd                   primitive.DateTime `bson:"datetime_end,omitempty"`
 	HasBeenAutomaticallyCompleted bool               `bson:"has_been_automatically_completed,omitempty"`
 	EventMovedOrDeleted           bool               `bson:"event_moved_or_deleted,omitempty"`
+}
+
+type LinearCycle struct {
+	ID              string             `bson:"_id,omitempty" json:"id,omitempty"`
+	Name            string             `bson:"name,omitempty" json:"name,omitempty"`
+	Number          float32            `bson:"number,omitempty" json:"number,omitempty"`
+	StartsAt        primitive.DateTime `bson:"starts_at,omitempty" json:"starts_at,omitempty"`
+	EndsAt          primitive.DateTime `bson:"ends_at,omitempty" json:"ends_at,omitempty"`
+	IsCurrentCycle  bool               `bson:"is_current_cycle,omitempty" json:"is_current_cycle,omitempty"`
+	IsPreviousCycle bool               `bson:"is_previous_cycle,omitempty" json:"is_previous_cycle,omitempty"`
+	IsNextCycle     bool               `bson:"is_next_cycle,omitempty" json:"is_next_cycle,omitempty"`
 }
 
 type JIRATaskParams struct {
@@ -414,13 +428,15 @@ type DefaultSectionSettings struct {
 }
 
 type Note struct {
-	ID          primitive.ObjectID `bson:"_id,omitempty"`
-	UserID      primitive.ObjectID `bson:"user_id"`
-	Title       *string            `bson:"title,omitempty"`
-	Body        *string            `bson:"body,omitempty"`
-	Author      string             `bson:"author,omitempty"`
-	CreatedAt   primitive.DateTime `bson:"created_at,omitempty"`
-	UpdatedAt   primitive.DateTime `bson:"updated_at,omitempty"`
-	SharedUntil primitive.DateTime `bson:"shared_until,omitempty"`
-	IsDeleted   *bool              `bson:"is_deleted,omitempty"`
+	ID            primitive.ObjectID `bson:"_id,omitempty"`
+	UserID        primitive.ObjectID `bson:"user_id"`
+	LinkedEventID primitive.ObjectID `bson:"linked_event_id,omitempty"`
+	Title         *string            `bson:"title,omitempty"`
+	Body          *string            `bson:"body,omitempty"`
+	Author        string             `bson:"author,omitempty"`
+	CreatedAt     primitive.DateTime `bson:"created_at,omitempty"`
+	UpdatedAt     primitive.DateTime `bson:"updated_at,omitempty"`
+	SharedUntil   primitive.DateTime `bson:"shared_until,omitempty"`
+	SharedAccess  *SharedAccess      `bson:"shared_access,omitempty"`
+	IsDeleted     *bool              `bson:"is_deleted,omitempty"`
 }
