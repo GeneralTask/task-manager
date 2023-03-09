@@ -2,7 +2,7 @@ import { ReactNode, useCallback, useEffect, useState } from 'react'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import { EVENT_UNDO_TIMEOUT, NO_TITLE } from '../../constants'
-import { useKeyboardShortcut, useNavigateToPullRequest, useNavigateToTask, useToast } from '../../hooks'
+import { useKeyboardShortcut, useNavigateToPullRequest, useNavigateToTask, usePreviewMode, useToast } from '../../hooks'
 import { useDeleteEvent, useGetCalendars } from '../../services/api/events.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -22,6 +22,7 @@ import {
     FlexAnchor,
     IconButton,
 } from '../molecules/EventDetailPopover-styles'
+import NoteCreateModal from '../notes/NoteCreateModal'
 import GTPopover from './GTPopover'
 
 interface EventDetailPopoverProps {
@@ -33,6 +34,7 @@ interface EventDetailPopoverProps {
 const EventDetailPopover = ({ event, date, hidePopover = false, children }: EventDetailPopoverProps) => {
     const toast = useToast()
     const [isOpen, setIsOpen] = useState(false)
+    const [noteCreateModalIsOpen, setNoteCreateModalIsOpen] = useState(false)
     const { selectedEvent, setSelectedEvent } = useCalendarContext()
     const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
     const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
@@ -40,6 +42,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
     const navigateToTask = useNavigateToTask()
     const navigateToPullRequest = useNavigateToPullRequest()
     const { data: calendars } = useGetCalendars()
+    const isPreviewMode = usePreviewMode()
 
     useEffect(() => {
         if (isOpen || hidePopover) return
@@ -109,7 +112,13 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
         <EventBoxStyle>
             <EventHeader>
                 <Icon icon={logos[event.logo]} />
+                <EventTitle>{event.title || NO_TITLE}</EventTitle>
                 <EventHeaderIcons>
+                    <FlexAnchor href={event.deeplink}>
+                        <IconButton>
+                            <Icon icon={icons.external_link} />
+                        </IconButton>
+                    </FlexAnchor>
                     {event.can_modify && (
                         <IconButton onClick={onDelete}>
                             <Icon icon={icons.trash} />
@@ -120,7 +129,6 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                     </IconButton>
                 </EventHeaderIcons>
             </EventHeader>
-            <EventTitle>{event.title || NO_TITLE}</EventTitle>
             {calendarAccount && calendar && (
                 <Flex gap={Spacing._8}>
                     <Icon icon={icons.square} colorHex={calendar.color_background} />
@@ -163,15 +171,19 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                         }}
                     />
                 )}
-                <FlexAnchor href={event.deeplink}>
+                {isPreviewMode && (
                     <GTButton
                         styleType="secondary"
                         size="small"
-                        value="Google Calendar"
-                        icon={icons.external_link}
+                        value="Meeting Notes"
+                        icon={icons.note}
                         fitContent={false}
+                        onClick={() => {
+                            setIsOpen(false)
+                            setNoteCreateModalIsOpen(true)
+                        }}
                     />
-                </FlexAnchor>
+                )}
             </Flex>
             {event.conference_call.logo && (
                 <Flex flex="1" alignItems="center">
@@ -193,15 +205,18 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
     )
 
     return (
-        <GTPopover
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
-            content={hidePopover ? undefined : content}
-            side="left"
-            trigger={children}
-            unstyledTrigger
-            modal={false}
-        />
+        <>
+            <GTPopover
+                isOpen={isOpen}
+                setIsOpen={setIsOpen}
+                content={hidePopover ? undefined : content}
+                side="left"
+                trigger={children}
+                unstyledTrigger
+                modal={false}
+            />
+            <NoteCreateModal isOpen={noteCreateModalIsOpen} setIsOpen={setNoteCreateModalIsOpen} linkedEvent={event} />
+        </>
     )
 }
 

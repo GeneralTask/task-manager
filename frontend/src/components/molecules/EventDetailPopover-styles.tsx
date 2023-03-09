@@ -18,6 +18,7 @@ export const EventHeader = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: ${Spacing._8};
 `
 export const EventHeaderIcons = styled.div`
     display: flex;
@@ -31,12 +32,12 @@ export const IconButton = styled(NoStyleButton)`
     }
 `
 export const EventTitle = styled.span`
-    ${Typography.body}
     color: ${Colors.text.black};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
+    ${Typography.bodySmall}
 `
 export const Description = styled.div`
     ${Typography.label};

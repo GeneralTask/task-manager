@@ -93,12 +93,7 @@ export const useCreateNote = () => {
 }
 export const createNote = async (data: TCreateNoteData) => {
     try {
-        const res = await apiClient.post('/notes/create/', {
-            title: data.title,
-            body: data.body,
-            author: data.author,
-            shared_until: data.shared_until,
-        })
+        const res = await apiClient.post('/notes/create/', data)
         return castImmutable(res.data)
     } catch {
         throw new Error('createNote failed')

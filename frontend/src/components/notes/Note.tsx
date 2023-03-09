@@ -47,7 +47,7 @@ const Note = ({ note, isSelected, onSelect }: NoteProps) => {
                 <ItemContainer isSelected={isSelected} onClick={onClick} forceHoverStyle={contextMenuOpen}>
                     <TitleContainer deleted={note.is_deleted}>
                         <Icon icon={icons.note} />
-                        <NoteTitle>{note.title}</NoteTitle>
+                        <NoteTitle>{note.title + note.linked_event_id}</NoteTitle>
                     </TitleContainer>
                     <Flex gap={Spacing._12} alignItems="center">
                         {isShared && <Icon icon={icons.link} />}

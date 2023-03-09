@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
@@ -10,6 +10,7 @@ import { useCreateNote, useGetNotes, useModifyNote } from '../../services/api/no
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
+import { TEvent } from '../../utils/types'
 import { getKeyCode, stopKeydownPropogation } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
@@ -21,8 +22,9 @@ import { getNoteURL } from './utils'
 interface NoteCreateModalProps {
     isOpen: boolean
     setIsOpen: (isOpen: boolean) => void
+    linkedEvent?: TEvent
 }
-const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
+const NoteCreateModal = ({ isOpen, setIsOpen, linkedEvent }: NoteCreateModalProps) => {
     const { data: notes } = useGetNotes()
     const { mutate: createNote } = useCreateNote()
     const { mutate: modifyNote, isError, isLoading } = useModifyNote()
@@ -36,6 +38,12 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
     const timer = useRef<{ timeout: NodeJS.Timeout; callback: () => void }>()
     const toast = useToast()
     const navigate = useNavigate()
+
+    useLayoutEffect(() => {
+        if (linkedEvent) {
+            setNoteTitle(linkedEvent.title)
+        }
+    }, [linkedEvent, isOpen])
 
     useEffect(() => {
         if (isEditing || isLoading) {
@@ -102,6 +110,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                 author: userInfo?.name || 'Anonymous',
                 optimisticId: newOptimisticNoteId,
                 shared_until: shared_until,
+                linked_event_id: linkedEvent?.id,
             })
             optimisticId.current = newOptimisticNoteId
         }
