@@ -7,7 +7,7 @@ export const LINEAR_FILTER_OPTIONS: FilterOptions<TTaskV4> = {
     all_cycles: {
         id: 'all_cycles',
         label: 'All cycles',
-        icon: icons.linear_cycle_next,
+        icon: icons.linear_cycle_all,
         lambda: () => true,
     },
     current_cycle: {
@@ -27,12 +27,6 @@ export const LINEAR_FILTER_OPTIONS: FilterOptions<TTaskV4> = {
         label: 'No cycle',
         icon: icons.linear_cycle_none,
         lambda: (task) => !task.linear_cycle,
-    },
-    previous_cycle: {
-        id: 'previous_cycle',
-        label: 'Previous cycle',
-        icon: icons.linear_cycle_previous,
-        lambda: (task) => task.linear_cycle?.is_previous_cycle == true,
     },
 }
 
