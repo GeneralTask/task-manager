@@ -129,7 +129,7 @@ func (api *API) fetchTasks(db *mongo.Database, userID interface{}) (*[]*database
 			var tasks = make(chan external.TaskResult)
 
 			// DO NOT COMMENT OUT BELOW LOGIC: CAN LEAD TO RATE LIMITING ISSUES
-			if token.ServiceID == external.TASK_SERVICE_ID_LINEAR && shouldPartialRefreshLinear(token) && 3 == 4 {
+			if token.ServiceID == external.TASK_SERVICE_ID_LINEAR && shouldPartialRefreshLinear(token) {
 				go api.getActiveLinearTasksFromDBForToken(token.UserID, token.AccountID, tasks)
 			} else {
 				go taskSourceResult.Source.GetTasks(api.DB, userID.(primitive.ObjectID), token.AccountID, tasks)
