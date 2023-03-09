@@ -75,6 +75,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/calendars/", handlers.CalendarsList)
 	router.GET("/events/", handlers.EventsList)
 	router.POST("/events/create/:source_id/", handlers.EventCreate)
+	router.GET("/events/:event_id/", handlers.EventDetail)
 	router.DELETE("/events/delete/:event_id/", handlers.EventDelete)
 	router.PATCH("/events/modify/:event_id/", handlers.EventModify)
 

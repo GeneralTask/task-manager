@@ -66,7 +66,7 @@ const LinearView = () => {
         if (task) navigate(`/linear/${task.id}`)
     }, [activeTasks, task])
 
-    const { data: linkedAccounts } = useGetLinkedAccounts()
+    const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
     const isLinearIntegrationLinked = isLinearLinked(linkedAccounts || [])
     const doesNeedRelinking = doesAccountNeedRelinking(linkedAccounts || [], 'Linear')
 
@@ -85,7 +85,7 @@ const LinearView = () => {
                             ))}
                         </>
                     ) : (
-                        <ConnectIntegration type="linear" />
+                        !isLinkedAccountsLoading && <ConnectIntegration type="linear" />
                     )}
                 </ScrollableListTemplate>
             </Flex>

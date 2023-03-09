@@ -170,6 +170,7 @@ export const icons = Object.freeze({
     jira: logos.jira,
     label: faTag,
     linear: logos.linear,
+    linear_cycle_all: '/images/linear_cycle_all.svg',
     linear_cycle_current: '/images/linear_cycle_current.svg',
     linear_cycle_next: '/images/linear_cycle_next.svg',
     linear_cycle_none: '/images/linear_backlog.svg',

@@ -173,30 +173,28 @@ func TestMarkAsComplete(t *testing.T) {
 
 	taskCollection := database.GetTaskCollection(db)
 
+	previousStatus := &database.ExternalTaskStatus{
+		ExternalID: "previous-status-id",
+		State:      "In Progress",
+		Type:       "in-progress",
+	}
+	doneStatus := &database.ExternalTaskStatus{
+		ExternalID:        "new-status-id",
+		State:             "DONE",
+		Type:              "completed",
+		IsCompletedStatus: true,
+	}
+
 	completed := false
 	insertResult, err := taskCollection.InsertOne(context.Background(), database.Task{
-		UserID:      userID,
-		IDExternal:  "sample_linear_id",
-		SourceID:    external.TASK_SOURCE_ID_LINEAR,
-		IsCompleted: &completed,
-		PreviousStatus: &database.ExternalTaskStatus{
-			ExternalID: "previous-status-id",
-			State:      "In Progress",
-			Type:       "in-progress",
-		},
+		UserID:         userID,
+		IDExternal:     "sample_linear_id",
+		SourceID:       external.TASK_SOURCE_ID_LINEAR,
+		IsCompleted:    &completed,
+		PreviousStatus: previousStatus,
 		AllStatuses: []*database.ExternalTaskStatus{
-			{
-				ExternalID:        "previous-status-id",
-				State:             "In Progress",
-				Type:              "in-progress",
-				IsCompletedStatus: false,
-			},
-			{
-				ExternalID:        "new-status-id",
-				State:             "DONE",
-				Type:              "completed",
-				IsCompletedStatus: true,
-			},
+			previousStatus,
+			doneStatus,
 		},
 	})
 	assert.NoError(t, err)
@@ -357,6 +355,7 @@ func TestMarkAsComplete(t *testing.T) {
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": linearTaskID}).Decode(&task)
 		assert.Equal(t, true, *task.IsCompleted)
 		assert.NotEqual(t, primitive.DateTime(0), task.CompletedAt)
+		assert.Equal(t, *doneStatus, *task.CompletedStatus)
 	})
 
 	t.Run("CalendarSuccess", func(t *testing.T) {
@@ -1358,4 +1357,135 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "Hello! from: approved@generaltask.com", *task.Title)
 	})
+}
+
+func TestModifyShareableTask(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	taskCollection := database.GetTaskCollection(db)
+
+	authToken := login("test_modify_shareable_task@generaltask.com", "")
+	userID := getUserIDFromAuthToken(t, db, authToken)
+
+	notCompleted := false
+	taskTitle := "Initial Title"
+	taskBody := "Initial Body"
+	taskTime := int64(60 * 60 * 1000 * 1000)
+	taskPriorityNormalized := 5.0
+	taskNumber := 3
+
+	timeNow := primitive.NewDateTimeFromTime(time.Now())
+
+	sampleTask := database.Task{
+		IDExternal:         "ID External",
+		IDOrdering:         1,
+		IDTaskSection:      constants.IDTaskSectionDefault,
+		IsCompleted:        &notCompleted,
+		Sender:             "Sender",
+		SourceID:           "gt_task",
+		SourceAccountID:    "Source Account ID",
+		Deeplink:           "Deeplink",
+		Title:              &taskTitle,
+		Body:               &taskBody,
+		HasBeenReordered:   false,
+		DueDate:            &timeNow,
+		TimeAllocation:     &taskTime,
+		CreatedAtExternal:  primitive.NewDateTimeFromTime(time.Now()),
+		PriorityNormalized: &taskPriorityNormalized,
+		TaskNumber:         &taskNumber,
+	}
+	t.Run("InvalidSharedAccessField", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		insertResult, err := taskCollection.InsertOne(
+			context.Background(),
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"shared_access": -1}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		body, err := io.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, `{"detail":"invalid shared access token"}`, string(body))
+	})
+	t.Run("SuccessPublic", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		insertResult, err := taskCollection.InsertOne(
+			context.Background(),
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"shared_access": 0, "shared_until":"2021-01-01T00:00:00Z"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		// Get the task from the database and make sure it's been updated
+		var updatedTask database.Task
+		err = taskCollection.FindOne(
+			context.Background(),
+			bson.M{"_id": insertedTaskID},
+		).Decode(&updatedTask)
+		assert.NoError(t, err)
+		assert.Equal(t, database.SharedAccess(0), *updatedTask.SharedAccess)
+		expectedDateTime := primitive.NewDateTimeFromTime(time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC))
+		assert.Equal(t, expectedDateTime, updatedTask.SharedUntil)
+	})
+	t.Run("SuccessDomain", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		insertResult, err := taskCollection.InsertOne(
+			context.Background(),
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"shared_access": 1, "shared_until":"2021-01-01T00:00:00Z"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		// Get the task from the database and make sure it's been updated
+		var updatedTask database.Task
+		err = taskCollection.FindOne(
+			context.Background(),
+			bson.M{"_id": insertedTaskID},
+		).Decode(&updatedTask)
+		assert.NoError(t, err)
+		assert.Equal(t, database.SharedAccess(1), *updatedTask.SharedAccess)
+		expectedDateTime := primitive.NewDateTimeFromTime(time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC))
+		assert.Equal(t, expectedDateTime, updatedTask.SharedUntil)
+	})
+
 }
