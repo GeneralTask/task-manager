@@ -59,7 +59,6 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/notes/detail/:note_id/", handlers.NoteDetails)
 	router.GET("/note/:note_id/", handlers.NotePreview)
 
-
 	// Unauthenticated endpoints only for dev environment
 	router.POST("/create_test_user/", handlers.CreateTestUser)
 
