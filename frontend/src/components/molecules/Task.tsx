@@ -30,6 +30,7 @@ import StatusDropdown from '../radix/StatusDropdown'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
 import Tip from '../radix/Tip'
 import ItemContainer from './ItemContainer'
+import LinearCycle from './LinearCycle'
 import { useGetRecurringTaskTemplateFromId } from './recurring-tasks/recurringTasks.utils'
 
 const MarginRight = styled.div`
@@ -289,6 +290,7 @@ const Task = ({
                     <Title title={task.title}>{task.title}</Title>
                     <RightContainer>
                         {recurringTaskTemplate && <Icon icon={icons.arrows_repeat} />}
+                        {isPreviewMode && task.linear_cycle && <LinearCycle cycle={task.linear_cycle} isCondensed />}
                         <DueDate date={dueDate} isDoneOrDeleted={task.is_done || task.is_deleted} />
                         {getPriorityDropdown()}
                         {subtasks && subtasks.length > 0 && (
