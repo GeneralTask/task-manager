@@ -70,7 +70,7 @@ func (api *API) GetMeetingPreparationTasksResult(userID primitive.ObjectID, time
 		return (*meetingTasks)[i].MeetingPreparationParams.DatetimeStart < (*meetingTasks)[j].MeetingPreparationParams.DatetimeStart
 	})
 
-	meetingTaskResult := api.taskListToTaskResultListV4(meetingTasks, userID)
+	meetingTaskResult := api.taskListToTaskResultListV4(meetingTasks)
 	// Limit to 100 tasks in response
 	if len(meetingTaskResult) > 100 {
 		meetingTaskResult = meetingTaskResult[:100]
