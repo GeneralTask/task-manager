@@ -256,11 +256,14 @@ type MeetingPreparationParams struct {
 }
 
 type LinearCycle struct {
-	ID       string             `bson:"_id,omitempty"`
-	Name     string             `bson:"name,omitempty"`
-	Number   float32            `bson:"number,omitempty"`
-	StartsAt primitive.DateTime `bson:"starts_at,omitempty"`
-	EndsAt   primitive.DateTime `bson:"ends_at,omitempty"`
+	ID              string             `bson:"_id,omitempty" json:"id,omitempty"`
+	Name            string             `bson:"name,omitempty" json:"name,omitempty"`
+	Number          float32            `bson:"number,omitempty" json:"number,omitempty"`
+	StartsAt        primitive.DateTime `bson:"starts_at,omitempty" json:"starts_at,omitempty"`
+	EndsAt          primitive.DateTime `bson:"ends_at,omitempty" json:"ends_at,omitempty"`
+	IsCurrentCycle  bool               `bson:"is_current_cycle,omitempty" json:"is_current_cycle,omitempty"`
+	IsPreviousCycle bool               `bson:"is_previous_cycle,omitempty" json:"is_previous_cycle,omitempty"`
+	IsNextCycle     bool               `bson:"is_next_cycle,omitempty" json:"is_next_cycle,omitempty"`
 }
 
 type JIRATaskParams struct {

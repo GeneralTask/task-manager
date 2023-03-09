@@ -73,6 +73,8 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 	}
 	teamToStatus := ProcessLinearStatuses(statuses)
 
+	teamToCycles := getTeamToCyclesMap(issuesQuery)
+
 	var tasks []*database.Task
 	for _, linearIssue := range issuesQuery.Issues.Nodes {
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.CreatedAt))
@@ -134,6 +136,12 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 				Number:   float32(linearIssue.Cycle.Number),
 				StartsAt: primitive.NewDateTimeFromTime(startsAt),
 				EndsAt:   primitive.NewDateTimeFromTime(endsAt),
+			}
+			teamCycles := teamToCycles[linearIssue.Team.Id.(string)]
+			if teamCycles != nil {
+				task.LinearCycle.IsCurrentCycle = teamCycles.ActiveCycle == float32(linearIssue.Cycle.Number)
+				task.LinearCycle.IsPreviousCycle = teamCycles.PreviousCycle == float32(linearIssue.Cycle.Number)
+				task.LinearCycle.IsNextCycle = teamCycles.NextCycle == float32(linearIssue.Cycle.Number)
 			}
 		}
 

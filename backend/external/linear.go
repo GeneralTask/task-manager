@@ -45,6 +45,12 @@ type LinearService struct {
 	Config LinearConfig
 }
 
+type teamCycles struct {
+	ActiveCycle   float32
+	PreviousCycle float32
+	NextCycle     float32
+}
+
 func (linear LinearService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
 	authURL := linear.Config.OauthConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	return &authURL, nil
@@ -244,6 +250,15 @@ type linearWorkflowStatesQuery struct {
 	}
 }
 
+type Cycles struct {
+	Nodes []struct {
+		Number graphql.Float
+		Team   struct {
+			Id graphql.ID
+		}
+	}
+}
+
 type linearAssignedIssuesQuery struct {
 	Issues struct {
 		Nodes []struct {
@@ -259,6 +274,7 @@ type linearAssignedIssuesQuery struct {
 				Email graphql.String
 			}
 			Team struct {
+				Id                 graphql.ID
 				Name               graphql.String
 				MergeWorkflowState struct {
 					Id   graphql.ID
@@ -293,6 +309,9 @@ type linearAssignedIssuesQuery struct {
 			}
 		}
 	} `graphql:"issues(filter: {state: {type: {nin: [\"completed\", \"canceled\"]}}, assignee: {email: {eq: $email}}})"`
+	ActiveCycles   Cycles `graphql:" activeCycles: cycles (filter: {isActive: {eq: true}})"`
+	PreviousCycles Cycles `graphql:" previousCycles: cycles (filter: {isPrevious: {eq: true}})"`
+	NextCycles     Cycles `graphql:" nextCycles: cycles (filter: {isNext: {eq: true}})"`
 }
 
 // for some reason Linear outputs priority as a Float, and then expects an int on update
@@ -551,6 +570,7 @@ func getLinearAssignedIssues(client *graphql.Client, email graphql.String) (*lin
 		logger.Error().Err(err).Msg("failed to fetch issues assigned to user")
 		return nil, err
 	}
+
 	return &query, nil
 }
 
@@ -592,6 +612,39 @@ func ProcessLinearStatuses(statusQuery *linearWorkflowStatesQuery) map[string][]
 		sortedStatuses[team] = statuses
 	}
 	return sortedStatuses
+}
+
+func getTeamToCyclesMap(issuesQuery *linearAssignedIssuesQuery) map[string]*teamCycles {
+	teamToCycles := make(map[string]*teamCycles)
+	for _, cycle := range issuesQuery.ActiveCycles.Nodes {
+		if team, exists := teamToCycles[string(cycle.Team.Id.(string))]; exists {
+			team.ActiveCycle = float32(cycle.Number)
+		} else {
+			teamToCycles[string(cycle.Team.Id.(string))] = &teamCycles{
+				ActiveCycle: float32(cycle.Number),
+			}
+		}
+	}
+	for _, cycle := range issuesQuery.PreviousCycles.Nodes {
+		if team, exists := teamToCycles[string(cycle.Team.Id.(string))]; exists {
+			team.PreviousCycle = float32(cycle.Number)
+		} else {
+			teamToCycles[string(cycle.Team.Id.(string))] = &teamCycles{
+				PreviousCycle: float32(cycle.Number),
+			}
+		}
+	}
+	for _, cycle := range issuesQuery.NextCycles.Nodes {
+		if team, exists := teamToCycles[string(cycle.Team.Id.(string))]; exists {
+			team.NextCycle = float32(cycle.Number)
+		} else {
+			teamToCycles[string(cycle.Team.Id.(string))] = &teamCycles{
+				NextCycle: float32(cycle.Number),
+			}
+		}
+	}
+
+	return teamToCycles
 }
 
 // from https://stackoverflow.com/questions/8307478/how-to-find-out-element-position-in-slice
