@@ -355,7 +355,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                     )
                 )}
                 <Flex alignItems="center" gap={Spacing._8} marginLeftAuto>
-                    {isPreviewMode && task.linear_cycle && <LinearCycle cycle={task.linear_cycle} />}
+                    {task.linear_cycle && <LinearCycle cycle={task.linear_cycle} />}
                     {!isRecurringTaskTemplate &&
                         task.external_status &&
                         task.all_statuses &&
