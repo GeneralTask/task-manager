@@ -16,7 +16,7 @@ export const Status = styled.div<{ type: TStatusColors }>`
     color: ${Colors.text.black};
     background: ${(props) => Colors.status[props.type].light};
     border: ${Border.stroke.medium} solid ${(props) => Colors.status[props.type].default};
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     padding: ${Spacing._4} ${Spacing._8};
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -35,7 +35,7 @@ export const PullRequestRow = styled.div<{ isSelected: boolean }>`
     height: ${PULL_REQUEST_HEIGHT};
     padding: ${Spacing._4} ${Spacing._4} ${Spacing._4} ${Spacing._24};
     background-color: ${Colors.background.white};
-    border-radius: ${Border.radius.mini};
+    border-radius: ${Border.radius.small};
     position: relative;
     cursor: pointer;
     box-shadow: ${Shadows.deprecated_button.default};
@@ -52,13 +52,6 @@ export const TitleContainer = styled.div`
     text-overflow: ellipsis;
     height: fit-content;
 `
-export const HeaderContainer = styled.div`
-    display: flex;
-    background-color: ${Colors.background.medium};
-    border-radius: ${Border.radius.large};
-    color: ${Colors.text.light};
-    padding: ${Spacing._16} ${Spacing._8};
-`
 export const RepositoryName = styled.div`
     color: ${Colors.text.light};
     ${Typography.deprecated_subtitle};
@@ -69,7 +62,7 @@ export const BranchNameContainer = styled.div`
     color: ${Colors.legacyColors.purple};
     border: ${Border.stroke.medium} solid ${Colors.legacyColors.purple};
     background-color: ${Colors.background.white};
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     padding: ${Spacing._4} ${Spacing._8};
     gap: ${Spacing._8};
     ${Typography.deprecated_label};

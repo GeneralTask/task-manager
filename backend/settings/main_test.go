@@ -76,7 +76,7 @@ func TestGetSettingsOptions(t *testing.T) {
 		&database.CalendarAccount{
 			UserID:     userID,
 			IDExternal: "b",
-			Calendars:  []database.Calendar{{"", "cal1", "", "title1"}, {"", "cal2", "", "title2"}},
+			Calendars:  []database.Calendar{{"", "cal1", "", "title1", "", ""}, {"", "cal2", "", "title2", "", ""}},
 		},
 	)
 	assert.NoError(t, err)
@@ -102,7 +102,7 @@ func TestGetSettingsOptions(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		settings, err := GetSettingsOptions(db, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 28, len(*settings))
+		assert.Equal(t, 30, len(*settings))
 		assert.Equal(t, "sidebar_linear_preference", (*settings)[3].FieldKey)
 		assert.Equal(t, "sidebar_jira_preference", (*settings)[4].FieldKey)
 		assert.Equal(t, "sidebar_github_preference", (*settings)[5].FieldKey)

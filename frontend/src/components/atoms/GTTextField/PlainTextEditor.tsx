@@ -9,7 +9,7 @@ const PlainTextArea = styled.textarea<{ fontSize: FontSize }>`
     background-color: inherit;
     outline: none;
     border: none;
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     resize: none;
     width: 100%;
     box-sizing: border-box;

@@ -1,6 +1,6 @@
 import { TStatusColors } from '../styles/colors'
 import { TIconImage, TLogoImage } from '../styles/images'
-import { RecurrenceRate } from './enums'
+import { RecurrenceRate, SharedAccess } from './enums'
 
 export type EmptyString = ''
 
@@ -34,6 +34,15 @@ export interface TExternalPriority {
     priority_normalized: number
     color: string
     icon_url: string
+}
+
+export interface TLinearCycle {
+    id: string
+    name?: string
+    number: number
+    is_current_cycle?: boolean
+    is_previous_cycle?: boolean
+    is_next_cycle?: boolean
 }
 
 export interface TTask {
@@ -82,6 +91,8 @@ export interface TTaskV4 {
     is_deleted: boolean
     created_at: string
     updated_at: string
+    deleted_at: string
+    completed_at: string
     id_folder?: string
     id_nux_number?: number
     id_parent?: string
@@ -93,6 +104,7 @@ export interface TTaskV4 {
     recurring_task_template_id?: string
     priority?: TExternalPriority
     all_priorities?: TExternalPriority[]
+    linear_cycle?: TLinearCycle
 
     all_statuses?: TExternalStatus[] // Deprecated but still in response (will be moved to userInfo)
 }
@@ -156,6 +168,8 @@ export interface TEvent {
     account_id: string
     calendar_id: string
     color_id: string
+    color_background?: string
+    color_foreground?: string
     logo: TLogoImage
     deeplink: string
     datetime_start: string
@@ -398,13 +412,15 @@ export type TLinkedAccountName = 'Atlassian' | 'GitHub' | 'Google Calendar' | 'S
 
 export interface TNote {
     id: string
+    linked_event_id?: string
     title: string
     body: string
     author: string
     created_at: string
     updated_at: string
-    is_deleted: boolean
     shared_until?: string
+    shared_access?: SharedAccess
+    is_deleted: boolean
     optimisticId?: string
 }
 
@@ -414,6 +430,8 @@ export interface TCalendar {
     title: string
     can_write: boolean
     access_role: string
+    color_background: string
+    color_foreground: string
 }
 
 export interface TCalendarAccount {

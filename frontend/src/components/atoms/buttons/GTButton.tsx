@@ -71,7 +71,7 @@ const Button = styled(NoStyleButton)<{
     display: flex;
     justify-content: center;
     align-items: center;
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     text-align: center;
     width: ${({ fitContent }) => (fitContent ? 'fit-content' : '100%')};
     ${(props) => props.styleType !== 'simple' && `box-shadow: ${Shadows.deprecated_button.default};`};

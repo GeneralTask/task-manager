@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import useOverviewContext from '../../context/OverviewContextProvider'
+import { useGetMeetingPreparationTasks } from '../../services/api/meeting-preparation-tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
@@ -19,7 +20,7 @@ import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 const ActionsContainer = styled.div`
     background-color: ${Colors.background.medium};
     padding: ${Spacing._8} ${Spacing._12};
-    border-radius: ${Border.radius.mini};
+    border-radius: ${Border.radius.small};
     display: flex;
     gap: ${Spacing._24};
     margin-bottom: ${Spacing._16};
@@ -64,9 +65,10 @@ const DailyOverviewView = () => {
     useSelectFirstItemOnFirstLoad()
     const { expandAll, collapseAll } = useOverviewContext()
 
-    const { lists, isLoading } = useOverviewLists()
+    const { lists, isLoading: isOverviewListsLoading } = useOverviewLists()
+    const { isLoading: isMeetingTasksLoading } = useGetMeetingPreparationTasks()
 
-    if (isLoading) return <Spinner />
+    if (isOverviewListsLoading || isMeetingTasksLoading) return <Spinner />
     return (
         <>
             <Flex>

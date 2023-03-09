@@ -2,13 +2,14 @@ import { Fragment, useDeferredValue, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { GITHUB_SUPPORTED_VIEW_NAME, TASK_INBOX_NAME } from '../../../constants'
-import { usePreviewMode } from '../../../hooks'
+import { useAuthWindow } from '../../../hooks'
 import { useAddView, useGetSupportedViews, useRemoveView } from '../../../services/api/overview.hooks'
 import { useGetLinkedAccounts } from '../../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../../styles'
 import { icons, logos } from '../../../styles/images'
 import { TSupportedView, TSupportedViewItem } from '../../../utils/types'
 import { isGithubLinked } from '../../../utils/utils'
+import Flex from '../../atoms/Flex'
 import GTCheckbox from '../../atoms/GTCheckbox'
 import GTInput from '../../atoms/GTInput'
 import GTModal from '../../atoms/GTModal'
@@ -16,7 +17,6 @@ import { Icon } from '../../atoms/Icon'
 import { Divider } from '../../atoms/SectionDivider'
 import Spinner from '../../atoms/Spinner'
 import GTButton from '../../atoms/buttons/GTButton'
-import AuthBanner from '../AuthBanner'
 import MissingRepositoryMessage from './MissingRepositoryMessage'
 
 const SupportedView = styled.div<{ isIndented?: boolean }>`
@@ -55,11 +55,11 @@ interface AddListsModalProps {
 }
 
 export const AddListsModalContent = () => {
-    const { isPreviewMode } = usePreviewMode()
     const { data: supportedViews } = useGetSupportedViews()
     const { mutate: addView } = useAddView()
     const { mutate: removeView } = useRemoveView()
     const { data: linkedAccounts } = useGetLinkedAccounts()
+    const { openAuthWindow } = useAuthWindow()
 
     const isGithubIntegrationLinked = isGithubLinked(linkedAccounts ?? [])
 
@@ -67,15 +67,12 @@ export const AddListsModalContent = () => {
     const deferredSearchTerm = useDeferredValue(searchTerm)
 
     const filteredSupportedViews = useMemo(() => {
-        const supportedViewsWithoutJiraInNonPreviewMode = supportedViews?.filter(
-            (view) => view.type !== 'jira' || isPreviewMode
-        )
         const lowercaseSearchTerm = deferredSearchTerm.toLowerCase()
-        if (!lowercaseSearchTerm || !supportedViewsWithoutJiraInNonPreviewMode) {
-            return supportedViewsWithoutJiraInNonPreviewMode
+        if (!lowercaseSearchTerm || !supportedViews) {
+            return supportedViews
         }
         const filtered: TSupportedView[] = []
-        for (const view of supportedViewsWithoutJiraInNonPreviewMode) {
+        for (const view of supportedViews) {
             if (view.is_nested) {
                 const filteredNestedViews = view.views.filter((nestedView) =>
                     nestedView.name.toLowerCase().includes(lowercaseSearchTerm)
@@ -90,7 +87,7 @@ export const AddListsModalContent = () => {
             }
         }
         return filtered
-    }, [supportedViews, deferredSearchTerm, isPreviewMode])
+    }, [supportedViews, deferredSearchTerm])
 
     const onChange = (
         supportedView: TSupportedView,
@@ -127,12 +124,21 @@ export const AddListsModalContent = () => {
             {filteredSupportedViews.length === 0 && <NoListsDialog>No lists matching your query</NoListsDialog>}
             {filteredSupportedViews.map((supportedView, viewIndex) => (
                 <Fragment key={viewIndex}>
-                    {supportedView.is_linked ? (
-                        <SupportedView>
-                            <SupportedViewContent>
-                                <Icon icon={getIcon(supportedView)} />
-                                {supportedView.name}
-                            </SupportedViewContent>
+                    <SupportedView>
+                        <SupportedViewContent>
+                            <Icon icon={getIcon(supportedView)} />
+                            {supportedView.name}
+                        </SupportedViewContent>
+                        <Flex alignItems="center" gap={Spacing._8}>
+                            {!supportedView.is_linked && (
+                                <GTButton
+                                    value="Connect"
+                                    icon={icons.external_link}
+                                    size="small"
+                                    styleType="secondary"
+                                    onClick={() => openAuthWindow({ url: supportedView.authorization_url })}
+                                />
+                            )}
                             {!supportedView.is_nested && supportedView.views.length === 1 && (
                                 <GTCheckbox
                                     isChecked={supportedView.views[0].is_added}
@@ -141,16 +147,8 @@ export const AddListsModalContent = () => {
                                     }}
                                 />
                             )}
-                        </SupportedView>
-                    ) : (
-                        <AuthBanner
-                            key={supportedView.name}
-                            authorizationUrl={supportedView.authorization_url}
-                            name={supportedView.name}
-                            logo={supportedView.logo}
-                            hasBorder={false}
-                        />
-                    )}
+                        </Flex>
+                    </SupportedView>
                     {/* Do not show divider if this is the last item in the list */}
                     {((!supportedView.is_nested && viewIndex !== filteredSupportedViews.length - 1) ||
                         (supportedView.is_nested && supportedView.views.length > 0)) && (

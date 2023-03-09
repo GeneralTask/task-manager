@@ -19,7 +19,7 @@ import SmartSuggestion from './SmartSuggestion'
 
 const Container = styled.div`
     border: ${Border.stroke.medium} solid ${Colors.background.border};
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     overflow: hidden;
     margin-bottom: ${Spacing._16};
 `

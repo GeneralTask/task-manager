@@ -17,7 +17,7 @@ export const CreateNewItemInputContainer = styled.div`
     height: ${Dimensions.TASK_HEIGHT};
     align-items: center;
     padding: 0px ${Spacing._8};
-    border-radius: ${Border.radius.mini};
+    border-radius: ${Border.radius.small};
     box-sizing: border-box;
     border: ${Border.stroke.medium} solid transparent;
     :focus-within {

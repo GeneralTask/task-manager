@@ -6,7 +6,7 @@ const getSortAndFilterSettings = <T>(
     settings: TSetting[],
     config: SortAndFilterSettingsConfig<T>,
     groupId?: string,
-    suffix?: '_main' | '_overview' // main if a folder, overview if the overview page
+    suffix?: '_main' | '_overview' | '_linear_page' // main if a folder, overview if the overview page
 ) => {
     const settingPrefix = groupId ? `${groupId}_` : ''
     const settingSuffix = suffix ?? ''
@@ -18,17 +18,12 @@ const getSortAndFilterSettings = <T>(
     )
     // allow filter to be empty because we do not currently support task filtering
     const filterPreference = settings.find(
-        (setting) => setting.field_key === `${settingPrefix}${config.filterPreferenceId}`
+        (setting) => setting.field_key === `${settingPrefix}${config.filterPreferenceId}${settingSuffix}`
     ) ?? { field_value: '' }
 
-    // all settings come from one endpoint so we can just check if one is loading
-    if (!sortingPreference || !sortDirection || !filterPreference) {
-        return config.defaultSortsAndFilters
-    }
+    const selectedSort = config.sortOptions[sortingPreference?.field_value ?? '']
 
-    const selectedSort = config.sortOptions[sortingPreference.field_value]
-
-    const selectedSortDirection = sortDirection.field_value as SORT_DIRECTION
+    const selectedSortDirection = sortDirection?.field_value as SORT_DIRECTION
 
     const selectedFilter = config.filterOptions[filterPreference.field_value]
 

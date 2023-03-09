@@ -10,7 +10,7 @@ const Container = styled.div`
     gap: ${Spacing._8};
     padding: ${Spacing._8};
     border: ${Border.stroke.medium} solid ${Colors.background.border};
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     width: 100%;
     box-sizing: border-box;
     :focus-within {

@@ -34,7 +34,7 @@ export const SubtaskContainer = styled.div<{ forceHoverStyle?: boolean; isDone?:
     align-items: center;
     gap: ${Spacing._8};
     border: ${Border.stroke.small} solid ${Colors.background.border};
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     padding: ${Spacing._16};
     ${Typography.deprecated_body};
     cursor: pointer;

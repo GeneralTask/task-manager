@@ -69,7 +69,7 @@ const SortAndFilterDropdowns = <T,>({
             Object.entries(filterOptions).map(([, value]) => ({
                 ...value,
                 selected: selectedFilter.id === value.id,
-                icon: icons.filter,
+                icon: value.icon ?? icons.filter,
                 onClick: () => setSelectedFilter(value),
             })),
         [filterOptions, selectedFilter, setSelectedFilter]
@@ -92,7 +92,7 @@ const SortAndFilterDropdowns = <T,>({
                     items={filterSelectorItems}
                     trigger={
                         <GTButton
-                            icon={icons.filter}
+                            icon={selectedFilter.icon ?? icons.filter}
                             value={
                                 <span>
                                     <DeprecatedBold>Filter: </DeprecatedBold>

@@ -14,7 +14,7 @@ const ButtonContainer = styled.div`
     width: 100%;
     box-sizing: border-box;
     background-color: ${Colors.background.medium};
-    border-radius: ${Border.radius.mini};
+    border-radius: ${Border.radius.small};
 `
 const PositionedIcon = styled(Icon)`
     margin-left: auto;

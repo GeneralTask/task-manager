@@ -31,6 +31,7 @@ func TestSupportedAccountTypesList(t *testing.T) {
 		assert.NoError(t, err)
 		assert.True(t, strings.Contains(string(body), "{\"name\":\"Google Calendar\",\"logo\":\"/images/gcal.png\",\"logo_v2\":\"gcal\",\"authorization_url\":\"http://localhost:8080/link/google/\"}"))
 		assert.Equal(t, 1, strings.Count(string(body), "{\"name\":\"Slack\",\"logo\":\"/images/slack.svg\",\"logo_v2\":\"slack\",\"authorization_url\":\"http://localhost:8080/link/slack/\"}"))
+		assert.Equal(t, 1, strings.Count(string(body), "{\"name\":\"Jira\",\"logo\":\"/images/jira.svg\",\"logo_v2\":\"jira\",\"authorization_url\":\"http://localhost:8080/link/atlassian/\"}"))
 	})
 	UnauthorizedTest(t, "GET", "/linked_accounts/supported_types/", nil)
 }

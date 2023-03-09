@@ -32,7 +32,7 @@ const HeaderButton = styled(NoStyleButton)`
     display: flex;
     align-items: center;
     min-width: 0;
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     gap: ${Spacing._8};
 `
 const HeaderText = styled.div<{ fontColor: TTextColor }>`

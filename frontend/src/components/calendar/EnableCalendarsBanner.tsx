@@ -21,7 +21,7 @@ const Container = styled.div`
     flex-direction: column;
     gap: ${Spacing._16};
     padding: ${Spacing._16};
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
 `
 const AccountName = styled(Truncated)`
     ${Typography.deprecated_bodySmall};

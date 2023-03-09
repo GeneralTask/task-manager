@@ -67,7 +67,7 @@ const CommandItem = styled(Command.Item)`
     justify-content: space-between;
     align-items: center;
     ${Typography.deprecated_bodySmall}
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     margin: 0 ${Spacing._4};
     cursor: pointer;
     padding-right: ${Spacing._16};

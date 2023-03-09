@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { DateTime } from 'luxon'
 import { useGetCalendars } from '../../services/api/events.hooks'
+import { Colors } from '../../styles'
 import { logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
 import { EdgeHighlight } from '../atoms/SelectableContainer'
@@ -19,7 +20,6 @@ import {
     EventTitle,
 } from './CalendarEvents-styles'
 import ResizeHandle from './ResizeHandle'
-import { getCalendarColor } from './utils/utils'
 
 const LONG_EVENT_THRESHOLD = 60 // minutes
 const SHORT_EVENT_THRESHOLD = 45 // minutes
@@ -117,10 +117,12 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         squareStart={startedBeforeToday}
                         squareEnd={endedAfterToday}
                         isSelected={selectedEvent?.id === props.event.id}
-                        backgroundColorHex={getCalendarColor(props.event.color_id || calendar?.color_id || '')}
+                        backgroundColorHex={
+                            props.event.color_background || calendar?.color_background || Colors.background.white
+                        }
                     />
                     <EdgeHighlight
-                        color={getCalendarColor(props.event.color_id || calendar?.color_id || '')}
+                        color={props.event.color_background || calendar?.color_background || Colors.background.white}
                         squareStart={startedBeforeToday}
                         squareEnd={endedAfterToday}
                     />

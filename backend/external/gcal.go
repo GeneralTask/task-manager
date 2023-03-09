@@ -16,6 +16,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/utils"
+	"github.com/google/go-cmp/cmp"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -27,17 +28,19 @@ type GoogleCalendarSource struct {
 	Google GoogleService
 }
 
-func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID primitive.ObjectID, accountID string, calendarID string) *database.CalendarEvent {
+func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID primitive.ObjectID, accountID string, calendarID string, colors *calendar.Colors) *database.CalendarEvent {
 	//exclude all day events which won't have a start time.
 	if len(event.Start.DateTime) == 0 {
 		return &database.CalendarEvent{}
 	}
 
 	//exclude events we declined.
+	attendeeEmails := []string{}
 	for _, attendee := range event.Attendees {
 		if attendee.Self && attendee.ResponseStatus == "declined" {
 			return &database.CalendarEvent{}
 		}
+		attendeeEmails = append(attendeeEmails, attendee.Email)
 	}
 
 	dbStartTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
@@ -69,6 +72,11 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 		CallURL:         conferenceCall.URL,
 		CallLogo:        conferenceCall.Logo,
 		CallPlatform:    conferenceCall.Platform,
+		AttendeeEmails:  attendeeEmails,
+	}
+	if colors != nil {
+		dbEvent.ColorBackground = colors.Event[event.ColorId].Background
+		dbEvent.ColorForeground = colors.Event[event.ColorId].Foreground
 	}
 
 	dbEvent, err := database.UpdateOrCreateCalendarEvent(
@@ -89,7 +97,7 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 	return dbEvent
 }
 
-func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar.Service, db *mongo.Database, userID primitive.ObjectID, accountID string, calendarId string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar.Service, db *mongo.Database, userID primitive.ObjectID, accountID string, calendarId string, startTime time.Time, endTime time.Time, result chan<- CalendarResult, colors *calendar.Colors) {
 	calendarResponse, err := calendarService.Events.
 		List(calendarId).
 		TimeMin(startTime.Format(time.RFC3339)).
@@ -111,8 +119,8 @@ func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar
 
 	var events []*database.CalendarEvent
 	for _, event := range calendarResponse.Items {
-		dbEvent := processAndStoreEvent(event, db, userID, accountID, calendarId)
-		if dbEvent != nil && *dbEvent != (database.CalendarEvent{}) {
+		dbEvent := processAndStoreEvent(event, db, userID, accountID, calendarId, colors)
+		if dbEvent != nil && !cmp.Equal(*dbEvent, (database.CalendarEvent{})) {
 			events = append(events, dbEvent)
 		}
 	}
@@ -144,11 +152,16 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		}
 	}
 
+	colors, err := calendarService.Colors.Get().Do()
+	if err != nil {
+		log.Error().Err(err).Msg("could not get color mapping")
+	}
+
 	// If we can't fetch the calendar list, we try fetching just the primary calendar
 	if !fetchAllCalendars {
 		log.Debug().Err(err).Msgf("could not fetch calendar list for accountID: %s", accountID)
 		eventChannel := make(chan CalendarResult)
-		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, "primary", startTime, endTime, eventChannel)
+		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, "primary", startTime, endTime, eventChannel, colors)
 		eventResult := <-eventChannel
 		if eventResult.Error != nil {
 			result <- emptyCalendarResult(errors.New("failed to fetch events"))
@@ -173,14 +186,19 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 	var calendars []database.Calendar
 	eventsChannels := []chan CalendarResult{}
 	for _, calendar := range calendarList.Items {
-		calendars = append(calendars, database.Calendar{
+		cal := database.Calendar{
 			AccessRole: calendar.AccessRole,
 			CalendarID: calendar.Id,
 			ColorID:    calendar.ColorId,
 			Title:      calendar.Summary,
-		})
+		}
+		if colors != nil {
+			cal.ColorBackground = colors.Calendar[calendar.ColorId].Background
+			cal.ColorForeground = colors.Calendar[calendar.ColorId].Foreground
+		}
+		calendars = append(calendars, cal)
 		eventChannel := make(chan CalendarResult)
-		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, calendar.Id, startTime, endTime, eventChannel)
+		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, calendar.Id, startTime, endTime, eventChannel, colors)
 		eventsChannels = append(eventsChannels, eventChannel)
 	}
 	for _, eventChannel := range eventsChannels {

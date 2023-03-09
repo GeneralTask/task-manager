@@ -8,7 +8,7 @@ const StatusLabelContainer = styled.div<{ type: TStatusColors }>`
     gap: ${Spacing._4};
     color: ${(props) => Colors.status[props.type].default};
     background: ${(props) => Colors.status[props.type].light};
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     padding: ${Spacing._4} ${Spacing._8};
     white-space: nowrap;
     text-overflow: ellipsis;

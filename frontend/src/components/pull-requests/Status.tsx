@@ -11,7 +11,7 @@ const StatusContainer = styled.div<{ type: TStatusColors }>`
     color: ${Colors.text.black};
     background: ${(props) => Colors.status[props.type].light};
     border: ${Border.stroke.medium} solid ${(props) => Colors.status[props.type].default};
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     padding: ${Spacing._4} ${Spacing._8};
     white-space: nowrap;
     text-overflow: ellipsis;

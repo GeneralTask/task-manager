@@ -76,7 +76,7 @@ const MainContainer = styled.div`
 const ClockContainer = styled.div`
     display: flex;
     justify-content: space-between;
-    border-top: ${Border.radius.mini} solid ${Colors.background.border};
+    border-top: ${Border.radius.small} solid ${Colors.background.border};
     ${Typography.deprecated_header};
     padding: ${Spacing._24} ${Spacing._32};
     font-weight: 274;
@@ -132,7 +132,7 @@ const CurrentEvent = styled(GTShadowContainer)`
     ${Typography.deprecated_body};
     display: flex;
     justify-content: space-between;
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
     border: ${Border.stroke.small} solid ${Colors.background.border};
     cursor: pointer;
 `

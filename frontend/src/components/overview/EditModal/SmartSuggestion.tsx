@@ -31,7 +31,7 @@ const ListContainer = styled.div`
     flex: 1;
     background-color: ${Colors.background.white};
     box-shadow: ${Shadows.deprecated_button.default};
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.medium};
 `
 const Reasoning = styled.span`
     ${Typography.deprecated_label};

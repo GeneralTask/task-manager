@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import styled from 'styled-components'
+import { useGetMeetingPreparationTasks } from '../../services/api/meeting-preparation-tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { DropType, TOverviewView } from '../../utils/types'
@@ -58,20 +59,27 @@ const AccordionHeader = ({ list, isOpen }: AccordionHeaderProps) => {
         dragPreview(getEmptyImage(), { captureDraggingState: true })
     }, [dragPreview])
 
+    // Since meeting preparation tasks are from a separate endpoint, we need to manually populate the list with the active tasks
+    const { data: meetingPreparationTasks } = useGetMeetingPreparationTasks()
+    const activeMeetingPreparationTasks = useMemo(() => {
+        return meetingPreparationTasks?.filter((task) => !task.is_deleted && !task.is_done) ?? []
+    }, [meetingPreparationTasks])
+
+    const viewItemLength =
+        list.type === 'meeting_preparation' ? activeMeetingPreparationTasks.length : list.view_items.length
+
     return (
         <StyledFlex justifyContent="space-between" ref={drag}>
             <TriggerTitle>
                 <Icon
                     icon={getOverviewAccordionHeaderIcon(list.logo, list.task_section_id)}
-                    color={list.view_items.length === 0 ? 'gray' : 'black'}
+                    color={viewItemLength === 0 ? 'gray' : 'black'}
                 />
-                <ListTitle isComplete={list.view_items.length === 0 && list.is_linked}>{list.name}</ListTitle>
+                <ListTitle isComplete={viewItemLength === 0 && list.is_linked}>{list.name}</ListTitle>
             </TriggerTitle>
             <TriggerRightContainer>
-                {list.view_items.length > 0 && (
-                    <ItemsRemainingText>{list.view_items.length} remaining</ItemsRemainingText>
-                )}
-                {list.view_items.length === 0 && list.is_linked && list.has_tasks_completed_today !== undefined && (
+                {viewItemLength > 0 && <ItemsRemainingText>{viewItemLength} remaining</ItemsRemainingText>}
+                {viewItemLength === 0 && list.is_linked && list.has_tasks_completed_today !== undefined && (
                     <StatusLabel
                         status={list.has_tasks_completed_today ? 'List complete' : 'Empty'}
                         color={list.has_tasks_completed_today ? 'green' : 'gray'}
