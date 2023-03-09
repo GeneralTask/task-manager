@@ -1,9 +1,13 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
+import { v4 as uuidv4 } from 'uuid'
 import { EVENT_UNDO_TIMEOUT, NO_TITLE } from '../../constants'
 import { useKeyboardShortcut, useNavigateToPullRequest, useNavigateToTask, usePreviewMode, useToast } from '../../hooks'
 import { useDeleteEvent, useGetCalendars } from '../../services/api/events.hooks'
+import { useCreateNote, useGetNotes } from '../../services/api/notes.hooks'
+import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
@@ -22,7 +26,6 @@ import {
     FlexAnchor,
     IconButton,
 } from '../molecules/EventDetailPopover-styles'
-import NoteCreateModal from '../notes/NoteCreateModal'
 import GTPopover from './GTPopover'
 
 interface EventDetailPopoverProps {
@@ -34,14 +37,17 @@ interface EventDetailPopoverProps {
 const EventDetailPopover = ({ event, date, hidePopover = false, children }: EventDetailPopoverProps) => {
     const toast = useToast()
     const [isOpen, setIsOpen] = useState(false)
-    const [noteCreateModalIsOpen, setNoteCreateModalIsOpen] = useState(false)
     const { selectedEvent, setSelectedEvent } = useCalendarContext()
     const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
     const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
     const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
     const navigateToTask = useNavigateToTask()
     const navigateToPullRequest = useNavigateToPullRequest()
+    const { data: notes } = useGetNotes()
+    const { mutate: createNote } = useCreateNote()
+    const { data: userInfo } = useGetUserInfo()
     const { data: calendars } = useGetCalendars()
+    const navigate = useNavigate()
     const isPreviewMode = usePreviewMode()
 
     useEffect(() => {
@@ -97,6 +103,17 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                 theme: 'dark',
             }
         )
+    }
+
+    const createMeetingNote = () => {
+        const optimisticId = uuidv4()
+        createNote({
+            title: event.title || NO_TITLE,
+            author: userInfo?.name || 'Anonymous',
+            linked_event_id: event.id,
+            optimisticId,
+        })
+        navigate(`/notes/${optimisticId}`)
     }
 
     useKeyboardShortcut(
@@ -180,7 +197,12 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                         fitContent={false}
                         onClick={() => {
                             setIsOpen(false)
-                            setNoteCreateModalIsOpen(true)
+                            const note = notes?.find((n) => n.linked_event_id === event.id && !n.is_deleted)
+                            if (!note) {
+                                createMeetingNote()
+                            } else {
+                                navigate(`/notes/${note.id}`)
+                            }
                         }}
                     />
                 )}
@@ -205,18 +227,15 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
     )
 
     return (
-        <>
-            <GTPopover
-                isOpen={isOpen}
-                setIsOpen={setIsOpen}
-                content={hidePopover ? undefined : content}
-                side="left"
-                trigger={children}
-                unstyledTrigger
-                modal={false}
-            />
-            <NoteCreateModal isOpen={noteCreateModalIsOpen} setIsOpen={setNoteCreateModalIsOpen} linkedEvent={event} />
-        </>
+        <GTPopover
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+            content={hidePopover ? undefined : content}
+            side="left"
+            trigger={children}
+            unstyledTrigger
+            modal={false}
+        />
     )
 }
 

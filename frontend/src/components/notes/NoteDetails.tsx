@@ -40,6 +40,14 @@ const DetailItem = styled.div`
     margin-left: ${Spacing._8};
     max-width: ${NOTE_TITLE_MAX_WIDTH}px;
 `
+const MeetingInfoContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: ${Spacing._8};
+    margin-bottom: ${Spacing._8};
+    padding: 0 ${Spacing._12};
+`
 interface NoteDetailsProps {
     note: TNote
     link: string
@@ -56,6 +64,7 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                   day: 'numeric',
               })}`
     const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
+    const isMeetingNote = note.linked_event_id != null
 
     return (
         <DetailsViewTemplate>
@@ -86,8 +95,15 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
                     enterBehavior="blur"
+                    disabled={isMeetingNote}
                 />
             </div>
+            {isMeetingNote && (
+                <MeetingInfoContainer>
+                    <Icon color="gray" icon={icons.calendar_blank} />
+                    <Label color="light">PLACEHOLDER EVENT DATE</Label>
+                </MeetingInfoContainer>
+            )}
             <GTTextField
                 key={note.id}
                 type="markdown"
