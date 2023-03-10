@@ -1386,7 +1386,7 @@ func TestModifyShareableTask(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		body := bytes.NewBuffer([]byte(`{"shared_access": -1}`))
+		body := bytes.NewBuffer([]byte(`{"shared_access": "boop"}`))
 		url := "/tasks/modify/" + insertedTaskID.Hex() + "/"
 		responseBody := ServeRequest(t, authToken, "PATCH", url, body, http.StatusBadRequest, api)
 		expectedBody := `{"detail":"invalid shared access token"}`
@@ -1427,7 +1427,7 @@ func TestModifyShareableTask(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		body := bytes.NewBuffer([]byte(`{"shared_access": 1}`))
+		body := bytes.NewBuffer([]byte(`{"shared_access": "domain"}`))
 		url := fmt.Sprintf("/tasks/modify/%s/", insertedTaskID.Hex())
 		ServeRequest(t, authToken, "PATCH", url, body, http.StatusOK, api)
 
@@ -1450,7 +1450,7 @@ func TestModifyShareableTask(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		body := bytes.NewBuffer([]byte(`{"shared_access": 0, "shared_until":"2021-01-01T00:00:00Z"}`))
+		body := bytes.NewBuffer([]byte(`{"shared_access": "public", "shared_until":"2021-01-01T00:00:00Z"}`))
 		url := fmt.Sprintf("/tasks/modify/%s/", insertedTaskID.Hex())
 		ServeRequest(t, authToken, "PATCH", url, body, http.StatusOK, api)
 
@@ -1473,7 +1473,7 @@ func TestModifyShareableTask(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		body := bytes.NewBuffer([]byte(`{"shared_access": 1, "shared_until":"2021-01-01T00:00:00Z"}`))
+		body := bytes.NewBuffer([]byte(`{"shared_access": "domain", "shared_until":"2021-01-01T00:00:00Z"}`))
 		url := fmt.Sprintf("/tasks/modify/%s/", insertedTaskID.Hex())
 		ServeRequest(t, authToken, "PATCH", url, body, http.StatusOK, api)
 
@@ -1498,7 +1498,7 @@ func TestModifyShareableTask(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		body := bytes.NewBuffer([]byte(`{"shared_access": 1}`))
+		body := bytes.NewBuffer([]byte(`{"shared_access": "domain"}`))
 		url := fmt.Sprintf("/tasks/modify/%s/", insertedTaskID.Hex())
 		responseBody := ServeRequest(t, authToken, "PATCH", url, body, http.StatusBadRequest, api)
 		expectedBody := `{"detail":"only General Task tasks can be shared"}`
