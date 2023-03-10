@@ -47,7 +47,7 @@ export interface Filter<T> {
     label: string
     icon?: TIconType
     // should return true if item should be included in the filtered list
-    lambda: (item: T) => boolean | undefined
+    lambda: (item: T) => boolean
 }
 
 export interface SortAndFilterItemsArgs<T> {
