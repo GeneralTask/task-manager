@@ -30,6 +30,7 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
         })
     }
 
+    console.log(task.shared_until)
     const isShared = +DateTime.fromISO(task.shared_until ?? '0') > +DateTime.local()
 
     const sharedDropdownItems: GTMenuItem[] = [
