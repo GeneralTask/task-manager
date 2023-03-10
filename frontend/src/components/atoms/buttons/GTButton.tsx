@@ -106,6 +106,14 @@ const IconButtonStyles = css`
         background-color: ${Colors.background.border};
         box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.accent.pink};
     }
+    ${({ active }) =>
+        active
+            ? css`
+                  color: ${Colors.text.base};
+                  background-color: ${Colors.background.border};
+                  box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.accent.pink};
+              `
+            : ''}
 `
 
 const Button = styled(NoStyleButton)<GTButtonProps>`
