@@ -45,6 +45,8 @@ type TaskResultV4 struct {
 	UpdatedAt                string                       `json:"updated_at,omitempty"`
 	CompletedAt              string                       `json:"completed_at,omitempty"`
 	DeletedAt                string                       `json:"deleted_at,omitempty"`
+	SharedAccess             string                       `json:"shared_access,omitempty"`
+	SharedUntil              string                       `json:"shared_until,omitempty"`
 }
 
 func (api *API) TasksListV4(c *gin.Context) {
@@ -196,6 +198,14 @@ func (api *API) taskToTaskResultV4(t *database.Task) *TaskResultV4 {
 	if t.PriorityNormalized != nil {
 		priority = *t.PriorityNormalized
 	}
+	var sharedAccess string
+	if t.SharedAccess != nil {
+		if *t.SharedAccess == database.SharedAccessPublic {
+			sharedAccess = constants.StringSharedAccessPublic
+		} else if *t.SharedAccess == database.SharedAccessDomain {
+			sharedAccess = constants.StringSharedAccessDomain
+		}
+	}
 	taskResult := &TaskResultV4{
 		ID:                 t.ID,
 		IDOrdering:         t.IDOrdering,
@@ -214,6 +224,8 @@ func (api *API) taskToTaskResultV4(t *database.Task) *TaskResultV4 {
 		UpdatedAt:          t.UpdatedAt.Time().UTC().Format(time.RFC3339),
 		CompletedAt:        t.CompletedAt.Time().UTC().Format(time.RFC3339),
 		DeletedAt:          t.DeletedAt.Time().UTC().Format(time.RFC3339),
+		SharedUntil:        t.SharedUntil.Time().UTC().Format(time.RFC3339),
+		SharedAccess:       sharedAccess,
 	}
 
 	if t.ParentTaskID != primitive.NilObjectID {
