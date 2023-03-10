@@ -1,8 +1,10 @@
 import React from 'react'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled, { css } from 'styled-components'
+import { TShortcutName } from '../../../constants/shortcuts'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
 import { TIconColor, TTextColor } from '../../../styles/colors'
+import Tip, { TTooltipSide } from '../../radix/Tip'
 import { Icon } from '../Icon'
 import NoStyleButton from './NoStyleButton'
 
@@ -164,6 +166,10 @@ interface GTButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElemen
     rightIcon?: IconProp | string
     rightIconColor?: TIconColor
     rightIconColorHex?: string
+    // tooltip
+    shortcutName?: TShortcutName
+    tooltipText?: string
+    tooltipSide?: TTooltipSide
     // misc
     fitContent?: boolean
     active?: boolean
@@ -180,13 +186,16 @@ const GTButton = React.forwardRef(
             rightIcon,
             rightIconColor,
             rightIconColorHex,
+            shortcutName,
+            tooltipText,
+            tooltipSide,
             fitContent = true,
             active,
             ...rest
         }: GTButtonProps,
         ref: React.Ref<HTMLButtonElement>
     ) => {
-        return (
+        const button = (
             <Button
                 styleType={styleType}
                 fitContent={fitContent}
@@ -197,13 +206,20 @@ const GTButton = React.forwardRef(
             >
                 {icon && <Icon icon={icon} color={iconColor} colorHex={iconColorHex} />}
                 {value}
-                {rightIcon && (
+                {rightIcon && styleType !== 'icon' && (
                     <MarginLeftAuto>
                         <Icon icon={rightIcon} color={rightIconColor} colorHex={rightIconColorHex} />
                     </MarginLeftAuto>
                 )}
             </Button>
         )
+        if (tooltipText || shortcutName)
+            return (
+                <Tip content={tooltipText} shortcutName={shortcutName} side={tooltipSide}>
+                    {button}
+                </Tip>
+            )
+        return button
     }
 )
 
