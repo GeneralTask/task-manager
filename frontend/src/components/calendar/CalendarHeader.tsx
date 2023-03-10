@@ -9,7 +9,7 @@ import Flex from '../atoms/Flex'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
-import { Subtitle } from '../atoms/typography/Typography'
+import { DeprecatedSubtitle } from '../atoms/typography/Typography'
 import { useCalendarContext } from './CalendarContext'
 
 const RelativeDiv = styled.div`
@@ -138,9 +138,9 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                                     {nextPreviousButtons}
                                 </>
                             )}
-                            <Subtitle>
+                            <DeprecatedSubtitle>
                                 {calendarType === 'week' ? date.toFormat('LLLL yyyy') : date.toFormat('ccc, LLLL d')}
-                            </Subtitle>
+                            </DeprecatedSubtitle>
                         </Flex>
                         <Flex gap={Spacing._8} alignItems="center">
                             <GTIconButton

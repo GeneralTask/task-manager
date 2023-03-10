@@ -19,7 +19,7 @@ import SlackTask from '../molecules/SlackTask'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const BodyHeader = styled.div`
-    ${Typography.body};
+    ${Typography.deprecated_body};
     color: ${Colors.text.light};
     margin-bottom: ${Spacing._16};
 `

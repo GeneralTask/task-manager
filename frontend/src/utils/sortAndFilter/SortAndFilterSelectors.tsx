@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import styled from 'styled-components'
 import GTButton from '../../components/atoms/buttons/GTButton'
-import { Bold } from '../../components/atoms/typography/Typography'
+import { DeprecatedBold } from '../../components/atoms/typography/Typography'
 import GTDropdownMenu from '../../components/radix/GTDropdownMenu'
 import { GTMenuItem } from '../../components/radix/RadixUIConstants'
 import { Spacing } from '../../styles'
@@ -95,7 +95,7 @@ const SortAndFilterDropdowns = <T,>({
                             icon={selectedFilter.icon ?? icons.filter}
                             value={
                                 <span>
-                                    <Bold>Filter: </Bold>
+                                    <DeprecatedBold>Filter: </DeprecatedBold>
                                     {filterOptions[selectedFilter.id].label}
                                 </span>
                             }
@@ -114,7 +114,7 @@ const SortAndFilterDropdowns = <T,>({
                             icon={sortIcon}
                             value={
                                 <span>
-                                    <Bold>Sort: </Bold>
+                                    <DeprecatedBold>Sort: </DeprecatedBold>
                                     {sortOptions[selectedSort.id].label}
                                 </span>
                             }

@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import { Spacing } from '../../../../styles'
 import { RecurrenceRate } from '../../../../utils/enums'
 import Flex from '../../../atoms/Flex'
-import { BodySmall } from '../../../atoms/typography/Typography'
+import { DeprecatedBodySmall } from '../../../atoms/typography/Typography'
 import GTSelect from '../../../radix/GTSelect'
 import { getRecurrenceRateSelectorOptions } from '../recurringTasks.utils'
 
@@ -18,7 +18,7 @@ interface RecurrenceRateSelectorProps {
 const RecurrenceRateSelector = ({ value, onChange, selectedDate }: RecurrenceRateSelectorProps) => {
     return (
         <Flex column gap={Spacing._12}>
-            <BodySmall>How often would you like this task to repeat?</BodySmall>
+            <DeprecatedBodySmall>How often would you like this task to repeat?</DeprecatedBodySmall>
             <GTSelect
                 items={getRecurrenceRateSelectorOptions(selectedDate)}
                 value={value.toString()}

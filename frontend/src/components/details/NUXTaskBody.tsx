@@ -14,7 +14,7 @@ const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number }>`
     border-radius: ${Border.radius.medium};
     width: 100%;
     padding: ${Spacing._8};
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
     :hover {
         box-shadow: ${Shadows.deprecated_light};
         background-color: ${Colors.background.white};

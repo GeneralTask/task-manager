@@ -15,8 +15,8 @@ import SelectableContainer, { EdgeHighlight } from '../atoms/SelectableContainer
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
-import LinearCycle from './LinearCycle'
 import PriorityDropdown from '../radix/PriorityDropdown'
+import LinearCycle from './LinearCycle'
 import { GTButtonHack } from './Task'
 
 const DominoIconContainer = styled.div`
@@ -29,7 +29,7 @@ const LinearSelectableContainer = styled(SelectableContainer)`
     padding: ${Spacing._8} ${Spacing._8} ${Spacing._8} ${Spacing._16};
     margin-bottom: ${Spacing._4};
     align-items: center;
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 
 const LinearTitle = styled.span`

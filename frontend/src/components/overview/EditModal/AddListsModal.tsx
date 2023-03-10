@@ -31,12 +31,12 @@ const SupportedViewContent = styled.div`
     align-items: center;
     color: ${Colors.text.black};
     gap: ${Spacing._8};
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 const NoListsDialog = styled.div`
     display: flex;
     justify-content: center;
-    ${Typography.body};
+    ${Typography.deprecated_body};
     margin-top: ${Spacing._8};
 `
 const SearchBarContainer = styled.div`

@@ -3,7 +3,7 @@ import { icons } from '../../styles/images'
 import { TLinearCycle } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
-import { Label } from '../atoms/typography/Typography'
+import { DeprecatedLabel } from '../atoms/typography/Typography'
 
 interface LinearCycleProps {
     cycle: TLinearCycle
@@ -20,7 +20,9 @@ const LinearCycle = ({ cycle, isCondensed }: LinearCycleProps) => {
     return (
         <Flex alignItems="center" gap={Spacing._8}>
             <Icon icon={getIcon()} />
-            <Label color="muted">{isCondensed ? cycle.number : cycle.name ?? `Cycle ${cycle.number}`}</Label>
+            <DeprecatedLabel color="muted">
+                {isCondensed ? cycle.number : cycle.name ?? `Cycle ${cycle.number}`}
+            </DeprecatedLabel>
         </Flex>
     )
 }

@@ -57,12 +57,12 @@ const FolderTitle = styled.span`
     white-space: nowrap;
     flex: 1;
     user-select: none;
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 const FolderTitleItemCount = styled.span`
     margin-left: auto;
     user-select: none;
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 export const NavigationLinkTemplate = styled.div`
     width: 100%;

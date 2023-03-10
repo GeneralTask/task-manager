@@ -31,7 +31,7 @@ export const IconButton = styled(NoStyleButton)`
     }
 `
 export const EventTitle = styled.span`
-    ${Typography.body}
+    ${Typography.deprecated_body}
     color: ${Colors.text.black};
     white-space: nowrap;
     overflow: hidden;
@@ -39,7 +39,7 @@ export const EventTitle = styled.span`
     width: 100%;
 `
 export const Description = styled.div`
-    ${Typography.label};
+    ${Typography.deprecated_label};
     color: ${Colors.text.black};
     overflow-wrap: break-word;
     overflow-y: auto;
