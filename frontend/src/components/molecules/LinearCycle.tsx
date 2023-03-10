@@ -14,7 +14,8 @@ const LinearCycle = ({ cycle, isCondensed }: LinearCycleProps) => {
     const getIcon = () => {
         if (cycle.is_current_cycle) return icons.linear_cycle_current
         if (cycle.is_next_cycle) return icons.linear_cycle_next
-        else return icons.linear_cycle_previous
+        if (cycle.is_previous_cycle) icons.linear_cycle_previous
+        return icons.linear_cycle_all
     }
     return (
         <Flex alignItems="center" gap={Spacing._8}>
