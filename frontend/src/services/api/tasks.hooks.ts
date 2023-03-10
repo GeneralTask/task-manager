@@ -8,7 +8,7 @@ import useQueryContext from '../../context/QueryContext'
 import { useGTLocalStorage, useNavigateToTask } from '../../hooks'
 import apiClient from '../../utils/api'
 import navigateToNextItemAfterOverviewCompletion from '../../utils/navigateToNextItemAfterOverviewCompletion'
-import { TExternalStatus, TOverviewView, TTaskFolder, TTaskV4, TUserInfo } from '../../utils/types'
+import { TExternalStatus, TOverviewView, TTaskFolder, TTaskSharedAccess, TTaskV4, TUserInfo } from '../../utils/types'
 import { resetOrderingIds, sleep } from '../../utils/utils'
 import { GTQueryClient, getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 
@@ -33,7 +33,7 @@ export interface TModifyTaskData {
     priorityNormalized?: number
     status?: TExternalStatus
     recurringTaskTemplateId?: string
-    shared_access?: string
+    shared_access?: TTaskSharedAccess
     shared_until?: string
 }
 
@@ -53,7 +53,7 @@ interface TTaskModifyRequestBody {
     due_date?: string
     time_duration?: number
     body?: string
-    shared_access?: string
+    shared_access?: TTaskSharedAccess
     share_until?: string
 }
 
