@@ -11,7 +11,7 @@ import {
     SLACK_SOURCE_NAME,
     SYNC_MESSAGES,
 } from '../../constants'
-import { useInterval, useKeyboardShortcut, useNavigateToTask, usePreviewMode } from '../../hooks'
+import { useInterval, useKeyboardShortcut, useNavigateToTask } from '../../hooks'
 import { useModifyRecurringTask } from '../../services/api/recurring-tasks.hooks'
 import {
     TModifyTaskData,
@@ -107,7 +107,6 @@ interface TaskDetailsProps {
     isRecurringTaskTemplate?: boolean
 }
 const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
-    const { isPreviewMode } = usePreviewMode()
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
 
@@ -355,7 +354,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                     )
                 )}
                 <Flex alignItems="center" gap={Spacing._8} marginLeftAuto>
-                    {isPreviewMode && task.linear_cycle && <LinearCycle cycle={task.linear_cycle} />}
+                    {task.linear_cycle && <LinearCycle cycle={task.linear_cycle} />}
                     {!isRecurringTaskTemplate &&
                         task.external_status &&
                         task.all_statuses &&
