@@ -126,9 +126,13 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                         {hasSuggestionsRemaining || isPreviewMode ? (
                             <GTButton styleType="primary" value="Retry" onClick={getSuggestion} />
                         ) : (
-                            <Tip content="You have no uses remaining">
-                                <GTButton styleType="primary" value="Retry" onClick={getSuggestion} disabled />
-                            </Tip>
+                            <GTButton
+                                styleType="primary"
+                                value="Retry"
+                                onClick={getSuggestion}
+                                disabled
+                                tooltipText="You have no uses remaining"
+                            />
                         )}
                     </Flex>
                 )

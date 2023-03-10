@@ -205,7 +205,7 @@ const GTButton = React.forwardRef(
                 {...rest}
             >
                 {icon && <Icon icon={icon} color={iconColor} colorHex={iconColorHex} />}
-                {value}
+                {styleType !== 'icon' ? value : ''}
                 {rightIcon && styleType !== 'icon' && (
                     <MarginLeftAuto>
                         <Icon icon={rightIcon} color={rightIconColor} colorHex={rightIconColorHex} />

@@ -5,7 +5,6 @@ import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Truncated } from '../atoms/typography/Typography'
 import SettingsModalButton from '../molecules/SettingsModalButton'
-import Tip from '../radix/Tip'
 import { useCalendarContext } from './CalendarContext'
 import CalendarSelector from './CalendarSelector'
 import { getCalendarName } from './utils/utils'
@@ -39,11 +38,9 @@ const CalendarFooter = () => {
                     renderTrigger={(calendar, accountId) => (
                         <GTButton
                             value={
-                                <Tip content="Choose the default calendar to create new events in">
-                                    <Truncated>
-                                        {getCalendarName(accountId, calendar?.title) || 'Select a calendar'}
-                                    </Truncated>
-                                </Tip>
+                                <Truncated>
+                                    {getCalendarName(accountId, calendar?.title) || 'Select a calendar'}
+                                </Truncated>
                             }
                             icon={icons.square}
                             iconColorHex={calendar?.color_background || ''}
@@ -51,6 +48,7 @@ const CalendarFooter = () => {
                             rightIconColor="gray"
                             styleType="secondary"
                             fitContent={false}
+                            tooltipText="Choose the default calendar to create new events in"
                         />
                     )}
                     useTriggerWidth={calendarType === 'week'}

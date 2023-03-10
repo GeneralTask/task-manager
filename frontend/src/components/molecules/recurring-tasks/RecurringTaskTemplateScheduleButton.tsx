@@ -27,10 +27,11 @@ const RecurringTaskTemplateScheduleButton = ({
             onClick={() => setIsEditModalOpen(true)}
         />
     ) : (
-        <GTIconButton
+        <GTButton
             icon={icons.arrows_repeat}
             tooltipText="Create a recurring task"
             onClick={() => setIsEditModalOpen(true)}
+            styleType="icon"
         />
     )
 
