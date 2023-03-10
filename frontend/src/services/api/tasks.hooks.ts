@@ -33,6 +33,8 @@ export interface TModifyTaskData {
     priorityNormalized?: number
     status?: TExternalStatus
     recurringTaskTemplateId?: string
+    shared_access?: string
+    shared_until?: string
 }
 
 interface TExternalPriority {
@@ -51,6 +53,8 @@ interface TTaskModifyRequestBody {
     due_date?: string
     time_duration?: number
     body?: string
+    shared_access?: string
+    share_until?: string
 }
 
 export interface TMarkTaskDoneOrDeletedData {
@@ -317,6 +321,8 @@ const modifyTask = async (data: TModifyTaskData) => {
     if (data.status !== undefined) requestBody.task.status = data.status
     if (data.recurringTaskTemplateId !== undefined)
         requestBody.task.recurring_task_template_id = data.recurringTaskTemplateId
+    if (data.shared_access !== undefined) requestBody.shared_access = data.shared_access
+    if (data.shared_access !== undefined) requestBody.shared_access = data.shared_access
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
         return castImmutable(res.data)
