@@ -168,6 +168,8 @@ interface GTButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElemen
     rightIconColorHex?: string
     // tooltip
     shortcutName?: TShortcutName
+    overrideShortcut?: string
+    overrideShortcutLabel?: string
     tooltipText?: string
     tooltipSide?: TTooltipSide
     // misc
@@ -187,6 +189,8 @@ const GTButton = React.forwardRef(
             rightIconColor,
             rightIconColorHex,
             shortcutName,
+            overrideShortcut,
+            overrideShortcutLabel,
             tooltipText,
             tooltipSide,
             fitContent = true,
@@ -213,12 +217,19 @@ const GTButton = React.forwardRef(
                 )}
             </Button>
         )
-        if (tooltipText || shortcutName)
+        if (tooltipText || shortcutName) {
             return (
-                <Tip content={tooltipText} shortcutName={shortcutName} side={tooltipSide}>
+                <Tip
+                    content={tooltipText}
+                    shortcutName={shortcutName}
+                    side={tooltipSide}
+                    overrideShortcut={overrideShortcut}
+                    overrideShortcutLabel={overrideShortcutLabel}
+                >
                     {button}
                 </Tip>
             )
+        }
         return button
     }
 )
