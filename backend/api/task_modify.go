@@ -30,17 +30,17 @@ type TaskChangeable struct {
 }
 
 type TaskItemChangeableFields struct {
-	Task           TaskChangeable         `json:"task,omitempty" bson:"task,omitempty"`
-	Title          *string                `json:"title,omitempty" bson:"title,omitempty"`
-	Body           *string                `json:"body,omitempty" bson:"body,omitempty"`
-	DueDate        *string                `json:"due_date,omitempty" bson:"due_date,omitempty"`
-	TimeAllocation *int64                 `json:"time_duration,omitempty" bson:"time_allocated,omitempty"`
-	IsCompleted    *bool                  `json:"is_completed,omitempty" bson:"is_completed,omitempty"`
-	CompletedAt    primitive.DateTime     `json:"completed_at,omitempty" bson:"completed_at"`
-	IsDeleted      *bool                  `json:"is_deleted,omitempty" bson:"is_deleted,omitempty"`
-	DeletedAt      primitive.DateTime     `json:"deleted_at,omitempty" bson:"deleted_at"`
-	SharedAccess   *database.SharedAccess `json:"shared_access,omitempty" bson:"shared_access,omitempty"`
-	SharedUntil    primitive.DateTime     `json:"shared_until,omitempty" bson:"shared_until,omitempty"`
+	Task           TaskChangeable     `json:"task,omitempty" bson:"task,omitempty"`
+	Title          *string            `json:"title,omitempty" bson:"title,omitempty"`
+	Body           *string            `json:"body,omitempty" bson:"body,omitempty"`
+	DueDate        *string            `json:"due_date,omitempty" bson:"due_date,omitempty"`
+	TimeAllocation *int64             `json:"time_duration,omitempty" bson:"time_allocated,omitempty"`
+	IsCompleted    *bool              `json:"is_completed,omitempty" bson:"is_completed,omitempty"`
+	CompletedAt    primitive.DateTime `json:"completed_at,omitempty" bson:"completed_at"`
+	IsDeleted      *bool              `json:"is_deleted,omitempty" bson:"is_deleted,omitempty"`
+	DeletedAt      primitive.DateTime `json:"deleted_at,omitempty" bson:"deleted_at"`
+	SharedAccess   *string            `json:"shared_access,omitempty" bson:"shared_access,omitempty"`
+	SharedUntil    primitive.DateTime `json:"shared_until,omitempty" bson:"shared_until,omitempty"`
 }
 
 type TaskModifyParams struct {
@@ -154,11 +154,16 @@ func (api *API) TaskModify(c *gin.Context) {
 			return
 		}
 		if modifyParams.TaskItemChangeableFields.SharedAccess != nil {
-			if !database.CheckTaskSharingAccessValid(*modifyParams.TaskItemChangeableFields.SharedAccess) {
+			if *modifyParams.TaskItemChangeableFields.SharedAccess == constants.StringSharedAccessPublic {
+				sharedAccessPublic := database.SharedAccessPublic
+				updateTask.SharedAccess = &sharedAccessPublic
+			} else if *modifyParams.TaskItemChangeableFields.SharedAccess == constants.StringSharedAccessDomain {
+				sharedAccessDomain := database.SharedAccessDomain
+				updateTask.SharedAccess = &sharedAccessDomain
+			} else {
 				c.JSON(400, gin.H{"detail": "invalid shared access token"})
 				return
 			}
-			updateTask.SharedAccess = modifyParams.TaskItemChangeableFields.SharedAccess
 		}
 
 		err = taskSourceResult.Source.ModifyTask(api.DB, userID, task.SourceAccountID, task.IDExternal, &updateTask, task)
