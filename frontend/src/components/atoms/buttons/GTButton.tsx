@@ -93,7 +93,7 @@ const ControlButtonStyles = css<GTButtonProps>`
               `
             : ''}
 `
-const IconButtonStyles = css`
+const IconButtonStyles = css<GTButtonProps>`
     ${Typography.label.small};
     padding: ${Spacing._4};
     color: ${Colors.text.muted};
