@@ -11,7 +11,7 @@ import {
     SLACK_SOURCE_NAME,
     SYNC_MESSAGES,
 } from '../../constants'
-import { useInterval, useKeyboardShortcut, useNavigateToTask } from '../../hooks'
+import { useInterval, useKeyboardShortcut, useNavigateToTask, usePreviewMode } from '../../hooks'
 import { useModifyRecurringTask } from '../../services/api/recurring-tasks.hooks'
 import {
     TModifyTaskData,
@@ -39,6 +39,7 @@ import CreateLinearComment from '../molecules/CreateLinearComment'
 import FolderSelector from '../molecules/FolderSelector'
 import GTDatePicker from '../molecules/GTDatePicker'
 import LinearCycle from '../molecules/LinearCycle'
+import TaskSharingDropdown from '../molecules/TaskSharingDropdown'
 import DeleteRecurringTaskTemplateButton from '../molecules/recurring-tasks/DeleteRecurringTaskTemplateButton'
 import RecurringTaskDetailsBanner from '../molecules/recurring-tasks/RecurringTaskDetailsBanner'
 import RecurringTaskTemplateDetailsBanner from '../molecules/recurring-tasks/RecurringTaskTemplateDetailsBanner'
@@ -109,6 +110,7 @@ interface TaskDetailsProps {
 const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
+    const { isPreviewMode } = usePreviewMode()
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const { mutate: reorderTask } = useReorderTask()
@@ -254,6 +256,9 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                                     styleType="secondary"
                                     size="small"
                                 />
+                            )}
+                            {isPreviewMode && taskv4.source.name === 'General Task' && (
+                                <TaskSharingDropdown task={taskv4} />
                             )}
                             {!isMeetingPreparationTask &&
                                 !isRecurringTaskTemplate &&

@@ -107,6 +107,8 @@ export interface TTaskV4 {
     priority?: TExternalPriority
     all_priorities?: TExternalPriority[]
     linear_cycle?: TLinearCycle
+    shared_until?: string
+    shared_access?: SharedAccess
 
     all_statuses?: TExternalStatus[] // Deprecated but still in response (will be moved to userInfo)
 }
