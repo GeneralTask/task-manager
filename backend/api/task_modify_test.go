@@ -1363,6 +1363,10 @@ func TestModifyShareableTask(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+	router := GetRouter(api)
+
 	taskCollection := database.GetTaskCollection(db)
 
 	authToken := login("test_modify_shareable_task@generaltask.com", "")
@@ -1381,9 +1385,6 @@ func TestModifyShareableTask(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
@@ -1408,9 +1409,6 @@ func TestModifyShareableTask(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
@@ -1442,9 +1440,6 @@ func TestModifyShareableTask(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
@@ -1473,9 +1468,6 @@ func TestModifyShareableTask(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
@@ -1505,9 +1497,6 @@ func TestModifyShareableTask(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
@@ -1539,9 +1528,6 @@ func TestModifyShareableTask(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
@@ -1564,9 +1550,6 @@ func TestModifyShareableTask(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
