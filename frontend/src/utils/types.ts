@@ -6,6 +6,8 @@ export type EmptyString = ''
 
 export type TTaskSourceName = 'General Task' | 'Google Calendar' | 'Git PR' | 'Jira' | 'Linear' | 'Slack'
 
+export type TTaskSharedAccess = 'public' | 'domain'
+
 export interface TTaskSource {
     name: TTaskSourceName
     logo: string
