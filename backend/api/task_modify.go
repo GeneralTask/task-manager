@@ -154,10 +154,10 @@ func (api *API) TaskModify(c *gin.Context) {
 			return
 		}
 		if modifyParams.TaskItemChangeableFields.SharedAccess != nil {
-			if *modifyParams.TaskItemChangeableFields.SharedAccess == "public" {
+			if *modifyParams.TaskItemChangeableFields.SharedAccess == constants.StringSharedAccessPublic {
 				sharedAccessPublic := database.SharedAccessPublic
 				updateTask.SharedAccess = &sharedAccessPublic
-			} else if *modifyParams.TaskItemChangeableFields.SharedAccess == "domain" {
+			} else if *modifyParams.TaskItemChangeableFields.SharedAccess == constants.StringSharedAccessDomain {
 				sharedAccessDomain := database.SharedAccessDomain
 				updateTask.SharedAccess = &sharedAccessDomain
 			} else {
