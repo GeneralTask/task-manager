@@ -13,7 +13,7 @@ const useSetting = (settingKey: TSettingsKey): SettingResult => {
     const { mutate } = useUpdateSetting()
 
     return useMemo(() => {
-        const setting = data?.find((setting) => setting.field_key === settingKey)
+        const setting = data?.find((setting) => setting.field_key === settingKey) ?? data?.[0]
 
         if (isLoading || !data || !setting) {
             return {
