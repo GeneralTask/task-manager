@@ -3,7 +3,6 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled, { css } from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
 import { TIconColor, TTextColor } from '../../../styles/colors'
-import { icons } from '../../../styles/images'
 import { Icon } from '../Icon'
 import NoStyleButton from './NoStyleButton'
 
@@ -152,28 +151,37 @@ const MarginLeftAuto = styled.div`
     margin-left: auto;
 `
 interface GTButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value'> {
+    // style
     styleType: TButtonType
+    // text
     value?: React.ReactNode
+    textColor?: TTextColor
+    // left icon
     icon?: IconProp | string
     iconColor?: TIconColor
     iconColorHex?: string
-    textColor?: TTextColor
+    // right icon
+    rightIcon?: IconProp | string
+    rightIconColor?: TIconColor
+    rightIconColorHex?: string
+    // misc
     fitContent?: boolean
     active?: boolean
-    isDropdown?: boolean
 }
 const GTButton = React.forwardRef(
     (
         {
             styleType,
-            fitContent = true,
+            value,
+            textColor,
             icon,
             iconColor,
             iconColorHex,
-            textColor,
-            value,
+            rightIcon,
+            rightIconColor,
+            rightIconColorHex,
+            fitContent = true,
             active,
-            isDropdown = false,
             ...rest
         }: GTButtonProps,
         ref: React.Ref<HTMLButtonElement>
@@ -189,9 +197,9 @@ const GTButton = React.forwardRef(
             >
                 {icon && <Icon icon={icon} color={iconColor} colorHex={iconColorHex} />}
                 {value}
-                {isDropdown && (
+                {rightIcon && (
                     <MarginLeftAuto>
-                        <Icon icon={icons.caret_down_solid} color="gray" />
+                        <Icon icon={rightIcon} color={rightIconColor} colorHex={rightIconColorHex} />
                     </MarginLeftAuto>
                 )}
             </Button>

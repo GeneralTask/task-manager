@@ -47,7 +47,8 @@ const CalendarFooter = () => {
                             }
                             icon={icons.square}
                             iconColorHex={calendar?.color_background || ''}
-                            isDropdown
+                            rightIcon={icons.caret_down_solid}
+                            rightIconColor="gray"
                             styleType="secondary"
                             fitContent={false}
                         />
