@@ -10,7 +10,7 @@ import NoStyleButton from './NoStyleButton'
 type TButtonType = 'primary' | 'secondary' | 'destructive' | 'control' | 'icon'
 
 const PrimaryButtonStyles = css<GTButtonProps>`
-    ${Typography.bodySmall};
+    ${Typography.title.small};
     padding: ${Spacing._8} ${Spacing._16};
     color: ${Colors.control.primary.label};
     background-color: ${Colors.control.primary.bg};
@@ -30,7 +30,7 @@ const PrimaryButtonStyles = css<GTButtonProps>`
             : ''}
 `
 const SecondaryButtonStyles = css<GTButtonProps>`
-    ${Typography.bodySmall};
+    ${Typography.title.small};
     padding: ${Spacing._8} ${Spacing._16};
     color: ${Colors.control.secondary.label};
     background-color: ${Colors.control.secondary.bg};
@@ -52,7 +52,7 @@ const SecondaryButtonStyles = css<GTButtonProps>`
             : ''}
 `
 const DestructiveButtonStyles = css<GTButtonProps>`
-    ${Typography.bodySmall};
+    ${Typography.title.small};
     padding: ${Spacing._8} ${Spacing._16};
     color: ${Colors.control.destructive.label};
     background-color: ${Colors.control.destructive.bg};
@@ -72,7 +72,7 @@ const DestructiveButtonStyles = css<GTButtonProps>`
             : ''}
 `
 const ControlButtonStyles = css<GTButtonProps>`
-    ${Typography.label};
+    ${Typography.label.small};
     padding: ${Spacing._4} ${Spacing._8};
     color: ${Colors.text.muted};
     &:hover:enabled {
@@ -94,7 +94,7 @@ const ControlButtonStyles = css<GTButtonProps>`
             : ''}
 `
 const IconButtonStyles = css`
-    ${Typography.label};
+    ${Typography.label.small};
     padding: ${Spacing._4};
     color: ${Colors.text.muted};
     &:hover:enabled {

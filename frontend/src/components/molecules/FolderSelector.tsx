@@ -11,7 +11,7 @@ interface FolderSelectorProps {
     onChange: (value: string) => void
     renderTrigger: (isOpen: boolean, setIsOpen: (isOpen: boolean) => void, selectedFolder?: TTaskFolder) => ReactNode
     useTriggerWidth?: boolean
-    fontStyle?: 'body' | 'bodySmall' | 'label'
+    fontStyle?: 'deprecated_body' | 'deprecated_bodySmall' | 'deprecated_label'
     enableKeyboardShortcut?: boolean
 }
 const FolderSelector = ({

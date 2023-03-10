@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import { DONE_FOLDER_ID, TRASH_FOLDER_ID } from '../constants'
 import { useGetFolders } from '../services/api/folders.hooks'
@@ -13,6 +14,8 @@ const useGetSortedFolderTasks = (folderId: string) => {
     const { data: meetingPreparationTasks } = useGetMeetingPreparationTasks()
     const { data: allTasks } = useGetTasksV4()
     const { data: folders } = useGetFolders()
+    const location = useLocation()
+    const isOnOverviewPage = location.pathname.includes('overview')
 
     const folder = useMemo(() => folders?.find(({ id }) => id === folderId), [folders, folderId])
 
@@ -31,7 +34,11 @@ const useGetSortedFolderTasks = (folderId: string) => {
         }
         return allTasks?.filter((t) => t.id_folder === folder.id && !t.is_done && !t.is_deleted) || []
     }, [allTasks, folder, meetingPreparationTasks])
-    const sortAndFilterSettings = useSortAndFilterSettings<TTaskV4>(TASK_SORT_AND_FILTER_CONFIG, folder?.id, '_main')
+    const sortAndFilterSettings = useSortAndFilterSettings<TTaskV4>(
+        TASK_SORT_AND_FILTER_CONFIG,
+        folder?.id,
+        isOnOverviewPage ? '_overview' : '_main'
+    )
     const { selectedSort, selectedSortDirection, isLoading: areSettingsLoading } = sortAndFilterSettings
 
     return useMemo(() => {

@@ -41,7 +41,7 @@ const HeaderText = styled.div<{ fontColor: TTextColor }>`
     text-align: left;
     border: ${Border.stroke.medium} solid transparent;
     box-sizing: border-box;
-    ${Typography.title};
+    ${Typography.deprecated_title};
 `
 
 const MAX_FOLDER_NAME_LENGTH = 200

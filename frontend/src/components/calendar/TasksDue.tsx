@@ -64,9 +64,11 @@ const TasksDue = ({ date }: TasksDueProps) => {
         () =>
             activeTasks?.filter(
                 (task) =>
-                    DateTime.fromISO(task.due_date).hasSame(date, 'day') ||
-                    (task.meeting_preparation_params &&
-                        DateTime.fromISO(task.meeting_preparation_params.datetime_start).hasSame(date, 'day'))
+                    (DateTime.fromISO(task.due_date).hasSame(date, 'day') ||
+                        (task.meeting_preparation_params &&
+                            DateTime.fromISO(task.meeting_preparation_params.datetime_start).hasSame(date, 'day'))) &&
+                    // make sure parent task is not deleted
+                    (!task.id_parent || activeTasks.some((t) => t.id === task.id_parent))
             ) || [],
         [activeTasks, date]
     )
@@ -75,7 +77,10 @@ const TasksDue = ({ date }: TasksDueProps) => {
         () =>
             activeTasks?.filter(
                 (task) =>
-                    !DateTime.fromISO(task.due_date).hasSame(date, 'day') && DateTime.fromISO(task.due_date) < date
+                    !DateTime.fromISO(task.due_date).hasSame(date, 'day') &&
+                    DateTime.fromISO(task.due_date) < date &&
+                    // make sure parent task is not deleted
+                    (!task.id_parent || activeTasks.some((t) => t.id === task.id_parent))
             ) || [],
         [activeTasks, date]
     )

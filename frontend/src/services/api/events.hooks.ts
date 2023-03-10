@@ -87,8 +87,9 @@ const useGetEvents = (params: { startISO: string; endISO: string }, calendarType
         {
             ...getBackgroundQueryOptions(EVENTS_REFETCH_INTERVAL),
             onSettled: () => {
-                // because apparently we only refetch calendars when we refetch events
-                queryClient.invalidateQueries(['calendars', 'meeting_preparation_tasks'])
+                // because we only refetch calendars when we refetch events
+                queryClient.invalidateQueries(['calendars'])
+                queryClient.invalidateQueries(['meeting_preparation_tasks'])
             },
         }
     )

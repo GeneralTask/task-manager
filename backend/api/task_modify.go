@@ -39,6 +39,8 @@ type TaskItemChangeableFields struct {
 	CompletedAt    primitive.DateTime `json:"completed_at,omitempty" bson:"completed_at"`
 	IsDeleted      *bool              `json:"is_deleted,omitempty" bson:"is_deleted,omitempty"`
 	DeletedAt      primitive.DateTime `json:"deleted_at,omitempty" bson:"deleted_at"`
+	SharedAccess   *string            `json:"shared_access,omitempty" bson:"shared_access,omitempty"`
+	SharedUntil    primitive.DateTime `json:"shared_until,omitempty" bson:"shared_until,omitempty"`
 }
 
 type TaskModifyParams struct {
@@ -115,7 +117,6 @@ func (api *API) TaskModify(c *gin.Context) {
 			dueDate = &result
 		}
 	}
-
 	if modifyParams.TaskItemChangeableFields != (TaskItemChangeableFields{}) {
 		updateTask := database.Task{
 			Title:              modifyParams.TaskItemChangeableFields.Title,
@@ -125,6 +126,7 @@ func (api *API) TaskModify(c *gin.Context) {
 			CompletedAt:        modifyParams.TaskItemChangeableFields.CompletedAt,
 			IsDeleted:          modifyParams.TaskItemChangeableFields.IsDeleted,
 			DeletedAt:          modifyParams.TaskItemChangeableFields.DeletedAt,
+			SharedUntil:        modifyParams.TaskItemChangeableFields.SharedUntil,
 			UpdatedAt:          primitive.NewDateTimeFromTime(time.Now()),
 			PriorityNormalized: modifyParams.TaskItemChangeableFields.Task.PriorityNormalized,
 			ExternalPriority:   modifyParams.TaskItemChangeableFields.Task.ExternalPriority,
@@ -145,6 +147,23 @@ func (api *API) TaskModify(c *gin.Context) {
 				return
 			}
 			updateTask.RecurringTaskTemplateID = recurring_task_template_id
+		}
+
+		if task.SourceID != external.TASK_SOURCE_ID_GT_TASK && (modifyParams.TaskItemChangeableFields.SharedUntil != 0 || modifyParams.TaskItemChangeableFields.SharedAccess != nil) {
+			c.JSON(400, gin.H{"detail": "only General Task tasks can be shared"})
+			return
+		}
+		if modifyParams.TaskItemChangeableFields.SharedAccess != nil {
+			if *modifyParams.TaskItemChangeableFields.SharedAccess == constants.StringSharedAccessPublic {
+				sharedAccessPublic := database.SharedAccessPublic
+				updateTask.SharedAccess = &sharedAccessPublic
+			} else if *modifyParams.TaskItemChangeableFields.SharedAccess == constants.StringSharedAccessDomain {
+				sharedAccessDomain := database.SharedAccessDomain
+				updateTask.SharedAccess = &sharedAccessDomain
+			} else {
+				c.JSON(400, gin.H{"detail": "invalid shared access token"})
+				return
+			}
 		}
 
 		err = taskSourceResult.Source.ModifyTask(api.DB, userID, task.SourceAccountID, task.IDExternal, &updateTask, task)
@@ -196,6 +215,9 @@ func ValidateFields(c *gin.Context, updateFields *TaskItemChangeableFields, task
 		if statusToUpdateTo == nil {
 			c.JSON(400, gin.H{"detail": "status value not in all status field for task"})
 			return false
+		}
+		if statusToUpdateTo.IsCompletedStatus {
+			updateFields.Task.CompletedStatus = statusToUpdateTo
 		}
 
 		if (task.IsCompleted != nil) && ((*task.IsCompleted && !statusToUpdateTo.IsCompletedStatus) || (task.IsCompleted != nil && !*task.IsCompleted && statusToUpdateTo.IsCompletedStatus)) {

@@ -12,11 +12,11 @@ const serializer = new JSONTransformer()
 
 const EditorTypographyOverride = css`
     div[aria-label='Floating Toolbar'] {
-        ${Typography.body};
+        ${Typography.deprecated_body};
         color: ${Colors.text.light} !important;
     }
     button[aria-label='Edit link'] {
-        ${Typography.body};
+        ${Typography.deprecated_body};
         display: inline;
         color: ${Colors.text.light} !important;
     }

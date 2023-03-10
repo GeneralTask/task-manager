@@ -12,6 +12,7 @@ import {
     MenuItemLabel,
     MenuItemShared,
 } from './RadixUIConstants'
+import Tip from './Tip'
 
 const ContextMenuTrigger = styled(ContextMenu.Trigger)`
     all: unset;
@@ -48,56 +49,68 @@ const GTContextMenu = ({ items, trigger, onOpenChange }: GTContextMenuProps) => 
                             <Fragment key={item.label}>
                                 {item.subItems ? (
                                     <ContextMenu.Sub>
-                                        <ContextMenuSubTrigger
-                                            key={item.label}
-                                            onClick={item.onClick}
-                                            $textColor={item.textColor}
-                                        >
-                                            {item.icon && <Icon icon={item.icon} color={item.iconColor} />}
-                                            <MenuItemLabel>{item.label}</MenuItemLabel>
-                                            <MarginLeftIcon>
-                                                <Icon icon={icons.caret_right} />
-                                            </MarginLeftIcon>
-                                        </ContextMenuSubTrigger>
+                                        <Tip key={item.label} content={item.tip} side="right">
+                                            <ContextMenuSubTrigger
+                                                onSelect={item.onClick}
+                                                $textColor={item.textColor}
+                                                disabled={item.disabled}
+                                                $disabled={item.disabled}
+                                            >
+                                                {item.icon && <Icon icon={item.icon} color={item.iconColor} />}
+                                                <MenuItemLabel>{item.label}</MenuItemLabel>
+                                                <MarginLeftIcon>
+                                                    <Icon icon={icons.caret_right} />
+                                                </MarginLeftIcon>
+                                            </ContextMenuSubTrigger>
+                                        </Tip>
                                         <ContextMenu.Portal>
                                             <ContextMenuSubContent>
                                                 {item.subItems.map((subItem) =>
                                                     subItem.renderer ? (
                                                         <Fragment key={subItem.label}>{subItem.renderer()}</Fragment>
                                                     ) : (
-                                                        <ContextMenuItem
-                                                            key={subItem.label}
-                                                            textValue={subItem.label}
-                                                            onClick={subItem.onClick}
-                                                        >
-                                                            <FixedSizeIcon visible={subItem.selected}>
-                                                                <Icon icon={icons.check} />
-                                                            </FixedSizeIcon>
-                                                            {subItem.icon && (
-                                                                <Icon icon={subItem.icon} color={subItem.iconColor} />
-                                                            )}
-                                                            <MenuItemLabel>{subItem.label}</MenuItemLabel>
-                                                        </ContextMenuItem>
+                                                        <Tip key={subItem.label} content={item.tip} side="right">
+                                                            <ContextMenuItem
+                                                                textValue={subItem.label}
+                                                                onSelect={subItem.onClick}
+                                                                $disabled={subItem.disabled}
+                                                                disabled={item.disabled}
+                                                            >
+                                                                <FixedSizeIcon visible={subItem.selected}>
+                                                                    <Icon icon={icons.check} />
+                                                                </FixedSizeIcon>
+                                                                {subItem.icon && (
+                                                                    <Icon
+                                                                        icon={subItem.icon}
+                                                                        color={subItem.iconColor}
+                                                                    />
+                                                                )}
+                                                                <MenuItemLabel>{subItem.label}</MenuItemLabel>
+                                                            </ContextMenuItem>
+                                                        </Tip>
                                                     )
                                                 )}
                                             </ContextMenuSubContent>
                                         </ContextMenu.Portal>
                                     </ContextMenu.Sub>
                                 ) : (
-                                    <ContextMenuItem
-                                        key={item.label}
-                                        textValue={item.label}
-                                        onClick={item.onClick}
-                                        $textColor={item.textColor}
-                                    >
-                                        {item.icon && <Icon icon={item.icon} color={item.iconColor} />}
-                                        {item.label}
-                                        {item.selected && (
-                                            <MarginLeftIcon>
-                                                <Icon icon={icons.check} />
-                                            </MarginLeftIcon>
-                                        )}
-                                    </ContextMenuItem>
+                                    <Tip key={item.label} content={item.tip} side="right">
+                                        <ContextMenuItem
+                                            textValue={item.label}
+                                            onSelect={item.onClick}
+                                            $textColor={item.textColor}
+                                            $disabled={item.disabled}
+                                            disabled={item.disabled}
+                                        >
+                                            {item.icon && <Icon icon={item.icon} color={item.iconColor} />}
+                                            {item.label}
+                                            {item.selected && (
+                                                <MarginLeftIcon>
+                                                    <Icon icon={icons.check} />
+                                                </MarginLeftIcon>
+                                            )}
+                                        </ContextMenuItem>
+                                    </Tip>
                                 )}
                             </Fragment>
                         ))}

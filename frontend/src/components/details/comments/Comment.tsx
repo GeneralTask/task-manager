@@ -15,15 +15,15 @@ const TopContainer = styled.div`
 const BodyContainer = styled.div`
     padding: ${Spacing._4};
     margin-bottom: ${Spacing._16};
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 const UsernameText = styled.div`
-    ${Typography.bodySmall};
-    ${Typography.bold};
+    ${Typography.deprecated_bodySmall};
+    ${Typography.deprecated_bold};
 `
 const GrayText = styled.span`
     color: ${Colors.text.light};
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 
 interface CommentProps {

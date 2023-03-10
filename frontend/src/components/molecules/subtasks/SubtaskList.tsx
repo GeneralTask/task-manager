@@ -19,7 +19,7 @@ const AddTaskbutton = styled.div`
     align-items: center;
     gap: ${Spacing._8};
     color: ${Colors.text.light};
-    ${Typography.label};
+    ${Typography.deprecated_label};
     cursor: pointer;
     user-select: none;
     padding: ${Spacing._8};
@@ -93,6 +93,7 @@ const SubtaskList = ({ parentTask }: SubtasksProps) => {
                                 title: title,
                                 id_parent: parentTask.id,
                                 optimisticId: uuidv4(),
+                                id_folder: undefined,
                             })
                         }
                         onBlur={() => setShowCreateNewSubtask(false)}

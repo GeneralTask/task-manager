@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { usePreviewMode, useSetting } from '../../hooks'
+import { useSetting } from '../../hooks'
 import { icons, logos } from '../../styles/images'
 import GTIconButton from '../atoms/buttons/GTIconButton'
-import { Label } from '../atoms/typography/Typography'
+import { DeprecatedLabel } from '../atoms/typography/Typography'
 import SettingsModal from '../molecules/SettingsModal'
 import GTDropdownMenu from './GTDropdownMenu'
 
@@ -10,7 +10,6 @@ interface ServiceVisibilityDropdownProps {
     disabled?: boolean
 }
 const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps) => {
-    const { isPreviewMode } = usePreviewMode()
     const [isOpen, setIsOpen] = useState(false)
     const [settingsIsOpen, setSettingsIsOpen] = useState(false)
     const showGitHubSetting = useSetting('sidebar_github_preference')
@@ -41,7 +40,7 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
                             label: 'Show these services',
                             disabled: true,
                             hideCheckmark: true,
-                            renderer: () => <Label color="light">Show these services</Label>,
+                            renderer: () => <DeprecatedLabel color="light">Show these services</DeprecatedLabel>,
                         },
                         {
                             label: 'GitHub',
@@ -61,16 +60,12 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
                             onClick: () => showSlackSetting.updateSetting(!showSlack),
                             selected: showSlack,
                         },
-                        ...(isPreviewMode
-                            ? [
-                                  {
-                                      label: 'Jira',
-                                      icon: logos.jira,
-                                      onClick: () => showJiraSetting.updateSetting(!showJira),
-                                      selected: showJira,
-                                  },
-                              ]
-                            : []),
+                        {
+                            label: 'Jira',
+                            icon: logos.jira,
+                            onClick: () => showJiraSetting.updateSetting(!showJira),
+                            selected: showJira,
+                        },
                     ],
                     [
                         {

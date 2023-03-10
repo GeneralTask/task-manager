@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import styled from 'styled-components'
-import { usePreviewMode, useSetting } from '../../hooks'
+import { useSetting } from '../../hooks'
 import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts, useGetSettings } from '../../services/api/settings.hooks'
@@ -39,7 +39,6 @@ interface IntegrationLinksProps {
     isCollapsed?: boolean
 }
 const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
-    const { isPreviewMode } = usePreviewMode()
     const { data: pullRequestRepositories } = useGetPullRequests()
     const { isLoading: isSettingsLoading } = useGetSettings()
 
@@ -54,7 +53,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     const showGithub = showGitHubSetting.field_value === 'true'
     const showLinear = showLinearSetting.field_value === 'true'
     const showSlack = showSlackSetting.field_value === 'true'
-    const showJira = showJiraSetting.field_value === 'true' && isPreviewMode
+    const showJira = showJiraSetting.field_value === 'true'
 
     const linearTasksCount = useMemo(
         () => activeTasks?.filter((task) => task.source.name === 'Linear').length,

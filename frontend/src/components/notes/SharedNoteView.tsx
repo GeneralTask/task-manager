@@ -19,7 +19,7 @@ import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { Body, Label, Title } from '../atoms/typography/Typography'
+import { DeprecatedBody, DeprecatedLabel, DeprecatedTitle } from '../atoms/typography/Typography'
 import NoteActionsDropdown from './NoteActionsDropdown'
 import { SHARED_NOTE_INDEFINITE_DATE } from './NoteDetails'
 
@@ -175,24 +175,24 @@ const SharedNoteView = () => {
                                         <Flex gap={Spacing._4}>
                                             {isLoggedIn && isUserNoteOwner ? (
                                                 <>
-                                                    <Label color="light">{`You shared this note ${getHumanTimeSinceDateTime(
+                                                    <DeprecatedLabel color="light">{`You shared this note ${getHumanTimeSinceDateTime(
                                                         DateTime.fromISO(note.updated_at)
-                                                    )}`}</Label>
-                                                    <Label>
+                                                    )}`}</DeprecatedLabel>
+                                                    <DeprecatedLabel>
                                                         {'('}
                                                         <Link to={`/notes/${noteId}`}>edit note</Link>
                                                         {')'}
-                                                    </Label>
+                                                    </DeprecatedLabel>
                                                 </>
                                             ) : (
-                                                <Label color="light">{`${
+                                                <DeprecatedLabel color="light">{`${
                                                     note.author
                                                 } shared this note ${getHumanTimeSinceDateTime(
                                                     DateTime.fromISO(note.updated_at)
-                                                )}`}</Label>
+                                                )}`}</DeprecatedLabel>
                                             )}
                                         </Flex>
-                                        <Label color="light">
+                                        <DeprecatedLabel color="light">
                                             {note.shared_until === SHARED_NOTE_INDEFINITE_DATE
                                                 ? ''
                                                 : `Link expires in ${getFormattedDuration(
@@ -201,15 +201,15 @@ const SharedNoteView = () => {
                                                       }),
                                                       2
                                                   )}`}
-                                        </Label>
+                                        </DeprecatedLabel>
                                     </FlexPadding8Horizontal>
                                 </>
                             ) : (
                                 <>
-                                    <Title>This note is not available</Title>
-                                    <Body>
+                                    <DeprecatedTitle>This note is not available</DeprecatedTitle>
+                                    <DeprecatedBody>
                                         If you need access to this note, please reach out to the person who sent it.
-                                    </Body>
+                                    </DeprecatedBody>
                                     <FlexMargin8Top gap={Spacing._8}>
                                         {isLoggedIn ? (
                                             <GTButton

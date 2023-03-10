@@ -15,7 +15,7 @@ import Flex from '../atoms/Flex'
 import GTHeader from '../atoms/GTHeader'
 import GTTitle from '../atoms/GTTitle'
 import { Icon } from '../atoms/Icon'
-import { Body, Eyebrow, Subtitle } from '../atoms/typography/Typography'
+import { DeprecatedBody, DeprecatedEyebrow, DeprecatedSubtitle } from '../atoms/typography/Typography'
 import useConnectGoogleAccountToast from '../calendar/utils/useConnectGoogleAccountToast'
 import ItemContainer from '../molecules/ItemContainer'
 
@@ -48,7 +48,7 @@ const TaskTitle = styled.span`
 `
 const NewTaskRecommendationsButton = styled.div`
     color: ${Colors.text.purple};
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
     cursor: pointer;
     user-select: none;
     width: fit-content;
@@ -188,18 +188,18 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
             <GTHeader>Flex Time</GTHeader>
             <GTTitle>{flexTimeText}</GTTitle>
             <Flex column gap={Spacing._16}>
-                <Subtitle>Need something to work on?</Subtitle>
-                <Body>
+                <DeprecatedSubtitle>Need something to work on?</DeprecatedSubtitle>
+                <DeprecatedBody>
                     We&apos;ve picked a couple tasks that you may be interested in doing now. Click a task below to add
                     it to your calendar and get started, or have us show you a couple other options to choose from.
                     <br />
                     <br />
                     Remember, you can always schedule tasks by dragging them onto the calendar before entering Focus
                     Mode.
-                </Body>
+                </DeprecatedBody>
             </Flex>
             <TaskSelectionContainer>
-                <Eyebrow>Chosen for you — Click to get started</Eyebrow>
+                <DeprecatedEyebrow>Chosen for you — Click to get started</DeprecatedEyebrow>
                 <RecommendedTasks>
                     {recommendedTasks.map(
                         (task) =>

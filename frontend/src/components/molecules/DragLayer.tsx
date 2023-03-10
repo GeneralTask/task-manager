@@ -16,7 +16,7 @@ const ViewHeaderContainer = styled.div`
     align-items: center;
     padding: ${Spacing._8};
     color: ${Colors.text.light};
-    ${Typography.subtitle};
+    ${Typography.deprecated_subtitle};
 `
 const DragOverlay = styled.div`
     position: fixed;
@@ -59,18 +59,19 @@ const DragLayer = () => {
                 </DragItem>
             </DragOverlay>
         )
-    } else if (
-        (itemType === DropType.TASK || itemType === DropType.SUBTASK || itemType === DropType.NON_REORDERABLE_TASK) &&
-        item.task
-    ) {
+    } else if (itemType === DropType.SUBTASK) {
         return (
             <DragOverlay>
                 <DragItem ref={dragItemRef}>
-                    {itemType === DropType.TASK ? (
-                        <Task task={item.task} dragDisabled isSelected link="" />
-                    ) : (
-                        <Subtask subtask={item.task} />
-                    )}
+                    <Subtask subtask={item.task} />
+                </DragItem>
+            </DragOverlay>
+        )
+    } else if ((itemType === DropType.TASK || itemType === DropType.NON_REORDERABLE_TASK) && item.task) {
+        return (
+            <DragOverlay>
+                <DragItem ref={dragItemRef}>
+                    <Task task={item.task} dragDisabled isSelected link="" />
                 </DragItem>
             </DragOverlay>
         )
