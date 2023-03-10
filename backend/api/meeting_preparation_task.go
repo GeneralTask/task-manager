@@ -48,32 +48,39 @@ func (api *API) GetMeetingPreparationTasksResult(userID primitive.ObjectID, time
 		return nil, err
 	}
 
-	meetingTasks, err := database.GetAllMeetingPreparationTasks(api.DB, userID)
+	activeMeetingTasks, err := database.GetAllMeetingPreparationTasksUntilEndOfDay(api.DB, userID, timeNow)
 	if err != nil {
 		return nil, err
 	}
 
-	err = api.UpdateMeetingPreparationTasks(userID, meetingTasks, timezoneOffset)
+	err = api.UpdateMeetingPreparationTasks(userID, activeMeetingTasks, timezoneOffset)
 	if err != nil {
 		return nil, err
 	}
+
+	completedMeetingTasks, err := database.GetCompletedMeetingPreparationTasksBeforeToday(api.DB, userID, timeNow)
+	if err != nil {
+		return nil, err
+	}
+
+	allTasks := append(*activeMeetingTasks, *completedMeetingTasks...)
 
 	// Sort by datetime_start and put tasks with later datetime_start first
-	sort.Slice(*meetingTasks, func(i, j int) bool {
-		return (*meetingTasks)[i].MeetingPreparationParams.DatetimeStart > (*meetingTasks)[j].MeetingPreparationParams.DatetimeStart
+	sort.Slice(allTasks, func(i, j int) bool {
+		return (allTasks)[i].MeetingPreparationParams.DatetimeStart > (allTasks)[j].MeetingPreparationParams.DatetimeStart
 	})
-	if len(*meetingTasks) > 100 {
-		*meetingTasks = (*meetingTasks)[:100]
+	if len(allTasks) > 200 {
+		allTasks = (allTasks)[:200]
 	}
 	//Reverse the order of the tasks
-	sort.Slice(*meetingTasks, func(i, j int) bool {
-		return (*meetingTasks)[i].MeetingPreparationParams.DatetimeStart < (*meetingTasks)[j].MeetingPreparationParams.DatetimeStart
+	sort.Slice(allTasks, func(i, j int) bool {
+		return (allTasks)[i].MeetingPreparationParams.DatetimeStart < (allTasks)[j].MeetingPreparationParams.DatetimeStart
 	})
 
-	meetingTaskResult := api.taskListToTaskResultListV4(meetingTasks)
+	meetingTaskResult := api.taskListToTaskResultListV4(&allTasks)
 	// Limit to 100 tasks in response
-	if len(meetingTaskResult) > 100 {
-		meetingTaskResult = meetingTaskResult[:100]
+	if len(meetingTaskResult) > 200 {
+		meetingTaskResult = meetingTaskResult[:200]
 	}
 	return meetingTaskResult, nil
 }
@@ -152,7 +159,8 @@ func (api *API) UpdateMeetingPreparationTasks(userID primitive.ObjectID, meeting
 			(*meetingPreparationTasks)[index].MeetingPreparationParams = &database.MeetingPreparationParams{}
 		}
 		// If we can't find the event in the DB, we say the event is deleted. Eventually we'll want to make gcal api call to check if event was actually deleted
-		if associatedEvent == nil {
+		// No need to update this if we already know that the event was deleted
+		if associatedEvent == nil && !task.MeetingPreparationParams.EventMovedOrDeleted {
 			updatedAt := primitive.NewDateTimeFromTime(time.Now())
 			(*meetingPreparationTasks)[index].UpdatedAt = updatedAt
 			(*meetingPreparationTasks)[index].MeetingPreparationParams.EventMovedOrDeleted = true
@@ -171,9 +179,9 @@ func (api *API) UpdateMeetingPreparationTasks(userID primitive.ObjectID, meeting
 			if err != nil {
 				return err
 			}
-		} else {
+		} else if associatedEvent != nil {
 			updateFields := bson.M{}
-			// Updatdate meeting prep start time if it's different from event start time
+			// Update meeting prep start time if it's different from event start time
 			if !associatedEvent.DatetimeStart.Time().Equal(task.MeetingPreparationParams.DatetimeStart.Time()) {
 				(*meetingPreparationTasks)[index].MeetingPreparationParams.DatetimeStart = associatedEvent.DatetimeStart
 				(*meetingPreparationTasks)[index].MeetingPreparationParams.EventMovedOrDeleted = true
