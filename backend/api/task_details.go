@@ -24,6 +24,6 @@ func (api *API) TaskDetail(c *gin.Context) {
 		return
 	}
 
-	taskResult := api.taskToTaskResultV4(task, userID)
+	taskResult := api.taskToTaskResultV4(task)
 	c.JSON(200, taskResult)
 }

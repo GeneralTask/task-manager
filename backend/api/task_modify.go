@@ -149,6 +149,10 @@ func (api *API) TaskModify(c *gin.Context) {
 			updateTask.RecurringTaskTemplateID = recurring_task_template_id
 		}
 
+		if task.SourceID != external.TASK_SOURCE_ID_GT_TASK && (modifyParams.TaskItemChangeableFields.SharedUntil != 0 || modifyParams.TaskItemChangeableFields.SharedAccess != nil) {
+			c.JSON(400, gin.H{"detail": "only General Task tasks can be shared"})
+			return
+		}
 		if modifyParams.TaskItemChangeableFields.SharedAccess != nil {
 			if !database.CheckTaskSharingAccessValid(*modifyParams.TaskItemChangeableFields.SharedAccess) {
 				c.JSON(400, gin.H{"detail": "invalid shared access token"})
