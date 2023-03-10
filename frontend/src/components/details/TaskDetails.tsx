@@ -32,7 +32,6 @@ import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { DeprecatedLabel } from '../atoms/typography/Typography'
 import CreateLinearComment from '../molecules/CreateLinearComment'
@@ -274,11 +273,12 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                                             )
                                         }
                                         renderTrigger={(isOpen, setIsOpen) => (
-                                            <GTIconButton
+                                            <GTButton
                                                 icon={icons.folder}
                                                 shortcutName="moveTaskToFolder"
                                                 onClick={() => setIsOpen(!isOpen)}
-                                                forceShowHoverEffect={isOpen}
+                                                active={isOpen}
+                                                styleType="icon"
                                             />
                                         )}
                                         enableKeyboardShortcut

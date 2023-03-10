@@ -8,7 +8,6 @@ import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import { DeprecatedSubtitle } from '../atoms/typography/Typography'
 import { useCalendarContext } from './CalendarContext'
 
@@ -93,12 +92,14 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
     )
     const nextPreviousButtons = (
         <Flex gap={Spacing._8} alignItems="center">
-            <GTIconButton
+            <GTButton
+                styleType="icon"
                 shortcutName={isCalendarExpanded ? 'previousWeek' : 'previousDay'}
                 onClick={selectPrevious}
                 icon={icons.caret_left}
             />
-            <GTIconButton
+            <GTButton
+                styleType="icon"
                 shortcutName={isCalendarExpanded ? 'nextWeek' : 'nextDay'}
                 onClick={selectNext}
                 icon={icons.caret_right}
@@ -136,12 +137,14 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                             </DeprecatedSubtitle>
                         </Flex>
                         <Flex gap={Spacing._8} alignItems="center">
-                            <GTIconButton
+                            <GTButton
+                                styleType="icon"
                                 shortcutName={calendarType === 'week' ? 'toggleDailyCalendar' : 'toggleWeeklyCalendar'}
                                 onClick={toggleCalendar}
                                 icon={calendarType === 'week' ? icons.arrows_in : icons.arrows_out}
                             />
-                            <GTIconButton
+                            <GTButton
+                                styleType="icon"
                                 shortcutName="calendar"
                                 onClick={() => setIsCollapsed(true)}
                                 icon={icons.sidebarFlipped}

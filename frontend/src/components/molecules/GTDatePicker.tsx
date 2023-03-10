@@ -8,7 +8,6 @@ import { icons } from '../../styles/images'
 import { getFormattedDate } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTPopover from '../radix/GTPopover'
 
 const CALENDAR_DAY_SIZE = '32px'
@@ -116,10 +115,11 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                 <DateViewContainer>
                     <Icon icon={icons.calendar_blank} color="black" />
                     <DateViewText>{currentDate.toFormat('ccc LLL d y')}</DateViewText>
-                    <GTIconButton
+                    <GTButton
+                        styleType="icon"
                         tooltipText="Remove due date"
                         icon={icons.x}
-                        color="black"
+                        iconColor="black"
                         onClick={() => handleOnChange(null)}
                     />
                 </DateViewContainer>

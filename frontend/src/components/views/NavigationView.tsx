@@ -8,7 +8,7 @@ import { NAVIGATION_BAR_WIDTH } from '../../styles/dimensions'
 import { icons, logos } from '../../styles/images'
 import { DropType } from '../../utils/types'
 import Flex from '../atoms/Flex'
-import GTIconButton from '../atoms/buttons/GTIconButton'
+import GTButton from '../atoms/buttons/GTButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { DeprecatedEyebrow } from '../atoms/typography/Typography'
 import CommandPalette from '../molecules/CommandPalette'
@@ -100,7 +100,8 @@ const NavigationView = ({ isCollapsed, setIsCollapsed }: NavigationViewProps) =>
                     <NavigationViewHeader>
                         <GTBetaLogo src={isPreviewMode ? logos.generaltask_beta_blue : logos.generaltask_beta_yellow} />
                         <Flex>
-                            <GTIconButton
+                            <GTButton
+                                styleType="icon"
                                 icon={icons.sidebar}
                                 onClick={() => setIsCollapsed(!isCollapsed)}
                                 shortcutName="navigationView"

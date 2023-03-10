@@ -13,7 +13,7 @@ import { Icon } from '../atoms/Icon'
 import NoStyleInput from '../atoms/NoStyleInput'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import Skeleton from '../atoms/Skeleton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
+import GTButton from '../atoms/buttons/GTButton'
 import NavigationContextMenuWrapper from '../radix/NavigationContextMenuWrapper'
 import Tip from '../radix/Tip'
 import IntegrationLinks from './IntegrationLinks'
@@ -144,7 +144,12 @@ const NavigationSectionLinks = () => {
             <NavigationHeader
                 title="Folders"
                 rightContent={
-                    <GTIconButton icon={icons.plus} onClick={onOpenAddSectionInputHandler} tooltipText="Add Folder" />
+                    <GTButton
+                        styleType="icon"
+                        icon={icons.plus}
+                        onClick={onOpenAddSectionInputHandler}
+                        tooltipText="Add Folder"
+                    />
                 }
             />
             {isFoldersLoading && <Skeleton />}

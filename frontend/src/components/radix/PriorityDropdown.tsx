@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { TASK_PRIORITIES } from '../../constants'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTDropdownMenu from './GTDropdownMenu'
 
 interface PriorityDropdownProps {
@@ -29,11 +28,14 @@ const PriorityDropdown = ({ value, onChange, disabled, condensedTrigger }: Prior
             }))}
             trigger={
                 condensedTrigger ? (
-                    <GTIconButton
+                    <GTButton
+                        styleType="icon"
                         icon={TASK_PRIORITIES[value].icon}
                         iconColor={TASK_PRIORITIES[value].color}
                         tooltipText={TASK_PRIORITIES[value].label}
-                        forceShowHoverEffect={isOpen}
+                        onClick={() => setIsOpen(!isOpen)}
+                        active={isOpen}
+                        disabled={disabled}
                     />
                 ) : (
                     <GTButton

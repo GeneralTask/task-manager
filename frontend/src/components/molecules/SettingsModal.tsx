@@ -17,7 +17,6 @@ import GTCheckbox from '../atoms/GTCheckbox'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import { DeprecatedBody, DeprecatedBodySmall, DeprecatedLabel } from '../atoms/typography/Typography'
 import CalendarSettings from '../calendar/CalendarSettings'
 import { getCalendarAuthButton } from '../calendar/utils/utils'
@@ -121,7 +120,8 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
     type TNameToSetting = keyof typeof nameToSetting
 
     const VisibilityButton = ({ accountName }: { accountName: TNameToSetting }) => (
-        <GTIconButton
+        <GTButton
+            styleType="icon"
             icon={nameToSetting[accountName].show ? icons.eye : icons.eye_slash}
             onClick={() => nameToSetting[accountName].setting.updateSetting(!nameToSetting[accountName].show)}
             tooltipText={`${nameToSetting[accountName].show ? 'Hide' : 'Show'} ${accountName} in sidebar`}

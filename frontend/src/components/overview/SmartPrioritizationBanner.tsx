@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import { useGTLocalStorage } from '../../hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
-import GTIconButton from '../atoms/buttons/GTIconButton'
+import GTButton from '../atoms/buttons/GTButton'
 
 const Banner = styled.div`
     display: flex;
@@ -31,7 +31,8 @@ const SmartPrioritizationBanner = () => {
                 Your lists have been sorted using Smart Prioritize<sup>AI</sup>. If you’d like to manually order your
                 lists go to Edit lists.
             </Text>
-            <GTIconButton
+            <GTButton
+                styleType="icon"
                 icon={icons.x}
                 onClick={() => setIsUsingSmartPrioritization(false)}
                 tooltipText="Hide banner"

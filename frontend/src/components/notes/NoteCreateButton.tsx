@@ -3,7 +3,6 @@ import { useKeyboardShortcut } from '../../hooks'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import { CollapsedIconContainer } from '../navigation_sidebar/NavigationLink'
 import Tip from '../radix/Tip'
 import NoteCreateModal from './NoteCreateModal'
@@ -24,7 +23,12 @@ const NoteCreateButton = ({ type, disableShortcut }: NoteCreateButtonProps) => {
     return (
         <>
             {type === 'icon' && (
-                <GTIconButton icon={icons.penToSquare} onClick={() => setModalIsOpen(true)} shortcutName="newNote" />
+                <GTButton
+                    styleType="icon"
+                    icon={icons.penToSquare}
+                    onClick={() => setModalIsOpen(true)}
+                    shortcutName="newNote"
+                />
             )}
             {type === 'button' && (
                 <GTButton

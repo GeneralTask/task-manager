@@ -2,7 +2,6 @@ import { useModifyRecurringTask } from '../../../services/api/recurring-tasks.ho
 import { icons } from '../../../styles/images'
 import { TRecurringTaskTemplate } from '../../../utils/types'
 import GTButton from '../../atoms/buttons/GTButton'
-import GTIconButton from '../../atoms/buttons/GTIconButton'
 
 interface DeleteRecurringTaskTemplateButtonProps {
     template: TRecurringTaskTemplate
@@ -21,7 +20,8 @@ const DeleteRecurringTaskTemplateButton = ({ template }: DeleteRecurringTaskTemp
         )
     }
     return (
-        <GTIconButton
+        <GTButton
+            styleType="icon"
             icon={icons.trash}
             iconColor="red"
             tooltipText="Delete template"

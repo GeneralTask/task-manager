@@ -2,7 +2,6 @@ import styled from 'styled-components'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Truncated } from '../atoms/typography/Typography'
 import SettingsModalButton from '../molecules/SettingsModalButton'
 import { useCalendarContext } from './CalendarContext'
@@ -30,7 +29,7 @@ const CalendarFooter = () => {
         <Container>
             <CalendarSelector
                 mode="cal-selection"
-                renderTrigger={() => <GTIconButton icon={icons.eye} tooltipText="Show/hide calendars" />}
+                renderTrigger={() => <GTButton icon={icons.eye} tooltipText="Show/hide calendars" styleType="icon" />}
             />
             <TaskToCalContainer>
                 <CalendarSelector

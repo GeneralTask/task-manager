@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useSetting } from '../../hooks'
 import { icons, logos } from '../../styles/images'
-import GTIconButton from '../atoms/buttons/GTIconButton'
+import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedLabel } from '../atoms/typography/Typography'
 import SettingsModal from '../molecules/SettingsModal'
 import GTDropdownMenu from './GTDropdownMenu'
@@ -78,11 +78,12 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
                 ]}
                 keepOpenOnSelect
                 trigger={
-                    <GTIconButton
+                    <GTButton
+                        styleType="icon"
                         icon={icons.ellipsisVertical}
                         onClick={() => setIsOpen(!isOpen)}
                         disabled={disabled}
-                        forceShowHoverEffect={isOpen}
+                        active={isOpen}
                         tooltipText="Hide/show services"
                     />
                 }
