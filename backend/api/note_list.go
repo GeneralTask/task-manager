@@ -21,8 +21,8 @@ type NoteResult struct {
 	SharedUntil      string                 `json:"shared_until,omitempty"`
 	IsDeleted        bool                   `json:"is_deleted,omitempty"`
 	LinkedEventID    string                 `json:"linked_event_id,omitempty"`
-	LinkedEventStart primitive.DateTime     `json:"linked_event_start,omitempty"`
-	LinkedEventEnd   primitive.DateTime     `json:"linked_event_end,omitempty"`
+	LinkedEventStart string                 `json:"linked_event_start,omitempty"`
+	LinkedEventEnd   string                 `json:"linked_event_end,omitempty"`
 	SharedAccess     *database.SharedAccess `json:"shared_access,omitempty"`
 }
 
@@ -88,8 +88,8 @@ func (api *API) noteToNoteResult(note *database.Note) *NoteResult {
 		if err != nil {
 			logging.GetSentryLogger().Error().Err(err).Msgf("could not fetch calendar event ID: %s", note.LinkedEventID)
 		} else {
-			noteResult.LinkedEventStart = calEvent.DatetimeStart
-			noteResult.LinkedEventEnd = calEvent.DatetimeEnd
+			noteResult.LinkedEventStart = calEvent.DatetimeStart.Time().UTC().Format(time.RFC3339)
+			noteResult.LinkedEventEnd = calEvent.DatetimeEnd.Time().UTC().Format(time.RFC3339)
 		}
 	}
 	return &noteResult
