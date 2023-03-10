@@ -15,7 +15,7 @@ import (
 )
 
 func TestNoteDetail(t *testing.T) {
-	authToken := login("test_notes_list@generaltask.com", "")
+	authToken := login("test_notes_detail@generaltask.com", "")
 	title1 := "title1"
 	title2 := "title2"
 
