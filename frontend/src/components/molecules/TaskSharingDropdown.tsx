@@ -16,7 +16,7 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const { mutate: modifyTask } = useModifyTask()
 
-    const shareTaskPublic = (access: TTaskSharedAccess) => {
+    const shareTask = (access: TTaskSharedAccess) => {
         modifyTask({
             id: task.id,
             shared_until: SHARED_ITEM_INDEFINITE_DATE,
@@ -50,13 +50,13 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
                     icon: icons.users,
                     label: 'Share with company',
                     hideCheckmark: true,
-                    onClick: () => shareTaskPublic('domain'),
+                    onClick: () => shareTask('domain'),
                 },
                 {
                     icon: icons.globe,
                     label: 'Share with everyone',
                     hideCheckmark: true,
-                    onClick: () => shareTaskPublic('public'),
+                    onClick: () => shareTask('public'),
                 },
             ],
         },
