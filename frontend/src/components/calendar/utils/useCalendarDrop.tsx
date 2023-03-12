@@ -69,7 +69,12 @@ const useCalendarDrop = ({ date, eventsContainerRef }: CalendarDropArgs) => {
             const { event } = monitor.getItem<DropItem>()
             if (initialClientOffset && initialSourceClientOffset && event) {
                 const startTime = DateTime.fromISO(event.datetime_start)
-                const eventBodyTop = CELL_HEIGHT_VALUE * startTime.diff(startTime.startOf('day'), 'hours').hours
+                //Check how many hours are today taking into account DST
+                const numberOfHoursToday = Math.ceil(date.endOf('day').diff(date.startOf('day'), 'hours').hours)
+                // DST Offset
+                const dstOffset = numberOfHoursToday - 24
+                const eventBodyTop =
+                    CELL_HEIGHT_VALUE * (startTime.diff(startTime.startOf('day'), 'hours').hours - dstOffset)
                 mouseFromEventTopOffset = initialClientOffset.y - initialSourceClientOffset.y - eventBodyTop
             }
         }

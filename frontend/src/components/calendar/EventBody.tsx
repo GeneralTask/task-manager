@@ -57,10 +57,17 @@ function EventBody(props: EventBodyProps): JSX.Element {
     const startedBeforeToday = startTime <= props.date.startOf('day')
     const endedAfterToday = endTime >= props.date.endOf('day')
 
-    const top = startedBeforeToday ? 0 : CELL_HEIGHT_VALUE * startTime.diff(props.date.startOf('day'), 'hours').hours
+    //Check how many hours are today taking into account DST
+    const numberOfHoursToday = Math.ceil(props.date.endOf('day').diff(props.date.startOf('day'), 'hours').hours)
+    //Check how many hours are in the DST offset
+    const dstOffset = numberOfHoursToday - 24
+
+    const top = startedBeforeToday
+        ? 0
+        : CELL_HEIGHT_VALUE * (startTime.diff(props.date.startOf('day'), 'hours').hours - dstOffset)
     const bottom = endedAfterToday
-        ? CELL_HEIGHT_VALUE * 24
-        : CELL_HEIGHT_VALUE * endTime.diff(props.date.startOf('day'), 'hours').hours
+        ? CELL_HEIGHT_VALUE * numberOfHoursToday
+        : CELL_HEIGHT_VALUE * (endTime.diff(props.date.startOf('day'), 'hours').hours - dstOffset)
     const eventBodyHeight = Math.max(bottom - top, MINIMUM_BODY_HEIGHT)
 
     const startTimeString = startTime.toFormat('h:mm') // ex: 3:00
