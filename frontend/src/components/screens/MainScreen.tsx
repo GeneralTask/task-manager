@@ -21,6 +21,7 @@ import NoteListView from '../views/NoteListView'
 import PullRequestsView from '../views/PullRequestsView'
 import RecurringTasksView from '../views/RecurringTasksView'
 import SlackTasksView from '../views/SlackTasksView'
+import SuperDashboardView from '../views/SuperDashboardView'
 import TaskSection from '../views/TaskSectionView'
 
 const MainScreen = () => {
@@ -56,6 +57,8 @@ const MainScreen = () => {
                 return <SlackTasksView />
             case 'jira':
                 return <JiraView />
+            case 'super-dashboard':
+                return <SuperDashboardView />
             default:
                 return (
                     <OverviewContextProvider>
