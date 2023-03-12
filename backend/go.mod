@@ -30,6 +30,7 @@ require (
 require (
 	github.com/go-co-op/gocron v1.18.1 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
+	github.com/square/mongo-lock v0.0.0-20220601164918-701ecf357cd7 // indirect
 )
 
 require (
