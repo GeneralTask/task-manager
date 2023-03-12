@@ -3,6 +3,7 @@ package jobs
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -14,7 +15,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func githubIndustryJob() error {
+const CODECOV_BOT = "codecov[bot]"
+
+func githubIndustryJob(now time.Time) error {
 	logger := logging.GetSentryLogger()
 	db, cleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -31,7 +34,8 @@ func githubIndustryJob() error {
 	findOptions.SetSort(bson.D{{Key: "last_fetched", Value: 1}})
 	cursor, err := repositoryCollection.Find(
 		context.Background(),
-		bson.M{"created_at_external": bson.M{"$gte": time.Now().Add(-time.Hour * 24 * 21)}},
+		bson.M{"created_at_external": bson.M{"$gte": now.Add(-time.Hour * 24 * 21)}},
+		findOptions,
 	)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch github PRs")
@@ -47,18 +51,23 @@ func githubIndustryJob() error {
 	for _, pullRequest := range pullRequests {
 		pullRequestIDToValue[pullRequest.IDExternal] = pullRequest
 	}
+	fmt.Println(pullRequestIDToValue)
 	dateToTotalResponseTime := make(map[primitive.DateTime]int)
 	dateToPRCount := make(map[primitive.DateTime]int)
 	for _, pullRequest := range pullRequestIDToValue {
 		// default if no comment yet
-		firstCommentTime := time.Now()
+		firstCommentTime := now
 		for _, comment := range pullRequest.Comments {
-			if comment.Author != "codecov[bot]" {
+			if comment.Author != CODECOV_BOT && comment.Author != pullRequest.Author {
 				firstCommentTime = comment.CreatedAt.Time()
 				break
 			}
 		}
-		responseTime := int(pullRequest.CreatedAtExternal.Time().Sub(firstCommentTime).Minutes())
+		if firstCommentTime == now {
+			// skip pull requests with no comments
+			continue
+		}
+		responseTime := int(firstCommentTime.Sub(pullRequest.CreatedAtExternal.Time()).Minutes())
 		createdAt := pullRequest.CreatedAtExternal.Time()
 		pullRequestDate := primitive.NewDateTimeFromTime(time.Date(createdAt.Year(), createdAt.Month(), createdAt.Day(), 8, 0, 0, 0, time.UTC))
 		dateToTotalResponseTime[pullRequestDate] += responseTime
@@ -77,7 +86,7 @@ func githubIndustryJob() error {
 			GraphType: constants.DashboardGraphTypePRResponseTime,
 			Value:     averageResponseTime,
 			Date:      dateTime,
-			CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
+			CreatedAt: primitive.NewDateTimeFromTime(now),
 		}
 		result := dataPointCollection.FindOneAndUpdate(
 			context.Background(),
