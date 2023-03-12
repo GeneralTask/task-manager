@@ -17,7 +17,10 @@ func EnsureJobOnlyRunsOnceToday(jobName string) error {
 	defer cleanup()
 
 	lockClient := lock.NewClient(database.GetJobLocksCollection(db))
-	lockClient.CreateIndexes(context.Background())
+	err = lockClient.CreateIndexes(context.Background())
+	if err != nil {
+		return err
+	}
 
 	resourceName := jobName + "_" + time.Now().Format("01-02-2006")
 	fmt.Println("resource name:", resourceName)

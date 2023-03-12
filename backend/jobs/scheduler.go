@@ -6,11 +6,14 @@ import (
 	"github.com/go-co-op/gocron"
 )
 
-func GetScheduler() *gocron.Scheduler {
+func GetScheduler() (*gocron.Scheduler, error) {
 	s := gocron.NewScheduler(time.UTC)
 
 	// job schedules
-	s.Every(1).Day().At("08:00").Do(helloworld)
+	_, err := s.Every(1).Day().At("08:00").Do(helloworld)
+	if err != nil {
+		return nil, err
+	}
 
-	return s
+	return s, nil
 }

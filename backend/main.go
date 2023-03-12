@@ -33,7 +33,12 @@ func main() {
 	}
 	apiStruct, dbCleanup := api.GetAPIWithDBCleanup()
 	defer dbCleanup()
-	jobs.GetScheduler().StartAsync()
+	scheduler, err := jobs.GetScheduler()
+	if err != nil {
+		logger.Error().Err(err).Msg("error getting job scheduler")
+	} else {
+		scheduler.StartAsync()
+	}
 	err = api.GetRouter(apiStruct).Run()
 	if err != nil {
 		logger.Error().Err(err).Msg("error running router")
