@@ -7,7 +7,7 @@ import showdown from 'showdown'
 import { v4 as uuidv4 } from 'uuid'
 import { useSetting } from '../../../hooks'
 import { useCreateEvent, useGetCalendars, useModifyEvent } from '../../../services/api/events.hooks'
-import { getDiffBetweenISOTimes } from '../../../utils/time'
+import { getDiffBetweenISOTimes, getStartOfDay } from '../../../utils/time'
 import { DropItem, DropType, TEvent } from '../../../utils/types'
 import adf2md from '../../atoms/GTTextField/AtlassianEditor/adfToMd'
 import { NuxTaskBodyStatic } from '../../details/NUXTaskBody'
@@ -256,7 +256,7 @@ const useCalendarDrop = ({ date, eventsContainerRef }: CalendarDropArgs) => {
                         const eventStart = DateTime.fromISO(item.event.datetime_start)
                         // index of 15 minute block of the start time
                         const eventStartPosition =
-                            eventStart.diff(date.startOf('day'), 'minutes').minutes / EVENT_CREATION_INTERVAL_IN_MINUTES
+                            eventStart.diff(getStartOfDay(date), 'minutes').minutes / EVENT_CREATION_INTERVAL_IN_MINUTES
                         setDropPreviewPosition(eventStartPosition)
                         const dropTime = getTimeFromDropPosition(dropPosition)
                         const end =

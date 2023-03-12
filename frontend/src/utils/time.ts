@@ -43,3 +43,12 @@ export function getOrdinal(n: number) {
 
     return n + ord
 }
+
+// accounts for daylight savings
+export function getStartOfDay(date: DateTime) {
+    // return date.startOf('day')
+    const start = date.startOf('day')
+    const ret = start.minus({ minutes: date.offset - date.offset })
+    console.log({ minutes: date.offset - start.offset, start: start.toISO(), ret: ret.toISO() })
+    return ret
+}

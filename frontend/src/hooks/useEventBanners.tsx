@@ -6,6 +6,7 @@ import ToastTemplate from '../components/atoms/toast/ToastTemplate'
 import { NO_TITLE, SINGLE_SECOND_INTERVAL } from '../constants'
 import { useEvents } from '../services/api/events.hooks'
 import { icons } from '../styles/images'
+import { getStartOfDay } from '../utils/time'
 import { TEvent } from '../utils/types'
 
 const isEventWithinTenMinutes = (event: TEvent) => {
@@ -19,7 +20,7 @@ export default function useEventBanners(date: DateTime) {
     const eventsWithinTenMinutes = useRef<TEvent[]>([])
     const { data: events } = useEvents(
         {
-            startISO: date.startOf('day').toISO(),
+            startISO: getStartOfDay(date).toISO(),
             endISO: date.endOf('day').plus({ minutes: 15 }).toISO(),
         },
         'banner'

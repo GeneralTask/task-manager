@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import { useGetCalendars } from '../../services/api/events.hooks'
 import { Colors } from '../../styles'
 import { logos } from '../../styles/images'
+import { getStartOfDay } from '../../utils/time'
 import { TEvent } from '../../utils/types'
 import { EdgeHighlight } from '../atoms/SelectableContainer'
 import FocusModeContextMenuWrapper from '../radix/EventBodyContextMenuWrapper'
@@ -50,22 +51,25 @@ function EventBody(props: EventBodyProps): JSX.Element {
         Math.min(
             timeDurationMillis,
             +props.date.endOf('day').diff(startTime),
-            +endTime.diff(props.date.startOf('day'))
+            +endTime.diff(getStartOfDay(props.date))
         ) /
         1000 /
         60
-    const startedBeforeToday = startTime <= props.date.startOf('day')
+    const startedBeforeToday = startTime <= getStartOfDay(props.date)
     const endedAfterToday = endTime >= props.date.endOf('day')
 
-    const top = startedBeforeToday ? 0 : CELL_HEIGHT_VALUE * startTime.diff(props.date.startOf('day'), 'hours').hours
+    const top = startedBeforeToday ? 0 : CELL_HEIGHT_VALUE * startTime.diff(getStartOfDay(props.date), 'hours').hours
     const bottom = endedAfterToday
         ? CELL_HEIGHT_VALUE * 24
-        : CELL_HEIGHT_VALUE * endTime.diff(props.date.startOf('day'), 'hours').hours
+        : CELL_HEIGHT_VALUE * endTime.diff(getStartOfDay(props.date), 'hours').hours
     const eventBodyHeight = Math.max(bottom - top, MINIMUM_BODY_HEIGHT)
 
     const startTimeString = startTime.toFormat('h:mm') // ex: 3:00
     const endTimeString = endTime.toFormat('h:mm a') // ex: 3:00 PM
     const startTimeOnlyString = startTime.toFormat('h:mm a') // ex: 3:00 PM
+
+    // if (props.event.id === '640e1cba950a0db628619198')
+    //     console.log({ startTime, startTimeString, top, date: props.date.toISO(), dts: props.event.datetime_start })
 
     const eventType =
         timeDurationTodayMinutes >= LONG_EVENT_THRESHOLD

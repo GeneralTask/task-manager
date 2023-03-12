@@ -2,7 +2,7 @@ import { useLayoutEffect, useMemo, useRef } from 'react'
 import { DateTime } from 'luxon'
 import { useEvents } from '../../services/api/events.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import { getMonthsAroundDate, isDateToday } from '../../utils/time'
+import { getMonthsAroundDate, getStartOfDay, isDateToday } from '../../utils/time'
 import { TEvent } from '../../utils/types'
 import { isGoogleCalendarLinked } from '../../utils/utils'
 import { useCalendarContext } from './CalendarContext'
@@ -145,7 +145,7 @@ const CalendarEvents = ({ date }: CalendarEventsProps) => {
         const uniqueEvents = removeDuplicateEvents(events)
         const allGroups: TEvent[][][] = []
         for (let i = 0; i < numberOfDays; i++) {
-            const startDate = date.plus({ days: i }).startOf('day')
+            const startDate = getStartOfDay(date.plus({ days: i }))
             const endDate = startDate.endOf('day')
             const eventList = uniqueEvents?.filter(
                 (event) =>

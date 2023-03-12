@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { useKeyboardShortcut } from '../../hooks'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
+import { getStartOfDay } from '../../utils/time'
 import Flex from '../atoms/Flex'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
@@ -79,9 +80,9 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
         setDate(date.minus({ days: isCalendarExpanded ? 7 : 1 }))
     }, [date, setDate, setDayViewDate, dayViewDate, isCalendarExpanded])
     const isCalendarShowingToday = useMemo(() => {
-        const startOfToday = DateTime.now().startOf('day')
-        const isToday = date.startOf('day').equals(startOfToday)
-        const isThisWeek = date.startOf('day').equals(startOfToday.minus({ days: startOfToday.weekday % 7 }))
+        const startOfToday = getStartOfDay(DateTime.now())
+        const isToday = getStartOfDay(date).equals(startOfToday)
+        const isThisWeek = getStartOfDay(date).equals(startOfToday.minus({ days: startOfToday.weekday % 7 }))
         return isToday || (calendarType === 'week' && isThisWeek)
     }, [date, calendarType])
     useKeyboardShortcut('jumpToToday', selectToday, isFocusMode)
