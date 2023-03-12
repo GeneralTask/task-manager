@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/GeneralTask/task-manager/backend/api"
 	"github.com/GeneralTask/task-manager/backend/config"
+	"github.com/GeneralTask/task-manager/backend/jobs"
 	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/GeneralTask/task-manager/backend/migrations"
 	"github.com/GeneralTask/task-manager/backend/utils"
@@ -32,6 +33,7 @@ func main() {
 	}
 	apiStruct, dbCleanup := api.GetAPIWithDBCleanup()
 	defer dbCleanup()
+	jobs.GetScheduler().StartAsync()
 	err = api.GetRouter(apiStruct).Run()
 	if err != nil {
 		logger.Error().Err(err).Msg("error running router")
