@@ -15,7 +15,7 @@ const LineGraph = ({ data }: LineGraphProps) => {
                 type="number"
                 scale="time"
                 domain={['auto', 'auto']}
-                tickFormatter={(unixTime) => DateTime.fromSeconds(unixTime).toFormat('MM/dd')}
+                tickFormatter={(unixTime: number) => DateTime.fromSeconds(unixTime).toFormat('MM/dd')}
             />
             <YAxis dataKey="y" type="number" name="hours" domain={[0, 'auto']} />
             <Legend />

@@ -1,10 +1,15 @@
 import { TIconImage } from '../../styles/images'
 
+export interface TDashboardView {
+    id: string
+    name: string
+    icon: TIconImage
+    metrics: TMetric[]
+}
 export interface TMetric {
     name: string
     icon: TIconImage
     lines: TLine[]
-    horizontal_lines?: THorizontalLine[]
 }
 
 export interface TLine {
