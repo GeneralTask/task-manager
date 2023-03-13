@@ -16,8 +16,17 @@ import (
 )
 
 const CODECOV_BOT = "codecov[bot]"
+const DEFAULT_LOOKBACK_DAYS = 21
 
-func githubIndustryJob(endCutoff time.Time, lookbackDays int) error {
+func githubIndustryJob() {
+	err := EnsureJobOnlyRunsOnceToday("helloworld")
+	if err != nil {
+		return
+	}
+	updateGithubIndustryData(time.Now(), DEFAULT_LOOKBACK_DAYS)
+}
+
+func updateGithubIndustryData(endCutoff time.Time, lookbackDays int) error {
 	logger := logging.GetSentryLogger()
 	db, cleanup, err := database.GetDBConnection()
 	if err != nil {

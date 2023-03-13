@@ -14,7 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func TestGetSettingsOptions(t *testing.T) {
+func TestUpdateGithubIndustryData(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -100,7 +100,7 @@ func TestGetSettingsOptions(t *testing.T) {
 	assert.NoError(t, createTestPullRequest(db, prNoComments))
 
 	t.Run("Success", func(t *testing.T) {
-		assert.NoError(t, githubIndustryJob(nowTime, 21))
+		assert.NoError(t, updateGithubIndustryData(nowTime, 21))
 
 		dashboardDataPointCollection := database.GetDashboardDataPointCollection(db)
 		cursor, err := dashboardDataPointCollection.Find(
