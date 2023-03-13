@@ -8,13 +8,13 @@ import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 const SuperDashboard = lazy(() => import('../superDashboard/SuperDashboard'))
 
 const SuperDashboardView = () => {
-    const { isPreviewMode } = usePreviewMode()
+    const { isPreviewMode, isLoading } = usePreviewMode()
     const navigate = useNavigate()
     useEffect(() => {
-        if (!isPreviewMode) {
+        if (!isLoading && !isPreviewMode) {
             navigate('/overview', { replace: true })
         }
-    }, [isPreviewMode])
+    }, [isPreviewMode, isLoading])
 
     return (
         <ScrollableListTemplate width="100%">
