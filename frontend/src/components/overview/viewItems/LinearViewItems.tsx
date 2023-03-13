@@ -1,6 +1,5 @@
 import { Ref, forwardRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { usePreviewMode } from '../../../hooks'
 import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSelectors'
 import { LINEAR_SORT_AND_FILTER_CONFIG } from '../../../utils/sortAndFilter/linear.config'
 import useSortAndFilterSettings from '../../../utils/sortAndFilter/useSortAndFilterSettings'
@@ -12,7 +11,6 @@ import { ViewItemsProps } from './viewItems.types'
 
 const LinearViewItems = forwardRef(
     ({ view, visibleItemsCount, scrollRef, hideHeader }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
-        const { isPreviewMode } = usePreviewMode()
         const { overviewViewId, overviewItemId } = useParams()
 
         const sortAndFilterSettings = useSortAndFilterSettings<TTaskV4>(
@@ -20,7 +18,6 @@ const LinearViewItems = forwardRef(
             undefined,
             '_overview'
         )
-
         return (
             <>
                 {!hideHeader && (
@@ -28,7 +25,7 @@ const LinearViewItems = forwardRef(
                         <ViewName>{view.name}</ViewName>
                     </ViewHeader>
                 )}
-                {isPreviewMode && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
+                <SortAndFilterSelectors settings={sortAndFilterSettings} />
                 {view.view_items.length === 0 && view.is_linked && <EmptyListMessage list={view} />}
                 {view.view_items.slice(0, visibleItemsCount).map((item) => (
                     <Task

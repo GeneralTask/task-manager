@@ -829,12 +829,12 @@ func TestGetComments(t *testing.T) {
 				SubmittedAt: &reviewTime,
 				User:        &github.User{Login: &author},
 			},
-			{SubmittedAt: &reviewTime}, // empty body comment should be skipped
+			{SubmittedAt: &reviewTime},
 		}
 		comments, err := getComments(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 1, len(comments))
+		assert.Equal(t, 2, len(comments))
 		expectedComment := database.PullRequestComment{
 			Type:      constants.COMMENT_TYPE_TOPLEVEL,
 			Body:      "This is a review comment",
@@ -842,6 +842,13 @@ func TestGetComments(t *testing.T) {
 			CreatedAt: primitive.NewDateTimeFromTime(reviewTime),
 		}
 		assert.Equal(t, expectedComment, comments[0])
+		expectedComment2 := database.PullRequestComment{
+			Type:      constants.COMMENT_TYPE_TOPLEVEL,
+			Body:      "(Reviewed changes)",
+			Author:    "",
+			CreatedAt: primitive.NewDateTimeFromTime(reviewTime),
+		}
+		assert.Equal(t, expectedComment2, comments[1])
 	})
 	t.Run("ComboComments", func(t *testing.T) {
 		githubCommentsServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestCommentsPayload)

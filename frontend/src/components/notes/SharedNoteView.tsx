@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import { DateTime } from 'luxon'
 import styled, { css } from 'styled-components'
-import { AUTHORIZATION_COOKE, LOGIN_URL } from '../../constants'
+import { AUTHORIZATION_COOKE, LOGIN_URL, SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
 import getEnvVars from '../../environment'
 import { useAuthWindow } from '../../hooks'
 import useAnalyticsEventTracker from '../../hooks/useAnalyticsEventTracker'
@@ -21,7 +21,6 @@ import GTButton from '../atoms/buttons/GTButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { DeprecatedBody, DeprecatedLabel, DeprecatedTitle } from '../atoms/typography/Typography'
 import NoteActionsDropdown from './NoteActionsDropdown'
-import { SHARED_NOTE_INDEFINITE_DATE } from './NoteDetails'
 
 const background = css`
     background: url(${noteBackground});
@@ -193,7 +192,7 @@ const SharedNoteView = () => {
                                             )}
                                         </Flex>
                                         <DeprecatedLabel color="light">
-                                            {note.shared_until === SHARED_NOTE_INDEFINITE_DATE
+                                            {note.shared_until === SHARED_ITEM_INDEFINITE_DATE
                                                 ? ''
                                                 : `Link expires in ${getFormattedDuration(
                                                       DateTime.fromISO(note.shared_until).diffNow('milliseconds', {

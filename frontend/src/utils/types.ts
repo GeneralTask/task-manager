@@ -6,6 +6,8 @@ export type EmptyString = ''
 
 export type TTaskSourceName = 'General Task' | 'Google Calendar' | 'Git PR' | 'Jira' | 'Linear' | 'Slack'
 
+export type TTaskSharedAccess = 'public' | 'domain'
+
 export interface TTaskSource {
     name: TTaskSourceName
     logo: string
@@ -105,6 +107,8 @@ export interface TTaskV4 {
     priority?: TExternalPriority
     all_priorities?: TExternalPriority[]
     linear_cycle?: TLinearCycle
+    shared_until?: string
+    shared_access?: TTaskSharedAccess
 
     all_statuses?: TExternalStatus[] // Deprecated but still in response (will be moved to userInfo)
 }

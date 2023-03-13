@@ -262,6 +262,7 @@ func (api *API) getLinkedNoteID(eventID primitive.ObjectID, userID primitive.Obj
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"linked_event_id": eventID},
+			{"is_deleted": bson.M{"$ne": true}},
 		}})
 	var note database.Note
 	err := mongoResult.Decode(&note)

@@ -38,6 +38,7 @@ import CreateLinearComment from '../molecules/CreateLinearComment'
 import FolderSelector from '../molecules/FolderSelector'
 import GTDatePicker from '../molecules/GTDatePicker'
 import LinearCycle from '../molecules/LinearCycle'
+import TaskSharingDropdown from '../molecules/TaskSharingDropdown'
 import DeleteRecurringTaskTemplateButton from '../molecules/recurring-tasks/DeleteRecurringTaskTemplateButton'
 import RecurringTaskDetailsBanner from '../molecules/recurring-tasks/RecurringTaskDetailsBanner'
 import RecurringTaskTemplateDetailsBanner from '../molecules/recurring-tasks/RecurringTaskTemplateDetailsBanner'
@@ -106,9 +107,9 @@ interface TaskDetailsProps {
     isRecurringTaskTemplate?: boolean
 }
 const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
-    const { isPreviewMode } = usePreviewMode()
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
+    const { isPreviewMode } = usePreviewMode()
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const { mutate: reorderTask } = useReorderTask()
@@ -254,6 +255,9 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                                     styleType="secondary"
                                 />
                             )}
+                            {isPreviewMode && taskv4.source.name === 'General Task' && (
+                                <TaskSharingDropdown task={taskv4} />
+                            )}
                             {!isMeetingPreparationTask &&
                                 !isRecurringTaskTemplate &&
                                 task.id_folder &&
@@ -353,7 +357,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                     )
                 )}
                 <Flex alignItems="center" gap={Spacing._8} marginLeftAuto>
-                    {isPreviewMode && task.linear_cycle && <LinearCycle cycle={task.linear_cycle} />}
+                    {task.linear_cycle && <LinearCycle cycle={task.linear_cycle} />}
                     {!isRecurringTaskTemplate &&
                         task.external_status &&
                         task.all_statuses &&

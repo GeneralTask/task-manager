@@ -17,7 +17,7 @@ require (
 	github.com/rs/zerolog v1.26.1
 	github.com/shurcooL/graphql v0.0.0-20200928012149-18c5c3165e3a
 	github.com/slack-go/slack v0.10.3
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.8.2
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe
 	github.com/swaggo/gin-swagger v1.5.0
 	github.com/swaggo/swag v1.8.3
@@ -25,6 +25,12 @@ require (
 	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914
 	google.golang.org/api v0.51.0
 	mvdan.cc/xurls/v2 v2.3.0
+)
+
+require (
+	github.com/go-co-op/gocron v1.18.1 // indirect
+	github.com/robfig/cron/v3 v3.0.1 // indirect
+	github.com/square/mongo-lock v0.0.0-20220601164918-701ecf357cd7 // indirect
 )
 
 require (
@@ -78,7 +84,7 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sashabaranov/go-gpt3 v0.0.0-20221216095610-1c20931ead68 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
-	github.com/stretchr/objx v0.2.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	github.com/urfave/cli/v2 v2.10.3 // indirect
 	github.com/vektah/gqlparser/v2 v2.3.1 // indirect
@@ -92,7 +98,7 @@ require (
 	golang.org/x/exp v0.0.0-20220823124025-807a23277127 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
-	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
+	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.12 // indirect
