@@ -13,6 +13,11 @@ const Container = styled.div`
     padding: ${Spacing._24};
     gap: ${Spacing._24};
     box-shadow: ${Shadows.m};
+    box-sizing: border-box;
+    width: 100%;
+    @media (min-width: 1000px) {
+        width: calc(50% - ${Spacing._24}); // 24px gap between metrics
+    }
 `
 
 interface MetricProps {
@@ -24,7 +29,7 @@ const Metric = ({ metric }: MetricProps) => {
         <Container>
             <Flex alignItems="center" gap={Spacing._8}>
                 <Icon icon={icons[metric.icon]} />
-                <TitleMedium>{metric.name}</TitleMedium>
+                <TitleMedium color="muted">{metric.name}</TitleMedium>
             </Flex>
             <Flex justifyContent="space-between">
                 {metric.lines.map((line) => (
