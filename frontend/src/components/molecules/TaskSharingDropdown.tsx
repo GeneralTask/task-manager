@@ -4,6 +4,7 @@ import { useModifyTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
 import { TTaskSharedAccess, TTaskV4 } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
+import LabelWrap from '../radix/DropdownLabel'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTMenuItem } from '../radix/RadixUIConstants'
 
@@ -40,23 +41,22 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
     ]
     const notSharedDropdownItems: GTMenuItem[] = [
         {
-            icon: icons.copy,
-            label: 'Create & copy link',
+            icon: icons.users,
+            label: 'Share with company',
             hideCheckmark: true,
-            subItems: [
-                {
-                    icon: icons.users,
-                    label: 'Share with company',
-                    hideCheckmark: true,
-                    onClick: () => shareTask('domain'),
-                },
-                {
-                    icon: icons.globe,
-                    label: 'Share with everyone',
-                    hideCheckmark: true,
-                    onClick: () => shareTask('public'),
-                },
-            ],
+            onClick: () => shareTask('domain'),
+        },
+        {
+            icon: icons.globe,
+            label: 'Share with everyone',
+            hideCheckmark: true,
+            onClick: () => shareTask('public'),
+        },
+        {
+            label: 'Unshared task info',
+            disabled: true,
+            keepOpenOnSelect: true,
+            renderer: () => <LabelWrap>This task is not being shared.</LabelWrap>,
         },
     ]
 
