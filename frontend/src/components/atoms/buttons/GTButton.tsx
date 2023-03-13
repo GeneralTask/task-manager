@@ -105,15 +105,15 @@ const IconButtonStyles = css<GTButtonProps>`
     &:active:enabled,
     &:focus:enabled {
         color: ${Colors.text.base};
-        background-color: ${Colors.background.border};
-        box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.accent.pink};
+        background-color: transparent;
+        box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.background.hover};
     }
     ${({ active }) =>
         active &&
         css`
             color: ${Colors.text.base};
-            background-color: ${Colors.background.border};
-            box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.accent.pink};
+            background-color: transparent;
+            box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.background.hover};
         `}
 `
 
