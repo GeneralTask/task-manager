@@ -157,6 +157,7 @@ export const icons = Object.freeze({
     filter: faBarsFilter,
     flask: faFlask,
     folder: faFolder,
+    gcal: logos.gcal,
     gear: faGear,
     github_high: '/images/github_high.svg',
     github_low: '/images/github_low.svg',
