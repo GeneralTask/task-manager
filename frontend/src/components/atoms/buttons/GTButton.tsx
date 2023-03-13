@@ -23,12 +23,11 @@ const PrimaryButtonStyles = css<GTButtonProps>`
         box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.primary.hover};
     }
     ${({ active }) =>
-        active
-            ? css`
-                  background-color: ${Colors.control.primary.highlight};
-                  box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.primary.hover};
-              `
-            : ''}
+        active &&
+        css`
+            background-color: ${Colors.control.primary.highlight};
+            box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.primary.hover};
+        `}
 `
 const SecondaryButtonStyles = css<GTButtonProps>`
     ${Typography.title.small};
@@ -45,12 +44,11 @@ const SecondaryButtonStyles = css<GTButtonProps>`
         box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.secondary.highlight};
     }
     ${({ active }) =>
-        active
-            ? css`
-                  background-color: ${Colors.control.secondary.hover};
-                  box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.secondary.highlight};
-              `
-            : ''}
+        active &&
+        css`
+            background-color: ${Colors.control.secondary.hover};
+            box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.secondary.highlight};
+        `}
 `
 const DestructiveButtonStyles = css<GTButtonProps>`
     ${Typography.title.small};
@@ -65,12 +63,11 @@ const DestructiveButtonStyles = css<GTButtonProps>`
         box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.destructive.hover};
     }
     ${({ active }) =>
-        active
-            ? css`
-                  background-color: ${Colors.control.destructive.highlight};
-                  box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.destructive.hover};
-              `
-            : ''}
+        active &&
+        css`
+            background-color: ${Colors.control.destructive.highlight};
+            box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.destructive.hover};
+        `}
 `
 const ControlButtonStyles = css<GTButtonProps>`
     ${Typography.label.small};
@@ -86,13 +83,12 @@ const ControlButtonStyles = css<GTButtonProps>`
         box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.accent.pink};
     }
     ${({ active }) =>
-        active
-            ? css`
-                  color: ${Colors.text.base};
-                  background-color: ${Colors.background.border};
-                  box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.accent.pink};
-              `
-            : ''}
+        active &&
+        css`
+            color: ${Colors.text.base};
+            background-color: ${Colors.background.border};
+            box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.accent.pink};
+        `}
 `
 const IconButtonStyles = css<GTButtonProps>`
     ${Typography.label.small};
@@ -108,13 +104,12 @@ const IconButtonStyles = css<GTButtonProps>`
         box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.accent.pink};
     }
     ${({ active }) =>
-        active
-            ? css`
-                  color: ${Colors.text.base};
-                  background-color: ${Colors.background.border};
-                  box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.accent.pink};
-              `
-            : ''}
+        active &&
+        css`
+            color: ${Colors.text.base};
+            background-color: ${Colors.background.border};
+            box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.accent.pink};
+        `}
 `
 
 const Button = styled(NoStyleButton)<GTButtonProps>`
@@ -169,62 +164,33 @@ interface GTButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElemen
     fitContent?: boolean
     active?: boolean
 }
-const GTButton = React.forwardRef(
-    (
-        {
-            styleType,
-            value,
-            textColor,
-            icon,
-            iconColor,
-            iconColorHex,
-            rightIcon,
-            rightIconColor,
-            rightIconColorHex,
-            shortcutName,
-            overrideShortcut,
-            overrideShortcutLabel,
-            tooltipText,
-            tooltipSide,
-            fitContent = true,
-            active,
-            ...rest
-        }: GTButtonProps,
-        ref: React.Ref<HTMLButtonElement>
-    ) => {
-        const button = (
-            <Button
-                styleType={styleType}
-                fitContent={fitContent}
-                textColor={textColor}
-                active={active}
-                ref={ref}
-                {...rest}
+const GTButton = React.forwardRef((props: GTButtonProps, ref: React.Ref<HTMLButtonElement>) => {
+    const { value, fitContent, ...rest } = props
+    const button = (
+        <Button fitContent={fitContent ?? true} ref={ref} {...rest}>
+            {props.icon && <Icon icon={props.icon} color={props.iconColor} colorHex={props.iconColorHex} />}
+            {props.styleType !== 'icon' ? value : ''}
+            {props.rightIcon && props.styleType !== 'icon' && (
+                <MarginLeftAuto>
+                    <Icon icon={props.rightIcon} color={props.rightIconColor} colorHex={props.rightIconColorHex} />
+                </MarginLeftAuto>
+            )}
+        </Button>
+    )
+    if (props.tooltipText || props.shortcutName) {
+        return (
+            <Tip
+                content={props.tooltipText}
+                shortcutName={props.shortcutName}
+                side={props.tooltipSide}
+                overrideShortcut={props.overrideShortcut}
+                overrideShortcutLabel={props.overrideShortcutLabel}
             >
-                {icon && <Icon icon={icon} color={iconColor} colorHex={iconColorHex} />}
-                {styleType !== 'icon' ? value : ''}
-                {rightIcon && styleType !== 'icon' && (
-                    <MarginLeftAuto>
-                        <Icon icon={rightIcon} color={rightIconColor} colorHex={rightIconColorHex} />
-                    </MarginLeftAuto>
-                )}
-            </Button>
+                {button}
+            </Tip>
         )
-        if (tooltipText || shortcutName) {
-            return (
-                <Tip
-                    content={tooltipText}
-                    shortcutName={shortcutName}
-                    side={tooltipSide}
-                    overrideShortcut={overrideShortcut}
-                    overrideShortcutLabel={overrideShortcutLabel}
-                >
-                    {button}
-                </Tip>
-            )
-        }
-        return button
     }
-)
+    return button
+})
 
 export default GTButton
