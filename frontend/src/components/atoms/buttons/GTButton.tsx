@@ -83,14 +83,12 @@ const ControlButtonStyles = css<GTButtonProps>`
     &:active:enabled,
     &:focus:enabled {
         color: ${Colors.text.base};
-        background-color: transparent;
         box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.background.hover};
     }
     ${({ active }) =>
         active &&
         css`
             color: ${Colors.text.base};
-            background-color: transparent;
             box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.background.hover};
         `}
 `
@@ -105,14 +103,12 @@ const IconButtonStyles = css<GTButtonProps>`
     &:active:enabled,
     &:focus:enabled {
         color: ${Colors.text.base};
-        background-color: transparent;
         box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.background.hover};
     }
     ${({ active }) =>
         active &&
         css`
             color: ${Colors.text.base};
-            background-color: transparent;
             box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.background.hover};
         `}
 `
