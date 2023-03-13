@@ -1244,6 +1244,10 @@ func GetRecurringTaskTemplateCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("recurring_task_templates")
 }
 
+func GetJobLocksCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("job_locks")
+}
+
 func HasUserGrantedMultiCalendarScope(scopes []string) bool {
 	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar")
 }
