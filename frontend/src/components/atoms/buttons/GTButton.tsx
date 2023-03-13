@@ -131,18 +131,11 @@ const Button = styled(NoStyleButton)<GTButtonProps>`
     text-overflow: ellipsis;
     user-select: none;
     font-family: inherit;
-    ${({ styleType }) =>
-        styleType === 'primary'
-            ? PrimaryButtonStyles
-            : styleType === 'secondary'
-            ? SecondaryButtonStyles
-            : styleType === 'destructive'
-            ? DestructiveButtonStyles
-            : styleType === 'control'
-            ? ControlButtonStyles
-            : styleType === 'icon'
-            ? IconButtonStyles
-            : undefined};
+    ${({ styleType }) => styleType === 'primary' && PrimaryButtonStyles};
+    ${({ styleType }) => styleType === 'secondary' && SecondaryButtonStyles};
+    ${({ styleType }) => styleType === 'destructive' && DestructiveButtonStyles};
+    ${({ styleType }) => styleType === 'control' && ControlButtonStyles};
+    ${({ styleType }) => styleType === 'icon' && IconButtonStyles};
     ${(props) => props.textColor && `color: ${Colors.text[props.textColor]};`}
     &:disabled {
         opacity: 0.5;
