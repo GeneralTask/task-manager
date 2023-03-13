@@ -1141,6 +1141,11 @@ func TestGetCalendarEvent(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, event.ID, respEvent.ID)
 	})
+	t.Run("SuccessWithoutUserID", func(t *testing.T) {
+		respEvent, err := GetCalendarEventWithoutUserID(db, event.ID)
+		assert.NoError(t, err)
+		assert.Equal(t, event.ID, respEvent.ID)
+	})
 }
 
 func TestGetPullRequestByExternalID(t *testing.T) {
