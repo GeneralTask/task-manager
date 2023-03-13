@@ -60,14 +60,12 @@ func TestNoteDetail(t *testing.T) {
 		&database.Note{
 			UserID:      userID,
 			Title:       &title2,
-			SharedUntil: *testutils.CreateDateTime("1999-01-01"),
+			SharedUntil: *testutils.CreateDateTime("2000-01-01"),
 		},
 	)
 	assert.NoError(t, err)
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
-	_ = note1
-	_ = note2
 	router := GetRouter(api)
 
 	t.Run("InvalidNoteID", func(t *testing.T) {

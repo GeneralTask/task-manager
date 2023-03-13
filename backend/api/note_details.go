@@ -27,13 +27,13 @@ func (api *API) NoteDetails(c *gin.Context) {
 	if userID != nil {
 		note, err = database.GetSharedNoteWithAuth(api.DB, noteID, *userID)
 		if err != nil {
-			notFoundRedirect(c, noteIDHex)
+			Handle404(c)
 			return
 		}
 	} else {
 		note, err = database.GetSharedNote(api.DB, noteID)
 		if err != nil {
-			notFoundRedirect(c, noteIDHex)
+			Handle404(c)
 			return
 		}
 	}
