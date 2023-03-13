@@ -82,7 +82,7 @@ func githubIndustryJob(now time.Time) error {
 			GraphType: constants.DashboardGraphTypePRResponseTime,
 			Value:     averageResponseTime,
 			Date:      dateTime,
-			CreatedAt: primitive.NewDateTimeFromTime(now),
+			CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
 		}
 		result := dataPointCollection.FindOneAndUpdate(
 			context.Background(),
