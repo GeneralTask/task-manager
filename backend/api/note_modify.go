@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -15,12 +16,13 @@ import (
 )
 
 type NoteChangeable struct {
-	Title        *string                `json:"title,omitempty"`
-	Body         *string                `json:"body,omitempty"`
-	Author       string                 `json:"author,omitempty"`
-	SharedUntil  *primitive.DateTime    `json:"shared_until,omitempty"`
-	SharedAccess *database.SharedAccess `json:"shared_access,omitempty"`
-	IsDeleted    *bool                  `json:"is_deleted,omitempty"`
+	Title       *string             `json:"title,omitempty"`
+	Body        *string             `json:"body,omitempty"`
+	Author      string              `json:"author,omitempty"`
+	SharedUntil *primitive.DateTime `json:"shared_until,omitempty"`
+	//SharedAccess *database.SharedAccess `json:"shared_access,omitempty"`
+	SharedAccess *string `json:"shared_access,omitempty" bson:"shared_access,omitempty"`
+	IsDeleted    *bool   `json:"is_deleted,omitempty"`
 }
 
 type NoteModifyParams struct {
@@ -56,7 +58,21 @@ func (api *API) NoteModify(c *gin.Context) {
 		return
 	}
 
-	sharedAccessValid := database.CheckNoteSharingAccessValid(modifyParams.NoteChangeable.SharedAccess)
+	var sharedAccess *database.SharedAccess
+	if modifyParams.SharedAccess != nil {
+		if *modifyParams.SharedAccess == constants.StringSharedAccessPublic {
+			sharedAccessPublic := database.SharedAccessPublic
+			sharedAccess = &sharedAccessPublic
+		} else if *modifyParams.SharedAccess == constants.StringSharedAccessDomain {
+			sharedAccessDomain := database.SharedAccessDomain
+			sharedAccess = &sharedAccessDomain
+		} else {
+			c.JSON(400, gin.H{"detail": "invalid shared access token"})
+			return
+		}
+	}
+
+	sharedAccessValid := database.CheckNoteSharingAccessValid(sharedAccess)
 	if !sharedAccessValid {
 		api.Logger.Error().Err(err).Msg("invalid shared access token")
 		c.JSON(400, gin.H{"detail": "invalid shared access token"})
@@ -74,7 +90,7 @@ func (api *API) NoteModify(c *gin.Context) {
 			Body:         modifyParams.NoteChangeable.Body,
 			Author:       modifyParams.NoteChangeable.Author,
 			SharedUntil:  sharedUntil,
-			SharedAccess: modifyParams.NoteChangeable.SharedAccess,
+			SharedAccess: sharedAccess,
 			IsDeleted:    modifyParams.NoteChangeable.IsDeleted,
 			UpdatedAt:    primitive.NewDateTimeFromTime(time.Now()),
 			CreatedAt:    note.CreatedAt,
