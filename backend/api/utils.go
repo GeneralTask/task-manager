@@ -68,6 +68,24 @@ func (api *API) Ping(c *gin.Context) {
 	c.JSON(200, "success")
 }
 
+func BusinessMiddleware(db *mongo.Database) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		handlerName := c.HandlerName()
+		if handlerName[len(handlerName)-9:] == "Handle404" {
+			// Do nothing if the route isn't recognized
+			return
+		}
+		userID := getUserIDFromContext(c)
+		userCollection := database.GetUserCollection(db)
+		var userObject database.User
+		err := userCollection.FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
+		if err != nil || userObject.BusinessModeEnabled == nil || !*userObject.BusinessModeEnabled {
+			c.AbortWithStatusJSON(403, gin.H{"detail": "business access is required to use this endpoint"})
+			return
+		}
+	}
+}
+
 func TokenMiddleware(db *mongo.Database) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		handlerName := c.HandlerName()
