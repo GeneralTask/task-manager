@@ -8,7 +8,7 @@ export const dummyAPIReponse: TDashboardView[] = [
         metrics: [
             {
                 name: 'Focus time',
-                icon: 'calendar_blank',
+                icon: 'gcal',
                 lines: [
                     {
                         name: 'Daily average (Your team)',
