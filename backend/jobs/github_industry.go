@@ -17,7 +17,7 @@ import (
 
 const CODECOV_BOT = "codecov[bot]"
 
-func githubIndustryJob(now time.Time) error {
+func githubIndustryJob(endCutoff time.Time, lookbackDays int) error {
 	logger := logging.GetSentryLogger()
 	db, cleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -31,7 +31,7 @@ func githubIndustryJob(now time.Time) error {
 	findOptions.SetSort(bson.D{{Key: "last_fetched", Value: 1}})
 	cursor, err := repositoryCollection.Find(
 		context.Background(),
-		bson.M{"created_at_external": bson.M{"$gte": now.Add(-time.Hour * 24 * 21)}},
+		bson.M{"created_at_external": bson.M{"$gte": endCutoff.Add(-time.Hour * 24 * time.Duration(lookbackDays))}},
 		findOptions,
 	)
 	if err != nil {
@@ -52,14 +52,14 @@ func githubIndustryJob(now time.Time) error {
 	dateToTotalResponseTime := make(map[primitive.DateTime]int)
 	dateToPRCount := make(map[primitive.DateTime]int)
 	for _, pullRequest := range pullRequestIDToValue {
-		firstCommentTime := now
+		firstCommentTime := endCutoff
 		for _, comment := range pullRequest.Comments {
 			if comment.Author != CODECOV_BOT && comment.Author != pullRequest.Author {
 				firstCommentTime = comment.CreatedAt.Time()
 				break
 			}
 		}
-		if firstCommentTime == now {
+		if firstCommentTime == endCutoff {
 			// skip pull requests with no comments
 			continue
 		}

@@ -100,7 +100,7 @@ func TestGetSettingsOptions(t *testing.T) {
 	assert.NoError(t, createTestPullRequest(db, prNoComments))
 
 	t.Run("Success", func(t *testing.T) {
-		assert.NoError(t, githubIndustryJob(nowTime))
+		assert.NoError(t, githubIndustryJob(nowTime, 21))
 
 		dashboardDataPointCollection := database.GetDashboardDataPointCollection(db)
 		cursor, err := dashboardDataPointCollection.Find(
