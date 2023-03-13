@@ -224,7 +224,7 @@ func CheckTaskSharingAccessValid(sharedAccess SharedAccess) bool {
 	return sharedAccess == SharedAccessDomain || sharedAccess == SharedAccessPublic
 }
 
-func GetSharedTask(db *mongo.Database, taskID primitive.ObjectID, userID primitive.ObjectID) (*Task, error) {
+func GetSharedTask(db *mongo.Database, taskID primitive.ObjectID, userID *primitive.ObjectID) (*Task, error) {
 	logger := logging.GetSentryLogger()
 	mongoResult := GetTaskCollection(db).FindOne(
 		context.Background(),
@@ -251,7 +251,10 @@ func GetSharedTask(db *mongo.Database, taskID primitive.ObjectID, userID primiti
 
 	// Check if the user is allowed to access the task
 	if *task.SharedAccess == SharedAccessDomain {
-		user, err := GetUser(db, userID)
+		if userID == nil {
+			return nil, errors.New("user is not allowed to access this task")
+		}
+		user, err := GetUser(db, *userID)
 		if err != nil {
 			logger.Error().Err(err).Msgf("failed to get user: %+v", userID)
 			return nil, err
