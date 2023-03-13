@@ -63,8 +63,7 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
     return (
         <GTDropdownMenu
             items={isShared ? sharedDropdownItems : notSharedDropdownItems}
-            unstyledTrigger
-            trigger={<GTButton size="small" styleType="secondary" icon={icons.share} value="Share" asDiv />}
+            trigger={<GTButton styleType="secondary" icon={icons.share} value="Share" />}
         />
     )
 }
