@@ -68,7 +68,8 @@ func (api *API) Ping(c *gin.Context) {
 	c.JSON(200, "success")
 }
 
-func TokenMiddleware(db *mongo.Database) func(c *gin.Context) {
+// Middleware to get the user token from the request if it exists
+func UserTokenMiddleware(db *mongo.Database) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		handlerName := c.HandlerName()
 		if handlerName[len(handlerName)-9:] == "Handle404" {
@@ -83,12 +84,29 @@ func TokenMiddleware(db *mongo.Database) func(c *gin.Context) {
 		internalAPITokenCollection := database.GetInternalTokenCollection(db)
 		var internalToken database.InternalAPIToken
 		err = internalAPITokenCollection.FindOne(context.Background(), bson.M{"token": token}).Decode(&internalToken)
-		if err != nil {
-			log.Error().Err(err).Msg("token auth failed")
-			c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
+		if err == nil {
+			c.Set("user", internalToken.UserID)
+		}
+	}
+}
+
+func AuthorizationMiddleware(db *mongo.Database) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		handlerName := c.HandlerName()
+		if handlerName[len(handlerName)-9:] == "Handle404" {
+			// Do nothing if the route isn't recognized
 			return
 		}
-		c.Set("user", internalToken.UserID)
+		if _, exists := c.Get("user"); !exists {
+			_, err := getToken(c)
+			if err != nil {
+				// This means the auth token format was incorrect
+				c.AbortWithStatusJSON(401, gin.H{"detail": "incorrect auth token format"})
+				return
+			}
+			log.Error().Err(err).Msg("token auth failed")
+			c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
+		}
 	}
 }
 
@@ -115,7 +133,6 @@ func getToken(c *gin.Context) (string, error) {
 	token := c.Request.Header.Get("Authorization")
 	//Token is 36 characters + 6 for Bearer prefix + 1 for space = 43
 	if len(token) != 43 {
-		c.AbortWithStatusJSON(401, gin.H{"detail": "incorrect auth token format"})
 		return "", errors.New("incorrect auth token format")
 	}
 	token = token[7:]

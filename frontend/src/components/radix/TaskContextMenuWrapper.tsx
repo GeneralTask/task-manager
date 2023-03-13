@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_FOLDER_ID, EMPTY_MONGO_OBJECT_ID, TASK_PRIORITIES } from '../../constants'
 import useSelectionContext from '../../context/SelectionContextProvider'
+import { useToast } from '../../hooks'
 import { useGetFolders } from '../../services/api/folders.hooks'
 import {
     useCreateTask,
@@ -90,6 +91,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted(false)
     const [isRecurringTaskTemplateModalOpen, setIsRecurringTaskTemplateModalOpen] = useState(false)
     const { inMultiSelectMode, selectedTaskIds, clearSelectedTaskIds } = useSelectionContext()
+    const toast = useToast()
 
     const parentTask = allTasks?.find((t) => t.id === task.id_parent)
 
@@ -248,6 +250,11 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                               },
                               optimisticId
                           )
+                          toast.show({
+                              message: `Task duplicated in folder ${
+                                  folders?.find((f) => f.id === task.id_folder)?.name ?? 'Task Inbox'
+                              }`,
+                          })
                       },
                   },
               ]

@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_FOLDER_ID } from '../../constants'
+import { useToast } from '../../hooks'
+import { useGetFolders } from '../../services/api/folders.hooks'
 import { useCreateTask, useMarkTaskDoneOrDeleted, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
@@ -17,10 +19,12 @@ interface TaskActionsDropdownProps {
 }
 const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
+    const { data: folders } = useGetFolders()
     const { mutate: createTask } = useCreateTask()
     const { mutate: modifyTask } = useModifyTask()
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
+    const toast = useToast()
 
     const updatedAt = DateTime.fromISO(task.updated_at).toFormat(`MMM d 'at' h:mm a`)
     const createdAt = DateTime.fromISO(task.created_at).toFormat(`MMM d 'at' h:mm a`)
@@ -54,6 +58,11 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
                 },
                 optimisticId
             )
+            toast.show({
+                message: `Task duplicated in folder ${
+                    folders?.find((f) => f.id === task.id_folder)?.name ?? 'Task Inbox'
+                }`,
+            })
         },
     })
 

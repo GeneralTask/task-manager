@@ -36,12 +36,12 @@ export const MenuItemShared = css<{ $textColor?: TTextColor; $disabled?: boolean
             !$disabled &&
             `
         outline: ${Border.stroke.small} solid ${Colors.background.border};
-        background-color: ${Colors.background.medium};
+        background-color: ${Colors.background.sub};
         `}
     }
     &[data-state='open'] {
         outline: ${Border.stroke.small} solid ${Colors.background.border};
-        background-color: ${Colors.background.medium};
+        background-color: ${Colors.background.sub};
     }
 `
 export const MenuContentShared = css`
