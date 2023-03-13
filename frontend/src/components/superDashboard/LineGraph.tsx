@@ -42,10 +42,7 @@ const LineGraph = ({ data, startDate }: LineGraphProps) => {
     }, [data, startDate])
 
     const ticks = useMemo(() => {
-        return Array.from({ length: DAYS_PER_WEEK }).map((_, i) => {
-            const date = startDate.plus({ days: i })
-            return date.toUnixInteger()
-        })
+        return Array.from({ length: DAYS_PER_WEEK }).map((_, i) => startDate.plus({ days: i }).toUnixInteger())
     }, [startDate])
 
     return (
