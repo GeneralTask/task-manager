@@ -1,11 +1,19 @@
 import { Suspense, lazy, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
 import { usePreviewMode } from '../../hooks'
+import { Colors, Spacing } from '../../styles'
 import Spinner from '../atoms/Spinner'
 import { Header } from '../molecules/Header'
-import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const SuperDashboard = lazy(() => import('../superDashboard/SuperDashboard'))
+
+const FullWidthScroller = styled.div`
+    padding: ${Spacing._32} ${Spacing._16} 100px;
+    overflow-y: auto;
+    width: 100%;
+    background-color: ${Colors.background.base};
+`
 
 const SuperDashboardView = () => {
     const { isPreviewMode, isLoading } = usePreviewMode()
@@ -17,12 +25,12 @@ const SuperDashboardView = () => {
     }, [isPreviewMode, isLoading])
 
     return (
-        <ScrollableListTemplate width="100%">
+        <FullWidthScroller>
             <Header folderName="Super Dashboard" />
             <Suspense fallback={<Spinner />}>
                 <SuperDashboard />
             </Suspense>
-        </ScrollableListTemplate>
+        </FullWidthScroller>
     )
 }
 

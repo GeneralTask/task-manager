@@ -25,7 +25,7 @@ const NavigationViewContainer = styled.div<{ showDropShadow: boolean; isCollapse
     flex-direction: column;
     min-width: 0px;
     min-height: 0px;
-    background-color: ${Colors.background.medium};
+    background-color: ${Colors.background.sub};
     box-sizing: border-box;
     z-index: 1;
     ${(props) => props.showDropShadow && `box-shadow: ${Shadows.deprecated_button.hover};`}
