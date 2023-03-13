@@ -16,8 +16,8 @@ type NoteResult struct {
 	Title            string                 `json:"title,omitempty"`
 	Body             string                 `json:"body,omitempty"`
 	Author           string                 `json:"author,omitempty"`
-	CreatedAt        primitive.DateTime     `json:"created_at,omitempty"`
-	UpdatedAt        primitive.DateTime     `json:"updated_at,omitempty"`
+	CreatedAt        string                 `json:"created_at,omitempty"`
+	UpdatedAt        string                 `json:"updated_at,omitempty"`
 	SharedUntil      string                 `json:"shared_until,omitempty"`
 	IsDeleted        bool                   `json:"is_deleted,omitempty"`
 	LinkedEventID    string                 `json:"linked_event_id,omitempty"`
@@ -76,8 +76,8 @@ func (api *API) noteToNoteResult(note *database.Note) *NoteResult {
 		Title:        title,
 		Body:         body,
 		Author:       note.Author,
-		CreatedAt:    note.CreatedAt,
-		UpdatedAt:    note.UpdatedAt,
+		CreatedAt:    note.CreatedAt.Time().UTC().Format(time.RFC3339),
+		UpdatedAt:    note.UpdatedAt.Time().UTC().Format(time.RFC3339),
 		SharedUntil:  note.SharedUntil.Time().UTC().Format(time.RFC3339),
 		IsDeleted:    isDeleted,
 		SharedAccess: note.SharedAccess,
