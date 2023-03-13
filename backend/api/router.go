@@ -59,13 +59,14 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/notes/detail/:note_id/", handlers.NoteDetails)
 	router.GET("/note/:note_id/", handlers.NotePreview)
 
-	router.GET("/public_shareable_tasks/detail/:task_id/", handlers.ShareableTaskDetails)
-
 	// Unauthenticated endpoints only for dev environment
 	router.POST("/create_test_user/", handlers.CreateTestUser)
 
+	router.Use(UserTokenMiddleware(handlers.DB))
+	router.GET("/shareable_tasks/detail/:task_id/", handlers.ShareableTaskDetails)
+
 	// Add middlewares
-	router.Use(TokenMiddleware(handlers.DB))
+	router.Use(AuthorizationMiddleware(handlers.DB))
 	router.Use(LoggingMiddleware(handlers.DB))
 	// Authenticated endpoints
 	router.GET("/meeting_banner/", handlers.MeetingBanner)
@@ -80,7 +81,6 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/events/:event_id/", handlers.EventDetail)
 	router.DELETE("/events/delete/:event_id/", handlers.EventDelete)
 	router.PATCH("/events/modify/:event_id/", handlers.EventModify)
-	router.GET("/shareable_tasks/detail/:task_id/", handlers.ShareableTaskDetails)
 
 	router.GET("/tasks/fetch/", handlers.TasksFetch)
 	router.GET("/tasks/v3/", handlers.TasksListV3)
