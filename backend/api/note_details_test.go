@@ -106,7 +106,7 @@ func TestNoteDetail(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t,
-			fmt.Sprintf(`{"id":"%s","title":"title1","shared_until":"9999-01-01T00:00:00Z","linked_event_id":"%s","linked_event_start":"2021-03-06T20:00:00Z","linked_event_end":"2021-03-06T20:30:00Z"}`, note1.ID.Hex(), event.ID.Hex()),
+			fmt.Sprintf(`{"id":"%s","title":"title1","created_at":"1970-01-01T00:00:00Z","updated_at":"1970-01-01T00:00:00Z","shared_until":"9999-01-01T00:00:00Z","linked_event_id":"%s","linked_event_start":"2021-03-06T20:00:00Z","linked_event_end":"2021-03-06T20:30:00Z"}`, note1.ID.Hex(), event.ID.Hex()),
 			string(body))
 	})
 }
