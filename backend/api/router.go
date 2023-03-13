@@ -97,6 +97,8 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/notes/", handlers.NotesList)
 	router.PATCH("/notes/modify/:note_id/", handlers.NoteModify)
 	router.POST("/notes/create/", handlers.NoteCreate)
+	router.GET("/notes_authed/detail/:note_id/", handlers.NoteDetailsAuthed)
+	router.GET("/note_authed/:note_id/", handlers.NotePreviewAuthed)
 
 	router.GET("/ping_authed/", handlers.Ping)
 

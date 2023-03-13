@@ -56,6 +56,54 @@ func (api *API) NotePreview(c *gin.Context) {
 	c.Data(200, "text/html; charset=utf-8", body)
 }
 
+func (api *API) NotePreviewAuthed(c *gin.Context) {
+	noteIDHex := c.Param("note_id")
+	noteID, err := primitive.ObjectIDFromHex(noteIDHex)
+	if err != nil {
+		// This means the note ID is improperly formatted
+		Handle404(c)
+		return
+	}
+
+	userID := getUserIDFromContext(c)
+
+	note, err := database.GetSharedNoteWithAuth(api.DB, noteID, userID)
+	if err != nil {
+		notFoundRedirect(c, noteIDHex)
+		return
+	}
+	if note.SharedUntil < primitive.NewDateTimeFromTime(time.Now()) {
+		notFoundRedirect(c, noteIDHex)
+		return
+	}
+
+	previewTitle := ""
+	if note.Title != nil {
+		previewTitle = html.EscapeString(*note.Title)
+	}
+	noteURL := getNoteURL(note.ID.Hex())
+	body := []byte(`
+<!DOCTYPE html>
+<html>
+<head>
+	<title>` + previewTitle + `</title>
+	<meta http-equiv="Refresh" content="0; url='` + noteURL + `'" />
+
+	<meta property="og:title" content="` + previewTitle + `" />
+	<meta name="twitter:title" content="` + previewTitle + `">
+
+	<meta content="Note shared by ` + note.Author + ` via General Task." property="og:description">
+	<meta content="Note shared by ` + note.Author + ` via General Task." property="twitter:description">
+
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="` + config.GetConfigValue("SERVER_URL") + "note/" + note.ID.Hex() + `/" />
+</head>
+<body>
+</body>
+</html>`)
+	c.Data(200, "text/html; charset=utf-8", body)
+}
+
 func notFoundRedirect(c *gin.Context, noteIDHex string) {
 	noteURL := getNoteURL(noteIDHex)
 	body := []byte(`
