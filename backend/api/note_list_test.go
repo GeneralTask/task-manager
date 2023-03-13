@@ -87,16 +87,22 @@ func TestNotesList(t *testing.T) {
 				ID:          task1.ID,
 				Title:       "title1",
 				SharedUntil: "9999-01-01T00:00:00Z",
+				CreatedAt:   "1970-01-01T00:00:00Z",
+				UpdatedAt:   "1970-01-01T00:00:00Z",
 			},
 			{
 				ID:          task2.ID,
 				Title:       "title2",
 				SharedUntil: "1999-01-01T00:00:00Z",
+				CreatedAt:   "1970-01-01T00:00:00Z",
+				UpdatedAt:   "1970-01-01T00:00:00Z",
 			},
 			{
 				ID:          task3.ID,
 				Title:       "deleted note",
 				SharedUntil: "9999-01-01T00:00:00Z",
+				CreatedAt:   "1970-01-01T00:00:00Z",
+				UpdatedAt:   "1970-01-01T00:00:00Z",
 				IsDeleted:   true,
 			},
 		}, result)
