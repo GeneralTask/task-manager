@@ -1,5 +1,5 @@
-import { Suspense, lazy, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Suspense, lazy } from 'react'
+import { Navigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { usePreviewMode } from '../../hooks'
 import { Colors, Spacing } from '../../styles'
@@ -17,12 +17,13 @@ const FullWidthScroller = styled.div`
 
 const SuperDashboardView = () => {
     const { isPreviewMode, isLoading } = usePreviewMode()
-    const navigate = useNavigate()
-    useEffect(() => {
-        if (!isLoading && !isPreviewMode) {
-            navigate('/overview', { replace: true })
-        }
-    }, [isPreviewMode, isLoading])
+
+    if (!isPreviewMode && !isLoading) {
+        return <Navigate to="/" replace />
+    }
+    if (isLoading) {
+        return <Spinner />
+    }
 
     return (
         <FullWidthScroller>
