@@ -88,6 +88,8 @@ func (api *API) noteToNoteResult(note *database.Note) *NoteResult {
 			sharedAccess = constants.StringSharedAccessPublic
 		} else if *note.SharedAccess == database.SharedAccessDomain {
 			sharedAccess = constants.StringSharedAccessDomain
+		} else if *note.SharedAccess == database.SharedAccessMeetingAttendees {
+			sharedAccess = constants.StringSharedAccessMeetingAttendees
 		}
 	}
 	noteResult.SharedAccess = sharedAccess

@@ -60,16 +60,18 @@ func (api *API) NoteModify(c *gin.Context) {
 
 	var sharedAccess *database.SharedAccess
 	if modifyParams.SharedAccess != nil {
+		var _sharedAccess database.SharedAccess
 		if *modifyParams.SharedAccess == constants.StringSharedAccessPublic {
-			sharedAccessPublic := database.SharedAccessPublic
-			sharedAccess = &sharedAccessPublic
+			_sharedAccess = database.SharedAccessPublic
 		} else if *modifyParams.SharedAccess == constants.StringSharedAccessDomain {
-			sharedAccessDomain := database.SharedAccessDomain
-			sharedAccess = &sharedAccessDomain
+			_sharedAccess = database.SharedAccessDomain
+		} else if *modifyParams.SharedAccess == constants.StringSharedAccessMeetingAttendees {
+			_sharedAccess = database.SharedAccessMeetingAttendees
 		} else {
 			c.JSON(400, gin.H{"detail": "invalid shared access token"})
 			return
 		}
+		sharedAccess = &_sharedAccess
 	}
 
 	sharedAccessValid := database.CheckNoteSharingAccessValid(sharedAccess)
