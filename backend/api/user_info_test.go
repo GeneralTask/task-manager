@@ -44,7 +44,7 @@ func TestUserInfo(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, `{"agreed_to_terms":false,"opted_into_marketing":false,"name":"name","is_employee":true,"email":"userinfo@generaltask.com","linear_name":"linearName","linear_display_name":"linearDisplayName"}`, string(body))
+		assert.Equal(t, `{"agreed_to_terms":false,"opted_into_marketing":false,"business_mode_enabled":false,"name":"name","is_employee":true,"email":"userinfo@generaltask.com","linear_name":"linearName","linear_display_name":"linearDisplayName"}`, string(body))
 	})
 	authToken = login("userinfo2@generaltask.com", "")
 	t.Run("SuccessNonEmployee", func(t *testing.T) {
@@ -59,7 +59,7 @@ func TestUserInfo(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"agreed_to_terms\":false,\"opted_into_marketing\":false,\"name\":\"\",\"is_employee\":false,\"email\":\"userinfo@gmail.com\"}", string(body))
+		assert.Equal(t, "{\"agreed_to_terms\":false,\"opted_into_marketing\":false,\"business_mode_enabled\":false,\"name\":\"\",\"is_employee\":false,\"email\":\"userinfo@gmail.com\"}", string(body))
 	})
 	UnauthorizedTest(t, "PATCH", "/user_info/", nil)
 	t.Run("EmptyPayload", func(t *testing.T) {
@@ -98,7 +98,7 @@ func TestUserInfo(t *testing.T) {
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/user_info/",
-			bytes.NewBuffer([]byte(`{"agreed_to_terms":true,"opted_into_marketing":true}`)))
+			bytes.NewBuffer([]byte(`{"agreed_to_terms":true,"opted_into_marketing":true,"business_mode_enabled":true}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -115,7 +115,7 @@ func TestUserInfo(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err = io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":true,\"name\":\"\",\"is_employee\":true,\"email\":\"userinfo2@generaltask.com\"}", string(body))
+		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":true,\"business_mode_enabled\":true,\"name\":\"\",\"is_employee\":true,\"email\":\"userinfo2@generaltask.com\"}", string(body))
 	})
 	t.Run("SuccessPartialUpdate", func(t *testing.T) {
 		// assuming the fields are still true as above
@@ -142,6 +142,6 @@ func TestUserInfo(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err = io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":false,\"name\":\"\",\"is_employee\":true,\"email\":\"userinfo2@generaltask.com\"}", string(body))
+		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":false,\"business_mode_enabled\":true,\"name\":\"\",\"is_employee\":true,\"email\":\"userinfo2@generaltask.com\"}", string(body))
 	})
 }
