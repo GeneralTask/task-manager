@@ -88,7 +88,7 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
     useKeyboardShortcut(isCalendarExpanded ? 'previousWeek' : 'previousDay', selectPrevious, isFocusMode)
 
     const goToTodayButton = (
-        <GTButton value="Today" onClick={selectToday} styleType="secondary" disabled={isCalendarShowingToday} />
+        <GTButton value="Today" onClick={selectToday} styleType="control" disabled={isCalendarShowingToday} />
     )
     const nextPreviousButtons = (
         <Flex gap={Spacing._8} alignItems="center">
@@ -98,6 +98,7 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                 onClick={selectPrevious}
                 icon={icons.caret_left}
             />
+            {goToTodayButton}
             <GTButton
                 styleType="icon"
                 shortcutName={isCalendarExpanded ? 'nextWeek' : 'nextDay'}
@@ -128,13 +129,10 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                             )}
                             {isCalendarExpanded && (
                                 <>
-                                    {goToTodayButton}
                                     {nextPreviousButtons}
+                                    <DeprecatedSubtitle>{date.toFormat('LLLL yyyy')}</DeprecatedSubtitle>
                                 </>
                             )}
-                            <DeprecatedSubtitle>
-                                {calendarType === 'week' ? date.toFormat('LLLL yyyy') : date.toFormat('ccc, LLLL d')}
-                            </DeprecatedSubtitle>
                         </Flex>
                         <Flex gap={Spacing._8} alignItems="center">
                             <GTButton
@@ -154,8 +152,8 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                     <Divider color={Colors.background.border} />
                     {!isCalendarExpanded && (
                         <PaddedContainer>
+                            <DeprecatedSubtitle>{date.toFormat('ccc, LLLL d')}</DeprecatedSubtitle>
                             {nextPreviousButtons}
-                            {goToTodayButton}
                         </PaddedContainer>
                     )}
                 </>
