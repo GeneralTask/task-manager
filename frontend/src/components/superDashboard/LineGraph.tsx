@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import produce from 'immer'
 import { DateTime } from 'luxon'
-import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts'
+import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, XAxis, YAxis } from 'recharts'
 import styled from 'styled-components'
 import { Colors, Typography } from '../../styles'
 import { BodyMedium } from '../atoms/typography/Typography'
@@ -12,6 +12,7 @@ import {
     GRAPH_TOP_MARGIN,
     LINE_ANIMATION_DURATION,
     LINE_STROKE_WIDTH,
+    STROKE_DASH_ARRAY,
 } from './constants'
 import { TMetric } from './types'
 
@@ -78,17 +79,25 @@ const LineGraph = ({ data, startDate }: LineGraphProps) => {
                 />
                 <Legend iconType="circle" formatter={(value) => <BodyMedium color="muted">{value}</BodyMedium>} />
                 {slicedData.map((line) => (
-                    <Line
-                        key={line.name}
-                        name={line.name}
-                        dataKey="y"
-                        fill={line.color}
-                        type="monotoneX"
-                        data={line.points}
-                        stroke={line.color}
-                        strokeWidth={LINE_STROKE_WIDTH}
-                        animationDuration={LINE_ANIMATION_DURATION}
-                    />
+                    <>
+                        <Line
+                            key={line.name}
+                            name={line.name}
+                            dataKey="y"
+                            fill={line.color}
+                            type="monotoneX"
+                            data={line.points}
+                            stroke={line.color}
+                            strokeWidth={LINE_STROKE_WIDTH}
+                            animationDuration={LINE_ANIMATION_DURATION}
+                        />
+                        <ReferenceLine
+                            y={line.aggregated_value}
+                            stroke={line.color}
+                            strokeDasharray={STROKE_DASH_ARRAY}
+                            strokeWidth={LINE_STROKE_WIDTH}
+                        />
+                    </>
                 ))}
             </LineChart>
         </StyledResponsiveContainer>
