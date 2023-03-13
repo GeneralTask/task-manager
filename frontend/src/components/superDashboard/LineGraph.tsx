@@ -5,6 +5,8 @@ import { Colors, Typography } from '../../styles'
 import { BodyMedium } from '../atoms/typography/Typography'
 import { TMetric } from './types'
 
+const GRAPH_HEIGHT = 400
+
 const StyledResponsiveContainer = styled(ResponsiveContainer)`
     /* tick labels */
     tspan {
@@ -22,7 +24,7 @@ interface LineGraphProps {
 
 const LineGraph = ({ data }: LineGraphProps) => {
     return (
-        <StyledResponsiveContainer width="100%" height={400}>
+        <StyledResponsiveContainer width="100%" height={GRAPH_HEIGHT}>
             <ScatterChart>
                 <CartesianGrid stroke={Colors.background.sub} />
                 <XAxis
