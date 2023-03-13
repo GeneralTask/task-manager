@@ -36,7 +36,7 @@ export const SubtaskContainer = styled.div<{ forceHoverStyle?: boolean; isDone?:
     border: ${Border.stroke.small} solid ${Colors.background.border};
     border-radius: ${Border.radius.medium};
     padding: ${Spacing._16};
-    ${Typography.body};
+    ${Typography.deprecated_body};
     cursor: pointer;
     :hover {
         background-color: ${Colors.background.sub};

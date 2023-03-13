@@ -14,12 +14,12 @@ const TaskTitle = styled.span`
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    ${Typography.label};
+    ${Typography.deprecated_label};
 `
 const TaskDueDate = styled.span`
     margin-left: auto;
     color: ${Colors.text.red};
-    ${Typography.label};
+    ${Typography.deprecated_label};
 `
 const TaskDue = styled.div`
     padding: ${Spacing._4};

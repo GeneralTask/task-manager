@@ -20,7 +20,7 @@ import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { Bold } from '../atoms/typography/Typography'
+import { DeprecatedBold } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import EventMeetingAction from '../focus-mode/EventMeetingAction'
 import FlexTime from '../focus-mode/FlexTime'
@@ -77,13 +77,13 @@ const ClockContainer = styled.div`
     display: flex;
     justify-content: space-between;
     border-top: ${Border.radius.small} solid ${Colors.background.border};
-    ${Typography.header};
+    ${Typography.deprecated_header};
     padding: ${Spacing._24} ${Spacing._32};
     font-weight: 274;
 `
 
 const NextEventContainer = styled.div`
-    ${Typography.body};
+    ${Typography.deprecated_body};
 `
 const AdvanceEventContainer = styled.div`
     position: absolute;
@@ -93,7 +93,7 @@ const AdvanceEventContainer = styled.div`
     user-select: none;
     cursor: pointer;
     gap: ${Spacing._8};
-    ${Typography.body};
+    ${Typography.deprecated_body};
 `
 const EventContainer = styled.div`
     padding: ${Spacing._32};
@@ -112,16 +112,16 @@ const FloatTopLeft = styled.div`
     right: ${Spacing._16};
 `
 const BodyHeader = styled.div`
-    ${Typography.eyebrow};
+    ${Typography.deprecated_eyebrow};
     margin-bottom: ${Spacing._16};
 `
 const Body = styled.div<{ $isEmpty: boolean }>`
     ${({ $isEmpty }) => $isEmpty && `color: ${Colors.text.light};`}
-    ${Typography.body};
+    ${Typography.deprecated_body};
     overflow-wrap: break-word;
 `
 const Subtitle = styled.div`
-    ${Typography.subtitle};
+    ${Typography.deprecated_subtitle};
 `
 const CurrentEventsContainer = styled.div`
     display: flex;
@@ -129,7 +129,7 @@ const CurrentEventsContainer = styled.div`
     gap: ${Spacing._8};
 `
 const CurrentEvent = styled(GTShadowContainer)`
-    ${Typography.body};
+    ${Typography.deprecated_body};
     display: flex;
     justify-content: space-between;
     border-radius: ${Border.radius.medium};
@@ -381,7 +381,7 @@ const FocusModeScreen = () => {
                             {nextEvent && isDateToday(DateTime.fromISO(nextEvent.datetime_start)) && (
                                 <span>
                                     Next event is in
-                                    <Bold> {getTimeUntilNextEvent(nextEvent)}</Bold>.
+                                    <DeprecatedBold> {getTimeUntilNextEvent(nextEvent)}</DeprecatedBold>.
                                 </span>
                             )}
                         </NextEventContainer>

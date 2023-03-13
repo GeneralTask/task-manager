@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import useOverviewContext from '../../context/OverviewContextProvider'
+import { useGetMeetingPreparationTasks } from '../../services/api/meeting-preparation-tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
@@ -25,7 +26,7 @@ const ActionsContainer = styled.div`
     margin-bottom: ${Spacing._16};
 `
 const BannerButton = styled(GTButton)`
-    ${Typography.label};
+    ${Typography.deprecated_label};
 `
 const RightActions = styled.div`
     margin-left: auto;
@@ -64,9 +65,10 @@ const DailyOverviewView = () => {
     useSelectFirstItemOnFirstLoad()
     const { expandAll, collapseAll } = useOverviewContext()
 
-    const { lists, isLoading } = useOverviewLists()
+    const { lists, isLoading: isOverviewListsLoading } = useOverviewLists()
+    const { isLoading: isMeetingTasksLoading } = useGetMeetingPreparationTasks()
 
-    if (isLoading) return <Spinner />
+    if (isOverviewListsLoading || isMeetingTasksLoading) return <Spinner />
     return (
         <>
             <Flex>

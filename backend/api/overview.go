@@ -64,22 +64,27 @@ type SupportedView struct {
 	Views            []SupportedViewItem `json:"views"`
 }
 
-func GetShowMovedOrDeletedQueryParam(c *gin.Context) (bool, error) {
+func GetBooleanQueryParameter(c *gin.Context, key string) (bool, error) {
 	params := c.Request.URL.Query()
-	showMovedOrDeletedParams := params[constants.ShowMovedOrDeleted]
-	if len(showMovedOrDeletedParams) == 0 {
+	values := params[key]
+	if len(values) == 0 {
 		return false, nil
 	}
-	if showMovedOrDeletedParams[0] == "true" {
+	if values[0] == "true" {
 		return true, nil
-	} else if showMovedOrDeletedParams[0] == "false" {
+	} else if values[0] == "false" {
 		return false, nil
 	}
 	return false, errors.New("invalid or missing parameter")
 }
 
 func (api *API) OverviewViewsList(c *gin.Context) {
-	showMovedOrDeleted, err := GetShowMovedOrDeletedQueryParam(c)
+	showMovedOrDeleted, err := GetBooleanQueryParameter(c, constants.ShowMovedOrDeleted)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	ignoreMeetingPreparation, err := GetBooleanQueryParameter(c, constants.IgnoreMeetingPreparation)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -125,7 +130,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		return
 	}
 
-	result, err := api.GetOverviewResults(views, userID, timezoneOffset, showMovedOrDeleted)
+	result, err := api.GetOverviewResults(views, userID, timezoneOffset, showMovedOrDeleted, ignoreMeetingPreparation)
 	if err != nil {
 		log.Print("failed to get results")
 		api.Logger.Error().Err(err).Msg("failed to load views")
@@ -138,7 +143,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	c.JSON(200, result)
 }
 
-func (api *API) GetOverviewResults(views []database.View, userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool) ([]OrderingIDGetter, error) {
+func (api *API) GetOverviewResults(views []database.View, userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool, ignoreMeetingPreparation bool) ([]OrderingIDGetter, error) {
 	result := []OrderingIDGetter{}
 	for _, view := range views {
 		var singleOverviewResult OrderingIDGetter
@@ -155,7 +160,7 @@ func (api *API) GetOverviewResults(views []database.View, userID primitive.Objec
 		case string(constants.ViewGithub):
 			singleOverviewResult, err = api.GetGithubOverviewResult(view, userID, timezoneOffset)
 		case string(constants.ViewMeetingPreparation):
-			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, showMovedOrDeleted)
+			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset, showMovedOrDeleted, ignoreMeetingPreparation)
 		case string(constants.ViewDueToday):
 			singleOverviewResult, err = api.GetDueTodayOverviewResult(view, userID, timezoneOffset)
 		default:
@@ -592,16 +597,36 @@ func (api *API) CreateMeetingPreparationTaskList(userID primitive.ObjectID, time
 	return meetingTasks, nil
 }
 
-func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool) (*OverviewResult[TaskResult], error) {
+func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration, showMovedOrDeleted bool, ignoreMeetingPreparation bool) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
+	timeStartOfDay := time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 0, 0, 0, 0, time.FixedZone("", 0))
+	taskCompletedInLastDay := api.getCompletedInLastDay(database.GetTaskCollection(api.DB), userID, timeStartOfDay, &[]bson.M{{"is_meeting_preparation_task": true}})
+
+	if ignoreMeetingPreparation {
+		return &OverviewResult[TaskResult]{
+			ID:                     view.ID,
+			Name:                   constants.ViewMeetingPreparationName,
+			Logo:                   external.TaskSourceGoogleCalendar.LogoV2,
+			Type:                   constants.ViewMeetingPreparation,
+			IsLinked:               true,
+			Sources:                []SourcesResult{},
+			TaskSectionID:          view.TaskSectionID,
+			IsReorderable:          view.IsReorderable,
+			IDOrdering:             view.IDOrdering,
+			ViewItems:              []*TaskResult{},
+			ViewItemIDs:            []string{},
+			HasTasksCompletedToday: taskCompletedInLastDay,
+		}, nil
+	}
+
 	meetingTasks, err := api.CreateMeetingPreparationTaskList(userID, timezoneOffset, showMovedOrDeleted)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Create result of meeting prep tasks
 	var result []*TaskResult
 	if showMovedOrDeleted {
@@ -613,8 +638,7 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 		return nil, err
 	}
 
-	timeStartOfDay := time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 0, 0, 0, 0, time.FixedZone("", 0))
-	taskCompletedInLastDay := api.getCompletedInLastDay(database.GetTaskCollection(api.DB), userID, timeStartOfDay, &[]bson.M{{"is_meeting_preparation_task": true}})
+	taskCompletedInLastDay = api.getCompletedInLastDay(database.GetTaskCollection(api.DB), userID, timeStartOfDay, &[]bson.M{{"is_meeting_preparation_task": true}})
 
 	return &OverviewResult[TaskResult]{
 		ID:                     view.ID,

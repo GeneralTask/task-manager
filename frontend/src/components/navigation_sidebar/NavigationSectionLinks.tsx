@@ -36,7 +36,7 @@ const InputContainer = styled.div`
         font-family: inherit;
         box-sizing: border-box;
         width: 100%;
-        ${Typography.bodySmall};
+        ${Typography.deprecated_bodySmall};
     }
 `
 

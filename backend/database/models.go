@@ -15,6 +15,7 @@ type User struct {
 	LastRefreshed         primitive.DateTime `bson:"last_refreshed,omitempty"`
 	AgreedToTerms         *bool              `bson:"agreed_to_terms,omitempty"`
 	OptedIntoMarketing    *bool              `bson:"opted_into_marketing,omitempty"`
+	BusinessModeEnabled   *bool              `bson:"business_mode_enabled,omitempty"`
 	CreatedAt             primitive.DateTime `bson:"created_at,omitempty"`
 	LinearName            string             `bson:"linear_name"`
 	LinearDisplayName     string             `bson:"linear_display_name"`
@@ -79,6 +80,14 @@ type Oauth1RequestSecret struct {
 	RequestSecret string             `bson:"request_secret"`
 }
 
+type SharedAccess int
+
+const (
+	SharedAccessPublic SharedAccess = iota
+	SharedAccessDomain
+	SharedAccessMeetingAttendees
+)
+
 type Task struct {
 	ID     primitive.ObjectID `bson:"_id,omitempty"`
 	UserID primitive.ObjectID `bson:"user_id,omitempty"`
@@ -104,6 +113,8 @@ type Task struct {
 	CreatedAtExternal  primitive.DateTime  `bson:"created_at_external,omitempty"`
 	UpdatedAt          primitive.DateTime  `bson:"updated_at,omitempty"`
 	CompletedAt        primitive.DateTime  `bson:"completed_at,omitempty"`
+	SharedUntil        primitive.DateTime  `bson:"shared_until,omitempty"`
+	SharedAccess       *SharedAccess       `bson:"shared_access,omitempty"`
 	DeletedAt          primitive.DateTime  `bson:"deleted_at,omitempty"`
 	PriorityNormalized *float64            `bson:"priority_normalized,omitempty"`
 	TaskNumber         *int                `bson:"task_number,omitempty"`
@@ -125,6 +136,7 @@ type Task struct {
 	// meeting prep fields
 	MeetingPreparationParams *MeetingPreparationParams `bson:"meeting_preparation_params,omitempty"`
 	IsMeetingPreparationTask bool                      `bson:"is_meeting_preparation_task,omitempty"`
+	LinearCycle              LinearCycle               `bson:"linear_cycle,omitempty"`
 }
 
 type RecurringTaskTemplate struct {
@@ -234,6 +246,7 @@ type CalendarEvent struct {
 	LinkedSourceID      string             `bson:"linked_task_source_id,omitempty"`
 	ColorBackground     string             `bson:"color_background,omitempty"`
 	ColorForeground     string             `bson:"color_foreground,omitempty"`
+	AttendeeEmails      []string           `bson:"attendee_emails,omitempty"`
 }
 
 type MeetingPreparationParams struct {
@@ -243,6 +256,17 @@ type MeetingPreparationParams struct {
 	DatetimeEnd                   primitive.DateTime `bson:"datetime_end,omitempty"`
 	HasBeenAutomaticallyCompleted bool               `bson:"has_been_automatically_completed,omitempty"`
 	EventMovedOrDeleted           bool               `bson:"event_moved_or_deleted,omitempty"`
+}
+
+type LinearCycle struct {
+	ID              string             `bson:"_id,omitempty" json:"id,omitempty"`
+	Name            string             `bson:"name,omitempty" json:"name,omitempty"`
+	Number          float32            `bson:"number,omitempty" json:"number,omitempty"`
+	StartsAt        primitive.DateTime `bson:"starts_at,omitempty" json:"starts_at,omitempty"`
+	EndsAt          primitive.DateTime `bson:"ends_at,omitempty" json:"ends_at,omitempty"`
+	IsCurrentCycle  bool               `bson:"is_current_cycle,omitempty" json:"is_current_cycle,omitempty"`
+	IsPreviousCycle bool               `bson:"is_previous_cycle,omitempty" json:"is_previous_cycle,omitempty"`
+	IsNextCycle     bool               `bson:"is_next_cycle,omitempty" json:"is_next_cycle,omitempty"`
 }
 
 type JIRATaskParams struct {
@@ -405,13 +429,40 @@ type DefaultSectionSettings struct {
 }
 
 type Note struct {
-	ID          primitive.ObjectID `bson:"_id,omitempty"`
-	UserID      primitive.ObjectID `bson:"user_id"`
-	Title       *string            `bson:"title,omitempty"`
-	Body        *string            `bson:"body,omitempty"`
-	Author      string             `bson:"author,omitempty"`
-	CreatedAt   primitive.DateTime `bson:"created_at,omitempty"`
-	UpdatedAt   primitive.DateTime `bson:"updated_at,omitempty"`
-	SharedUntil primitive.DateTime `bson:"shared_until,omitempty"`
-	IsDeleted   *bool              `bson:"is_deleted,omitempty"`
+	ID            primitive.ObjectID `bson:"_id,omitempty"`
+	UserID        primitive.ObjectID `bson:"user_id"`
+	LinkedEventID primitive.ObjectID `bson:"linked_event_id,omitempty"`
+	Title         *string            `bson:"title,omitempty"`
+	Body          *string            `bson:"body,omitempty"`
+	Author        string             `bson:"author,omitempty"`
+	CreatedAt     primitive.DateTime `bson:"created_at,omitempty"`
+	UpdatedAt     primitive.DateTime `bson:"updated_at,omitempty"`
+	SharedUntil   primitive.DateTime `bson:"shared_until,omitempty"`
+	SharedAccess  *SharedAccess      `bson:"shared_access,omitempty"`
+	IsDeleted     *bool              `bson:"is_deleted,omitempty"`
+}
+
+type DashboardDataPoint struct {
+	ID           primitive.ObjectID `bson:"_id,omitempty"`
+	TeamID       primitive.ObjectID `bson:"team_id,omitempty"`
+	IndividualID primitive.ObjectID `bson:"individual_id,omitempty"`
+	Subject      string             `bson:"subject,omitempty"`
+	GraphType    string             `bson:"graph_type,omitempty"`
+	Value        int                `bson:"value,omitempty"`
+	Date         primitive.DateTime `bson:"date,omitempty"`
+	CreatedAt    primitive.DateTime `bson:"created_at,omitempty"`
+}
+
+type DashboardTeam struct {
+	ID        primitive.ObjectID `bson:"_id,omitempty"`
+	UserID    primitive.ObjectID `bson:"user_id,omitempty"`
+	CreatedAt primitive.DateTime `bson:"created_at,omitempty"`
+}
+
+type DashboardTeamMember struct {
+	ID        primitive.ObjectID `bson:"_id,omitempty"`
+	TeamID    primitive.ObjectID `bson:"team_id,omitempty"`
+	Email     string             `bson:"email,omitempty"`
+	Name      string             `bson:"name,omitempty"`
+	CreatedAt primitive.DateTime `bson:"created_at,omitempty"`
 }

@@ -9,6 +9,7 @@ import { useSetting } from '../../../hooks'
 import { useCreateEvent, useGetCalendars, useModifyEvent } from '../../../services/api/events.hooks'
 import { getDiffBetweenISOTimes } from '../../../utils/time'
 import { DropItem, DropType, TEvent } from '../../../utils/types'
+import adf2md from '../../atoms/GTTextField/AtlassianEditor/adfToMd'
 import { NuxTaskBodyStatic } from '../../details/NUXTaskBody'
 import {
     CELL_HEIGHT_VALUE,
@@ -68,7 +69,12 @@ const useCalendarDrop = ({ date, eventsContainerRef }: CalendarDropArgs) => {
             const { event } = monitor.getItem<DropItem>()
             if (initialClientOffset && initialSourceClientOffset && event) {
                 const startTime = DateTime.fromISO(event.datetime_start)
-                const eventBodyTop = CELL_HEIGHT_VALUE * startTime.diff(startTime.startOf('day'), 'hours').hours
+                //Check how many hours are today taking into account DST
+                const numberOfHoursToday = Math.ceil(date.endOf('day').diff(date.startOf('day'), 'hours').hours)
+                // DST Offset
+                const dstOffset = numberOfHoursToday - 24
+                const eventBodyTop =
+                    CELL_HEIGHT_VALUE * (startTime.diff(startTime.startOf('day'), 'hours').hours - dstOffset)
                 mouseFromEventTopOffset = initialClientOffset.y - initialSourceClientOffset.y - eventBodyTop
             }
         }
@@ -103,7 +109,7 @@ const useCalendarDrop = ({ date, eventsContainerRef }: CalendarDropArgs) => {
                     if (!droppableItem) return
                     const end = dropTime.plus({ minutes: 30 })
                     const converter = new showdown.Converter()
-                    let description
+                    let description = droppableItem.body
 
                     if (item.task?.id_nux_number) {
                         // if this is a nux task, override body
@@ -111,7 +117,13 @@ const useCalendarDrop = ({ date, eventsContainerRef }: CalendarDropArgs) => {
                             <NuxTaskBodyStatic nux_number_id={item.task.id_nux_number} renderSettingsModal={false} />
                         )
                     } else {
-                        description = converter.makeHtml(droppableItem.body)
+                        // convert ADF to markdown (if originally ADF)
+                        if (item.task?.source.name === 'Jira' && description !== '') {
+                            const json = JSON.parse(description)
+                            description = adf2md.convert(json).result
+                        }
+                        // then convert markdown to HTML
+                        description = converter.makeHtml(description)
                         if (description !== '') {
                             description += '\n'
                         }

@@ -9,7 +9,7 @@ const ToastContainer = styled.div`
     gap: ${Spacing._8};
     padding-right: 0;
     padding-left: ${Spacing._8};
-    ${Typography.body};
+    ${Typography.deprecated_body};
     min-width: 0;
 `
 const MessageContainer = styled.div`
@@ -21,7 +21,7 @@ const MessageContainer = styled.div`
 `
 const TitleText = styled.div`
     margin-right: ${Spacing._4};
-    ${Typography.bold};
+    ${Typography.deprecated_bold};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

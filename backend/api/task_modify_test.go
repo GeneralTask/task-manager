@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -173,30 +174,28 @@ func TestMarkAsComplete(t *testing.T) {
 
 	taskCollection := database.GetTaskCollection(db)
 
+	previousStatus := &database.ExternalTaskStatus{
+		ExternalID: "previous-status-id",
+		State:      "In Progress",
+		Type:       "in-progress",
+	}
+	doneStatus := &database.ExternalTaskStatus{
+		ExternalID:        "new-status-id",
+		State:             "DONE",
+		Type:              "completed",
+		IsCompletedStatus: true,
+	}
+
 	completed := false
 	insertResult, err := taskCollection.InsertOne(context.Background(), database.Task{
-		UserID:      userID,
-		IDExternal:  "sample_linear_id",
-		SourceID:    external.TASK_SOURCE_ID_LINEAR,
-		IsCompleted: &completed,
-		PreviousStatus: &database.ExternalTaskStatus{
-			ExternalID: "previous-status-id",
-			State:      "In Progress",
-			Type:       "in-progress",
-		},
+		UserID:         userID,
+		IDExternal:     "sample_linear_id",
+		SourceID:       external.TASK_SOURCE_ID_LINEAR,
+		IsCompleted:    &completed,
+		PreviousStatus: previousStatus,
 		AllStatuses: []*database.ExternalTaskStatus{
-			{
-				ExternalID:        "previous-status-id",
-				State:             "In Progress",
-				Type:              "in-progress",
-				IsCompletedStatus: false,
-			},
-			{
-				ExternalID:        "new-status-id",
-				State:             "DONE",
-				Type:              "completed",
-				IsCompletedStatus: true,
-			},
+			previousStatus,
+			doneStatus,
 		},
 	})
 	assert.NoError(t, err)
@@ -357,6 +356,7 @@ func TestMarkAsComplete(t *testing.T) {
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": linearTaskID}).Decode(&task)
 		assert.Equal(t, true, *task.IsCompleted)
 		assert.NotEqual(t, primitive.DateTime(0), task.CompletedAt)
+		assert.Equal(t, *doneStatus, *task.CompletedStatus)
 	})
 
 	t.Run("CalendarSuccess", func(t *testing.T) {
@@ -1357,5 +1357,168 @@ func TestEditFields(t *testing.T) {
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertedTaskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, "Hello! from: approved@generaltask.com", *task.Title)
+	})
+}
+
+func TestModifyShareableTask(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+
+	taskCollection := database.GetTaskCollection(db)
+
+	authToken := login("test_modify_shareable_task@generaltask.com", "")
+	userID := getUserIDFromAuthToken(t, db, authToken)
+
+	expectedDateTime := primitive.NewDateTimeFromTime(time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC))
+	sampleTask := database.Task{
+		UserID:   userID,
+		SourceID: "gt_task",
+	}
+	t.Run("InvalidSharedAccessField", func(t *testing.T) {
+		expectedTask := sampleTask
+		insertResult, err := taskCollection.InsertOne(
+			context.Background(),
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		body := bytes.NewBuffer([]byte(`{"shared_access": "boop"}`))
+		url := "/tasks/modify/" + insertedTaskID.Hex() + "/"
+		responseBody := ServeRequest(t, authToken, "PATCH", url, body, http.StatusBadRequest, api)
+		expectedBody := `{"detail":"invalid shared access token"}`
+		assert.Equal(t, expectedBody, string(responseBody))
+	})
+	t.Run("OnlyUpdateShareUntil", func(t *testing.T) {
+		expectedTask := sampleTask
+		sharedAccessPublic := database.SharedAccessDomain
+		expectedTask.SharedAccess = &sharedAccessPublic
+		insertResult, err := taskCollection.InsertOne(
+			context.Background(),
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		body := bytes.NewBuffer([]byte(`{"shared_until":"2021-01-01T00:00:00Z"}`))
+		url := fmt.Sprintf("/tasks/modify/%s/", insertedTaskID.Hex())
+		ServeRequest(t, authToken, "PATCH", url, body, http.StatusOK, api)
+
+		// Get the task from the database and make sure only the shared_until field was updated
+		var updatedTask database.Task
+		err = taskCollection.FindOne(
+			context.Background(),
+			bson.M{"_id": insertedTaskID},
+		).Decode(&updatedTask)
+		assert.NoError(t, err)
+		assert.Equal(t, database.SharedAccess(1), *updatedTask.SharedAccess)
+		assert.Equal(t, expectedDateTime, updatedTask.SharedUntil)
+	})
+	t.Run("OnlyUpdateSharedAccess", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.SharedUntil = expectedDateTime
+		insertResult, err := taskCollection.InsertOne(
+			context.Background(),
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		body := bytes.NewBuffer([]byte(`{"shared_access": "domain"}`))
+		url := fmt.Sprintf("/tasks/modify/%s/", insertedTaskID.Hex())
+		ServeRequest(t, authToken, "PATCH", url, body, http.StatusOK, api)
+
+		// Get the task from the database and make sure only the shared_access field was updated
+		var updatedTask database.Task
+		err = taskCollection.FindOne(
+			context.Background(),
+			bson.M{"_id": insertedTaskID},
+		).Decode(&updatedTask)
+		assert.NoError(t, err)
+		assert.Equal(t, database.SharedAccess(1), *updatedTask.SharedAccess)
+		assert.Equal(t, expectedDateTime, updatedTask.SharedUntil)
+	})
+	t.Run("SuccessPublic", func(t *testing.T) {
+		expectedTask := sampleTask
+		insertResult, err := taskCollection.InsertOne(
+			context.Background(),
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		body := bytes.NewBuffer([]byte(`{"shared_access": "public", "shared_until":"2021-01-01T00:00:00Z"}`))
+		url := fmt.Sprintf("/tasks/modify/%s/", insertedTaskID.Hex())
+		ServeRequest(t, authToken, "PATCH", url, body, http.StatusOK, api)
+
+		// Get the task from the database and make sure it's been updated
+		var updatedTask database.Task
+		err = taskCollection.FindOne(
+			context.Background(),
+			bson.M{"_id": insertedTaskID},
+		).Decode(&updatedTask)
+		assert.NoError(t, err)
+		assert.Equal(t, database.SharedAccess(0), *updatedTask.SharedAccess)
+		assert.Equal(t, expectedDateTime, updatedTask.SharedUntil)
+	})
+	t.Run("SuccessDomain", func(t *testing.T) {
+		expectedTask := sampleTask
+		insertResult, err := taskCollection.InsertOne(
+			context.Background(),
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		body := bytes.NewBuffer([]byte(`{"shared_access": "domain", "shared_until":"2021-01-01T00:00:00Z"}`))
+		url := fmt.Sprintf("/tasks/modify/%s/", insertedTaskID.Hex())
+		ServeRequest(t, authToken, "PATCH", url, body, http.StatusOK, api)
+
+		// Get the task from the database and make sure it's been updated
+		var updatedTask database.Task
+		err = taskCollection.FindOne(
+			context.Background(),
+			bson.M{"_id": insertedTaskID},
+		).Decode(&updatedTask)
+		assert.NoError(t, err)
+		assert.Equal(t, database.SharedAccess(1), *updatedTask.SharedAccess)
+		assert.Equal(t, expectedDateTime, updatedTask.SharedUntil)
+	})
+	t.Run("ModifySharedAccessInvalidSourceID", func(t *testing.T) {
+		invalidSourceIDTask := sampleTask
+		invalidSourceIDTask.SourceID = "jira"
+
+		insertResult, err := taskCollection.InsertOne(
+			context.Background(),
+			invalidSourceIDTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		body := bytes.NewBuffer([]byte(`{"shared_access": "domain"}`))
+		url := fmt.Sprintf("/tasks/modify/%s/", insertedTaskID.Hex())
+		responseBody := ServeRequest(t, authToken, "PATCH", url, body, http.StatusBadRequest, api)
+		expectedBody := `{"detail":"only General Task tasks can be shared"}`
+		assert.Equal(t, expectedBody, string(responseBody))
+	})
+	t.Run("ModifyShareUntilInvalidSourceID", func(t *testing.T) {
+		invalidSourceIDTask := sampleTask
+		invalidSourceIDTask.SourceID = "jira"
+
+		insertResult, err := taskCollection.InsertOne(
+			context.Background(),
+			invalidSourceIDTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		body := bytes.NewBuffer([]byte(`{"shared_until":"2021-01-01T00:00:00Z"}`))
+		url := fmt.Sprintf("/tasks/modify/%s/", insertedTaskID.Hex())
+		responseBody := ServeRequest(t, authToken, "PATCH", url, body, http.StatusBadRequest, api)
+		expectedBody := `{"detail":"only General Task tasks can be shared"}`
+		assert.Equal(t, expectedBody, string(responseBody))
 	})
 }

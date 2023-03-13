@@ -73,6 +73,8 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 	}
 	teamToStatus := ProcessLinearStatuses(statuses)
 
+	teamToCycles := getTeamToCyclesMap(issuesQuery)
+
 	var tasks []*database.Task
 	for _, linearIssue := range issuesQuery.Issues.Nodes {
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.CreatedAt))
@@ -125,6 +127,23 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			}
 			task.Comments = &dbComments
 		}
+		if linearIssue.Cycle.Id != nil {
+			startsAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.Cycle.StartsAt))
+			endsAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.Cycle.EndsAt))
+			task.LinearCycle = database.LinearCycle{
+				ID:       linearIssue.Cycle.Id.(string),
+				Name:     string(linearIssue.Cycle.Name),
+				Number:   float32(linearIssue.Cycle.Number),
+				StartsAt: primitive.NewDateTimeFromTime(startsAt),
+				EndsAt:   primitive.NewDateTimeFromTime(endsAt),
+			}
+			teamCycles := teamToCycles[linearIssue.Team.Id.(string)]
+			if teamCycles != nil {
+				task.LinearCycle.IsCurrentCycle = teamCycles.ActiveCycle == float32(linearIssue.Cycle.Number)
+				task.LinearCycle.IsPreviousCycle = teamCycles.PreviousCycle == float32(linearIssue.Cycle.Number)
+				task.LinearCycle.IsNextCycle = teamCycles.NextCycle == float32(linearIssue.Cycle.Number)
+			}
+		}
 
 		updateFields := database.Task{
 			Title:              task.Title,
@@ -134,6 +153,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			CompletedStatus:    task.CompletedStatus,
 			IsCompleted:        task.IsCompleted,
 			PriorityNormalized: task.PriorityNormalized,
+			LinearCycle:        task.LinearCycle,
 		}
 
 		if linearIssue.DueDate != "" {

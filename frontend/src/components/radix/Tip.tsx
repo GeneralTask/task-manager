@@ -15,7 +15,7 @@ const TooltipArrow = styled(Tooltip.Arrow)`
 const TooltipContent = styled(Tooltip.Content)`
     ${MenuContentShared};
     padding: ${Spacing._8} ${Spacing._12};
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 const TriggerSpan = styled.span<{ fitContent?: boolean }>`
     ${(props) =>
@@ -51,7 +51,7 @@ const Tip = ({
     disabled,
     fitContent = false,
 }: TooltipProps) => {
-    if (disabled) return <>{children}</>
+    if (disabled || (!content && !shortcutName)) return <>{children}</>
 
     const shortcutLabel = overrideShortcutLabel ?? (shortcutName ? KEYBOARD_SHORTCUTS[shortcutName].label : null)
     const shortcut = overrideShortcut ?? (shortcutName ? KEYBOARD_SHORTCUTS[shortcutName].keyLabel : null)

@@ -6,7 +6,7 @@ import { icons } from '../../styles/images'
 import { emptyFunction, stopKeydownPropogation } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
-import { Label } from '../atoms/typography/Typography'
+import { DeprecatedLabel } from '../atoms/typography/Typography'
 import {
     FixedSizeIcon,
     GTMenuItem,
@@ -27,7 +27,7 @@ const DropdownMenuContent = styled(DropdownMenu.Content)<{
     $menuInModal?: boolean
     $width?: number
     $textColor?: string
-    $fontStyle?: 'body' | 'bodySmall' | 'label'
+    $fontStyle?: 'deprecated_body' | 'deprecated_bodySmall' | 'deprecated_label'
 }>`
     ${MenuContentShared};
     max-height: ${DROPDOWN_MENU_ITEM_MAX_HEIGHT};
@@ -55,7 +55,7 @@ const DropdownMenuSubContent = styled(DropdownMenu.SubContent)`
     ${MenuContentShared};
     user-select: none;
 `
-const Description = styled(Label)`
+const Description = styled(DeprecatedLabel)`
     padding: ${Spacing._8} ${Spacing._12};
     display: block;
 `
@@ -75,7 +75,7 @@ interface GTDropdownMenuProps {
     useTriggerWidth?: boolean
     unstyledTrigger?: boolean
     keepOpenOnSelect?: boolean
-    fontStyle?: 'body' | 'bodySmall' | 'label'
+    fontStyle?: 'deprecated_body' | 'deprecated_bodySmall' | 'deprecated_label'
     description?: string
 }
 
@@ -92,7 +92,7 @@ const GTDropdownMenu = ({
     useTriggerWidth = false,
     unstyledTrigger = false,
     keepOpenOnSelect = false,
-    fontStyle = 'body',
+    fontStyle = 'deprecated_body',
     description,
 }: GTDropdownMenuProps) => {
     const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTMenuItem[][]

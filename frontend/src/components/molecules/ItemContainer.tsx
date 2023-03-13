@@ -1,9 +1,14 @@
-import { forwardRef } from 'react'
+import { MouseEventHandler, forwardRef } from 'react'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { EdgeHighlight } from '../atoms/SelectableContainer'
 
-const ItemContainerDiv = styled.div<{ isSelected?: boolean; isCompact?: boolean; forceHoverStyle?: boolean }>`
+const ItemContainerDiv = styled.div<{
+    isSelected?: boolean
+    isMultiSelected?: boolean
+    isCompact?: boolean
+    forceHoverStyle?: boolean
+}>`
     position: relative;
     display: flex;
     flex-direction: row;
@@ -17,11 +22,21 @@ const ItemContainerDiv = styled.div<{ isSelected?: boolean; isCompact?: boolean;
         outline: ${Border.stroke.medium} solid ${Colors.background.border};
         background-color: ${Colors.background.sub};
     }
+
     ${({ forceHoverStyle }) =>
         forceHoverStyle &&
         `
-        outline: ${Border.stroke.medium} solid ${Colors.background.border};
-        background-color: ${Colors.background.sub};`}
+    outline: ${Border.stroke.medium} solid ${Colors.background.border};
+        background-color: ${Colors.background.sub};
+        `}
+    ${({ isMultiSelected }) =>
+        isMultiSelected &&
+        `
+        outline: ${Border.stroke.medium} solid ${Colors.legacyColors.orange};
+        :hover {
+            outline: ${Border.stroke.medium} solid ${Colors.legacyColors.orange};
+        }
+    `}
     padding: 0 ${({ isCompact }) => (isCompact ? `${Spacing._4} 0 0` : Spacing._16)};
     cursor: pointer;
     white-space: nowrap;
@@ -31,16 +46,21 @@ const ItemContainerDiv = styled.div<{ isSelected?: boolean; isCompact?: boolean;
 
 interface ItemContainerProps {
     isSelected?: boolean
+    isMultiSelected?: boolean
     isCompact?: boolean
-    onClick?: () => void
+    onClick?: MouseEventHandler
     children: React.ReactNode
     forceHoverStyle?: boolean
     className?: string
 }
 const ItemContainer = forwardRef<HTMLDivElement, ItemContainerProps>(
-    ({ isSelected, isCompact = false, onClick, children, forceHoverStyle, className }, ref) => (
+    (
+        { isSelected, isMultiSelected = false, isCompact = false, onClick, children, forceHoverStyle, className },
+        ref
+    ) => (
         <ItemContainerDiv
             isSelected={isSelected}
+            isMultiSelected={isMultiSelected}
             isCompact={isCompact}
             onClick={onClick}
             ref={ref}

@@ -3,11 +3,11 @@ import { Colors, Spacing, Typography } from '../../../styles'
 import { icons } from '../../../styles/images'
 import { TOverviewView } from '../../../utils/types'
 import { Icon } from '../../atoms/Icon'
-import { Bold } from '../../atoms/typography/Typography'
+import { DeprecatedBold } from '../../atoms/typography/Typography'
 
 const EmptyListMessageContainer = styled.div`
     display: flex;
-    ${Typography.label};
+    ${Typography.deprecated_label};
     color: ${Colors.text.light};
     align-items: center;
     gap: ${Spacing._12};
@@ -42,7 +42,7 @@ const EmptyListMessage = ({ list }: EmptyListMessageProps) => {
         <EmptyListMessageContainer>
             <Icon icon={icons.check} color="gray" />
             <span>
-                <Bold>{list.name}</Bold> is empty. {emptyListMessage(list)}
+                <DeprecatedBold>{list.name}</DeprecatedBold> is empty. {emptyListMessage(list)}
             </span>
         </EmptyListMessageContainer>
     )
