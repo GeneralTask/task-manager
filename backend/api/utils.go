@@ -68,6 +68,7 @@ func (api *API) Ping(c *gin.Context) {
 	c.JSON(200, "success")
 }
 
+// Middleware to get the user token from the request if it exists
 func UserTokenMiddleware(db *mongo.Database) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		handlerName := c.HandlerName()
