@@ -218,7 +218,7 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                                                 <DeprecatedLabel color="light">{account.display_id}</DeprecatedLabel>
                                             </Flex>
                                         </Flex>
-                                        <Flex gap={Spacing._8}>
+                                        <Flex gap={Spacing._8} alignItems="center">
                                             {account.name in nameToSetting && (
                                                 <VisibilityButton accountName={account.name as TNameToSetting} />
                                             )}
@@ -226,7 +226,7 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                                                 <GTButton
                                                     onClick={() => onRelink(account.name)}
                                                     value="Re-link account"
-                                                    styleType="secondary"
+                                                    styleType="destructive"
                                                     textColor="red"
                                                 />
                                             ) : (
