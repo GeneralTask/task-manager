@@ -85,6 +85,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                     if (date.toDateString() === new Date().toDateString()) {
                         return {
                             border: `${Border.stroke.medium} solid ${Colors.legacyColors.purple}`,
+                            color: Colors.text.black,
                             zIndex: 1,
                         }
                     }
