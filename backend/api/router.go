@@ -67,6 +67,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/shareable_tasks/detail/:task_id/", handlers.ShareableTaskDetails)
 
 	// Add middlewares
+	// Authorization middleware checks that the user is authorized to access the endpoint, and if not, returns a 401
 	router.Use(AuthorizationMiddleware(handlers.DB))
 	router.Use(LoggingMiddleware(handlers.DB))
 	// Authenticated endpoints
