@@ -5,11 +5,8 @@ import { CartesianGrid, Legend, ResponsiveContainer, Scatter, ScatterChart, XAxi
 import styled from 'styled-components'
 import { Colors, Typography } from '../../styles'
 import { BodyMedium } from '../atoms/typography/Typography'
+import { DAYS_PER_WEEK, GRAPH_HEIGHT, GRAPH_RIGHT_MARGIN, GRAPH_TOP_MARGIN } from './constants'
 import { TMetric } from './types'
-
-const GRAPH_HEIGHT = 400
-const GRAPH_TOP_MARGIN = 10 // needed so top point doesn't get cut off
-const GRAPH_RIGHT_MARGIN = 30 // needed so last label doesn't get cut off
 
 const StyledResponsiveContainer = styled(ResponsiveContainer)`
     /* tick labels */
@@ -44,7 +41,7 @@ const LineGraph = ({ data, startDate, endDate }: LineGraphProps) => {
     }, [data, startDate, endDate])
 
     const ticks = useMemo(() => {
-        return Array.from({ length: 5 }).map((_, i) => {
+        return Array.from({ length: DAYS_PER_WEEK }).map((_, i) => {
             const date = startDate.plus({ days: i })
             return date.toUnixInteger()
         })
