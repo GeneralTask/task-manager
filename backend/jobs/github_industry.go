@@ -23,7 +23,10 @@ func githubIndustryJob() {
 	if err != nil {
 		return
 	}
-	updateGithubIndustryData(time.Now(), DEFAULT_LOOKBACK_DAYS)
+	err = updateGithubIndustryData(time.Now(), DEFAULT_LOOKBACK_DAYS)
+	if err != nil {
+		return
+	}
 }
 
 func updateGithubIndustryData(endCutoff time.Time, lookbackDays int) error {
