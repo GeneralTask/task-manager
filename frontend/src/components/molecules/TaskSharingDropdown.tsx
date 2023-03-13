@@ -52,12 +52,6 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
             hideCheckmark: true,
             onClick: () => shareTask('public'),
         },
-        {
-            label: 'Unshared task info',
-            disabled: true,
-            keepOpenOnSelect: true,
-            renderer: () => <LabelWrap>This task is not being shared.</LabelWrap>,
-        },
     ]
 
     return (
@@ -65,6 +59,7 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
             items={isShared ? sharedDropdownItems : notSharedDropdownItems}
             unstyledTrigger
             trigger={<GTButton size="small" styleType="secondary" icon={icons.share} value="Share" asDiv />}
+            description={!isShared ? 'This task is not being shared.' : undefined}
         />
     )
 }
