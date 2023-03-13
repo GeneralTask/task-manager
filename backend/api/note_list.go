@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -11,15 +12,18 @@ import (
 )
 
 type NoteResult struct {
-	ID            primitive.ObjectID `json:"id,omitempty"`
-	Title         string             `json:"title,omitempty"`
-	Body          string             `json:"body,omitempty"`
-	Author        string             `json:"author,omitempty"`
-	CreatedAt     primitive.DateTime `json:"created_at,omitempty"`
-	UpdatedAt     primitive.DateTime `json:"updated_at,omitempty"`
-	SharedUntil   string             `json:"shared_until,omitempty"`
-	IsDeleted     bool               `json:"is_deleted,omitempty"`
-	LinkedEventID string             `json:"linked_event_id,omitempty"`
+	ID               primitive.ObjectID     `json:"id,omitempty"`
+	Title            string                 `json:"title,omitempty"`
+	Body             string                 `json:"body,omitempty"`
+	Author           string                 `json:"author,omitempty"`
+	CreatedAt        string                 `json:"created_at,omitempty"`
+	UpdatedAt        string                 `json:"updated_at,omitempty"`
+	SharedUntil      string                 `json:"shared_until,omitempty"`
+	IsDeleted        bool                   `json:"is_deleted,omitempty"`
+	LinkedEventID    string                 `json:"linked_event_id,omitempty"`
+	LinkedEventStart string                 `json:"linked_event_start,omitempty"`
+	LinkedEventEnd   string                 `json:"linked_event_end,omitempty"`
+	SharedAccess     *database.SharedAccess `json:"shared_access,omitempty"`
 }
 
 func (api *API) NotesList(c *gin.Context) {
@@ -39,11 +43,11 @@ func (api *API) NotesList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	noteResults := api.noteListToNoteResultList(notes, userID)
+	noteResults := api.noteListToNoteResultList(notes)
 	c.JSON(200, noteResults)
 }
 
-func (api *API) noteListToNoteResultList(notes *[]database.Note, userID primitive.ObjectID) []*NoteResult {
+func (api *API) noteListToNoteResultList(notes *[]database.Note) []*NoteResult {
 	noteResults := []*NoteResult{}
 	for _, note := range *notes {
 		// for implicit memory aliasing
@@ -67,19 +71,26 @@ func (api *API) noteToNoteResult(note *database.Note) *NoteResult {
 	if note.IsDeleted != nil && *note.IsDeleted {
 		isDeleted = true
 	}
-	eventID := ""
+	noteResult := NoteResult{
+		ID:           note.ID,
+		Title:        title,
+		Body:         body,
+		Author:       note.Author,
+		CreatedAt:    note.CreatedAt.Time().UTC().Format(time.RFC3339),
+		UpdatedAt:    note.UpdatedAt.Time().UTC().Format(time.RFC3339),
+		SharedUntil:  note.SharedUntil.Time().UTC().Format(time.RFC3339),
+		IsDeleted:    isDeleted,
+		SharedAccess: note.SharedAccess,
+	}
 	if note.LinkedEventID != primitive.NilObjectID {
-		eventID = note.LinkedEventID.Hex()
+		noteResult.LinkedEventID = note.LinkedEventID.Hex()
+		calEvent, err := database.GetCalendarEventWithoutUserID(api.DB, note.LinkedEventID)
+		if err != nil {
+			logging.GetSentryLogger().Error().Err(err).Msgf("could not fetch calendar event ID: %s", note.LinkedEventID)
+		} else {
+			noteResult.LinkedEventStart = calEvent.DatetimeStart.Time().UTC().Format(time.RFC3339)
+			noteResult.LinkedEventEnd = calEvent.DatetimeEnd.Time().UTC().Format(time.RFC3339)
+		}
 	}
-	return &NoteResult{
-		ID:            note.ID,
-		Title:         title,
-		Body:          body,
-		Author:        note.Author,
-		CreatedAt:     note.CreatedAt,
-		UpdatedAt:     note.UpdatedAt,
-		SharedUntil:   note.SharedUntil.Time().UTC().Format(time.RFC3339),
-		IsDeleted:     isDeleted,
-		LinkedEventID: eventID,
-	}
+	return &noteResult
 }
