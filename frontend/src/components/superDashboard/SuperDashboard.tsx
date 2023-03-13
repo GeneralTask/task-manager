@@ -22,7 +22,7 @@ const SuperDashboard = () => {
         if (now.weekday === 6 || now.weekday === 7) {
             return now.startOf('week')
         } // otherwise show the previous week
-        return DateTime.now().startOf('week').minus({ week: 1 })
+        return now.startOf('week').minus({ week: 1 })
     })
 
     const data = dummyAPIReponse
