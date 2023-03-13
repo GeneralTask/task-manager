@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Shadows, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
@@ -22,9 +23,11 @@ const Container = styled.div`
 
 interface MetricProps {
     metric: TMetric
+    startDate: DateTime
+    endDate: DateTime
 }
 
-const Metric = ({ metric }: MetricProps) => {
+const Metric = ({ metric, startDate, endDate }: MetricProps) => {
     return (
         <Container>
             <Flex alignItems="center" gap={Spacing._8}>
@@ -39,7 +42,7 @@ const Metric = ({ metric }: MetricProps) => {
                     </Flex>
                 ))}
             </Flex>
-            <LineGraph key={metric.name} data={metric} />
+            <LineGraph key={metric.name} data={metric} startDate={startDate} endDate={endDate} />
         </Container>
     )
 }
