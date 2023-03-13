@@ -84,4 +84,10 @@ func TestShareableTaskDetails(t *testing.T) {
 	t.Run("TaskSharedTimeExpired", func(t *testing.T) {
 		ServeRequest(t, authToken, "GET", fmt.Sprintf("/shareable_tasks/detail/%s/", expiredTaskID), nil, 404, api)
 	})
+	t.Run("SuccessPublicUnauthorizedUser", func(t *testing.T) {
+		ServeRequest(t, "", "GET", fmt.Sprintf("/shareable_tasks/detail/%s/", publicSharedTaskID), nil, 200, api)
+	})
+	t.Run("DomainUnauthorizedUser", func(t *testing.T) {
+		ServeRequest(t, "", "GET", fmt.Sprintf("/shareable_tasks/detail/%s/", domainSharedTaskID), nil, 404, api)
+	})
 }
