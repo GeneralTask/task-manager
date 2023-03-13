@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { NOTE_SYNC_TIMEOUT } from '../../constants'
+import { NOTE_SYNC_TIMEOUT, SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
 import { useDebouncedEdit } from '../../hooks'
 import { useModifyNote } from '../../services/api/notes.hooks'
 import { Spacing } from '../../styles'
@@ -17,8 +17,6 @@ import NoteSharingDropdown from './NoteSharingDropdown'
 const TITLE_MAX_HEIGHT = 208
 const NOTE_TITLE_MAX_WIDTH = 125
 const BODY_MIN_HEIGHT = 200
-
-export const SHARED_NOTE_INDEFINITE_DATE = '9999-10-31T00:00:00Z'
 
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -49,7 +47,7 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
     const { onEdit, syncIndicatorText } = useDebouncedEdit({ onSave, isError, isLoading }, NOTE_SYNC_TIMEOUT)
 
     const sharedUntil =
-        note.shared_until === SHARED_NOTE_INDEFINITE_DATE
+        note.shared_until === SHARED_ITEM_INDEFINITE_DATE
             ? 'Shared indefinitely'
             : `Shared until ${DateTime.fromISO(note.shared_until ?? '0').toLocaleString({
                   month: 'long',
