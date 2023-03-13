@@ -418,6 +418,8 @@ export type TLinkedAccountName = 'Atlassian' | 'GitHub' | 'Google Calendar' | 'S
 export interface TNote {
     id: string
     linked_event_id?: string
+    linked_event_start?: string
+    linked_event_end?: string
     title: string
     body: string
     author: string

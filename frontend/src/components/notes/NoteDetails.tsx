@@ -2,7 +2,6 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { NOTE_SYNC_TIMEOUT, SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
 import { useDebouncedEdit } from '../../hooks'
-import { useGetEvent } from '../../services/api/events.hooks'
 import { useModifyNote } from '../../services/api/notes.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -11,7 +10,7 @@ import { getFormattedEventTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
-import { DeprecatedLabel } from '../atoms/typography/Typography'
+import { DeprecatedLabel, LabelSmall } from '../atoms/typography/Typography'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import NoteActionsDropdown from './NoteActionsDropdown'
 import NoteSharingDropdown from './NoteSharingDropdown'
@@ -54,7 +53,6 @@ interface NoteDetailsProps {
 }
 const NoteDetails = ({ note }: NoteDetailsProps) => {
     const { mutate: onSave, isError, isLoading } = useModifyNote()
-    const { data: linkedEvent } = useGetEvent({ id: note.linked_event_id })
     const { onEdit, syncIndicatorText } = useDebouncedEdit({ onSave, isError, isLoading }, NOTE_SYNC_TIMEOUT)
 
     const sharedUntil =
@@ -99,16 +97,16 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                     disabled={isMeetingNote}
                 />
             </div>
-            {isMeetingNote && linkedEvent && (
+            {isMeetingNote && note.linked_event_start && note.linked_event_end && (
                 <MeetingInfoContainer>
                     <Icon color="gray" icon={icons.calendar_blank} />
-                    <DeprecatedLabel color="light">
+                    <LabelSmall color="light">
                         {getFormattedEventTime(
-                            DateTime.fromISO(linkedEvent.datetime_start),
-                            DateTime.fromISO(linkedEvent.datetime_end),
+                            DateTime.fromISO(note.linked_event_start),
+                            DateTime.fromISO(note.linked_event_end),
                             'long'
                         )}
-                    </DeprecatedLabel>
+                    </LabelSmall>
                 </MeetingInfoContainer>
             )}
             <GTTextField
