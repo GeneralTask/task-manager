@@ -26,10 +26,11 @@ const StyledResponsiveContainer = styled(ResponsiveContainer)`
 interface LineGraphProps {
     data: TMetric
     startDate: DateTime
-    endDate: DateTime
 }
 
-const LineGraph = ({ data, startDate, endDate }: LineGraphProps) => {
+const LineGraph = ({ data, startDate }: LineGraphProps) => {
+    const endDate = startDate.plus({ days: DAYS_PER_WEEK - 1 })
+
     const slicedData = useMemo(() => {
         return produce(data.lines, (draft) => {
             draft.forEach((line) => {
@@ -38,14 +39,14 @@ const LineGraph = ({ data, startDate, endDate }: LineGraphProps) => {
                 )
             })
         })
-    }, [data, startDate, endDate])
+    }, [data, startDate])
 
     const ticks = useMemo(() => {
         return Array.from({ length: DAYS_PER_WEEK }).map((_, i) => {
             const date = startDate.plus({ days: i })
             return date.toUnixInteger()
         })
-    }, [startDate, endDate])
+    }, [startDate])
 
     return (
         <StyledResponsiveContainer height={GRAPH_HEIGHT}>

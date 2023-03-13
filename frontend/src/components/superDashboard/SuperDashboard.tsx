@@ -8,8 +8,6 @@ import Metric from './Metric'
 import dummyAPIReponse from './dummyData'
 import { TDashboardView } from './types'
 
-const DAYS_PER_WEEK = 5
-
 const Metrics = styled.div`
     display: flex;
     gap: ${Spacing._24};
@@ -27,8 +25,6 @@ const SuperDashboard = () => {
         return DateTime.now().startOf('week').minus({ week: 1 })
     })
 
-    const endDate = startDate.plus({ days: DAYS_PER_WEEK - 1 })
-
     const data = dummyAPIReponse
     const [selectedView] = useState<TDashboardView>(data[0]) // TODO: add ability to select view
 
@@ -37,7 +33,7 @@ const SuperDashboard = () => {
             <DateSelector startDate={startDate} setStartDate={setStartDate} />
             <Metrics>
                 {selectedView.metrics.map((metric) => (
-                    <Metric key={metric.name} metric={metric} startDate={startDate} endDate={endDate} />
+                    <Metric key={metric.name} metric={metric} startDate={startDate} />
                 ))}
             </Metrics>
         </Flex>

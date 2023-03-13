@@ -24,10 +24,9 @@ const Container = styled.div`
 interface MetricProps {
     metric: TMetric
     startDate: DateTime
-    endDate: DateTime
 }
 
-const Metric = ({ metric, startDate, endDate }: MetricProps) => {
+const Metric = ({ metric, startDate }: MetricProps) => {
     return (
         <Container>
             <Flex alignItems="center" gap={Spacing._8}>
@@ -42,7 +41,7 @@ const Metric = ({ metric, startDate, endDate }: MetricProps) => {
                     </Flex>
                 ))}
             </Flex>
-            <LineGraph key={metric.name} data={metric} startDate={startDate} endDate={endDate} />
+            <LineGraph key={metric.name} data={metric} startDate={startDate} />
         </Container>
     )
 }
