@@ -63,8 +63,6 @@ const LineGraph = ({ data, startDate, endDate }: LineGraphProps) => {
                     ticks={ticks}
                     tickLine={false}
                     stroke={Colors.text.muted}
-                    interval={0}
-                    width={0}
                 />
                 <YAxis
                     dataKey="y"
