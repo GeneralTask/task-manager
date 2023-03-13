@@ -257,7 +257,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                                     size="small"
                                 />
                             )}
-                            {isPreviewMode && taskv4.source.name === 'General Task' && (
+                            {isPreviewMode && taskv4.source?.name === 'General Task' && (
                                 <TaskSharingDropdown task={taskv4} />
                             )}
                             {!isMeetingPreparationTask &&
