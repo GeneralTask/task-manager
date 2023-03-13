@@ -26,9 +26,6 @@ func githubIndustryJob(now time.Time) error {
 	defer cleanup()
 
 	repositoryCollection := database.GetRepositoryCollection(db)
-	// find all PRs in the last week, sorted by last updated (and if external ID is same, choose one that's more recently updated)
-	// group PRs by created_at_external date, and look at time to get first review comment (exclude codecov / auto comments)
-	// author != codecov[bot]
 	findOptions := options.Find()
 	// sort by increasing last_fetched, so the more recently updated PRs override the more stale PRs when looping through
 	findOptions.SetSort(bson.D{{Key: "last_fetched", Value: 1}})
@@ -55,7 +52,6 @@ func githubIndustryJob(now time.Time) error {
 	dateToTotalResponseTime := make(map[primitive.DateTime]int)
 	dateToPRCount := make(map[primitive.DateTime]int)
 	for _, pullRequest := range pullRequestIDToValue {
-		// default if no comment yet
 		firstCommentTime := now
 		for _, comment := range pullRequest.Comments {
 			if comment.Author != CODECOV_BOT && comment.Author != pullRequest.Author {

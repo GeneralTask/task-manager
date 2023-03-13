@@ -28,8 +28,6 @@ func TestGetSettingsOptions(t *testing.T) {
 	createdAtNotWithinRange := primitive.NewDateTimeFromTime(nowTime.Add(-time.Hour * 24 * 23))
 	lastFetched := primitive.NewDateTimeFromTime(nowTime.Add(-time.Hour * 24 * 3))
 	lastFetchedNewer := primitive.NewDateTimeFromTime(nowTime.Add(-time.Hour * 24 * 2))
-	// commentCreatedAtTime, _ := time.Parse(time.RFC3339, "2022-04-20T19:01:12Z")
-	// commentCreatedAt := primitive.NewDateTimeFromTime(commentCreatedAtTime)
 	userID := primitive.NewObjectID()
 	goodComments := []database.PullRequestComment{
 		{
@@ -49,6 +47,7 @@ func TestGetSettingsOptions(t *testing.T) {
 		Author:    "dogecoin",
 		CreatedAt: commentCreatedAtSlow,
 	}}
+
 	prOutOfRange := database.PullRequest{
 		IDExternal:        "#1",
 		SourceID:          "github_pr",
@@ -99,12 +98,7 @@ func TestGetSettingsOptions(t *testing.T) {
 		Comments:          []database.PullRequestComment{},
 	}
 	assert.NoError(t, createTestPullRequest(db, prNoComments))
-	/* create test PRs for following:
-	1) duplicate external ID (verify newer one is done)
-	2) outside frame of reference
-	3) bot comment
-	4) author self comment
-	5) no comments (skip) */
+
 	t.Run("Success", func(t *testing.T) {
 		assert.NoError(t, githubIndustryJob(nowTime))
 
