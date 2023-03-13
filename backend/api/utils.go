@@ -97,13 +97,13 @@ func AuthorizationMiddleware(db *mongo.Database) func(c *gin.Context) {
 			// Do nothing if the route isn't recognized
 			return
 		}
-		_, err := getToken(c)
-		if err != nil {
-			// This means the auth token format was incorrect
-			c.AbortWithStatusJSON(401, gin.H{"detail": "incorrect auth token format"})
-			return
-		}
 		if _, exists := c.Get("user"); !exists {
+			_, err := getToken(c)
+			if err != nil {
+				// This means the auth token format was incorrect
+				c.AbortWithStatusJSON(401, gin.H{"detail": "incorrect auth token format"})
+				return
+			}
 			log.Error().Err(err).Msg("token auth failed")
 			c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
 		}
