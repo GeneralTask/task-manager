@@ -21,9 +21,8 @@ type UserInfo struct {
 }
 
 type UserInfoParams struct {
-	AgreedToTerms       *bool `json:"agreed_to_terms" bson:"agreed_to_terms,omitempty"`
-	OptedIntoMarketing  *bool `json:"opted_into_marketing" bson:"opted_into_marketing,omitempty"`
-	BusinessModeEnabled *bool `json:"business_mode_enabled" bson:"business_mode_enabled,omitempty"`
+	AgreedToTerms      *bool `json:"agreed_to_terms" bson:"agreed_to_terms,omitempty"`
+	OptedIntoMarketing *bool `json:"opted_into_marketing" bson:"opted_into_marketing,omitempty"`
 }
 
 func (api *API) UserInfoGet(c *gin.Context) {
