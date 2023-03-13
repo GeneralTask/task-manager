@@ -3,7 +3,6 @@ import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
@@ -29,7 +28,7 @@ const LinearSelectableContainer = styled(SelectableContainer)`
     padding: ${Spacing._8} ${Spacing._8} ${Spacing._8} ${Spacing._16};
     margin-bottom: ${Spacing._4};
     align-items: center;
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 
 const LinearTitle = styled.span`
@@ -55,7 +54,6 @@ interface LinearTaskProps {
     task: TTaskV4
 }
 const LinearTask = ({ task }: LinearTaskProps) => {
-    const { isPreviewMode } = usePreviewMode()
     const navigate = useNavigate()
     const { linearIssueId } = useParams()
     const { calendarType, setCalendarType, setDate, dayViewDate } = useCalendarContext()
@@ -134,7 +132,7 @@ const LinearTask = ({ task }: LinearTaskProps) => {
                     />
                 )}
                 {task.comments && task.comments.length > 0 && <CommentCount count={task.comments.length} />}
-                {isPreviewMode && task.linear_cycle && <LinearCycle cycle={task.linear_cycle} isCondensed />}
+                {task.linear_cycle && <LinearCycle cycle={task.linear_cycle} isCondensed />}
                 <ExternalLinkButton link={task.deeplink} />
             </RightContainer>
         </LinearSelectableContainer>

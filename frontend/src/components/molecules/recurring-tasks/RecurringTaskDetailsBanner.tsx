@@ -4,7 +4,7 @@ import * as Sentry from '@sentry/browser'
 import styled from 'styled-components'
 import { useGetFolders } from '../../../services/api/folders.hooks'
 import { Colors } from '../../../styles'
-import { Bold } from '../../atoms/typography/Typography'
+import { DeprecatedBold } from '../../atoms/typography/Typography'
 import { Banner } from './RecurringTaskTemplateDetailsBanner'
 import RecurringTaskTemplateModal from './RecurringTaskTemplateModal'
 import { formatRecurrenceRateForRecurringTaskBanner, useGetRecurringTaskTemplateFromId } from './recurringTasks.utils'
@@ -40,8 +40,8 @@ const RecurringTaskDetailsBanner = ({ templateId }: RecurringTaskDetailsBannerPr
         <>
             <Banner>
                 <span>
-                    <Bold>This is a recurring task.</Bold> It will reappear in the {folder.name} folder{' '}
-                    {formatRecurrenceRateForRecurringTaskBanner(recurringTaskTemplate)} (
+                    <DeprecatedBold>This is a recurring task.</DeprecatedBold> It will reappear in the {folder.name}{' '}
+                    folder {formatRecurrenceRateForRecurringTaskBanner(recurringTaskTemplate)} (
                     <LinkText onClick={() => setIsEditTemplateModalOpen(true)}>edit schedule</LinkText>). Changes made
                     here will only apply to this task – to change future tasks,{' '}
                     <Link to={`/recurring-tasks/${recurringTaskTemplate.id}`}>edit the recurring task template</Link>.

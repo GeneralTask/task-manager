@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { NOTE_SYNC_TIMEOUT } from '../../constants'
+import { NOTE_SYNC_TIMEOUT, SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
 import { useDebouncedEdit } from '../../hooks'
 import { useGetEvent } from '../../services/api/events.hooks'
 import { useModifyNote } from '../../services/api/notes.hooks'
@@ -11,7 +11,7 @@ import { getFormattedEventTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
-import { Label } from '../atoms/typography/Typography'
+import { DeprecatedLabel } from '../atoms/typography/Typography'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import NoteActionsDropdown from './NoteActionsDropdown'
 import NoteSharingDropdown from './NoteSharingDropdown'
@@ -19,8 +19,6 @@ import NoteSharingDropdown from './NoteSharingDropdown'
 const TITLE_MAX_HEIGHT = 208
 const NOTE_TITLE_MAX_WIDTH = 125
 const BODY_MIN_HEIGHT = 200
-
-export const SHARED_NOTE_INDEFINITE_DATE = '9999-10-31T00:00:00Z'
 
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -60,7 +58,7 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
     const { onEdit, syncIndicatorText } = useDebouncedEdit({ onSave, isError, isLoading }, NOTE_SYNC_TIMEOUT)
 
     const sharedUntil =
-        note.shared_until === SHARED_NOTE_INDEFINITE_DATE
+        note.shared_until === SHARED_ITEM_INDEFINITE_DATE
             ? 'Shared indefinitely'
             : `Shared until ${DateTime.fromISO(note.shared_until ?? '0').toLocaleString({
                   month: 'long',
@@ -76,13 +74,13 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                     <Icon icon={isMeetingNote ? logos.gcal : icons.note} />
                 </DetailItem>
                 <DetailItem>
-                    <Label color="light">{syncIndicatorText}</Label>
+                    <DeprecatedLabel color="light">{syncIndicatorText}</DeprecatedLabel>
                 </DetailItem>
                 <MarginLeftAuto>
                     {isShared && (
                         <Flex gap={Spacing._8}>
                             <Icon icon={icons.link} color="green" />
-                            <Label color="green">{sharedUntil}</Label>
+                            <DeprecatedLabel color="green">{sharedUntil}</DeprecatedLabel>
                         </Flex>
                     )}
                     <NoteSharingDropdown note={note} />
@@ -104,13 +102,13 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
             {isMeetingNote && linkedEvent && (
                 <MeetingInfoContainer>
                     <Icon color="gray" icon={icons.calendar_blank} />
-                    <Label color="light">
+                    <DeprecatedLabel color="light">
                         {getFormattedEventTime(
                             DateTime.fromISO(linkedEvent.datetime_start),
                             DateTime.fromISO(linkedEvent.datetime_end),
                             'long'
                         )}
-                    </Label>
+                    </DeprecatedLabel>
                 </MeetingInfoContainer>
             )}
             <GTTextField

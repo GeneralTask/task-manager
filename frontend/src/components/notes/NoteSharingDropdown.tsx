@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
+import { SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
 import { usePreviewMode, useToast } from '../../hooks'
 import { useModifyNote } from '../../services/api/notes.hooks'
 import { icons } from '../../styles/images'
@@ -8,13 +9,12 @@ import { SharedAccess } from '../../utils/enums'
 import { TNote } from '../../utils/types'
 import { getFormattedDuration } from '../../utils/utils'
 import GTButton from '../atoms/buttons/GTButton'
-import { Label } from '../atoms/typography/Typography'
+import { DeprecatedLabel } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTMenuItem, MENU_WIDTH } from '../radix/RadixUIConstants'
-import { SHARED_NOTE_INDEFINITE_DATE } from './NoteDetails'
 import { getNoteURL } from './utils'
 
-const LabelWrap = styled(Label)`
+const LabelWrap = styled(DeprecatedLabel)`
     width: ${MENU_WIDTH};
 `
 
@@ -52,7 +52,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
 
     const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
     const sharedUntilString = note.shared_until
-        ? note.shared_until === SHARED_NOTE_INDEFINITE_DATE
+        ? note.shared_until === SHARED_ITEM_INDEFINITE_DATE
             ? 'The link will never expire'
             : `The link will expire in ${getFormattedDuration(
                   DateTime.fromISO(note.shared_until).diffNow('milliseconds', { conversionAccuracy: 'longterm' }),
@@ -97,7 +97,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
                           label: 'Share indefinitely',
                           hideCheckmark: true,
                           onClick: () => {
-                              shareNote(SHARED_NOTE_INDEFINITE_DATE)
+                              shareNote(SHARED_ITEM_INDEFINITE_DATE)
                               copyNoteLink()
                           },
                       },
@@ -132,7 +132,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
             hideCheckmark: !isShared,
             selected: note.shared_access === SharedAccess.MEETING_ATTENDEES,
             onClick: () => {
-                shareNote(SHARED_NOTE_INDEFINITE_DATE, SharedAccess.MEETING_ATTENDEES)
+                shareNote(SHARED_ITEM_INDEFINITE_DATE, SharedAccess.MEETING_ATTENDEES)
                 copyNoteLink()
             },
         },
@@ -142,7 +142,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
             hideCheckmark: !isShared,
             selected: note.shared_access === SharedAccess.SAME_DOMAIN,
             onClick: () => {
-                shareNote(SHARED_NOTE_INDEFINITE_DATE, SharedAccess.SAME_DOMAIN)
+                shareNote(SHARED_ITEM_INDEFINITE_DATE, SharedAccess.SAME_DOMAIN)
                 copyNoteLink()
             },
         },
@@ -152,7 +152,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
             hideCheckmark: !isShared,
             selected: note.shared_access === SharedAccess.PUBLIC,
             onClick: () => {
-                shareNote(SHARED_NOTE_INDEFINITE_DATE, SharedAccess.PUBLIC)
+                shareNote(SHARED_ITEM_INDEFINITE_DATE, SharedAccess.PUBLIC)
                 copyNoteLink()
             },
         },

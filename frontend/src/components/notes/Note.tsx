@@ -9,13 +9,13 @@ import { getFormattedEventTime, getHumanDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import TaskTemplate from '../atoms/TaskTemplate'
-import { Label, Truncated } from '../atoms/typography/Typography'
+import { DeprecatedLabel, Truncated } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import ItemContainer from '../molecules/ItemContainer'
 import NoteContextMenuWrapper from './NoteContextMenuWrapper'
 
 const NoteTitle = styled(Truncated)`
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 const TitleContainer = styled.span<{ deleted?: boolean }>`
     display: flex;
@@ -58,18 +58,20 @@ const Note = ({ note, isSelected, onSelect }: NoteProps) => {
                         {isMeetingNote ? (
                             <>
                                 {linkedEvent && (
-                                    <Label color="base">
+                                    <DeprecatedLabel color="base">
                                         {getFormattedEventTime(
                                             DateTime.fromISO(linkedEvent.datetime_start),
                                             DateTime.fromISO(linkedEvent.datetime_end),
                                             'short'
                                         )}
-                                    </Label>
+                                    </DeprecatedLabel>
                                 )}
                                 <Icon icon={icons.calendar_blank} />
                             </>
                         ) : (
-                            <Label color="base">{getHumanDateTime(DateTime.fromISO(note.created_at))}</Label>
+                            <DeprecatedLabel color="base">
+                                {getHumanDateTime(DateTime.fromISO(note.created_at))}
+                            </DeprecatedLabel>
                         )}
                     </Flex>
                 </ItemContainer>

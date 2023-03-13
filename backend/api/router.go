@@ -78,6 +78,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/events/:event_id/", handlers.EventDetail)
 	router.DELETE("/events/delete/:event_id/", handlers.EventDelete)
 	router.PATCH("/events/modify/:event_id/", handlers.EventModify)
+	router.GET("/shareable_tasks/detail/:task_id/", handlers.ShareableTaskDetails)
 
 	router.GET("/tasks/fetch/", handlers.TasksFetch)
 	router.GET("/tasks/v3/", handlers.TasksListV3)

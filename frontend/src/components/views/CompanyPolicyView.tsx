@@ -4,7 +4,7 @@ import { icons } from '../../styles/images'
 import { CompanyPolicyPages } from '../../utils/enums'
 import { PrivacyPolicy, TermsOfService } from '../atoms/CompanyPoliciesHTML'
 import { Icon } from '../atoms/Icon'
-import { Title } from '../atoms/typography/Typography'
+import { DeprecatedTitle } from '../atoms/typography/Typography'
 import UnauthorizedFooter from '../molecules/UnauthorizedFooter'
 import UnauthorizedHeader from '../molecules/UnauthorizedHeader'
 
@@ -38,7 +38,7 @@ const CompanyPolicyView = ({ page }: CompanyPolicyViewProps) => {
             <Body>
                 <PolicyHeader>
                     <Icon size="large" icon={icons.check_circle_wavy} />
-                    <Title>{pageTitle}</Title>
+                    <DeprecatedTitle>{pageTitle}</DeprecatedTitle>
                 </PolicyHeader>
                 {pageContent}
             </Body>

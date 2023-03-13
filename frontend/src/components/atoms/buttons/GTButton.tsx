@@ -47,17 +47,17 @@ const SimpleButtonStyles = css<{ active?: boolean; disabled?: boolean }>`
         active &&
         `background-color: ${Colors.background.light};
         outline: ${Border.stroke.small} solid ${Colors.background.border};`}
-    ${Typography.label};
+    ${Typography.deprecated_label};
 `
 const LargeButtonStyle = css`
     padding: ${Spacing._8} ${Spacing._16};
     gap: ${Spacing._8};
-    ${Typography.body};
+    ${Typography.deprecated_body};
 `
 const SmallButtonStyle = css`
     padding: ${Spacing._4} ${Spacing._8};
     gap: ${Spacing._8};
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 
 const Button = styled(NoStyleButton)<{

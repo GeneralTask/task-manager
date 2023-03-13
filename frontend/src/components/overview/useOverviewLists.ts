@@ -7,6 +7,7 @@ import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetSettings } from '../../services/api/settings.hooks'
 import getSortAndFilterSettings from '../../utils/sortAndFilter/getSortAndFilterSettings'
+import { LINEAR_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/linear.config'
 import { PR_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/pull-requests.config'
 import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
 import { TASK_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/tasks.config'
@@ -46,6 +47,21 @@ const useOverviewLists = () => {
                     sortDirection: selectedSortDirection,
                     filter: selectedFilter,
                     tieBreakerField: TASK_SORT_AND_FILTER_CONFIG.tieBreakerField,
+                })
+                return { ...list, view_items: sortedAndFiltered, total_view_items: list.view_items.length }
+            } else if (list.type === 'linear') {
+                const { selectedFilter } = getSortAndFilterSettings(
+                    settings,
+                    LINEAR_SORT_AND_FILTER_CONFIG,
+                    undefined,
+                    '_overview'
+                )
+                const linearTasks =
+                    (activeTasks?.filter((task) => list.view_item_ids.includes(task.id)) as TOverviewItem[]) || []
+                const sortedAndFiltered = sortAndFilterItems<TOverviewItem>({
+                    items: linearTasks,
+                    filter: selectedFilter,
+                    tieBreakerField: LINEAR_SORT_AND_FILTER_CONFIG.tieBreakerField,
                 })
                 return { ...list, view_items: sortedAndFiltered, total_view_items: list.view_items.length }
             } else if (list.type === 'github') {

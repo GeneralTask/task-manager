@@ -15,6 +15,7 @@ type User struct {
 	LastRefreshed         primitive.DateTime `bson:"last_refreshed,omitempty"`
 	AgreedToTerms         *bool              `bson:"agreed_to_terms,omitempty"`
 	OptedIntoMarketing    *bool              `bson:"opted_into_marketing,omitempty"`
+	BusinessModeEnabled   *bool              `bson:"business_mode_enabled,omitempty"`
 	CreatedAt             primitive.DateTime `bson:"created_at,omitempty"`
 	LinearName            string             `bson:"linear_name"`
 	LinearDisplayName     string             `bson:"linear_display_name"`
@@ -439,4 +440,29 @@ type Note struct {
 	SharedUntil   primitive.DateTime `bson:"shared_until,omitempty"`
 	SharedAccess  *SharedAccess      `bson:"shared_access,omitempty"`
 	IsDeleted     *bool              `bson:"is_deleted,omitempty"`
+}
+
+type DashboardDataPoint struct {
+	ID           primitive.ObjectID `bson:"_id,omitempty"`
+	TeamID       primitive.ObjectID `bson:"team_id,omitempty"`
+	IndividualID primitive.ObjectID `bson:"individual_id,omitempty"`
+	Subject      string             `bson:"subject,omitempty"`
+	GraphType    string             `bson:"graph_type,omitempty"`
+	Value        int                `bson:"value,omitempty"`
+	Date         primitive.DateTime `bson:"date,omitempty"`
+	CreatedAt    primitive.DateTime `bson:"created_at,omitempty"`
+}
+
+type DashboardTeam struct {
+	ID        primitive.ObjectID `bson:"_id,omitempty"`
+	UserID    primitive.ObjectID `bson:"user_id,omitempty"`
+	CreatedAt primitive.DateTime `bson:"created_at,omitempty"`
+}
+
+type DashboardTeamMember struct {
+	ID        primitive.ObjectID `bson:"_id,omitempty"`
+	TeamID    primitive.ObjectID `bson:"team_id,omitempty"`
+	Email     string             `bson:"email,omitempty"`
+	Name      string             `bson:"name,omitempty"`
+	CreatedAt primitive.DateTime `bson:"created_at,omitempty"`
 }

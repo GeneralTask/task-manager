@@ -37,10 +37,10 @@ export const EventTitle = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
-    ${Typography.bodySmall}
+    ${Typography.deprecated_bodySmall}
 `
 export const Description = styled.div`
-    ${Typography.label};
+    ${Typography.deprecated_label};
     color: ${Colors.text.black};
     overflow-wrap: break-word;
     overflow-y: auto;

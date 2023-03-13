@@ -21,7 +21,7 @@ const SlackSelectableContainer = styled(SelectableContainer)`
     gap: ${Spacing._8};
     padding: ${Spacing._8} ${Spacing._8} ${Spacing._8} ${Spacing._16};
     margin-bottom: ${Spacing._4};
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 const Title = styled.span`
     overflow: hidden;

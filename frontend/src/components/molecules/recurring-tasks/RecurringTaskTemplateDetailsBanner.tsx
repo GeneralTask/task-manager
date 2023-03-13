@@ -6,14 +6,14 @@ import { useGetFolders } from '../../../services/api/folders.hooks'
 import { useModifyRecurringTask } from '../../../services/api/recurring-tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
 import Flex from '../../atoms/Flex'
-import { Bold } from '../../atoms/typography/Typography'
+import { DeprecatedBold } from '../../atoms/typography/Typography'
 import TemplateFolderSelector from './RecurringTaskTemplateModal/TemplateFolderSelector'
 
 export const Banner = styled.div`
     border-radius: ${Border.radius.small};
     background-color: ${Colors.background.light};
     padding: ${Spacing._16};
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
     color: ${Colors.text.light};
     display: flex;
     flex-direction: column;
@@ -42,8 +42,8 @@ const RecurringTaskTemplateDetailsBanner = ({ id, folderId }: RecurringTaskTempl
     return (
         <Banner>
             <div>
-                <Bold>This is a template for a recurring task.</Bold> Any changes you make will show up when it repeats
-                again. Tasks you already have won’t be changed.
+                <DeprecatedBold>This is a template for a recurring task.</DeprecatedBold> Any changes you make will show
+                up when it repeats again. Tasks you already have won’t be changed.
             </div>
             <Flex alignItems="center">
                 Appears in folder:

@@ -13,7 +13,7 @@ const Title = styled.span`
     white-space: nowrap;
     flex: 1;
     user-select: none;
-    ${Typography.eyebrow};
+    ${Typography.deprecated_eyebrow};
 `
 
 interface NavigationHeaderProps {
