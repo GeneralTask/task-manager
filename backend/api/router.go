@@ -54,17 +54,15 @@ func GetRouter(handlers *API) *gin.Engine {
 	// logout needs to use the token directly rather than the user so no need to run token middleware
 	router.POST("/logout/", handlers.Logout)
 
-	// The note detail endpoint is specifically unauthenticated for shareable notes
-	// only notes with is_shared=true can be shared
-	router.GET("/notes/detail/:note_id/", handlers.NoteDetails)
-	router.GET("/note/:note_id/", handlers.NotePreview)
-
 	// Unauthenticated endpoints only for dev environment
 	router.POST("/create_test_user/", handlers.CreateTestUser)
 
 	// Middlware for endpoints that can be reached by authorized and unauthorized users
 	router.Use(UserTokenMiddleware(handlers.DB))
 	router.GET("/shareable_tasks/detail/:task_id/", handlers.ShareableTaskDetails)
+	// only notes with is_shared=true can be shared
+	router.GET("/notes/detail/:note_id/", handlers.NoteDetails)
+	router.GET("/note/:note_id/", handlers.NotePreview)
 
 	// Add middlewares
 	// Authorization middleware checks that the user is authorized to access the endpoint, and if not, returns a 401
@@ -101,8 +99,6 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/notes/", handlers.NotesList)
 	router.PATCH("/notes/modify/:note_id/", handlers.NoteModify)
 	router.POST("/notes/create/", handlers.NoteCreate)
-	router.GET("/notes_authed/detail/:note_id/", handlers.NoteDetailsAuthed)
-	router.GET("/note_authed/:note_id/", handlers.NotePreviewAuthed)
 
 	router.GET("/ping_authed/", handlers.Ping)
 

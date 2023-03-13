@@ -10,6 +10,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/testutils"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -87,6 +88,8 @@ func TestNoteDetail(t *testing.T) {
 			"GET",
 			fmt.Sprintf("/notes/detail/%s/", note2.ID.Hex()),
 			nil)
+
+		log.Print(note2.SharedUntil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
