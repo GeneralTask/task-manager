@@ -1,4 +1,19 @@
+import { DateTime } from 'luxon'
 import { TDashboardView } from './types'
+
+const START_DATE = DateTime.local().startOf('day').minus({ days: 18 })
+const Y_MIN = 200
+const Y_MAX = 3000
+
+// generates 3 weeks of random points - sample output:
+// { x: 1678098695, y: 1400 },
+// { x: 1678185095, y: 1800 },
+// ...
+const getRandomPoints = () =>
+    Array.from({ length: 21 }, (_, i) => ({
+        x: START_DATE.plus({ days: i }).toUnixInteger(),
+        y: Math.floor(Math.random() * (Y_MAX - Y_MIN + 1)) + Y_MIN,
+    }))
 
 export const dummyAPIReponse: TDashboardView[] = [
     {
@@ -15,26 +30,14 @@ export const dummyAPIReponse: TDashboardView[] = [
                         color: '#DB2979',
                         aggregated_name: 'Weekly average (Your team)',
                         aggregated_value: 7.5,
-                        points: [
-                            { x: 1678098695, y: 600 },
-                            { x: 1678185095, y: 1200 },
-                            { x: 1678271495, y: 800 },
-                            { x: 1678357895, y: 1600 },
-                            { x: 1678444295, y: 800 },
-                        ],
+                        points: getRandomPoints(),
                     },
                     {
                         name: 'Daily average (Industry)',
                         color: '#cccccc',
                         aggregated_name: 'Weekly average (Industry)',
                         aggregated_value: 7.5,
-                        points: [
-                            { x: 1678098695, y: 1400 },
-                            { x: 1678185095, y: 1800 },
-                            { x: 1678271495, y: 1300 },
-                            { x: 1678357895, y: 800 },
-                            { x: 1678444295, y: 400 },
-                        ],
+                        points: getRandomPoints(),
                     },
                 ],
             },
@@ -47,26 +50,14 @@ export const dummyAPIReponse: TDashboardView[] = [
                         color: '#DB2979',
                         aggregated_name: 'Weekly average (Your team)',
                         aggregated_value: 7.5,
-                        points: [
-                            { x: 1678098695, y: 600 },
-                            { x: 1678185095, y: 1200 },
-                            { x: 1678271495, y: 800 },
-                            { x: 1678357895, y: 1600 },
-                            { x: 1678444295, y: 800 },
-                        ],
+                        points: getRandomPoints(),
                     },
                     {
                         name: 'Daily average (Industry)',
                         color: '#cccccc',
                         aggregated_name: 'Weekly average (Industry)',
                         aggregated_value: 7.5,
-                        points: [
-                            { x: 1678098695, y: 1400 },
-                            { x: 1678185095, y: 1800 },
-                            { x: 1678271495, y: 1300 },
-                            { x: 1678357895, y: 800 },
-                            { x: 1678444295, y: 400 },
-                        ],
+                        points: getRandomPoints(),
                     },
                 ],
             },

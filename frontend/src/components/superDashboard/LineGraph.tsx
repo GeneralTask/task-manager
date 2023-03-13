@@ -1,11 +1,12 @@
+import { useMemo } from 'react'
+import produce from 'immer'
 import { DateTime } from 'luxon'
 import { CartesianGrid, Legend, ResponsiveContainer, Scatter, ScatterChart, XAxis, YAxis } from 'recharts'
 import styled from 'styled-components'
 import { Colors, Typography } from '../../styles'
 import { BodyMedium } from '../atoms/typography/Typography'
+import { DAYS_PER_WEEK, GRAPH_HEIGHT, GRAPH_RIGHT_MARGIN, GRAPH_TOP_MARGIN } from './constants'
 import { TMetric } from './types'
-
-const GRAPH_HEIGHT = 400
 
 const StyledResponsiveContainer = styled(ResponsiveContainer)`
     /* tick labels */
@@ -16,23 +17,45 @@ const StyledResponsiveContainer = styled(ResponsiveContainer)`
     .recharts-cartesian-axis > line {
         stroke: ${Colors.background.sub};
     }
+    .recharts-default-legend {
+        display: flex;
+        justify-content: space-between;
+    }
 `
 
 interface LineGraphProps {
     data: TMetric
+    startDate: DateTime
 }
 
-const LineGraph = ({ data }: LineGraphProps) => {
+const LineGraph = ({ data, startDate }: LineGraphProps) => {
+    const endDate = startDate.plus({ days: DAYS_PER_WEEK - 1 })
+
+    const slicedData = useMemo(() => {
+        return produce(data.lines, (draft) => {
+            draft.forEach((line) => {
+                line.points = line.points.filter(
+                    (point) => point.x >= startDate.toUnixInteger() && point.x <= endDate.toUnixInteger()
+                )
+            })
+        })
+    }, [data, startDate])
+
+    const ticks = useMemo(() => {
+        return Array.from({ length: DAYS_PER_WEEK }).map((_, i) => startDate.plus({ days: i }).toUnixInteger())
+    }, [startDate])
+
     return (
-        <StyledResponsiveContainer width="100%" height={GRAPH_HEIGHT}>
-            <ScatterChart>
+        <StyledResponsiveContainer height={GRAPH_HEIGHT}>
+            <ScatterChart margin={{ top: GRAPH_TOP_MARGIN, right: GRAPH_RIGHT_MARGIN }}>
                 <CartesianGrid stroke={Colors.background.sub} />
                 <XAxis
                     dataKey="x"
                     type="number"
                     scale="time"
-                    domain={['auto', 'auto']}
+                    domain={[startDate.toUnixInteger(), endDate.toUnixInteger()]}
                     tickFormatter={(unixTime: number) => DateTime.fromSeconds(unixTime).toFormat('EEE MM/dd')}
+                    ticks={ticks}
                     tickLine={false}
                     stroke={Colors.text.muted}
                 />
@@ -46,7 +69,7 @@ const LineGraph = ({ data }: LineGraphProps) => {
                     stroke={Colors.text.muted}
                 />
                 <Legend formatter={(value) => <BodyMedium color="muted">{value}</BodyMedium>} />
-                {data.lines.map((line) => (
+                {slicedData.map((line) => (
                     <Scatter
                         key={line.name}
                         name={line.name}
