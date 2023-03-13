@@ -5,7 +5,14 @@ import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, XAxis, YAx
 import styled from 'styled-components'
 import { Colors, Typography } from '../../styles'
 import { BodyMedium } from '../atoms/typography/Typography'
-import { DAYS_PER_WEEK, GRAPH_HEIGHT, GRAPH_RIGHT_MARGIN, GRAPH_TOP_MARGIN } from './constants'
+import {
+    DAYS_PER_WEEK,
+    GRAPH_HEIGHT,
+    GRAPH_RIGHT_MARGIN,
+    GRAPH_TOP_MARGIN,
+    LINE_ANIMATION_DURATION,
+    LINE_STROKE_WIDTH,
+} from './constants'
 import { TMetric } from './types'
 
 const StyledResponsiveContainer = styled(ResponsiveContainer)`
@@ -17,6 +24,7 @@ const StyledResponsiveContainer = styled(ResponsiveContainer)`
     .recharts-cartesian-axis > line {
         stroke: ${Colors.background.sub};
     }
+    /* legend spacing */
     .recharts-default-legend {
         display: flex;
         justify-content: space-between;
@@ -78,8 +86,8 @@ const LineGraph = ({ data, startDate }: LineGraphProps) => {
                         type="monotoneX"
                         data={line.points}
                         stroke={line.color}
-                        strokeWidth={2}
-                        animationDuration={500}
+                        strokeWidth={LINE_STROKE_WIDTH}
+                        animationDuration={LINE_ANIMATION_DURATION}
                     />
                 ))}
             </LineChart>
