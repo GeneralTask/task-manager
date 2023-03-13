@@ -1224,14 +1224,17 @@ func GetDashboardTeamMembers(db *mongo.Database, teamID primitive.ObjectID) (*[]
 	return &teamMembers, nil
 }
 
-func GetDashboardDataPoints(db *mongo.Database, teamID primitive.ObjectID) (*[]DashboardDataPoint, error) {
+func GetDashboardDataPoints(db *mongo.Database, teamID primitive.ObjectID, lookbackDays int) (*[]DashboardDataPoint, error) {
 	dataPointCollection := GetDashboardDataPointCollection(db)
 	cursor, err := dataPointCollection.Find(
 		context.Background(),
-		bson.M{"$or": []bson.M{
-			{"subject": constants.DashboardSubjectGlobal},
-			{"team_id": teamID},
-		}},
+		bson.M{"$and": []bson.M{
+			// this timestamp is approximate for now, will refine as needed
+			bson.M{"date": bson.M{"$gte": time.Now().Add(-time.Hour * 24 * time.Duration(lookbackDays))}},
+			bson.M{"$or": []bson.M{
+				{"subject": constants.DashboardSubjectGlobal},
+				{"team_id": teamID},
+			}}}},
 	)
 	if err != nil {
 		logger := logging.GetSentryLogger()
@@ -1351,10 +1354,6 @@ func GetDashboardTeamCollection(db *mongo.Database) *mongo.Collection {
 
 func GetDashboardTeamMemberCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("dashboard_team_members")
-}
-
-func GetDashboardDataPointCollection(db *mongo.Database) *mongo.Collection {
-	return db.Collection("dashboard_data_points")
 }
 
 func HasUserGrantedMultiCalendarScope(scopes []string) bool {
