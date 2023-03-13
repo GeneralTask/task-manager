@@ -76,10 +76,14 @@ func UserTokenMiddleware(db *mongo.Database) func(c *gin.Context) {
 			// Do nothing if the route isn't recognized
 			return
 		}
-		token, _ := getToken(c)
+		token, err := getToken(c)
+		if err != nil {
+			// This means the auth token format was incorrect
+			return
+		}
 		internalAPITokenCollection := database.GetInternalTokenCollection(db)
 		var internalToken database.InternalAPIToken
-		err := internalAPITokenCollection.FindOne(context.Background(), bson.M{"token": token}).Decode(&internalToken)
+		err = internalAPITokenCollection.FindOne(context.Background(), bson.M{"token": token}).Decode(&internalToken)
 		if err == nil {
 			c.Set("user", internalToken.UserID)
 		}
