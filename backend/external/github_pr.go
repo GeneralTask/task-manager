@@ -696,12 +696,20 @@ func getComments(context context.Context, githubClient *github.Client, repositor
 		})
 	}
 	for _, review := range reviews {
-		if review.GetBody() == "" {
-			continue
+		body := review.GetBody()
+		if body == "" {
+			state := review.GetState()
+			if state == StateApproved {
+				body = "(Approved changes)"
+			} else if state == StateChangesRequested {
+				body = "(Requested changes)"
+			} else {
+				body = "(Reviewed changes)"
+			}
 		}
 		result = append(result, database.PullRequestComment{
 			Type:      constants.COMMENT_TYPE_TOPLEVEL,
-			Body:      review.GetBody(),
+			Body:      body,
 			Author:    review.User.GetLogin(),
 			CreatedAt: primitive.NewDateTimeFromTime(review.GetSubmittedAt()),
 		})
