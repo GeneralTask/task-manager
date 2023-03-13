@@ -76,7 +76,7 @@ const LineGraph = ({ data, startDate }: LineGraphProps) => {
                     tickLine={false}
                     stroke={Colors.text.muted}
                 />
-                <Legend formatter={(value) => <BodyMedium color="muted">{value}</BodyMedium>} />
+                <Legend iconType="circle" formatter={(value) => <BodyMedium color="muted">{value}</BodyMedium>} />
                 {slicedData.map((line) => (
                     <Line
                         key={line.name}
