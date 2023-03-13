@@ -51,7 +51,7 @@ const Tip = ({
     disabled,
     fitContent = false,
 }: TooltipProps) => {
-    if (disabled || !content) return <>{children}</>
+    if (disabled || (!content && !shortcutName)) return <>{children}</>
 
     const shortcutLabel = overrideShortcutLabel ?? (shortcutName ? KEYBOARD_SHORTCUTS[shortcutName].label : null)
     const shortcut = overrideShortcut ?? (shortcutName ? KEYBOARD_SHORTCUTS[shortcutName].keyLabel : null)

@@ -88,3 +88,5 @@ export const SYNC_MESSAGES = {
     ERROR: 'There was an error syncing with our servers',
     COMPLETE: '',
 }
+
+export const SHARED_ITEM_INDEFINITE_DATE = '9999-10-31T00:00:00Z'
