@@ -62,6 +62,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	// Unauthenticated endpoints only for dev environment
 	router.POST("/create_test_user/", handlers.CreateTestUser)
 
+	// Middlware for endpoints that can be reached by authorized and unauthorized users
 	router.Use(UserTokenMiddleware(handlers.DB))
 	router.GET("/shareable_tasks/detail/:task_id/", handlers.ShareableTaskDetails)
 
