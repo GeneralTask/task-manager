@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
 import { useModifyTask } from '../../services/api/tasks.hooks'
@@ -12,6 +13,7 @@ interface TaskharingDropdownProps {
 }
 
 const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
+    const [isOpen, setIsOpen] = useState(false)
     const { mutate: modifyTask } = useModifyTask()
 
     const shareTask = (access: TTaskSharedAccess) => {
@@ -40,30 +42,26 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
     ]
     const notSharedDropdownItems: GTMenuItem[] = [
         {
-            icon: icons.copy,
-            label: 'Create & copy link',
+            icon: icons.users,
+            label: 'Share with company',
             hideCheckmark: true,
-            subItems: [
-                {
-                    icon: icons.users,
-                    label: 'Share with company',
-                    hideCheckmark: true,
-                    onClick: () => shareTask('domain'),
-                },
-                {
-                    icon: icons.globe,
-                    label: 'Share with everyone',
-                    hideCheckmark: true,
-                    onClick: () => shareTask('public'),
-                },
-            ],
+            onClick: () => shareTask('domain'),
+        },
+        {
+            icon: icons.globe,
+            label: 'Share with everyone',
+            hideCheckmark: true,
+            onClick: () => shareTask('public'),
         },
     ]
 
     return (
         <GTDropdownMenu
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
             items={isShared ? sharedDropdownItems : notSharedDropdownItems}
-            trigger={<GTButton styleType="secondary" icon={icons.share} value="Share" />}
+            trigger={<GTButton styleType="secondary" icon={icons.share} value="Share" active={isOpen} />}
+            description={!isShared ? 'This task is not being shared.' : undefined}
         />
     )
 }

@@ -63,7 +63,6 @@ func TestShareableTaskDetails(t *testing.T) {
 	assert.NoError(t, err)
 	expiredTaskID := mongoResult.InsertedID.(primitive.ObjectID).Hex()
 
-	UnauthorizedTest(t, "GET", fmt.Sprintf("/shareable_tasks/detail/%s/", publicSharedTaskID), nil)
 	t.Run("InvalidTaskID", func(t *testing.T) {
 		ServeRequest(t, authToken, "GET", fmt.Sprintf("/shareable_tasks/detail/%s/", primitive.NewObjectID().Hex()), nil, 404, api)
 	})
@@ -84,5 +83,11 @@ func TestShareableTaskDetails(t *testing.T) {
 	})
 	t.Run("TaskSharedTimeExpired", func(t *testing.T) {
 		ServeRequest(t, authToken, "GET", fmt.Sprintf("/shareable_tasks/detail/%s/", expiredTaskID), nil, 404, api)
+	})
+	t.Run("SuccessPublicUnauthorizedUser", func(t *testing.T) {
+		ServeRequest(t, "", "GET", fmt.Sprintf("/shareable_tasks/detail/%s/", publicSharedTaskID), nil, 200, api)
+	})
+	t.Run("DomainUnauthorizedUser", func(t *testing.T) {
+		ServeRequest(t, "", "GET", fmt.Sprintf("/shareable_tasks/detail/%s/", domainSharedTaskID), nil, 404, api)
 	})
 }
