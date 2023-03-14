@@ -5,18 +5,15 @@ import Cookies from 'js-cookie'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { AUTHORIZATION_COOKE, SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
-import getEnvVars from '../../environment'
 import useAnalyticsEventTracker from '../../hooks/useAnalyticsEventTracker'
 import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
 import { Colors, Spacing } from '../../styles'
 import { emptyFunction, getFormattedDuration, getHumanTimeSinceDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
-import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
-import GTButton from '../atoms/buttons/GTButton'
-import { DeprecatedBody, DeprecatedLabel, DeprecatedTitle } from '../atoms/typography/Typography'
+import { DeprecatedLabel } from '../atoms/typography/Typography'
 import { BackgroundContainer } from '../molecules/shared_item_page/BackgroundContainer'
 import ContentContainer from '../molecules/shared_item_page/ContentContainer'
 import NotAvailableMessage from '../molecules/shared_item_page/NotAvailableMessage'
@@ -26,9 +23,6 @@ import NoteActionsDropdown from './NoteActionsDropdown'
 
 const FlexPadding8Horizontal = styled(Flex)`
     padding: 0 ${Spacing._8};
-`
-const FlexMargin8Top = styled(Flex)`
-    margin-top: ${Spacing._8};
 `
 
 const SharedNoteView = () => {
