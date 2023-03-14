@@ -36,17 +36,17 @@ export const MenuItemShared = css<{ $textColor?: TTextColor; $disabled?: boolean
             !$disabled &&
             `
         outline: ${Border.stroke.small} solid ${Colors.background.border};
-        background-color: ${Colors.background.medium};
+        background-color: ${Colors.background.sub};
         `}
     }
     &[data-state='open'] {
         outline: ${Border.stroke.small} solid ${Colors.background.border};
-        background-color: ${Colors.background.medium};
+        background-color: ${Colors.background.sub};
     }
 `
 export const MenuContentShared = css`
     z-index: 300;
-    ${Typography.body};
+    ${Typography.deprecated_body};
     padding: ${Spacing._4};
     background-color: ${Colors.background.white};
     border-radius: ${Border.radius.small};

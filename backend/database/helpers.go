@@ -224,7 +224,7 @@ func CheckTaskSharingAccessValid(sharedAccess SharedAccess) bool {
 	return sharedAccess == SharedAccessDomain || sharedAccess == SharedAccessPublic
 }
 
-func GetSharedTask(db *mongo.Database, taskID primitive.ObjectID, userID primitive.ObjectID) (*Task, error) {
+func GetSharedTask(db *mongo.Database, taskID primitive.ObjectID, userID *primitive.ObjectID) (*Task, error) {
 	logger := logging.GetSentryLogger()
 	mongoResult := GetTaskCollection(db).FindOne(
 		context.Background(),
@@ -251,7 +251,10 @@ func GetSharedTask(db *mongo.Database, taskID primitive.ObjectID, userID primiti
 
 	// Check if the user is allowed to access the task
 	if *task.SharedAccess == SharedAccessDomain {
-		user, err := GetUser(db, userID)
+		if userID == nil {
+			return nil, errors.New("user is not allowed to access this task")
+		}
+		user, err := GetUser(db, *userID)
 		if err != nil {
 			logger.Error().Err(err).Msgf("failed to get user: %+v", userID)
 			return nil, err
@@ -402,6 +405,23 @@ func GetTaskByExternalIDWithoutUser(db *mongo.Database, externalID string, logEr
 		return nil, err
 	}
 	return &task, nil
+}
+
+func GetCalendarEventWithoutUserID(db *mongo.Database, itemID primitive.ObjectID) (*CalendarEvent, error) {
+	logger := logging.GetSentryLogger()
+	mongoResult := GetCalendarEventCollection(db).FindOne(
+		context.Background(),
+		bson.M{"$and": []bson.M{
+			{"_id": itemID},
+		}})
+	var event CalendarEvent
+	err := mongoResult.Decode(&event)
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to get event: %+v", itemID)
+		return nil, err
+	}
+
+	return &event, nil
 }
 
 func GetCalendarEvent(db *mongo.Database, itemID primitive.ObjectID, userID primitive.ObjectID) (*CalendarEvent, error) {
@@ -1274,6 +1294,14 @@ func GetTaskSectionCollection(db *mongo.Database) *mongo.Collection {
 
 func GetRecurringTaskTemplateCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("recurring_task_templates")
+}
+
+func GetDashboardDataPointCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("dashboard_data_points")
+}
+
+func GetJobLocksCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("job_locks")
 }
 
 func HasUserGrantedMultiCalendarScope(scopes []string) bool {

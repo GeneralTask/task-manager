@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import styled from 'styled-components'
-import { useSetting } from '../../hooks'
+import { usePreviewMode, useSetting } from '../../hooks'
 import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts, useGetSettings } from '../../services/api/settings.hooks'
@@ -39,6 +39,7 @@ interface IntegrationLinksProps {
     isCollapsed?: boolean
 }
 const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
+    const { isPreviewMode } = usePreviewMode()
     const { data: pullRequestRepositories } = useGetPullRequests()
     const { isLoading: isSettingsLoading } = useGetSettings()
 
@@ -98,6 +99,15 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                         isCollapsed={isCollapsed}
                     />
                 </Tip>
+                {isPreviewMode && (
+                    <NavigationLink
+                        link="/super-dashboard"
+                        title="Super Dashboard"
+                        icon={icons.chartLineUp}
+                        isCurrentPage={pathname.split('/')[1] === 'super-dashboard'}
+                        isCollapsed={isCollapsed}
+                    />
+                )}
                 <Tip shortcutName="goToRecurringTasksPage" side="right">
                     <NavigationLink
                         link="/recurring-tasks"

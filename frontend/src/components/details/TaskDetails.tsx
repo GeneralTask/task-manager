@@ -22,23 +22,25 @@ import {
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { TRecurringTaskTemplate, TTaskV4 } from '../../utils/types'
-import { EMPTY_ARRAY, isTaskParentTask } from '../../utils/utils'
+import { EMPTY_ARRAY, isTaskActive, isTaskBeingShared, isTaskParentTask } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
 import { Divider } from '../atoms/SectionDivider'
+import SharedItemMessage from '../atoms/SharedItemMessage'
 import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { Label } from '../atoms/typography/Typography'
+import { DeprecatedLabel } from '../atoms/typography/Typography'
 import CreateLinearComment from '../molecules/CreateLinearComment'
 import FolderSelector from '../molecules/FolderSelector'
 import GTDatePicker from '../molecules/GTDatePicker'
 import LinearCycle from '../molecules/LinearCycle'
+import TaskSharingDropdown from '../molecules/TaskSharingDropdown'
 import DeleteRecurringTaskTemplateButton from '../molecules/recurring-tasks/DeleteRecurringTaskTemplateButton'
 import RecurringTaskDetailsBanner from '../molecules/recurring-tasks/RecurringTaskDetailsBanner'
 import RecurringTaskTemplateDetailsBanner from '../molecules/recurring-tasks/RecurringTaskTemplateDetailsBanner'
@@ -78,8 +80,8 @@ const MeetingPreparationTimeContainer = styled.div`
     gap: ${Spacing._24};
     margin-left: ${Spacing._8};
     color: ${Colors.text.light};
-    ${Typography.label};
-    ${Typography.bold};
+    ${Typography.deprecated_label};
+    ${Typography.deprecated_bold};
 `
 const CommentContainer = styled.div`
     display: flex;
@@ -91,9 +93,9 @@ const BackButtonContainer = styled(NoStyleButton)`
     align-items: center;
     gap: ${Spacing._8};
     color: ${Colors.text.purple};
-    ${Typography.mini};
+    ${Typography.deprecated_mini};
 `
-const BackButtonText = styled(Label)`
+const BackButtonText = styled(DeprecatedLabel)`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -107,9 +109,9 @@ interface TaskDetailsProps {
     isRecurringTaskTemplate?: boolean
 }
 const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
-    const { isPreviewMode } = usePreviewMode()
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
+    const { isPreviewMode } = usePreviewMode()
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const { mutate: reorderTask } = useReorderTask()
@@ -240,7 +242,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                 {!task.optimisticId && (
                     <>
                         <DetailItem>
-                            <Label color="light">{syncIndicatorText}</Label>
+                            <DeprecatedLabel color="light">{syncIndicatorText}</DeprecatedLabel>
                         </DetailItem>
                         <Flex alignItems="center" marginLeftAuto>
                             {task.is_deleted && (
@@ -255,6 +257,16 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                                     styleType="secondary"
                                     size="small"
                                 />
+                            )}
+                            {isPreviewMode && (
+                                <Flex gap={Spacing._8}>
+                                    {taskv4.shared_access && isTaskBeingShared(taskv4) && (
+                                        <SharedItemMessage shareAccess={taskv4.shared_access} />
+                                    )}
+                                    {taskv4.source?.name === 'General Task' && isTaskActive(taskv4) && (
+                                        <TaskSharingDropdown task={taskv4} />
+                                    )}
+                                </Flex>
                             )}
                             {!isMeetingPreparationTask &&
                                 !isRecurringTaskTemplate &&
@@ -355,7 +367,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                     )
                 )}
                 <Flex alignItems="center" gap={Spacing._8} marginLeftAuto>
-                    {isPreviewMode && task.linear_cycle && <LinearCycle cycle={task.linear_cycle} />}
+                    {task.linear_cycle && <LinearCycle cycle={task.linear_cycle} />}
                     {!isRecurringTaskTemplate &&
                         task.external_status &&
                         task.all_statuses &&

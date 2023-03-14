@@ -7,7 +7,7 @@ import { DropItem, DropType } from '../../../utils/types'
 import Flex from '../../atoms/Flex'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import { Divider } from '../../atoms/SectionDivider'
-import { Body } from '../../atoms/typography/Typography'
+import { DeprecatedBody } from '../../atoms/typography/Typography'
 import EditListsSelectedList from './EditListsSelectedList'
 import ListModalPreference from './ListModalPreference'
 import SmartPrioritize, { SmartPrioritizeState } from './SmartPrioritize'
@@ -19,8 +19,8 @@ const PreferencesContainer = styled.div`
     margin-top: ${Spacing._16};
     margin-left: ${Spacing._16};
 `
-const PreferencesTitle = styled(Body)`
-    ${Typography.bold}
+const PreferencesTitle = styled(DeprecatedBody)`
+    ${Typography.deprecated_bold}
 `
 
 const ListOrderTab = () => {

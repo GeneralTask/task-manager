@@ -8,7 +8,7 @@ import useQueryContext from '../../context/QueryContext'
 import { useGTLocalStorage, useNavigateToTask } from '../../hooks'
 import apiClient from '../../utils/api'
 import navigateToNextItemAfterOverviewCompletion from '../../utils/navigateToNextItemAfterOverviewCompletion'
-import { TExternalStatus, TOverviewView, TTaskFolder, TTaskV4, TUserInfo } from '../../utils/types'
+import { TExternalStatus, TOverviewView, TTaskFolder, TTaskSharedAccess, TTaskV4, TUserInfo } from '../../utils/types'
 import { resetOrderingIds, sleep } from '../../utils/utils'
 import { GTQueryClient, getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 
@@ -33,6 +33,8 @@ export interface TModifyTaskData {
     priorityNormalized?: number
     status?: TExternalStatus
     recurringTaskTemplateId?: string
+    shared_access?: TTaskSharedAccess
+    shared_until?: string
 }
 
 interface TExternalPriority {
@@ -51,6 +53,8 @@ interface TTaskModifyRequestBody {
     due_date?: string
     time_duration?: number
     body?: string
+    shared_access?: TTaskSharedAccess
+    shared_until?: string
 }
 
 export interface TMarkTaskDoneOrDeletedData {
@@ -86,6 +90,25 @@ export interface TPostCommentData {
     optimisticId: string
 }
 
+interface TGetSharedTaskParams {
+    id: string
+}
+const getSharedTask = async ({ id }: TGetSharedTaskParams, { signal }: QueryFunctionContext) => {
+    try {
+        const res = await apiClient.get(`/shareable_tasks/detail/${id}/`, { signal })
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('getSharedTask failed')
+    }
+}
+
+export const useGetSharedTask = (params: TGetSharedTaskParams) => {
+    return useQuery<TTaskV4, void>(
+        'sharedTask',
+        (context) => getSharedTask(params, context),
+        getBackgroundQueryOptions()
+    )
+}
 export const useGetTasksV4 = (isEnabled = true) => {
     return useQuery<TTaskV4[], void>('tasks_v4', getTasksV4, { enabled: isEnabled, refetchOnMount: false })
 }
@@ -243,6 +266,8 @@ const optimisticallyUpdateTask = async (queryClient: GTQueryClient, data: TModif
         task.external_status = data.status ?? task.external_status
         task.is_done = COMPLETED_TASK_TYPES.includes(data.status?.type ?? '') ?? task.is_done
         task.recurring_task_template_id = data.recurringTaskTemplateId ?? task.recurring_task_template_id
+        task.shared_access = data.shared_access ?? task.shared_access
+        task.shared_until = data.shared_until ?? task.shared_until
         if (data.external_priority_id) {
             const newPriority = task.all_priorities?.find(
                 (priority) => priority.external_id === data.external_priority_id
@@ -317,6 +342,8 @@ const modifyTask = async (data: TModifyTaskData) => {
     if (data.status !== undefined) requestBody.task.status = data.status
     if (data.recurringTaskTemplateId !== undefined)
         requestBody.task.recurring_task_template_id = data.recurringTaskTemplateId
+    if (data.shared_access !== undefined) requestBody.shared_access = data.shared_access
+    if (data.shared_until !== undefined) requestBody.shared_until = data.shared_until
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
         return castImmutable(res.data)

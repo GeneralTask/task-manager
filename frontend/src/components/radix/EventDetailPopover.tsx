@@ -10,7 +10,7 @@ import { TEvent } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
-import { Label } from '../atoms/typography/Typography'
+import { DeprecatedLabel } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import {
     CopyButton,
@@ -124,18 +124,18 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
             {calendarAccount && calendar && (
                 <Flex gap={Spacing._8}>
                     <Icon icon={icons.square} colorHex={calendar.color_background} />
-                    <Label>
+                    <DeprecatedLabel>
                         {calendar.title && calendar.title !== calendarAccount.account_id
                             ? `${calendar.title} (${calendarAccount.account_id})`
                             : calendarAccount.account_id}
-                    </Label>
+                    </DeprecatedLabel>
                 </Flex>
             )}
             <Flex gap={Spacing._8}>
                 <Icon icon={icons.calendar_blank} />
-                <Label>
+                <DeprecatedLabel>
                     {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
-                </Label>
+                </DeprecatedLabel>
             </Flex>
             <Description dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.body) }} />
             <Flex flex="1" gap={Spacing._8}>

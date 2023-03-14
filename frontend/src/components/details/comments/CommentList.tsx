@@ -12,7 +12,7 @@ const CommentListContainer = styled.div`
 `
 const CommentHeader = styled.div`
     color: ${Colors.text.light};
-    ${Typography.eyebrow};
+    ${Typography.deprecated_eyebrow};
     margin-bottom: ${Spacing._16};
 `
 

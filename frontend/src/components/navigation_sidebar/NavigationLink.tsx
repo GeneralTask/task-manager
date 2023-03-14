@@ -22,7 +22,7 @@ export const CollapsedIconContainer = styled.div<{ isSelected?: boolean }>`
     ${({ isSelected }) =>
         isSelected &&
         `
-        background-color: ${Colors.background.medium};
+        background-color: ${Colors.background.sub};
         mix-blend-mode: multiply;
     `}
     :hover {
@@ -40,7 +40,7 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     min-width: 0;
     border-radius: ${Border.radius.medium};
     background-color: ${({ isOver, isSelected }) =>
-        isOver ? Colors.background.white : isSelected ? Colors.background.medium : 'inherit'};
+        isOver ? Colors.background.white : isSelected ? Colors.background.sub : 'inherit'};
     mix-blend-mode: ${({ isOver, isSelected }) => (isSelected && !isOver ? 'multiply' : 'inherit')};
     color: ${Colors.text.black};
     box-sizing: border-box;
@@ -57,12 +57,12 @@ const FolderTitle = styled.span`
     white-space: nowrap;
     flex: 1;
     user-select: none;
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 const FolderTitleItemCount = styled.span`
     margin-left: auto;
     user-select: none;
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 export const NavigationLinkTemplate = styled.div`
     width: 100%;

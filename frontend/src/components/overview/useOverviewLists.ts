@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useGTLocalStorage, useItemSelectionController, usePreviewMode } from '../../hooks'
+import { useGTLocalStorage, useItemSelectionController } from '../../hooks'
 import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import Log from '../../services/api/log'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
@@ -17,7 +17,6 @@ type TOverviewItemWithListId = TOverviewItem & { listId: string }
 
 // returns overview lists with view items sorted and filtered
 const useOverviewLists = () => {
-    const { isPreviewMode } = usePreviewMode()
     const { data: lists, isLoading: isListsLoading, isSuccess } = useGetOverviewViews()
     const { data: settings, isLoading: isSettingsLoading } = useGetSettings()
     const { data: activeTasks, isLoading: isActiveTasksLoading } = useGetActiveTasks()
@@ -59,13 +58,11 @@ const useOverviewLists = () => {
                 )
                 const linearTasks =
                     (activeTasks?.filter((task) => list.view_item_ids.includes(task.id)) as TOverviewItem[]) || []
-                const sortedAndFiltered = !isPreviewMode
-                    ? linearTasks
-                    : sortAndFilterItems<TOverviewItem>({
-                          items: linearTasks,
-                          filter: selectedFilter,
-                          tieBreakerField: LINEAR_SORT_AND_FILTER_CONFIG.tieBreakerField,
-                      })
+                const sortedAndFiltered = sortAndFilterItems<TOverviewItem>({
+                    items: linearTasks,
+                    filter: selectedFilter,
+                    tieBreakerField: LINEAR_SORT_AND_FILTER_CONFIG.tieBreakerField,
+                })
                 return { ...list, view_items: sortedAndFiltered, total_view_items: list.view_items.length }
             } else if (list.type === 'github') {
                 const { selectedSort, selectedSortDirection, selectedFilter } = getSortAndFilterSettings(

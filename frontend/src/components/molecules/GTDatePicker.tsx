@@ -17,7 +17,7 @@ const GTDatePickerWrapper = styled.div`
     display: flex;
     flex-direction: column;
     .mantine-Calendar-calendarHeaderLevel {
-        ${Typography.eyebrow};
+        ${Typography.deprecated_eyebrow};
     }
 `
 const DateViewContainer = styled.div`
@@ -29,10 +29,10 @@ const DateViewContainer = styled.div`
     gap: ${Spacing._8};
     border-radius: ${Border.radius.small};
     border: ${Border.stroke.medium} solid ${Colors.background.border};
-    background-color: ${Colors.background.light};
+    background-color: ${Colors.background.base};
 `
 const DateViewText = styled.span`
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
     flex: 1;
 `
 
@@ -85,6 +85,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                     if (date.toDateString() === new Date().toDateString()) {
                         return {
                             border: `${Border.stroke.medium} solid ${Colors.legacyColors.purple}`,
+                            color: Colors.text.black,
                             zIndex: 1,
                         }
                     }

@@ -10,7 +10,7 @@ const Header = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    ${Typography.body};
+    ${Typography.deprecated_body};
     color: ${Colors.text.light};
     margin-bottom: ${Spacing._16};
 `

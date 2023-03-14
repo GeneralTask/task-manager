@@ -20,7 +20,7 @@ const DefaultTemplateContainer = styled.div<{ $calendarType: TCalendarType; $sho
     grid-auto-flow: column;
     grid-template-rows: 100%;
     height: 100vh;
-    background-color: ${Colors.background.light};
+    background-color: ${Colors.background.base};
     position: relative;
     min-width: ${WINDOW_MIN_WIDTH};
     a {
@@ -32,7 +32,7 @@ const DefaultTemplateContainer = styled.div<{ $calendarType: TCalendarType; $sho
         font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu,
             Cantarell, Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji',
             'Segoe UI Symbol' !important;
-        ${Typography.bodySmall};
+        ${Typography.deprecated_bodySmall};
         padding: ${Spacing._8} !important;
         max-width: ${TOOLTIP_MAX_WIDTH};
     }

@@ -66,14 +66,14 @@ export const CalendarRow = styled.tr`
 `
 export const CalendarTD = styled.td<{ borderLeft?: boolean }>`
     display: block;
-    border-top: ${Border.stroke.medium} solid ${Colors.background.dark};
-    ${({ borderLeft }) => borderLeft && `border-left: ${Border.stroke.medium} solid ${Colors.background.dark};`}
+    border-top: ${Border.stroke.medium} solid ${Colors.background.hover};
+    ${({ borderLeft }) => borderLeft && `border-left: ${Border.stroke.medium} solid ${Colors.background.hover};`}
     height: 100%;
 `
 export const CalendarCell = styled.div`
     width: ${CELL_TIME_WIDTH};
     padding-top: ${Spacing._12};
-    ${Typography.mini}
+    ${Typography.deprecated_mini}
     color: ${Colors.text.light};
     text-align: center;
 `
@@ -134,7 +134,7 @@ export const EventInfo = styled.div<{ type: TEventBodyHeight }>`
             flex-direction: column;
             justify-content: center;
         `};
-    ${Typography.label};
+    ${Typography.deprecated_label};
 `
 export const EventIconAndTitle = styled.div`
     display: flex;
@@ -204,14 +204,14 @@ export const DayHeaderText = styled.div<{ isToday: boolean; isPreviewMode: boole
     color: ${(props) => (props.isToday ? Colors.text.white : Colors.text.black)};
     background-color: ${(props) =>
         !props.isToday ? 'transparent' : props.isPreviewMode ? Colors.legacyColors.blue : Colors.legacyColors.purple};
-    ${Typography.body};
+    ${Typography.deprecated_body};
 `
 export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: boolean; hasLeftBorder: boolean }>`
     min-width: 300px;
     ${(props) => !props.isExpanded && `width: 300px;`}
     height: 100%;
     flex: ${(isExpanded) => (isExpanded ? '1' : '0')};
-    background-color: ${Colors.background.medium};
+    background-color: ${Colors.background.sub};
     display: flex;
     z-index: 1;
     box-shadow: ${({ showShadow }) => (showShadow ? Shadows.deprecated_light : 'none')};
@@ -241,5 +241,5 @@ export const DropPreview = styled.div<{ isVisible: boolean; offset: number }>`
     box-sizing: border-box;
     top: ${(props) => props.offset}px;
     z-index: 1;
-    background-color: ${Colors.background.dropIndicator};
+    background-color: ${Colors.legacyColors.dropIndicator};
 `

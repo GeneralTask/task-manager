@@ -12,7 +12,7 @@ const ShortcutHintContainer = styled.div`
     height: 20px;
     justify-content: center;
     align-items: center;
-    ${Typography.body};
+    ${Typography.deprecated_body};
 `
 
 interface ShortcutHintProps {

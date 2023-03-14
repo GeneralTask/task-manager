@@ -53,6 +53,7 @@ export const PRIVACY_POLICY_ROUTE = 'privacy-policy'
 export const FOCUS_MODE_ROUTE = 'focus-mode'
 export const NOTE_ROUTE = 'note'
 export const GOOGLE_AUTH_ROUTE = 'link/google'
+export const SHAREABLE_TASK_ROUTE = 'task'
 
 export const NO_TITLE = '(no title)'
 export const EMPTY_MONGO_OBJECT_ID = '000000000000000000000000'
@@ -88,3 +89,5 @@ export const SYNC_MESSAGES = {
     ERROR: 'There was an error syncing with our servers',
     COMPLETE: '',
 }
+
+export const SHARED_ITEM_INDEFINITE_DATE = '9999-10-31T00:00:00Z'

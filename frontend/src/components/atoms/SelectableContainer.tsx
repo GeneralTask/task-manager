@@ -8,7 +8,7 @@ const SelectableContainer = styled.div<{ isSelected: boolean }>`
     cursor: pointer;
     box-shadow: ${Shadows.deprecated_button.default};
     &:hover {
-        background-color: ${Colors.background.medium};
+        background-color: ${Colors.background.sub};
         outline: ${Border.stroke.medium} solid ${Colors.background.border};
     }
 `

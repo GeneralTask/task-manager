@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { useItemSelectionController, usePreviewMode } from '../../hooks'
+import { useItemSelectionController } from '../../hooks'
 import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import Log from '../../services/api/log'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
@@ -23,13 +23,12 @@ import LinearTask from '../molecules/LinearTask'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const LinearBodyHeader = styled.div`
-    ${Typography.body};
+    ${Typography.deprecated_body};
     color: ${Colors.text.light};
     margin: ${Spacing._16} 0;
 `
 
 const LinearView = () => {
-    const { isPreviewMode } = usePreviewMode()
     const { data: activeTasks } = useGetActiveTasks()
     const { linearIssueId } = useParams()
     const navigate = useNavigate()
@@ -42,13 +41,12 @@ const LinearView = () => {
 
     const linearTasks = useMemo(() => {
         const filteredLinearTasks = activeTasks?.filter((task) => task.source.name === 'Linear') || []
-        if (!isPreviewMode) return filteredLinearTasks
         return sortAndFilterItems<TTaskV4>({
             items: filteredLinearTasks,
             filter: sortAndFilterSettings.selectedFilter,
             tieBreakerField: LINEAR_SORT_AND_FILTER_CONFIG.tieBreakerField,
         })
-    }, [activeTasks, sortAndFilterSettings.selectedFilter, isPreviewMode])
+    }, [activeTasks, sortAndFilterSettings.selectedFilter])
 
     const selectTask = useCallback((task: TTaskV4) => {
         navigate(`/linear/${task.id}`)
@@ -81,7 +79,7 @@ const LinearView = () => {
                     {isLinearIntegrationLinked ? (
                         <>
                             <LinearBodyHeader>All issues assigned to you.</LinearBodyHeader>
-                            {isPreviewMode && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
+                            <SortAndFilterSelectors settings={sortAndFilterSettings} />
                             {linearTasks?.map((task) => (
                                 <LinearTask key={task.id} task={task} />
                             ))}

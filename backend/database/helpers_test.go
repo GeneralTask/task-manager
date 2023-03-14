@@ -319,17 +319,17 @@ func TestGetSharedTask(t *testing.T) {
 		publicTaskID := result.InsertedID.(primitive.ObjectID)
 
 		// Test that the task is returned when the user has same domain
-		task, err := GetSharedTask(db, publicTaskID, userSameDomainID)
+		task, err := GetSharedTask(db, publicTaskID, &userSameDomainID)
 		assert.NoError(t, err)
 		assert.Equal(t, publicTaskID, task.ID)
 
 		// Test that the task is returned when the user has different domain
-		task, err = GetSharedTask(db, publicTaskID, userDifferentDomainID)
+		task, err = GetSharedTask(db, publicTaskID, &userDifferentDomainID)
 		assert.NoError(t, err)
 		assert.Equal(t, publicTaskID, task.ID)
 
 		// Test that the task is return when owner is same as user
-		task, err = GetSharedTask(db, publicTaskID, taskOwnerID)
+		task, err = GetSharedTask(db, publicTaskID, &taskOwnerID)
 		assert.NoError(t, err)
 		assert.Equal(t, publicTaskID, task.ID)
 	})
@@ -343,7 +343,7 @@ func TestGetSharedTask(t *testing.T) {
 		domainTaskID := result.InsertedID.(primitive.ObjectID)
 
 		// Test that the task is returned when the user has same domain
-		task, err := GetSharedTask(db, domainTaskID, userSameDomainID)
+		task, err := GetSharedTask(db, domainTaskID, &userSameDomainID)
 		assert.NoError(t, err)
 		assert.Equal(t, domainTaskID, task.ID)
 	})
@@ -357,7 +357,7 @@ func TestGetSharedTask(t *testing.T) {
 		domainTaskID := result.InsertedID.(primitive.ObjectID)
 
 		// Test that the task is not returned when the user has different domain
-		task, err := GetSharedTask(db, domainTaskID, userDifferentDomainID)
+		task, err := GetSharedTask(db, domainTaskID, &userDifferentDomainID)
 		assert.Error(t, err)
 		assert.Equal(t, "user domain does not match task owner domain", err.Error())
 		assert.Nil(t, task)
@@ -372,7 +372,7 @@ func TestGetSharedTask(t *testing.T) {
 		domainTaskID := result.InsertedID.(primitive.ObjectID)
 
 		// Test that the task is returned when owner is the user
-		task, err := GetSharedTask(db, domainTaskID, taskOwnerID)
+		task, err := GetSharedTask(db, domainTaskID, &taskOwnerID)
 		assert.NoError(t, err)
 		assert.Equal(t, domainTaskID, task.ID)
 	})
@@ -387,7 +387,7 @@ func TestGetSharedTask(t *testing.T) {
 		assert.NoError(t, err)
 		taskID := result.InsertedID.(primitive.ObjectID)
 
-		task, err := GetSharedTask(db, taskID, userSameDomainID)
+		task, err := GetSharedTask(db, taskID, &userSameDomainID)
 		assert.Error(t, err)
 		assert.Equal(t, "task is not shared", err.Error())
 		assert.Nil(t, task)
@@ -403,7 +403,7 @@ func TestGetSharedTask(t *testing.T) {
 		assert.NoError(t, err)
 		taskID := result.InsertedID.(primitive.ObjectID)
 
-		task, err := GetSharedTask(db, taskID, userSameDomainID)
+		task, err := GetSharedTask(db, taskID, &userSameDomainID)
 		assert.Error(t, err)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 		assert.Nil(t, task)
@@ -417,7 +417,7 @@ func TestGetSharedTask(t *testing.T) {
 		assert.NoError(t, err)
 		taskID := result.InsertedID.(primitive.ObjectID)
 
-		task, err := GetSharedTask(db, taskID, userSameDomainID)
+		task, err := GetSharedTask(db, taskID, &userSameDomainID)
 		assert.Error(t, err)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 		assert.Nil(t, task)
@@ -437,7 +437,7 @@ func TestGetSharedTask(t *testing.T) {
 		assert.NoError(t, err)
 		taskID := result.InsertedID.(primitive.ObjectID)
 
-		task, err := GetSharedTask(db, taskID, userSameDomainID)
+		task, err := GetSharedTask(db, taskID, &userSameDomainID)
 		assert.Error(t, err)
 		assert.Equal(t, "invalid email address", err.Error())
 		assert.Nil(t, task)
@@ -458,7 +458,7 @@ func TestGetSharedTask(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		task, err := GetSharedTask(db, taskID, userWithInvalidDomainID)
+		task, err := GetSharedTask(db, taskID, &userWithInvalidDomainID)
 		assert.Error(t, err)
 		assert.Equal(t, "invalid email address", err.Error())
 		assert.Nil(t, task)
@@ -683,7 +683,7 @@ func TestGetSharedNoteWithAuth(t *testing.T) {
 		assert.NoError(t, err)
 		noteID := result.InsertedID.(primitive.ObjectID)
 
-		note, err := GetSharedTask(db, noteID, userSameDomainID)
+		note, err := GetSharedTask(db, noteID, &userSameDomainID)
 		assert.Error(t, err)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 		assert.Nil(t, note)
@@ -1138,6 +1138,11 @@ func TestGetCalendarEvent(t *testing.T) {
 	})
 	t.Run("Success", func(t *testing.T) {
 		respEvent, err := GetCalendarEvent(db, event.ID, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, event.ID, respEvent.ID)
+	})
+	t.Run("SuccessWithoutUserID", func(t *testing.T) {
+		respEvent, err := GetCalendarEventWithoutUserID(db, event.ID)
 		assert.NoError(t, err)
 		assert.Equal(t, event.ID, respEvent.ID)
 	})
