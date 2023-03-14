@@ -4,7 +4,6 @@ import { useModifyTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
 import { TTaskSharedAccess, TTaskV4 } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
-import LabelWrap from '../radix/DropdownLabel'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTMenuItem } from '../radix/RadixUIConstants'
 
