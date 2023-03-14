@@ -1,15 +1,14 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useLayoutEffect } from 'react'
 import { Calendar } from '@mantine/dates'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
-import { getFormattedDate } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
-import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTPopover from '../radix/GTPopover'
+import GTDatePickerButton from './GTDatePickerButton'
 
 const CALENDAR_DAY_SIZE = '32px'
 
@@ -55,8 +54,6 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
         }
     }, [initialDate])
 
-    const formattedDate = useMemo(() => getFormattedDate(currentDate), [currentDate])
-
     const handleOnChange = (date: Date | null) => {
         if (!date) {
             setDate(DateTime.fromMillis(0).toFormat('yyyy-MM-dd'))
@@ -66,6 +63,9 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
         }
     }
 
+    const onClick = () => {
+        setIsOpen(!isOpen)
+    }
     const calendar = (
         <GTDatePickerWrapper>
             <Calendar
@@ -139,17 +139,12 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                 disabled={disabled}
                 align="start"
                 trigger={
-                    <GTButton
-                        styleType="simple"
-                        size="small"
-                        icon={showIcon ? icons.clock : undefined}
-                        value={formattedDate.dateString}
-                        textColor={formattedDate.textColor}
-                        iconColor={formattedDate.iconColor}
-                        onClick={() => setIsOpen(!isOpen)}
-                        active={isOpen}
-                        disabled={disabled}
-                        asDiv
+                    <GTDatePickerButton
+                        currentDate={currentDate}
+                        showIcon={showIcon}
+                        onClick={onClick}
+                        isOpen={isOpen}
+                        disabled={!!disabled}
                     />
                 }
             />

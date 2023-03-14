@@ -67,6 +67,7 @@ const Button = styled(NoStyleButton)<{
     size: TButtonSize
     textColor?: TTextColor
     active?: boolean
+    overrideDisabledStyle?: boolean
 }>`
     display: flex;
     justify-content: center;
@@ -88,14 +89,17 @@ const Button = styled(NoStyleButton)<{
     ${(props) => props.styleType === 'simple' && SimpleButtonStyles};
     ${(props) => props.size === 'large' && LargeButtonStyle};
     ${(props) => props.size === 'small' && SmallButtonStyle};
-    opacity: ${(props) => (props.disabled ? '0.2' : '1')};
+    opacity: ${(props) => (props.disabled && !props.overrideDisabledStyle ? '0.2' : '1')};
+    ${(props) => props.disabled && `pointer-events: none;`}
     &:hover {
         ${(props) =>
             props.disabled &&
+            !props.overrideDisabledStyle &&
             (props.styleType === 'primary' || props.styleType === 'secondary') &&
             `box-shadow: ${Shadows.deprecated_button.default}`};
         ${(props) =>
             props.disabled &&
+            !props.overrideDisabledStyle &&
             `background-color: ${
                 props.styleType === 'primary' ? Colors.button.primary.default : Colors.button.secondary.default
             }`};
@@ -120,6 +124,7 @@ interface GTButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElemen
     active?: boolean
     isDropdown?: boolean
     asDiv?: boolean
+    overrideDisabledStyle?: boolean
 }
 const GTButton = ({
     styleType = 'primary',
@@ -134,8 +139,12 @@ const GTButton = ({
     active,
     isDropdown = false,
     asDiv = false,
+    overrideDisabledStyle = false,
     ...rest
 }: GTButtonProps) => {
+    console.log(value)
+    console.log(rest.disabled)
+    console.log(overrideDisabledStyle)
     return (
         <Button
             styleType={styleType}
@@ -145,6 +154,7 @@ const GTButton = ({
             textColor={textColor}
             active={active}
             as={asDiv ? 'div' : 'button'}
+            overrideDisabledStyle={overrideDisabledStyle}
             {...rest}
         >
             {icon && <Icon icon={icon} color={iconColor} colorHex={iconColorHex} />}
