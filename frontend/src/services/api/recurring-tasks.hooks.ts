@@ -1,4 +1,4 @@
-import { QueryFunctionContext, useQuery } from 'react-query'
+import { QueryFunctionContext, useQuery } from '@tanstack/react-query'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { BACKFILL_RECURRING_TASKS_INTERVAL } from '../../constants'
@@ -40,7 +40,7 @@ interface TModifyRecurringTaskPayload {
 
 export const useRecurringTaskTemplates = () => {
     return useQuery<TRecurringTaskTemplate[], void>(
-        'recurring-tasks',
+        ['recurring-tasks'],
         getRecurringTaskTemplates,
         getBackgroundQueryOptions()
     )
@@ -65,13 +65,13 @@ export const useCreateRecurringTask = () => {
     const { mutate: modifyTask } = useModifyTask()
 
     return useGTMutation((payload: TCreateRecurringTaskPayload) => createRecurringTask(payload), {
-        tag: 'recurring-tasks',
+        tag: ['recurring-tasks'],
         errorMessage: 'create task',
         invalidateTagsOnSettled: ['recurring-tasks'],
         onMutate: async (payload) => {
-            await Promise.all([queryClient.cancelQueries('recurring-tasks'), queryClient.cancelQueries('tasks')])
+            await Promise.all([queryClient.cancelQueries(['recurring-tasks']), queryClient.cancelQueries(['tasks'])])
 
-            const recurringTasks = queryClient.getImmutableQueryData<TRecurringTaskTemplate[]>('recurring-tasks')
+            const recurringTasks = queryClient.getImmutableQueryData<TRecurringTaskTemplate[]>(['recurring-tasks'])
             if (!recurringTasks) return
 
             const newRecurringTasks = produce(recurringTasks, (draft) => {
@@ -86,10 +86,10 @@ export const useCreateRecurringTask = () => {
                 }
                 draft.unshift(newRecurringTask)
             })
-            queryClient.setQueryData('recurring-tasks', newRecurringTasks)
+            queryClient.setQueryData(['recurring-tasks'], newRecurringTasks)
 
             if (payload.task_id) {
-                const allTasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
+                const allTasks = queryClient.getImmutableQueryData<TTaskV4[]>(['tasks_v4'])
                 if (!allTasks) return
 
                 const updatedTasks = produce(allTasks, (draft) => {
@@ -97,7 +97,7 @@ export const useCreateRecurringTask = () => {
                     if (!task) return
                     task.recurring_task_template_id = payload.optimisticId
                 })
-                queryClient.setQueryData('tasks_v4', updatedTasks)
+                queryClient.setQueryData(['tasks_v4'], updatedTasks)
             }
         },
         onSuccess: (response: TCreateRecurringTaskResponse, payload) => {
@@ -109,7 +109,7 @@ export const useCreateRecurringTask = () => {
                     recurringTaskTemplateId: response.template_id,
                 })
             }
-            const recurringTasks = queryClient.getImmutableQueryData<TRecurringTaskTemplate[]>('recurring-tasks')
+            const recurringTasks = queryClient.getImmutableQueryData<TRecurringTaskTemplate[]>(['recurring-tasks'])
             if (!recurringTasks) return
 
             const newRecurringTasks = produce(recurringTasks, (draft) => {
@@ -117,7 +117,7 @@ export const useCreateRecurringTask = () => {
                 if (!recurringTaskTemplate) return
                 recurringTaskTemplate.id = response.template_id
             })
-            queryClient.setQueryData('recurring-tasks', newRecurringTasks)
+            queryClient.setQueryData(['recurring-tasks'], newRecurringTasks)
         },
     })
 }
@@ -135,13 +135,13 @@ export const useModifyRecurringTask = () => {
     const queryClient = useGTQueryClient()
 
     return useGTMutation((payload: TModifyRecurringTaskPayload) => modifyRecurringTask(payload), {
-        tag: 'recurring-tasks',
+        tag: ['recurring-tasks'],
         errorMessage: 'modify task',
         invalidateTagsOnSettled: ['recurring-tasks'],
         onMutate: async (payload) => {
-            await queryClient.cancelQueries('recurring-tasks')
+            await queryClient.cancelQueries(['recurring-tasks'])
 
-            const recurringTasks = queryClient.getImmutableQueryData<TRecurringTaskTemplate[]>('recurring-tasks')
+            const recurringTasks = queryClient.getImmutableQueryData<TRecurringTaskTemplate[]>(['recurring-tasks'])
             if (!recurringTasks) return
 
             const newRecurringTasks = produce(recurringTasks, (draft) => {
@@ -160,7 +160,7 @@ export const useModifyRecurringTask = () => {
                 recurringTask.is_deleted = payload.is_deleted ?? recurringTask.is_deleted
                 recurringTask.updated_at = DateTime.utc().toISO()
             })
-            queryClient.setQueryData('recurring-tasks', newRecurringTasks)
+            queryClient.setQueryData(['recurring-tasks'], newRecurringTasks)
         },
     })
 }
@@ -176,7 +176,7 @@ const modifyRecurringTask = async (payload: TModifyRecurringTaskPayload) => {
 
 export const useBackfillRecurringTasks = () => {
     return useQuery(
-        'backfill-recurring-tasks',
+        ['backfill-recurring-tasks'],
         backfillRecurringTasks,
         getBackgroundQueryOptions(BACKFILL_RECURRING_TASKS_INTERVAL, BACKFILL_RECURRING_TASKS_INTERVAL)
     )

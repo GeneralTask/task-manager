@@ -1,4 +1,4 @@
-import { QueryFunctionContext, useQuery } from 'react-query'
+import { QueryFunctionContext, useQuery } from '@tanstack/react-query'
 import produce, { castImmutable } from 'immer'
 import useQueryContext from '../../context/QueryContext'
 import { useGTLocalStorage } from '../../hooks'
@@ -10,7 +10,7 @@ import { useGetMeetingPreparationTasks } from './meeting-preparation-tasks.hooks
 
 export const useGetOverviewViews = () => {
     useGetMeetingPreparationTasks()
-    return useQuery<TOverviewView[], void>('overview', getOverviewViews)
+    return useQuery<TOverviewView[], void>(['overview'], getOverviewViews)
 }
 const getOverviewViews = async ({ signal }: QueryFunctionContext) => {
     try {
@@ -34,14 +34,14 @@ export const useReorderViews = () => {
     const queryClient = useGTQueryClient()
     const [, setIsUsingSmartPrioritization] = useGTLocalStorage('isUsingSmartPrioritization', false, true)
     return useGTMutation((data: TReorderViewData) => reorderView(data), {
-        tag: 'overview',
+        tag: ['overview'],
         errorMessage: 'move list',
         invalidateTagsOnSettled: ['overview'],
         onMutate: async ({ id, idOrdering }: TReorderViewData) => {
             setIsUsingSmartPrioritization(false)
-            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+            const views = queryClient.getImmutableQueryData<TOverviewView[]>(['overview'])
             if (!views) return
-            await Promise.all([queryClient.cancelQueries('overview'), queryClient.cancelQueries('tasks')])
+            await Promise.all([queryClient.cancelQueries(['overview']), queryClient.cancelQueries(['tasks'])])
 
             const newViews = produce(views, (draft) => {
                 const startIndex = draft.findIndex((view) => view.id === id)
@@ -53,10 +53,10 @@ export const useReorderViews = () => {
                 arrayMoveInPlace(draft, startIndex, endIndex)
             })
 
-            queryClient.setQueryData('overview', newViews)
+            queryClient.setQueryData(['overview'], newViews)
         },
         onSettled: () => {
-            queryClient.invalidateQueries('overview')
+            queryClient.invalidateQueries(['overview'])
         },
     })
 }
@@ -77,13 +77,13 @@ interface TBulkModifyViewsData {
 export const useBulkModifyViews = () => {
     const queryClient = useGTQueryClient()
     return useGTMutation((data: TBulkModifyViewsData) => bulkModifyViews(data), {
-        tag: 'overview',
+        tag: ['overview'],
         errorMessage: 'modify lists',
         invalidateTagsOnSettled: ['overview'],
         onMutate: async (data: TBulkModifyViewsData) => {
-            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+            const views = queryClient.getImmutableQueryData<TOverviewView[]>(['overview'])
             if (!views) return
-            await Promise.all([queryClient.cancelQueries('overview'), queryClient.cancelQueries('tasks')])
+            await Promise.all([queryClient.cancelQueries(['overview']), queryClient.cancelQueries(['tasks'])])
             const newViews = produce(views, (draft) => {
                 // if ordered_view_ids is provided, reorder the views
                 if (data.ordered_view_ids) {
@@ -96,7 +96,7 @@ export const useBulkModifyViews = () => {
                     })
                 }
             })
-            queryClient.setQueryData('overview', newViews)
+            queryClient.setQueryData(['overview'], newViews)
         },
     })
 }
@@ -111,7 +111,7 @@ const bulkModifyViews = async (data: TBulkModifyViewsData) => {
 }
 
 export const useGetSupportedViews = () => {
-    return useQuery<TSupportedView[], void>('overview-supported-views', getSupportedViews)
+    return useQuery<TSupportedView[], void>(['overview-supported-views'], getSupportedViews)
 }
 const getSupportedViews = async ({ signal }: QueryFunctionContext) => {
     try {
@@ -154,7 +154,7 @@ export const useAddView = () => {
             return addView(payload)
         },
         {
-            tag: 'overview',
+            tag: ['overview'],
             errorMessage: 'add list',
             invalidateTagsOnSettled: ['overview', 'overview-supported-views'],
             onMutate: async ({
@@ -166,21 +166,21 @@ export const useAddView = () => {
             }: TAddViewData) => {
                 setIsUsingSmartPrioritization(false)
                 await Promise.all([
-                    queryClient.cancelQueries('overview-supported-views'),
-                    queryClient.cancelQueries('overview'),
+                    queryClient.cancelQueries(['overview-supported-views']),
+                    queryClient.cancelQueries(['overview']),
                 ])
 
-                const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
+                const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>(['overview-supported-views'])
                 if (supportedViews) {
                     const newSupportedViews = produce(supportedViews, (draft) => {
                         draft[supportedViewIndex].views[supportedViewItemIndex].is_added = true
                         draft[supportedViewIndex].views[supportedViewItemIndex].view_id = optimisticId
                         draft[supportedViewIndex].views[supportedViewItemIndex].optimisticId = optimisticId
                     })
-                    queryClient.setQueryData('overview-supported-views', newSupportedViews)
+                    queryClient.setQueryData(['overview-supported-views'], newSupportedViews)
                 }
 
-                const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+                const views = queryClient.getImmutableQueryData<TOverviewView[]>(['overview'])
                 if (views) {
                     const newViews = produce(views, (draft) => {
                         const optimisticView: TOverviewView = {
@@ -199,18 +199,18 @@ export const useAddView = () => {
                         }
                         draft.push(optimisticView)
                     })
-                    queryClient.setQueryData('overview', newViews)
+                    queryClient.setQueryData(['overview'], newViews)
                 }
             },
             onSuccess: (data, { optimisticId, supportedViewIndex, supportedViewItemIndex }) => {
                 if (!data) return
                 setOptimisticId(optimisticId, data.id)
-                const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
+                const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>(['overview-supported-views'])
                 if (supportedViews) {
                     const newSupportedViews = produce(supportedViews, (draft) => {
                         draft[supportedViewIndex].views[supportedViewItemIndex].view_id = data.id
                     })
-                    queryClient.setQueryData('overview-supported-views', newSupportedViews)
+                    queryClient.setQueryData(['overview-supported-views'], newSupportedViews)
                 }
             },
         }
@@ -233,16 +233,16 @@ export const useRemoveView = () => {
     const [, setIsUsingSmartPrioritization] = useGTLocalStorage('isUsingSmartPrioritization', false, true)
 
     return useGTMutation(({ id }: TRemoveViewData) => removeView(id), {
-        tag: 'overview',
+        tag: ['overview'],
         errorMessage: 'remove list',
         invalidateTagsOnSettled: ['overview', 'overview-supported-views'],
         onMutate: async ({ id }) => {
             setIsUsingSmartPrioritization(false)
-            const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
-            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+            const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>(['overview-supported-views'])
+            const views = queryClient.getImmutableQueryData<TOverviewView[]>(['overview'])
             await Promise.all([
-                queryClient.cancelQueries('overview-supported-views'),
-                queryClient.cancelQueries('overview'),
+                queryClient.cancelQueries(['overview-supported-views']),
+                queryClient.cancelQueries(['overview']),
             ])
 
             if (supportedViews) {
@@ -260,7 +260,7 @@ export const useRemoveView = () => {
                         if (found) break
                     }
                 })
-                queryClient.setQueryData('overview-supported-views', newSupportedViews)
+                queryClient.setQueryData(['overview-supported-views'], newSupportedViews)
             }
 
             if (views) {
@@ -272,7 +272,7 @@ export const useRemoveView = () => {
                         }
                     }
                 })
-                queryClient.setQueryData('overview', newViews)
+                queryClient.setQueryData(['overview'], newViews)
             }
         },
     })
@@ -286,7 +286,7 @@ const removeView = async (viewId: string) => {
 }
 
 export const useSmartPrioritizationSuggestionsRemaining = () => {
-    return useQuery<number>('overview-suggestions-remaining', getSmartPrioritizationSuggestionsRemaining, {
+    return useQuery<number>(['overview-suggestions-remaining'], getSmartPrioritizationSuggestionsRemaining, {
         refetchOnMount: 'always',
     })
 }

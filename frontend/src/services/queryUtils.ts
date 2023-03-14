@@ -1,5 +1,12 @@
-import { MutationFunction, QueryClient, QueryKey, UseMutationOptions, useMutation, useQueryClient } from 'react-query'
-import { QueryFilters } from 'react-query/types/core/utils'
+import {
+    MutationFunction,
+    QueryClient,
+    QueryKey,
+    UseMutationOptions,
+    useMutation,
+    useQueryClient,
+} from '@tanstack/react-query'
+import { QueryFilters } from '@tanstack/react-query/build/lib'
 import { Immutable } from 'immer'
 import { DateTime } from 'luxon'
 import { DEFAULT_BACKGROUND_QUERY_STALE_TIME, QUEUED_MUTATION_DEBOUNCE, TASK_REFETCH_INTERVAL } from '../constants'
@@ -59,7 +66,7 @@ interface MutationOptions<TData, TError, TVariables, TContext>
     extends Omit<UseMutationOptions<TData, TError, TVariables, TContext>, 'mutationFn'> {
     tag: QueryKey
     errorMessage: string
-    invalidateTagsOnSettled?: QueryKey[]
+    invalidateTagsOnSettled?: string[]
 }
 
 export const useGTMutation = <TData = unknown, TError = unknown, TVariables = void, TContext = unknown>(
@@ -92,7 +99,7 @@ export const useGTMutation = <TData = unknown, TError = unknown, TVariables = vo
                 await sleep(QUEUED_MUTATION_DEBOUNCE)
                 // check if another request was sent during the debounce period
                 if (getLastSentQuery(mutationOptions.tag) != thisRequest) return
-                mutationOptions.invalidateTagsOnSettled?.forEach((tag) => queryClient.invalidateQueries(tag))
+                mutationOptions.invalidateTagsOnSettled?.forEach((tag) => queryClient.invalidateQueries([tag]))
             }
         },
         onError: (error, variables, context) => {

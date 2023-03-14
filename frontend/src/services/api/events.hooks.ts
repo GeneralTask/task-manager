@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { useCalendarContext } from '../../components/calendar/CalendarContext'
@@ -123,7 +123,7 @@ export const useCreateEvent = () => {
     }, [selectedEvent])
 
     return useGTMutation(({ createEventPayload }: TCreateEventParams) => createEvent(createEventPayload), {
-        tag: 'events',
+        tag: ['events'],
         errorMessage: 'create event',
         invalidateTagsOnSettled: ['events'],
         onMutate: ({
@@ -220,7 +220,7 @@ const createEvent = async (data: TCreateEventPayload) => {
 export const useDeleteEvent = () => {
     const queryClient = useGTQueryClient()
     const useMutationResult = useGTMutation((data: TDeleteEventData) => deleteEvent(data.id), {
-        tag: 'events',
+        tag: ['events'],
         errorMessage: 'delete event',
         invalidateTagsOnSettled: ['events'],
         onMutate: (data: TDeleteEventData) => {
@@ -277,7 +277,7 @@ export const useModifyEvent = () => {
     const queryClient = useGTQueryClient()
 
     return useGTMutation((data: TModifyEventData) => modifyEvent(data), {
-        tag: 'events',
+        tag: ['events'],
         errorMessage: 'modify event',
         invalidateTagsOnSettled: ['events'],
         onMutate: ({ event, payload, date }: TModifyEventData) => {
@@ -322,7 +322,7 @@ const modifyEvent = async (data: TModifyEventData) => {
 }
 
 export const useGetCalendars = () => {
-    return useQuery<TCalendarAccount[]>('calendars', getCalendars, getBackgroundQueryOptions(EVENTS_REFETCH_INTERVAL))
+    return useQuery<TCalendarAccount[]>(['calendars'], getCalendars, getBackgroundQueryOptions(EVENTS_REFETCH_INTERVAL))
 }
 const getCalendars = async () => {
     try {

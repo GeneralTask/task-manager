@@ -1,6 +1,6 @@
 import { useLayoutEffect, useState } from 'react'
-import { useIsFetching } from 'react-query'
 import { useNavigate } from 'react-router-dom'
+import { useIsFetching } from '@tanstack/react-query'
 import styled from 'styled-components'
 import { DEFAULT_FOLDER_ID, DONE_FOLDER_ID, TRASH_FOLDER_ID } from '../../constants'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'

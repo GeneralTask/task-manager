@@ -1,4 +1,4 @@
-import { QueryFunctionContext, useQuery } from 'react-query'
+import { QueryFunctionContext, useQuery } from '@tanstack/react-query'
 import { castImmutable } from 'immer'
 import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import apiClient from '../../utils/api'
@@ -14,7 +14,7 @@ const getMeetingPreparationTasks = async ({ signal }: QueryFunctionContext) => {
     }
 }
 export const useGetMeetingPreparationTasks = (isEnabled = true) => {
-    return useQuery<TTaskV4[], void>('meeting_preparation_tasks', getMeetingPreparationTasks, {
+    return useQuery<TTaskV4[], void>(['meeting_preparation_tasks'], getMeetingPreparationTasks, {
         enabled: isEnabled,
         refetchOnMount: false,
         ...getBackgroundQueryOptions(EVENTS_REFETCH_INTERVAL),
