@@ -142,9 +142,6 @@ const GTButton = ({
     overrideDisabledStyle = false,
     ...rest
 }: GTButtonProps) => {
-    console.log(value)
-    console.log(rest.disabled)
-    console.log(overrideDisabledStyle)
     return (
         <Button
             styleType={styleType}
