@@ -129,7 +129,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                         <GTButton styleType="icon" icon={icons.external_link} />
                     </FlexAnchor>
                     {event.can_modify && <GTButton styleType="icon" icon={icons.trash} onClick={onDelete} />}
-                    <GTButton styleType="icon" icon={icons.x} onClick={() => setIsOpen(false)} />
+                    <GTButton styleType="icon" icon={icons.x} onClick={() => setIsOpen(false)} autoFocus />
                 </Flex>
             </EventHeader>
             {calendarAccount && calendar && (
