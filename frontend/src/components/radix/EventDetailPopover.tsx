@@ -16,16 +16,7 @@ import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedLabel } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
-import {
-    CopyButton,
-    Description,
-    EventBoxStyle,
-    EventHeader,
-    EventHeaderIcons,
-    EventTitle,
-    FlexAnchor,
-    IconButton,
-} from '../molecules/EventDetailPopover-styles'
+import { Description, EventBoxStyle, EventHeader, EventTitle, FlexAnchor } from '../molecules/EventDetailPopover-styles'
 import GTPopover from './GTPopover'
 
 interface EventDetailPopoverProps {
@@ -133,21 +124,13 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
             <EventHeader>
                 <Icon icon={logos[event.logo]} />
                 <EventTitle>{event.title || NO_TITLE}</EventTitle>
-                <EventHeaderIcons>
+                <Flex alignItems="center" gap={Spacing._4}>
                     <FlexAnchor href={event.deeplink}>
-                        <IconButton>
-                            <Icon icon={icons.external_link} />
-                        </IconButton>
+                        <GTButton styleType="icon" icon={icons.external_link} />
                     </FlexAnchor>
-                    {event.can_modify && (
-                        <IconButton onClick={onDelete}>
-                            <Icon icon={icons.trash} />
-                        </IconButton>
-                    )}
-                    <IconButton onClick={() => setIsOpen(false)}>
-                        <Icon icon={icons.x} />
-                    </IconButton>
-                </EventHeaderIcons>
+                    {event.can_modify && <GTButton styleType="icon" icon={icons.trash} onClick={onDelete} />}
+                    <GTButton styleType="icon" icon={icons.x} onClick={() => setIsOpen(false)} />
+                </Flex>
             </EventHeader>
             {calendarAccount && calendar && (
                 <Flex gap={Spacing._8}>
@@ -205,7 +188,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                 )}
             </Flex>
             {event.conference_call.logo && (
-                <Flex flex="1" alignItems="center">
+                <Flex flex="1" alignItems="center" gap={Spacing._4}>
                     <FlexAnchor href={event.conference_call.url}>
                         <GTButton
                             styleType="secondary"
@@ -214,9 +197,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                             fitContent={false}
                         />
                     </FlexAnchor>
-                    <CopyButton onClick={onCopyMeetingLink}>
-                        <Icon icon={icons.copy} />
-                    </CopyButton>
+                    <GTButton styleType="icon" icon={icons.copy} onClick={onCopyMeetingLink} />
                 </Flex>
             )}
         </EventBoxStyle>
