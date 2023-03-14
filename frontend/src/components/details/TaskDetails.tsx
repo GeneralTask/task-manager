@@ -252,7 +252,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                                             task.optimisticId && task.id
                                         )
                                     }
-                                    styleType="control"
+                                    styleType="secondary"
                                 />
                             )}
                             {isPreviewMode && taskv4.source?.name === 'General Task' && (
