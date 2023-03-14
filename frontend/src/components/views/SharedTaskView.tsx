@@ -1,21 +1,28 @@
-import { Navigate } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 import { usePreviewMode } from '../../hooks'
+import { useGetSharedTask } from '../../services/api/tasks.hooks'
 import Spinner from '../atoms/Spinner'
+import { BackgroundContainer } from '../molecules/shared_item_page/BackgroundContainer'
+import SharedItemBody from '../molecules/shared_item_page/SharedItemBody'
+import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
 
 const SharedTask = () => {
-    const { isPreviewMode, isLoading } = usePreviewMode()
+    const { isPreviewMode, isLoading: isPreviewModeLoading } = usePreviewMode()
+    const { taskId } = useParams()
 
-    if (!isPreviewMode && !isLoading) {
+    const { data: task, isLoading } = useGetSharedTask({ id: taskId ?? '' })
+
+    if (!isPreviewMode && !isPreviewModeLoading) {
         return <Navigate to="/" replace />
     }
     if (isLoading) {
         return <Spinner />
     }
     return (
-        <div>
-            <h1>Shared Task</h1>
-            ooo weee
-        </div>
+        <BackgroundContainer>
+            <SharedItemHeader sharedType="Tasks" />
+            <SharedItemBody>{task?.title}</SharedItemBody>
+        </BackgroundContainer>
     )
 }
 

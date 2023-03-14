@@ -32,8 +32,27 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
 
     const sharedDropdownItems: GTMenuItem[] = [
         {
+            icon: icons.share,
+            label: 'Share task with',
+            hideCheckmark: true,
+            subItems: [
+                {
+                    icon: icons.users,
+                    label: 'Share with company',
+                    hideCheckmark: true,
+                    onClick: () => shareTask('domain'),
+                },
+                {
+                    icon: icons.globe,
+                    label: 'Share with everyone',
+                    hideCheckmark: true,
+                    onClick: () => shareTask('public'),
+                },
+            ],
+        },
+        {
             icon: icons.link_slashed,
-            label: 'Disble shared link',
+            label: 'Disable shared link',
             hideCheckmark: true,
             onClick: unshareTask,
         },

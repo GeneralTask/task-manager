@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { Shadows, Spacing } from '../../styles'
+import { Border, Shadows, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
@@ -20,6 +20,11 @@ const Container = styled.div`
         width: calc(50% - ${Spacing._24}); // 24px gap between metrics
     }
 `
+const DashedLine = styled.div<{ color: string }>`
+    border: ${Border.stroke.medium} dashed ${({ color }) => color};
+    height: 0%;
+    width: ${Spacing._8};
+`
 
 interface MetricProps {
     metric: TMetric
@@ -36,8 +41,12 @@ const Metric = ({ metric, startDate }: MetricProps) => {
             <Flex justifyContent="space-between">
                 {metric.lines.map((line) => (
                     <Flex key={line.name} column gap={Spacing._8}>
-                        <BodyMedium>{line.aggregated_name}</BodyMedium>
-                        <HeadlineLarge>{line.aggregated_value}</HeadlineLarge>
+                        <Flex alignItems="center" gap={Spacing._8}>
+                            <DashedLine color={line.color} />
+                            <BodyMedium>{line.aggregated_name}</BodyMedium>
+                        </Flex>
+                        {/* convert to minutes and round to one decimal */}
+                        <HeadlineLarge>{Math.round((line.aggregated_value / 60) * 10) / 10} hours</HeadlineLarge>
                     </Flex>
                 ))}
             </Flex>
