@@ -205,3 +205,9 @@ export const getFolderIdFromTask = (task: TTaskV4, tasks: TTaskV4[], folders: TT
     }
     return folderId
 }
+
+export const isTaskBeingShared = (task: TTaskV4) => {
+    if (task.shared_until == null || task.shared_access == null) return false
+    const sharedUntil = DateTime.fromISO(task.shared_until)
+    return task.shared_access != null && sharedUntil > DateTime.local()
+}
