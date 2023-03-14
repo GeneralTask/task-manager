@@ -9,7 +9,7 @@ const SharedItemBody = styled.div`
     display: flex;
     flex-direction: column;
     padding: ${Spacing._24};
-    gap: ${Spacing._24};
+    gap: ${Spacing._16};
     margin: ${Spacing._24};
 `
 
