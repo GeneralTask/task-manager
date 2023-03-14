@@ -90,6 +90,25 @@ export interface TPostCommentData {
     optimisticId: string
 }
 
+interface TGetSharedTaskParams {
+    id: string
+}
+const getSharedTask = async ({ id }: TGetSharedTaskParams, { signal }: QueryFunctionContext) => {
+    try {
+        const res = await apiClient.get(`/shareable_tasks/detail/${id}/`, { signal })
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('getSharedTask failed')
+    }
+}
+
+export const useGetSharedTask = (params: TGetSharedTaskParams) => {
+    return useQuery<TTaskV4, void>(
+        'sharedTask',
+        (context) => getSharedTask(params, context),
+        getBackgroundQueryOptions()
+    )
+}
 export const useGetTasksV4 = (isEnabled = true) => {
     return useQuery<TTaskV4[], void>('tasks_v4', getTasksV4, { enabled: isEnabled, refetchOnMount: false })
 }
