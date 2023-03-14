@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Colors, Typography } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TTaskSharedAccess } from '../../utils/types'
 import { Icon } from './Icon'
@@ -9,7 +9,7 @@ const Message = styled.div`
     color: ${Colors.semantic.success.base};
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: ${Spacing._8};
     pointer-events: none;
     user-select: none;
 `
