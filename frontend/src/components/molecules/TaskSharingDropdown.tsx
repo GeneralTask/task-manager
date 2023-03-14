@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { REACT_APP_NOTES_BASE_URL, SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
+import { REACT_APP_TASK_BASE_URL, SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
 import { useToast } from '../../hooks'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
@@ -17,7 +17,7 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
     const toast = useToast()
 
     const copyTaskLink = () => {
-        navigator.clipboard.writeText(`${REACT_APP_NOTES_BASE_URL}/task/${task.id}`)
+        navigator.clipboard.writeText(`${REACT_APP_TASK_BASE_URL}/task/${task.id}`)
         toast.show(
             {
                 message: `Task URL copied to clipboard`,
