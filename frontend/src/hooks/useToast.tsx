@@ -48,7 +48,21 @@ const useToast = () => {
         toastIdRef.current = toastifyToast(<ToastTemplate {...toastTemplateProps} />, options)
     }
 
-    return { show, update, isActive, dismiss }
+    const requestFailed = (requestDescription: string) => {
+        show(
+            {
+                title: `Failed to ${requestDescription}:`,
+                message: 'Request failed.',
+            },
+            {
+                autoClose: 4000,
+                pauseOnFocusLoss: false,
+                theme: 'light',
+            }
+        )
+    }
+
+    return { show, update, isActive, dismiss, requestFailed }
 }
 
 export default useToast

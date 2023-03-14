@@ -148,6 +148,7 @@ export const useCreateTask = () => {
 
     return useGTMutation((data: TCreateTaskData) => createTask(data), {
         tag: 'tasks_v4',
+        errorMessage: 'create task',
         invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
         onMutate: async (data: TCreateTaskData) => {
             await Promise.all([
@@ -285,6 +286,7 @@ export const useModifyTask = (useQueueing = true) => {
         (data: TModifyTaskData) => modifyTask(data),
         {
             tag: 'tasks_v4',
+            errorMessage: 'modify task',
             invalidateTagsOnSettled: ['tasks_v4', 'overview', 'folders', 'meeting_preparation_tasks'],
             onMutate: async (data: TModifyTaskData) => {
                 await Promise.all([
@@ -362,6 +364,7 @@ export const useMarkTaskDoneOrDeleted = (useQueueing = true) => {
         (data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data),
         {
             tag: 'tasks_v4',
+            errorMessage: 'complete task',
             invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
             onMutate: async (data: TMarkTaskDoneOrDeletedData) => {
                 await Promise.all([
@@ -499,6 +502,7 @@ export const useReorderTask = (useQueueing = true) => {
         (data: TReorderTaskData) => reorderTask(data),
         {
             tag: 'tasks_v4',
+            errorMessage: 'reorder task',
             invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
             onMutate: async (data: TReorderTaskData) => {
                 await Promise.all([
@@ -590,6 +594,7 @@ export const usePostComment = () => {
     const queryClient = useGTQueryClient()
     return useGTMutation((data: TPostCommentData) => postComment(data), {
         tag: 'tasks_v4',
+        errorMessage: 'post comment',
         invalidateTagsOnSettled: ['tasks_v4'],
         onMutate: async (data: TPostCommentData) => {
             await queryClient.cancelQueries('tasks_v4')
