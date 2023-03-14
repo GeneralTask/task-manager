@@ -211,3 +211,7 @@ export const isTaskBeingShared = (task: TTaskV4) => {
     const sharedUntil = DateTime.fromISO(task.shared_until)
     return task.shared_access != null && sharedUntil > DateTime.local()
 }
+
+export const isTaskActive = (task: TTaskV4) => {
+    return !task.is_deleted && !task.is_done
+}
