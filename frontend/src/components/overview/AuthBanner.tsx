@@ -48,7 +48,6 @@ const AuthBanner = ({ authorizationUrl, name, logo, hasBorder, isGoogleSignIn }:
                     value="Connect"
                     color={Colors.legacyColors.purple}
                     icon={icons.external_link}
-                    size="small"
                     styleType="secondary"
                     onClick={() => openAuthWindow({ url: authorizationUrl, isGoogleSignIn })}
                 />

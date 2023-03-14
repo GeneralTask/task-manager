@@ -18,7 +18,7 @@ import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
 import { Divider } from '../atoms/SectionDivider'
-import GTIconButton from '../atoms/buttons/GTIconButton'
+import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedBodySmall, DeprecatedLabel } from '../atoms/typography/Typography'
 
 const COMMAND_PALETTE_WIDTH = '512px'
@@ -173,7 +173,8 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                 (customButton ? (
                     <div onClick={handleButtonClick}>{customButton}</div>
                 ) : (
-                    <GTIconButton
+                    <GTButton
+                        styleType="icon"
                         icon={icons.magnifying_glass}
                         onClick={handleButtonClick}
                         shortcutName="toggleCommandPalette"

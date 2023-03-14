@@ -11,7 +11,7 @@ import { icons, logos } from '../../styles/images'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
-import GTIconButton from '../atoms/buttons/GTIconButton'
+import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedLabel, Truncated } from '../atoms/typography/Typography'
 import { getCalendarAuthButton } from './utils/utils'
 
@@ -111,7 +111,7 @@ const EnableCalendarsBanner = () => {
                                 ? 'There was a problem authorizing your accounts. Re-link to display and create events for these accounts'
                                 : 'There was a problem authorizing your account. Re-link to display and create events for this account'}
                         </DeprecatedLabel>
-                        <GTIconButton icon={icons.x} tooltipText="Dismiss" onClick={handleDismiss} />
+                        <GTButton icon={icons.x} tooltipText="Dismiss" onClick={handleDismiss} styleType="icon" />
                     </Flex>
                     {calendarsWithBadTokens.map((calendar) => (
                         <Flex
@@ -146,7 +146,7 @@ const EnableCalendarsBanner = () => {
                         </DeprecatedLabel>
                         {/* only show dismiss button if these are the only calendars being displayed */}
                         {calendarsWithBadTokens.length === 0 && (
-                            <GTIconButton icon={icons.x} tooltipText="Dismiss" onClick={handleDismiss} />
+                            <GTButton icon={icons.x} tooltipText="Dismiss" onClick={handleDismiss} styleType="icon" />
                         )}
                     </Flex>
                     {calendarsNeedingMultical.map((calendar) => (

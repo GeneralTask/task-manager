@@ -85,8 +85,8 @@ export const control = {
         label: '#3F3F46',
         bg: '#FDFDFD',
         stroke: '#E4E4E7',
-        hover: '#E4E4E7',
-        highlight: '#DB2979',
+        hover: '#F4F4F5',
+        highlight: '#D4D4D8',
     },
     destructive: {
         label: '#FFFFFF',

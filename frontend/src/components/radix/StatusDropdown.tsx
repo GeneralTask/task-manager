@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { useModifyTask } from '../../services/api/tasks.hooks'
-import { externalStatusIcons } from '../../styles/images'
+import { externalStatusIcons, icons } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
 import { GTButtonHack } from '../molecules/Task'
 import GTDropdownMenu from './GTDropdownMenu'
-import Tip from './Tip'
 
 interface StatusDropdownProps {
     task: TTaskV4
@@ -40,30 +39,24 @@ const StatusDropdown = ({ task, disabled, condensedTrigger }: StatusDropdownProp
             isOpen={isOpen}
             setIsOpen={setIsOpen}
             items={dropdownItems}
-            unstyledTrigger
             trigger={
                 condensedTrigger ? (
-                    <Tip content={externalStatus.state}>
-                        <GTButtonHack
-                            value={status}
-                            icon={externalStatusIcons[externalStatus.type]}
-                            size="small"
-                            styleType="simple"
-                            active={isOpen}
-                            disabled={disabled}
-                            asDiv
-                        />
-                    </Tip>
+                    <GTButtonHack
+                        icon={externalStatusIcons[externalStatus.type]}
+                        styleType="control"
+                        active={isOpen}
+                        disabled={disabled}
+                        tooltipText={externalStatus.state}
+                    />
                 ) : (
                     <GTButton
                         value={externalStatus.state}
+                        styleType="control"
                         icon={externalStatusIcons[externalStatus.type]}
-                        size="small"
-                        styleType="simple"
-                        isDropdown
+                        rightIcon={icons.caret_down_solid}
+                        rightIconColor="gray"
                         active={isOpen}
                         disabled={disabled}
-                        asDiv
                     />
                 )
             }
