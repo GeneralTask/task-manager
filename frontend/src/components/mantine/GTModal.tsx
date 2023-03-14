@@ -29,7 +29,7 @@ const ModalSidebar = styled.div`
     flex-direction: column;
     gap: ${Spacing._4};
     padding: ${Spacing._32} ${Spacing._12} ${Spacing._12};
-    background-color: ${Colors.background.light};
+    background-color: ${Colors.background.base};
     border-radius: ${Border.radius.medium} 0 0 ${Border.radius.medium};
     flex-basis: ${SIDEBAR_WIDTH};
     box-sizing: border-box;
@@ -42,7 +42,7 @@ const Link = styled.button<{ isSelected: boolean }>`
     width: 100%;
     border-radius: ${Border.radius.medium};
     border: none;
-    background-color: ${(props) => (props.isSelected ? Colors.background.dark : 'inherit')};
+    background-color: ${(props) => (props.isSelected ? Colors.background.hover : 'inherit')};
     color: ${Colors.text.black};
     gap: ${Spacing._12};
     cursor: pointer;

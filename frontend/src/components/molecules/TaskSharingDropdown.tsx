@@ -40,23 +40,16 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
     ]
     const notSharedDropdownItems: GTMenuItem[] = [
         {
-            icon: icons.copy,
-            label: 'Create & copy link',
+            icon: icons.users,
+            label: 'Share with company',
             hideCheckmark: true,
-            subItems: [
-                {
-                    icon: icons.users,
-                    label: 'Share with company',
-                    hideCheckmark: true,
-                    onClick: () => shareTask('domain'),
-                },
-                {
-                    icon: icons.globe,
-                    label: 'Share with everyone',
-                    hideCheckmark: true,
-                    onClick: () => shareTask('public'),
-                },
-            ],
+            onClick: () => shareTask('domain'),
+        },
+        {
+            icon: icons.globe,
+            label: 'Share with everyone',
+            hideCheckmark: true,
+            onClick: () => shareTask('public'),
         },
     ]
 
@@ -65,6 +58,7 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
             items={isShared ? sharedDropdownItems : notSharedDropdownItems}
             unstyledTrigger
             trigger={<GTButton size="small" styleType="secondary" icon={icons.share} value="Share" asDiv />}
+            description={!isShared ? 'This task is not being shared.' : undefined}
         />
     )
 }

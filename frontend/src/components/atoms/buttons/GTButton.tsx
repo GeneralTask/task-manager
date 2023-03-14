@@ -40,12 +40,12 @@ const SimpleButtonStyles = css<{ active?: boolean; disabled?: boolean }>`
         ${({ disabled }) => !disabled && `outline: ${Border.stroke.small} solid ${Colors.background.border};`}
     }
     &:active {
-        background-color: ${Colors.background.light};
+        background-color: ${Colors.background.base};
         outline: ${Border.stroke.small} solid ${Colors.background.border};
     }
     ${({ active }) =>
         active &&
-        `background-color: ${Colors.background.light};
+        `background-color: ${Colors.background.base};
         outline: ${Border.stroke.small} solid ${Colors.background.border};`}
     ${Typography.deprecated_label};
 `

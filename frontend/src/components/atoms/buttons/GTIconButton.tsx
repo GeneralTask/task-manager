@@ -11,9 +11,9 @@ const Button = styled(NoStyleButton)<{ forceShowHoverEffect?: boolean; active?: 
     padding: ${Spacing._8};
     border-radius: 50%;
     :hover {
-        background: ${Colors.background.dark};
+        background: ${Colors.background.hover};
     }
-    ${({ forceShowHoverEffect }) => (forceShowHoverEffect ? `background: ${Colors.background.dark};` : '')}
+    ${({ forceShowHoverEffect }) => (forceShowHoverEffect ? `background: ${Colors.background.hover};` : '')}
 `
 
 interface GTIconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

@@ -44,7 +44,7 @@ func TestNoteModifyEditFields(t *testing.T) {
 	})
 	t.Run("Success", func(t *testing.T) {
 		response := ServeRequest(t, authToken, "PATCH", "/notes/modify/"+note1.ID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"title": "new title", "body": "new body", "author": "new author", "is_shared": false, "is_deleted": true}`)), http.StatusOK, nil)
+			bytes.NewBuffer([]byte(`{"title": "new title", "body": "new body", "author": "new author", "is_shared": false, "is_deleted": true, "shared_access": "domain"}`)), http.StatusOK, nil)
 		assert.Equal(t, "{}", string(response))
 
 		var note database.Note
@@ -54,6 +54,7 @@ func TestNoteModifyEditFields(t *testing.T) {
 		assert.Equal(t, "new title", *note.Title)
 		assert.Equal(t, "new body", *note.Body)
 		assert.Equal(t, "new author", note.Author)
+		assert.Equal(t, database.SharedAccessDomain, *note.SharedAccess)
 		assert.Equal(t, *testutils.CreateDateTime("2020-04-20"), note.CreatedAt)
 		assert.Greater(t, note.UpdatedAt, *testutils.CreateDateTime("2020-04-20"))
 		assert.Equal(t, *testutils.CreateDateTime("9999-01-01"), note.SharedUntil)
