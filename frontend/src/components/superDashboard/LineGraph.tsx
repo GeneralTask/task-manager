@@ -1,11 +1,18 @@
 import { useMemo } from 'react'
 import produce from 'immer'
 import { DateTime } from 'luxon'
-import { CartesianGrid, Legend, ResponsiveContainer, Scatter, ScatterChart, XAxis, YAxis } from 'recharts'
+import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts'
 import styled from 'styled-components'
 import { Colors, Typography } from '../../styles'
 import { BodyMedium } from '../atoms/typography/Typography'
-import { DAYS_PER_WEEK, GRAPH_HEIGHT, GRAPH_RIGHT_MARGIN, GRAPH_TOP_MARGIN } from './constants'
+import {
+    DAYS_PER_WEEK,
+    GRAPH_HEIGHT,
+    GRAPH_RIGHT_MARGIN,
+    GRAPH_TOP_MARGIN,
+    LINE_ANIMATION_DURATION,
+    LINE_STROKE_WIDTH,
+} from './constants'
 import { TMetric } from './types'
 
 const StyledResponsiveContainer = styled(ResponsiveContainer)`
@@ -17,6 +24,7 @@ const StyledResponsiveContainer = styled(ResponsiveContainer)`
     .recharts-cartesian-axis > line {
         stroke: ${Colors.background.sub};
     }
+    /* legend spacing */
     .recharts-default-legend {
         display: flex;
         justify-content: space-between;
@@ -47,7 +55,7 @@ const LineGraph = ({ data, startDate }: LineGraphProps) => {
 
     return (
         <StyledResponsiveContainer height={GRAPH_HEIGHT}>
-            <ScatterChart margin={{ top: GRAPH_TOP_MARGIN, right: GRAPH_RIGHT_MARGIN }}>
+            <LineChart margin={{ top: GRAPH_TOP_MARGIN, right: GRAPH_RIGHT_MARGIN }}>
                 <CartesianGrid stroke={Colors.background.sub} />
                 <XAxis
                     dataKey="x"
@@ -68,19 +76,21 @@ const LineGraph = ({ data, startDate }: LineGraphProps) => {
                     tickLine={false}
                     stroke={Colors.text.muted}
                 />
-                <Legend formatter={(value) => <BodyMedium color="muted">{value}</BodyMedium>} />
+                <Legend iconType="circle" formatter={(value) => <BodyMedium color="muted">{value}</BodyMedium>} />
                 {slicedData.map((line) => (
-                    <Scatter
+                    <Line
                         key={line.name}
                         name={line.name}
-                        data={line.points}
+                        dataKey="y"
                         fill={line.color}
-                        line
-                        lineType="joint"
-                        lineJointType="monotoneX"
+                        type="monotoneX"
+                        data={line.points}
+                        stroke={line.color}
+                        strokeWidth={LINE_STROKE_WIDTH}
+                        animationDuration={LINE_ANIMATION_DURATION}
                     />
                 ))}
-            </ScatterChart>
+            </LineChart>
         </StyledResponsiveContainer>
     )
 }

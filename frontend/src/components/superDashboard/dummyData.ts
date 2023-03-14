@@ -1,16 +1,16 @@
 import { DateTime } from 'luxon'
 import { TDashboardView } from './types'
 
-const START_DATE = DateTime.local().startOf('day').minus({ days: 18 })
+const START_DATE = DateTime.local().startOf('day').minus({ days: 33 })
 const Y_MIN = 200
 const Y_MAX = 3000
 
-// generates 3 weeks of random points - sample output:
+// generates multiple weeks of random points - sample output:
 // { x: 1678098695, y: 1400 },
 // { x: 1678185095, y: 1800 },
 // ...
 const getRandomPoints = () =>
-    Array.from({ length: 21 }, (_, i) => ({
+    Array.from({ length: 66 }, (_, i) => ({
         x: START_DATE.plus({ days: i }).toUnixInteger(),
         y: Math.floor(Math.random() * (Y_MAX - Y_MIN + 1)) + Y_MIN,
     }))
