@@ -8,7 +8,7 @@ import { AUTHORIZATION_COOKE, SHARED_ITEM_INDEFINITE_DATE } from '../../constant
 import getEnvVars from '../../environment'
 import useAnalyticsEventTracker from '../../hooks/useAnalyticsEventTracker'
 import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
-import { Border, Colors, Shadows, Spacing } from '../../styles'
+import { Colors, Spacing } from '../../styles'
 import { emptyFunction, getFormattedDuration, getHumanTimeSinceDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
@@ -22,14 +22,6 @@ import ContentContainer from '../molecules/shared_item_page/ContentContainer'
 import SharedItemBody from '../molecules/shared_item_page/SharedItemBody'
 import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
 import NoteActionsDropdown from './NoteActionsDropdown'
-
-const ColumnContainer = styled.div`
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    width: 750px;
-`
 
 const FlexPadding8Horizontal = styled(Flex)`
     padding: 0 ${Spacing._8};
