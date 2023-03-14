@@ -22,12 +22,13 @@ import {
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { TRecurringTaskTemplate, TTaskV4 } from '../../utils/types'
-import { EMPTY_ARRAY, isTaskActive, isTaskParentTask } from '../../utils/utils'
+import { EMPTY_ARRAY, isTaskActive, isTaskBeingShared, isTaskParentTask } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
 import { Divider } from '../atoms/SectionDivider'
+import SharedItemMessage from '../atoms/SharedItemMessage'
 import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
@@ -257,8 +258,15 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                                     size="small"
                                 />
                             )}
-                            {isPreviewMode && taskv4.source?.name === 'General Task' && isTaskActive(taskv4) && (
-                                <TaskSharingDropdown task={taskv4} />
+                            {isPreviewMode && (
+                                <Flex gap={Spacing._8}>
+                                    {taskv4.shared_access && isTaskBeingShared(taskv4) && (
+                                        <SharedItemMessage shareAccess={taskv4.shared_access} />
+                                    )}
+                                    {taskv4.source?.name === 'General Task' && isTaskActive(taskv4) && (
+                                        <TaskSharingDropdown task={taskv4} />
+                                    )}
+                                </Flex>
                             )}
                             {!isMeetingPreparationTask &&
                                 !isRecurringTaskTemplate &&
