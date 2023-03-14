@@ -3,14 +3,12 @@ import { Helmet } from 'react-helmet'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import { DateTime } from 'luxon'
-import styled, { css } from 'styled-components'
-import { AUTHORIZATION_COOKE, LOGIN_URL, SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
+import styled from 'styled-components'
+import { AUTHORIZATION_COOKE, SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
 import getEnvVars from '../../environment'
-import { useAuthWindow } from '../../hooks'
 import useAnalyticsEventTracker from '../../hooks/useAnalyticsEventTracker'
 import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
-import { buttons, noteBackground } from '../../styles/images'
 import { emptyFunction, getFormattedDuration, getHumanTimeSinceDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
@@ -18,39 +16,12 @@ import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { DeprecatedBody, DeprecatedLabel, DeprecatedTitle } from '../atoms/typography/Typography'
+import { BackgroundContainer } from '../molecules/shared_item_page/BackgroundContainer'
+import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
 import NoteActionsDropdown from './NoteActionsDropdown'
 
-const background = css`
-    background: url(${noteBackground});
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-    background-position: top left, 0px 0px;
-    background-size: cover;
-`
-
-const Logo = styled.img`
-    width: 153px;
-`
-const MainContainer = styled.div`
-    ${background};
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow-y: auto;
-`
-const ColumnContainer = styled.div`
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    width: 750px;
-`
-const TopContainer = styled.div`
-    ${background};
+export const HeaderContainer = styled.div`
     position: fixed;
     box-sizing: border-box;
     display: flex;
@@ -60,6 +31,14 @@ const TopContainer = styled.div`
     width: 750px;
     z-index: 10;
 `
+const ColumnContainer = styled.div`
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 750px;
+`
+
 const BottomContainer = styled.div`
     margin-top: 110px;
 `
@@ -73,12 +52,6 @@ const NoteBody = styled.div`
     gap: ${Spacing._24};
     margin: ${Spacing._24};
 `
-const SignInButton = styled(NoStyleButton)`
-    width: 200px;
-`
-const GoogleImage = styled.img`
-    width: 100%;
-`
 const FlexPadding8Horizontal = styled(Flex)`
     padding: 0 ${Spacing._8};
 `
@@ -91,7 +64,6 @@ const SharedNoteView = () => {
     useEffect(() => {
         GALog('Page view', 'Shared Note View')
     }, [])
-    const { openAuthWindow } = useAuthWindow()
     const navigate = useNavigate()
     const { noteId } = useParams()
     const isLoggedIn = !!Cookies.get(AUTHORIZATION_COOKE)
@@ -114,37 +86,9 @@ const SharedNoteView = () => {
                     <meta content={note.body} property="og:description" />
                 </Helmet>
             )}
-            <MainContainer>
+            <BackgroundContainer>
                 <ColumnContainer>
-                    <TopContainer>
-                        <NoStyleButton
-                            onClick={() => {
-                                GALog('Button click', 'Logo')
-                                navigate('/')
-                            }}
-                        >
-                            <Logo src="/images/gt-logo-black-on-white.svg" />
-                        </NoStyleButton>
-                        {isLoggedIn ? (
-                            <GTButton
-                                styleType="secondary"
-                                value="Back to General Task"
-                                onClick={() => {
-                                    GALog('Button click', 'Back to General Task')
-                                    navigate('/')
-                                }}
-                            />
-                        ) : (
-                            <SignInButton
-                                onClick={() => {
-                                    GALog('Button click', 'Sign in with Google')
-                                    openAuthWindow({ url: LOGIN_URL, logEvent: false, closeOnCookieSet: true })
-                                }}
-                            >
-                                <GoogleImage src={buttons.google_sign_in} />
-                            </SignInButton>
-                        )}
-                    </TopContainer>
+                    <SharedItemHeader sharedType="Notes" />
                     <BottomContainer>
                         <NoteBody>
                             {note && note.shared_until ? (
@@ -238,7 +182,7 @@ const SharedNoteView = () => {
                         </NoteBody>
                     </BottomContainer>
                 </ColumnContainer>
-            </MainContainer>
+            </BackgroundContainer>
         </>
     )
 }
