@@ -242,7 +242,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                         <DetailItem>
                             <DeprecatedLabel color="light">{syncIndicatorText}</DeprecatedLabel>
                         </DetailItem>
-                        <Flex alignItems="center" marginLeftAuto>
+                        <Flex alignItems="center" gap={Spacing._4} marginLeftAuto>
                             {task.is_deleted && (
                                 <GTButton
                                     value="Restore Task"
@@ -252,7 +252,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                                             task.optimisticId && task.id
                                         )
                                     }
-                                    styleType="secondary"
+                                    styleType="control"
                                 />
                             )}
                             {isPreviewMode && taskv4.source?.name === 'General Task' && (
