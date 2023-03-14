@@ -15,6 +15,7 @@ import { TLinkedAccount } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import GTCheckbox from '../atoms/GTCheckbox'
 import { Icon } from '../atoms/Icon'
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedBody, DeprecatedBodySmall, DeprecatedLabel } from '../atoms/typography/Typography'
@@ -192,18 +193,12 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                                         Add General Task to your Slack workspace. This is only required once per
                                         workspace.
                                     </ServiceDetails>
-                                    <a
+                                    <NoStyleAnchor
                                         href="https://slack.com/oauth/v2/authorize?client_id=1734323190625.3674283101555&scope=commands,chat:write&user_scope=users:read"
                                         onClick={() => Log(`add_to_slack`)}
                                     >
-                                        <img
-                                            alt="Add to Slack"
-                                            height="40"
-                                            width="139"
-                                            src="https://platform.slack-edge.com/img/add_to_slack.png"
-                                            srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"
-                                        />
-                                    </a>
+                                        <GTButton styleType="secondary" value="Add to Slack" icon={icons.slack} />
+                                    </NoStyleAnchor>
                                 </Service>
                             </ServicesContainer>
                             <Divider color={Colors.background.border} />
