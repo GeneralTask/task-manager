@@ -43,10 +43,11 @@ export const MenuItemShared = css<{ $textColor?: TTextColor; $disabled?: boolean
         outline: ${Border.stroke.small} solid ${Colors.background.border};
         background-color: ${Colors.background.sub};
     }
+    ${Typography.body.medium};
 `
 export const MenuContentShared = css`
     z-index: 300;
-    ${Typography.deprecated_body};
+    ${Typography.body.medium};
     padding: ${Spacing._4};
     background-color: ${Colors.background.white};
     border-radius: ${Border.radius.small};
