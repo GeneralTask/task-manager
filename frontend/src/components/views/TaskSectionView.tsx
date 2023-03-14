@@ -12,7 +12,7 @@ import Log from '../../services/api/log'
 import { useGetMeetingPreparationTasks } from '../../services/api/meeting-preparation-tasks.hooks'
 import { useCreateTask, useFetchExternalTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { useGetTasksV4 } from '../../services/api/tasks.hooks'
-import { Colors, Spacing } from '../../styles'
+import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
 import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
@@ -29,21 +29,6 @@ import { Header } from '../molecules/Header'
 import Task from '../molecules/Task'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
-const TaskSectionContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    margin-right: auto;
-    flex-shrink: 0;
-    position: relative;
-`
-const TaskSectionViewContainer = styled.div`
-    flex: 1;
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-    padding-top: 0;
-    background-color: ${Colors.background.base};
-`
 const TasksContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -210,76 +195,70 @@ const TaskSectionView = () => {
 
     return (
         <>
-            <TaskSectionContainer>
-                <ScrollableListTemplate ref={sectionScrollingRef}>
-                    <TaskSectionViewContainer>
-                        {isLoadingTasks || !folder || (areSettingsLoading && !folder.is_done && !folder.is_trash) ? (
-                            <Spinner />
-                        ) : (
-                            <>
-                                <Header folderName={folder.name} folderId={folder.id} />
-                                {!folder.is_done && !folder.is_trash && (
-                                    <ActionsContainer>
-                                        <SortAndFilterSelectors settings={sortAndFilterSettings} />
-                                    </ActionsContainer>
-                                )}
-                                {!folder.is_done && !folder.is_trash && (
-                                    <CreateNewItemInput
-                                        placeholder="Create new task"
-                                        shortcutName="createTask"
-                                        onSubmit={(title) =>
-                                            createTask({
-                                                title: title,
-                                                id_folder: folder.id,
-                                                optimisticId: uuidv4(),
-                                            })
-                                        }
-                                    />
-                                )}
-                                <TasksContainer ref={sectionViewRef}>
-                                    {sortedTasks.map((task, index) => (
-                                        <ReorderDropContainer
-                                            key={task.id}
-                                            index={index}
-                                            acceptDropType={DropType.TASK}
-                                            onReorder={handleReorderTask}
-                                            disabled={
-                                                sortAndFilterSettings.selectedSort.id !== 'manual' ||
-                                                folder.is_done ||
-                                                folder.is_trash
-                                            }
-                                        >
-                                            <Task
-                                                task={task}
-                                                index={index}
-                                                sectionScrollingRef={sectionScrollingRef}
-                                                isSelected={task.id === params.task}
-                                                link={`/tasks/${params.section}/${task.id}`}
-                                                shouldScrollToTask={shouldScrollToTask}
-                                                setShouldScrollToTask={setShouldScrollToTask}
-                                                onMarkTaskDone={selectTaskAfterCompletion}
-                                            />
-                                        </ReorderDropContainer>
-                                    ))}
-                                </TasksContainer>
+            <ScrollableListTemplate ref={sectionScrollingRef}>
+                {isLoadingTasks || !folder || (areSettingsLoading && !folder.is_done && !folder.is_trash) ? (
+                    <Spinner />
+                ) : (
+                    <>
+                        <Header folderName={folder.name} folderId={folder.id} />
+                        {!folder.is_done && !folder.is_trash && (
+                            <ActionsContainer>
+                                <SortAndFilterSelectors settings={sortAndFilterSettings} />
+                            </ActionsContainer>
+                        )}
+                        {!folder.is_done && !folder.is_trash && (
+                            <CreateNewItemInput
+                                placeholder="Create new task"
+                                shortcutName="createTask"
+                                onSubmit={(title) =>
+                                    createTask({
+                                        title: title,
+                                        id_folder: folder.id,
+                                        optimisticId: uuidv4(),
+                                    })
+                                }
+                            />
+                        )}
+                        <TasksContainer ref={sectionViewRef}>
+                            {sortedTasks.map((task, index) => (
                                 <ReorderDropContainer
-                                    index={sortedTasks.length + 1}
+                                    key={task.id}
+                                    index={index}
                                     acceptDropType={DropType.TASK}
                                     onReorder={handleReorderTask}
-                                    indicatorType="TOP_ONLY"
                                     disabled={
                                         sortAndFilterSettings.selectedSort.id !== 'manual' ||
                                         folder.is_done ||
                                         folder.is_trash
                                     }
                                 >
-                                    <BottomDropArea />
+                                    <Task
+                                        task={task}
+                                        index={index}
+                                        sectionScrollingRef={sectionScrollingRef}
+                                        isSelected={task.id === params.task}
+                                        link={`/tasks/${params.section}/${task.id}`}
+                                        shouldScrollToTask={shouldScrollToTask}
+                                        setShouldScrollToTask={setShouldScrollToTask}
+                                        onMarkTaskDone={selectTaskAfterCompletion}
+                                    />
                                 </ReorderDropContainer>
-                            </>
-                        )}
-                    </TaskSectionViewContainer>
-                </ScrollableListTemplate>
-            </TaskSectionContainer>
+                            ))}
+                        </TasksContainer>
+                        <ReorderDropContainer
+                            index={sortedTasks.length + 1}
+                            acceptDropType={DropType.TASK}
+                            onReorder={handleReorderTask}
+                            indicatorType="TOP_ONLY"
+                            disabled={
+                                sortAndFilterSettings.selectedSort.id !== 'manual' || folder.is_done || folder.is_trash
+                            }
+                        >
+                            <BottomDropArea />
+                        </ReorderDropContainer>
+                    </>
+                )}
+            </ScrollableListTemplate>
             {calendarType === 'day' && (
                 <>
                     {task && folder ? (
