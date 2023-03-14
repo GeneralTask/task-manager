@@ -5,29 +5,24 @@ import Cookies from 'js-cookie'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { AUTHORIZATION_COOKE, SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
-import getEnvVars from '../../environment'
 import useAnalyticsEventTracker from '../../hooks/useAnalyticsEventTracker'
 import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
 import { Colors, Spacing } from '../../styles'
 import { emptyFunction, getFormattedDuration, getHumanTimeSinceDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
-import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
-import GTButton from '../atoms/buttons/GTButton'
-import { DeprecatedBody, DeprecatedLabel, DeprecatedTitle } from '../atoms/typography/Typography'
+import { DeprecatedLabel } from '../atoms/typography/Typography'
 import { BackgroundContainer } from '../molecules/shared_item_page/BackgroundContainer'
 import ContentContainer from '../molecules/shared_item_page/ContentContainer'
+import NotAvailableMessage from '../molecules/shared_item_page/NotAvailableMessage'
 import SharedItemBody from '../molecules/shared_item_page/SharedItemBody'
 import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
 import NoteActionsDropdown from './NoteActionsDropdown'
 
 const FlexPadding8Horizontal = styled(Flex)`
     padding: 0 ${Spacing._8};
-`
-const FlexMargin8Top = styled(Flex)`
-    margin-top: ${Spacing._8};
 `
 
 const SharedNoteView = () => {
@@ -118,33 +113,7 @@ const SharedNoteView = () => {
                                 </FlexPadding8Horizontal>
                             </>
                         ) : (
-                            <>
-                                <DeprecatedTitle>This note is not available</DeprecatedTitle>
-                                <DeprecatedBody>
-                                    If you need access to this note, please reach out to the person who sent it.
-                                </DeprecatedBody>
-                                <FlexMargin8Top gap={Spacing._8}>
-                                    {isLoggedIn ? (
-                                        <GTButton
-                                            styleType="primary"
-                                            value="Back to General Task"
-                                            onClick={() => {
-                                                GALog('Button click', 'Back to General Task')
-                                                navigate('/')
-                                            }}
-                                        />
-                                    ) : (
-                                        <>
-                                            <NoStyleAnchor href={getEnvVars().REACT_APP_TRY_SIGN_UP_URL}>
-                                                <GTButton styleType="primary" value="Sign In to General Task" />
-                                            </NoStyleAnchor>
-                                            <NoStyleAnchor href={getEnvVars().REACT_APP_TRY_BASE_URL}>
-                                                <GTButton styleType="secondary" value="Learn more about General Task" />
-                                            </NoStyleAnchor>
-                                        </>
-                                    )}
-                                </FlexMargin8Top>
-                            </>
+                            <NotAvailableMessage sharedType="Notes" />
                         )}
                     </SharedItemBody>
                 </ContentContainer>
