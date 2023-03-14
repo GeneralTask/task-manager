@@ -19,11 +19,27 @@ func (api *API) NotePreview(c *gin.Context) {
 		return
 	}
 
-	note, err := database.GetSharedNote(api.DB, noteID)
-	if err != nil {
-		notFoundRedirect(c, noteIDHex)
-		return
+	var userID *primitive.ObjectID
+	if userIDRaw, exists := c.Get("user"); exists {
+		userIDValue := userIDRaw.(primitive.ObjectID)
+		userID = &userIDValue
 	}
+
+	var note *database.Note
+	if userID != nil {
+		note, err = database.GetSharedNoteWithAuth(api.DB, noteID, *userID)
+		if err != nil {
+			notFoundRedirect(c, noteIDHex)
+			return
+		}
+	} else {
+		note, err = database.GetSharedNote(api.DB, noteID)
+		if err != nil {
+			notFoundRedirect(c, noteIDHex)
+			return
+		}
+	}
+
 	if note.SharedUntil < primitive.NewDateTimeFromTime(time.Now()) {
 		notFoundRedirect(c, noteIDHex)
 		return

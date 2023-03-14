@@ -22,7 +22,7 @@ export const RemoveButton = styled(NoStyleButton)`
     padding: ${Spacing._8};
     border-radius: ${Border.radius.medium};
     &:hover {
-        background-color: ${Colors.background.dark};
+        background-color: ${Colors.background.hover};
     }
 `
 export const SelectedList = styled.div`

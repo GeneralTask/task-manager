@@ -28,7 +28,7 @@ export const IconButton = styled(NoStyleButton)`
     padding: ${Spacing._8};
     border-radius: 50vh;
     &:hover {
-        background-color: ${Colors.background.medium};
+        background-color: ${Colors.background.sub};
     }
 `
 export const EventTitle = styled.span`

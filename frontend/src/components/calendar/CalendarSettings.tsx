@@ -22,7 +22,7 @@ const Calendar = styled(Flex)`
     box-sizing: border-box;
     :hover {
         border: ${Border.stroke.small} solid ${Colors.background.border};
-        background-color: ${Colors.background.light};
+        background-color: ${Colors.background.base};
     }
 `
 

@@ -20,7 +20,7 @@ const DefaultTemplateContainer = styled.div<{ $calendarType: TCalendarType; $sho
     grid-auto-flow: column;
     grid-template-rows: 100%;
     height: 100vh;
-    background-color: ${Colors.background.light};
+    background-color: ${Colors.background.base};
     position: relative;
     min-width: ${WINDOW_MIN_WIDTH};
     a {

@@ -66,8 +66,8 @@ export const CalendarRow = styled.tr`
 `
 export const CalendarTD = styled.td<{ borderLeft?: boolean }>`
     display: block;
-    border-top: ${Border.stroke.medium} solid ${Colors.background.dark};
-    ${({ borderLeft }) => borderLeft && `border-left: ${Border.stroke.medium} solid ${Colors.background.dark};`}
+    border-top: ${Border.stroke.medium} solid ${Colors.background.hover};
+    ${({ borderLeft }) => borderLeft && `border-left: ${Border.stroke.medium} solid ${Colors.background.hover};`}
     height: 100%;
 `
 export const CalendarCell = styled.div`
@@ -211,7 +211,7 @@ export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: b
     ${(props) => !props.isExpanded && `width: 300px;`}
     height: 100%;
     flex: ${(isExpanded) => (isExpanded ? '1' : '0')};
-    background-color: ${Colors.background.medium};
+    background-color: ${Colors.background.sub};
     display: flex;
     z-index: 1;
     box-shadow: ${({ showShadow }) => (showShadow ? Shadows.deprecated_light : 'none')};
@@ -241,5 +241,5 @@ export const DropPreview = styled.div<{ isVisible: boolean; offset: number }>`
     box-sizing: border-box;
     top: ${(props) => props.offset}px;
     z-index: 1;
-    background-color: ${Colors.background.dropIndicator};
+    background-color: ${Colors.legacyColors.dropIndicator};
 `

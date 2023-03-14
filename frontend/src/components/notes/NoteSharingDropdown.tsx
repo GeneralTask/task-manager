@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { DateTime } from 'luxon'
-import styled from 'styled-components'
 import { SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
 import { usePreviewMode, useToast } from '../../hooks'
 import { useModifyNote } from '../../services/api/notes.hooks'
@@ -9,14 +8,10 @@ import { SharedAccess } from '../../utils/enums'
 import { TNote } from '../../utils/types'
 import { getFormattedDuration } from '../../utils/utils'
 import GTButton from '../atoms/buttons/GTButton'
-import { DeprecatedLabel } from '../atoms/typography/Typography'
+import { LabelWrap } from '../radix/DropdownLabel'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
-import { GTMenuItem, MENU_WIDTH } from '../radix/RadixUIConstants'
+import { GTMenuItem } from '../radix/RadixUIConstants'
 import { getNoteURL } from './utils'
-
-const LabelWrap = styled(DeprecatedLabel)`
-    width: ${MENU_WIDTH};
-`
 
 interface NoteSharingDropdownProps {
     note: TNote

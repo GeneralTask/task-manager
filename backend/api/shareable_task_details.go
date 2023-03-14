@@ -1,7 +1,6 @@
 package api
 
 import (
-
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -16,10 +15,16 @@ func (api *API) ShareableTaskDetails(c *gin.Context) {
 		return
 	}
 
-	userIDRaw, _ := c.Get("user")
-	userID := userIDRaw.(primitive.ObjectID)
+	/* We can't use getUserIDFromContext here because the "user" context field is potentially empty.
+	 * This is the case when an unauthenticated user hits this endpoint.
+	 */
+	var userID *primitive.ObjectID
+	if userIDRaw, exists := c.Get("user"); exists {
+		userIDValue := userIDRaw.(primitive.ObjectID)
+		userID = &userIDValue
+	}
 
-	task, err := database.GetSharedTask(api.DB, taskID, &userID)
+	task, err := database.GetSharedTask(api.DB, taskID, userID)
 	if err != nil {
 		Handle404(c)
 		return
