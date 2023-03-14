@@ -25,9 +25,13 @@ const NotAvailableMessage = ({ sharedType }: NotAvailableMessageProps) => {
 
     return (
         <>
-            <DeprecatedTitle>This {type} is not available</DeprecatedTitle>
+            <DeprecatedTitle>
+                {type === 'task' ? 'This task is not available' : 'Sign in to view this note'}
+            </DeprecatedTitle>
             <DeprecatedBody>
-                If you need access to this {type}, please reach out to the person who sent it.
+                {type === 'task'
+                    ? 'If you need access to this task, please reach out to the person who sent it.'
+                    : 'To view this note, you need to sign in or sign up for an account. Please make sure that the email address you use to log in matches the one that the note was shared with.'}
             </DeprecatedBody>
             <FlexMargin8Top gap={Spacing._8}>
                 {isLoggedIn ? (
