@@ -100,12 +100,12 @@ const SharedNoteView = () => {
 
     const { data: notes, isLoading: isLoadingNotes } = useGetNotes(isLoggedIn)
     const isUserNoteOwner = (notes ?? []).some((userNote) => userNote.id === note?.id)
-    const sharedWithText =
-        note?.shared_access === 'domain'
-            ? 'all members of the organization'
-            : note?.shared_access === 'meeting_attendees'
-            ? 'all attendees of the meeting'
-            : 'everyone'
+
+    const getSharedWithText = () => {
+        if (note?.shared_access === 'domain') return 'all members of the organization'
+        if (note?.shared_access === 'meeting_attendees') return 'all attendees of the meeting'
+        if (note?.shared_access === 'public') return 'everyone'
+    }
 
     if (!noteId) navigate('/')
 
@@ -199,7 +199,7 @@ const SharedNoteView = () => {
                                                 )}`}</LabelSmall>
                                             )}
                                         </Flex>
-                                        <LabelSmall color="light">{`Shared with ${sharedWithText}`}</LabelSmall>
+                                        <LabelSmall color="light">{`Shared with ${getSharedWithText()}`}</LabelSmall>
                                     </FlexPadding8Horizontal>
                                 </>
                             ) : (

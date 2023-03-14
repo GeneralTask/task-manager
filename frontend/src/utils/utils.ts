@@ -91,13 +91,9 @@ export const getFormattedEventTime = (dateStart: DateTime, dateEnd: DateTime, ty
         }
         return dateStart.toLocaleString(DateTime.DATE_FULL)
     }
-    const getTimeString = () => {
-        const startTime = dateStart.toFormat('h:mm')
-        const endTime = dateEnd.toFormat('h:mm a')
-        return `${startTime} – ${endTime}`
-    }
     if (type === 'short') return getDayString()
-    return `${getDayString()} · ${getTimeString()}`
+    const timeString = `${dateStart.toFormat('h:mm')} – ${dateEnd.toFormat('h:mm a')}`
+    return `${getDayString()} · ${timeString}`
 }
 
 // to avoid creating empty placeholder functions across the app

@@ -37,7 +37,7 @@ export const EventTitle = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
-    ${Typography.deprecated_bodySmall}
+    ${Typography.deprecated_bodySmall};
 `
 export const Description = styled.div`
     ${Typography.deprecated_label};
