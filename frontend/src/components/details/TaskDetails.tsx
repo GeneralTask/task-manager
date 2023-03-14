@@ -22,7 +22,7 @@ import {
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { TRecurringTaskTemplate, TTaskV4 } from '../../utils/types'
-import { EMPTY_ARRAY, isTaskParentTask } from '../../utils/utils'
+import { EMPTY_ARRAY, isTaskActive, isTaskParentTask } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
@@ -257,7 +257,7 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                                     size="small"
                                 />
                             )}
-                            {isPreviewMode && taskv4.source?.name === 'General Task' && (
+                            {isPreviewMode && taskv4.source?.name === 'General Task' && isTaskActive(taskv4) && (
                                 <TaskSharingDropdown task={taskv4} />
                             )}
                             {!isMeetingPreparationTask &&
