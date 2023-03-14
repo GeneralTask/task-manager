@@ -3,7 +3,6 @@ package jobs
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -19,12 +18,13 @@ const CODECOV_BOT = "codecov[bot]"
 const DEFAULT_LOOKBACK_DAYS = 21
 
 func githubIndustryJob() {
-	err := EnsureJobOnlyRunsOnceToday("helloworld")
+	err := EnsureJobOnlyRunsOnceToday("github_industry")
 	if err != nil {
 		return
 	}
 	err = updateGithubIndustryData(time.Now(), DEFAULT_LOOKBACK_DAYS)
 	if err != nil {
+		logging.GetSentryLogger().Error().Err(err).Msg("failed to run github industry data job")
 		return
 	}
 }
@@ -60,7 +60,6 @@ func updateGithubIndustryData(endCutoff time.Time, lookbackDays int) error {
 	for _, pullRequest := range pullRequests {
 		pullRequestIDToValue[pullRequest.IDExternal] = pullRequest
 	}
-	fmt.Println(pullRequestIDToValue)
 	dateToTotalResponseTime := make(map[primitive.DateTime]int)
 	dateToPRCount := make(map[primitive.DateTime]int)
 	for _, pullRequest := range pullRequestIDToValue {
