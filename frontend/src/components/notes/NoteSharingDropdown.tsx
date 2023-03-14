@@ -4,8 +4,7 @@ import { SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
 import { usePreviewMode, useToast } from '../../hooks'
 import { useModifyNote } from '../../services/api/notes.hooks'
 import { icons } from '../../styles/images'
-import { SharedAccess } from '../../utils/enums'
-import { TNote } from '../../utils/types'
+import { TNote, TNoteSharedAccess } from '../../utils/types'
 import { getFormattedDuration } from '../../utils/utils'
 import GTButton from '../atoms/buttons/GTButton'
 import { LabelWrap } from '../radix/DropdownLabel'
@@ -22,7 +21,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
     const { isPreviewMode } = usePreviewMode()
     const toast = useToast()
 
-    const shareNote = (sharedUntil?: string, sharedAccess?: SharedAccess) => {
+    const shareNote = (sharedUntil?: string, sharedAccess?: TNoteSharedAccess) => {
         modifyNote({ id: note.id, shared_until: sharedUntil, shared_access: sharedAccess })
     }
     const unshareNote = () => {
@@ -125,9 +124,9 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
             icon: icons.user,
             label: 'Share with attendees',
             hideCheckmark: !isShared,
-            selected: note.shared_access === SharedAccess.MEETING_ATTENDEES,
+            selected: note.shared_access === 'meeting_attendees',
             onClick: () => {
-                shareNote(SHARED_ITEM_INDEFINITE_DATE, SharedAccess.MEETING_ATTENDEES)
+                shareNote(SHARED_ITEM_INDEFINITE_DATE, 'meeting_attendees')
                 copyNoteLink()
             },
         },
@@ -135,9 +134,9 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
             icon: icons.users,
             label: 'Share with company',
             hideCheckmark: !isShared,
-            selected: note.shared_access === SharedAccess.SAME_DOMAIN,
+            selected: note.shared_access === 'domain',
             onClick: () => {
-                shareNote(SHARED_ITEM_INDEFINITE_DATE, SharedAccess.SAME_DOMAIN)
+                shareNote(SHARED_ITEM_INDEFINITE_DATE, 'domain')
                 copyNoteLink()
             },
         },
@@ -145,9 +144,9 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
             icon: icons.globe,
             label: 'Share with everyone',
             hideCheckmark: !isShared,
-            selected: note.shared_access === SharedAccess.PUBLIC,
+            selected: note.shared_access === 'public',
             onClick: () => {
-                shareNote(SHARED_ITEM_INDEFINITE_DATE, SharedAccess.PUBLIC)
+                shareNote(SHARED_ITEM_INDEFINITE_DATE, 'public')
                 copyNoteLink()
             },
         },

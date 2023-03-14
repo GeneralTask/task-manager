@@ -1,12 +1,14 @@
 import { TStatusColors } from '../styles/colors'
 import { TIconImage, TLogoImage } from '../styles/images'
-import { RecurrenceRate, SharedAccess } from './enums'
+import { RecurrenceRate } from './enums'
 
 export type EmptyString = ''
 
 export type TTaskSourceName = 'General Task' | 'Google Calendar' | 'Git PR' | 'Jira' | 'Linear' | 'Slack'
 
 export type TTaskSharedAccess = 'public' | 'domain'
+
+export type TNoteSharedAccess = 'public' | 'domain' | 'meeting_attendees'
 
 export interface TTaskSource {
     name: TTaskSourceName
@@ -426,7 +428,7 @@ export interface TNote {
     created_at: string
     updated_at: string
     shared_until?: string
-    shared_access?: SharedAccess
+    shared_access?: TNoteSharedAccess
     is_deleted: boolean
     optimisticId?: string
 }

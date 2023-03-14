@@ -3,8 +3,7 @@ import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
-import { SharedAccess } from '../../utils/enums'
-import { TNote } from '../../utils/types'
+import { TNote, TNoteSharedAccess } from '../../utils/types'
 import { getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 
 export interface TCreateNoteData {
@@ -12,7 +11,7 @@ export interface TCreateNoteData {
     body?: string
     author: string
     shared_until?: string
-    shared_access?: SharedAccess
+    shared_access?: TNoteSharedAccess
     linked_event_id?: string
     optimisticId: string
 }
@@ -30,7 +29,7 @@ export interface TModifyNoteData {
     title?: string
     body?: string
     shared_until?: string
-    shared_access?: SharedAccess
+    shared_access?: TNoteSharedAccess
     is_deleted?: boolean
 }
 

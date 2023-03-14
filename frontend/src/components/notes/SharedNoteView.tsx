@@ -11,7 +11,6 @@ import useAnalyticsEventTracker from '../../hooks/useAnalyticsEventTracker'
 import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { buttons, noteBackground } from '../../styles/images'
-import { SharedAccess } from '../../utils/enums'
 import { emptyFunction, getFormattedEventTime, getHumanTimeSinceDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
@@ -102,9 +101,9 @@ const SharedNoteView = () => {
     const { data: notes, isLoading: isLoadingNotes } = useGetNotes(isLoggedIn)
     const isUserNoteOwner = (notes ?? []).some((userNote) => userNote.id === note?.id)
     const sharedWithText =
-        note?.shared_access === SharedAccess.SAME_DOMAIN
+        note?.shared_access === 'domain'
             ? 'all members of the organization'
-            : note?.shared_access === SharedAccess.MEETING_ATTENDEES
+            : note?.shared_access === 'meeting_attendees'
             ? 'all attendees of the meeting'
             : 'everyone'
 
