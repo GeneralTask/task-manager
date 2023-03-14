@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import { Helmet } from 'react-helmet'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import { DateTime } from 'luxon'
@@ -43,82 +42,72 @@ const SharedNoteView = () => {
 
     if (isLoading || isLoadingNotes) return <Spinner />
     return (
-        <>
-            {note && (
-                <Helmet>
-                    <title>{note.title}</title>
-                    <meta property="og:image" content="/images/shared_note_preview.png" />
-                    <meta content={note.title} property="og:title" />
-                    <meta content={note.body} property="og:description" />
-                </Helmet>
-            )}
-            <BackgroundContainer>
-                <ContentContainer>
-                    <SharedItemHeader sharedType="Notes" />
-                    <SharedItemBody>
-                        {note && note.shared_until ? (
-                            <>
-                                <Flex alignItems="flex-start">
-                                    <GTTextField
-                                        type="plaintext"
-                                        value={note.title}
-                                        onChange={emptyFunction}
-                                        fontSize="large"
-                                        disabled
-                                        readOnly
-                                    />
-                                    <NoteActionsDropdown note={note} isOwner={isUserNoteOwner} />
-                                </Flex>
+        <BackgroundContainer>
+            <ContentContainer>
+                <SharedItemHeader sharedType="Notes" />
+                <SharedItemBody>
+                    {note && note.shared_until ? (
+                        <>
+                            <Flex alignItems="flex-start">
                                 <GTTextField
-                                    key={note.id}
-                                    type="markdown"
-                                    value={note.body}
+                                    type="plaintext"
+                                    value={note.title}
                                     onChange={emptyFunction}
-                                    fontSize="small"
+                                    fontSize="large"
                                     disabled
                                     readOnly
                                 />
-                                <Divider color={Colors.background.border} />
-                                <FlexPadding8Horizontal justifyContent="space-between" alignItems="center">
-                                    <Flex gap={Spacing._4}>
-                                        {isLoggedIn && isUserNoteOwner ? (
-                                            <>
-                                                <DeprecatedLabel color="light">{`You shared this note ${getHumanTimeSinceDateTime(
-                                                    DateTime.fromISO(note.updated_at)
-                                                )}`}</DeprecatedLabel>
-                                                <DeprecatedLabel>
-                                                    {'('}
-                                                    <Link to={`/notes/${noteId}`}>edit note</Link>
-                                                    {')'}
-                                                </DeprecatedLabel>
-                                            </>
-                                        ) : (
-                                            <DeprecatedLabel color="light">{`${
-                                                note.author
-                                            } shared this note ${getHumanTimeSinceDateTime(
+                                <NoteActionsDropdown note={note} isOwner={isUserNoteOwner} />
+                            </Flex>
+                            <GTTextField
+                                key={note.id}
+                                type="markdown"
+                                value={note.body}
+                                onChange={emptyFunction}
+                                fontSize="small"
+                                disabled
+                                readOnly
+                            />
+                            <Divider color={Colors.background.border} />
+                            <FlexPadding8Horizontal justifyContent="space-between" alignItems="center">
+                                <Flex gap={Spacing._4}>
+                                    {isLoggedIn && isUserNoteOwner ? (
+                                        <>
+                                            <DeprecatedLabel color="light">{`You shared this note ${getHumanTimeSinceDateTime(
                                                 DateTime.fromISO(note.updated_at)
                                             )}`}</DeprecatedLabel>
-                                        )}
-                                    </Flex>
-                                    <DeprecatedLabel color="light">
-                                        {note.shared_until === SHARED_ITEM_INDEFINITE_DATE
-                                            ? ''
-                                            : `Link expires in ${getFormattedDuration(
-                                                  DateTime.fromISO(note.shared_until).diffNow('milliseconds', {
-                                                      conversionAccuracy: 'longterm',
-                                                  }),
-                                                  2
-                                              )}`}
-                                    </DeprecatedLabel>
-                                </FlexPadding8Horizontal>
-                            </>
-                        ) : (
-                            <NotAvailableMessage sharedType="Notes" />
-                        )}
-                    </SharedItemBody>
-                </ContentContainer>
-            </BackgroundContainer>
-        </>
+                                            <DeprecatedLabel>
+                                                {'('}
+                                                <Link to={`/notes/${noteId}`}>edit note</Link>
+                                                {')'}
+                                            </DeprecatedLabel>
+                                        </>
+                                    ) : (
+                                        <DeprecatedLabel color="light">{`${
+                                            note.author
+                                        } shared this note ${getHumanTimeSinceDateTime(
+                                            DateTime.fromISO(note.updated_at)
+                                        )}`}</DeprecatedLabel>
+                                    )}
+                                </Flex>
+                                <DeprecatedLabel color="light">
+                                    {note.shared_until === SHARED_ITEM_INDEFINITE_DATE
+                                        ? ''
+                                        : `Link expires in ${getFormattedDuration(
+                                              DateTime.fromISO(note.shared_until).diffNow('milliseconds', {
+                                                  conversionAccuracy: 'longterm',
+                                              }),
+                                              2
+                                          )}`}
+                                </DeprecatedLabel>
+                            </FlexPadding8Horizontal>
+                        </>
+                    ) : (
+                        <NotAvailableMessage sharedType="Notes" />
+                    )}
+                </SharedItemBody>
+            </ContentContainer>
+        </BackgroundContainer>
     )
 }
 
