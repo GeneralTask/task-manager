@@ -16,13 +16,12 @@ import (
 )
 
 type NoteChangeable struct {
-	Title       *string             `json:"title,omitempty"`
-	Body        *string             `json:"body,omitempty"`
-	Author      string              `json:"author,omitempty"`
-	SharedUntil *primitive.DateTime `json:"shared_until,omitempty"`
-	//SharedAccess *database.SharedAccess `json:"shared_access,omitempty"`
-	SharedAccess *string `json:"shared_access,omitempty" bson:"shared_access,omitempty"`
-	IsDeleted    *bool   `json:"is_deleted,omitempty"`
+	Title        *string             `json:"title,omitempty"`
+	Body         *string             `json:"body,omitempty"`
+	Author       string              `json:"author,omitempty"`
+	SharedUntil  *primitive.DateTime `json:"shared_until,omitempty"`
+	SharedAccess *string             `json:"shared_access,omitempty" bson:"shared_access,omitempty"`
+	IsDeleted    *bool               `json:"is_deleted,omitempty"`
 }
 
 type NoteModifyParams struct {
