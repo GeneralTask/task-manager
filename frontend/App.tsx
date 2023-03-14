@@ -7,7 +7,7 @@ import AuthenticatedRoutes from './src/AuthenticatedRoutes'
 import SharedNoteView from './src/components/notes/SharedNoteView'
 import GoogleAuth from './src/components/screens/GoogleAuthScreen'
 import LandingScreen from './src/components/screens/LandingScreen'
-import SharedTask from './src/components/views/SharedTaskView'
+import SharedTaskView from './src/components/views/SharedTaskView'
 import {
     GOOGLE_AUTH_ROUTE,
     NOTE_ROUTE,
@@ -87,8 +87,8 @@ const App = () => {
                         <Route path=":noteId" element={<SharedNoteView />} />
                     </Route>
                     <Route path={GOOGLE_AUTH_ROUTE} element={<GoogleAuth />} />
-                    <Route path={SHAREABLE_TASK_ROUTE} element={<SharedTask />}>
-                        <Route path=":taskId" element={<SharedTask />} />
+                    <Route path={SHAREABLE_TASK_ROUTE} element={<SharedTaskView />}>
+                        <Route path=":taskId" element={<SharedTaskView />} />
                     </Route>
                     <Route path="*" element={<AuthenticatedRoutes />} />
                     <Route path="*" element={<Navigate to="/" />} />
