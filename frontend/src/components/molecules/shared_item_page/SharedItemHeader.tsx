@@ -14,7 +14,6 @@ const Logo = styled.img`
     width: 153px;
 `
 export const HeaderContainer = styled.div`
-    position: fixed;
     box-sizing: border-box;
     display: flex;
     align-items: center;
