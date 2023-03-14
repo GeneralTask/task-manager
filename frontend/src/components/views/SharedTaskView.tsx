@@ -8,7 +8,7 @@ import Spinner from '../atoms/Spinner'
 import GTDatePickerButton from '../molecules/GTDatePickerButton'
 import { BackgroundContainer } from '../molecules/shared_item_page/BackgroundContainer'
 import ContentContainer from '../molecules/shared_item_page/ContentContainer'
-import SharedItemBody from '../molecules/shared_item_page/SharedItemBody'
+import SharedItemBodyContainer from '../molecules/shared_item_page/SharedItemBody'
 import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
 
 const SharedTask = () => {
@@ -30,32 +30,37 @@ const SharedTask = () => {
         <BackgroundContainer>
             <ContentContainer>
                 <SharedItemHeader sharedType="Tasks" />
-                <SharedItemBody>
-                    <GTTextField
-                        type="plaintext"
-                        value={task?.title ?? ''}
-                        onChange={emptyFunction}
-                        fontSize="large"
-                        disabled
-                        readOnly
-                    />
-                    <GTDatePickerButton
-                        currentDate={DateTime.fromISO(task?.due_date ?? '')}
-                        showIcon
-                        onClick={emptyFunction}
-                        isOpen={false}
-                        disabled
-                        overrideDisabledStyle
-                    />
-                    <GTTextField
-                        type="markdown"
-                        value={task?.body ?? ''}
-                        onChange={emptyFunction}
-                        fontSize="small"
-                        disabled
-                        readOnly
-                    />
-                </SharedItemBody>
+                <SharedItemBodyContainer
+                    content={
+                        <>
+                            <GTTextField
+                                type="plaintext"
+                                value={task?.title ?? ''}
+                                onChange={emptyFunction}
+                                fontSize="large"
+                                disabled
+                                readOnly
+                            />
+                            <GTDatePickerButton
+                                currentDate={DateTime.fromISO(task?.due_date ?? '')}
+                                showIcon
+                                onClick={emptyFunction}
+                                isOpen={false}
+                                disabled
+                                overrideDisabledStyle
+                            />
+                            <GTTextField
+                                type="markdown"
+                                value={task?.body ?? ''}
+                                onChange={emptyFunction}
+                                fontSize="small"
+                                disabled
+                                readOnly
+                            />
+                        </>
+                    }
+                    footer={<div>this is a foooooter</div>}
+                />
             </ContentContainer>
         </BackgroundContainer>
     )

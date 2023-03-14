@@ -7,17 +7,16 @@ import styled from 'styled-components'
 import { AUTHORIZATION_COOKE, SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
 import useAnalyticsEventTracker from '../../hooks/useAnalyticsEventTracker'
 import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
-import { Colors, Spacing } from '../../styles'
+import { Spacing } from '../../styles'
 import { emptyFunction, getFormattedDuration, getHumanTimeSinceDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
-import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import { DeprecatedLabel } from '../atoms/typography/Typography'
 import { BackgroundContainer } from '../molecules/shared_item_page/BackgroundContainer'
 import ContentContainer from '../molecules/shared_item_page/ContentContainer'
 import NotAvailableMessage from '../molecules/shared_item_page/NotAvailableMessage'
-import SharedItemBody from '../molecules/shared_item_page/SharedItemBody'
+import SharedItemBodyContainer from '../molecules/shared_item_page/SharedItemBody'
 import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
 import NoteActionsDropdown from './NoteActionsDropdown'
 
@@ -55,30 +54,38 @@ const SharedNoteView = () => {
             <BackgroundContainer>
                 <ContentContainer>
                     <SharedItemHeader sharedType="Notes" />
-                    <SharedItemBody>
-                        {note && note.shared_until ? (
-                            <>
-                                <Flex alignItems="flex-start">
+                    <SharedItemBodyContainer
+                        content={
+                            note && note.shared_until ? (
+                                <>
+                                    <Flex alignItems="flex-start">
+                                        <GTTextField
+                                            type="plaintext"
+                                            value={note.title}
+                                            onChange={emptyFunction}
+                                            fontSize="large"
+                                            disabled
+                                            readOnly
+                                        />
+                                        <NoteActionsDropdown note={note} isOwner={isUserNoteOwner} />
+                                    </Flex>
                                     <GTTextField
-                                        type="plaintext"
-                                        value={note.title}
+                                        key={note.id}
+                                        type="markdown"
+                                        value={note.body}
                                         onChange={emptyFunction}
-                                        fontSize="large"
+                                        fontSize="small"
                                         disabled
                                         readOnly
                                     />
-                                    <NoteActionsDropdown note={note} isOwner={isUserNoteOwner} />
-                                </Flex>
-                                <GTTextField
-                                    key={note.id}
-                                    type="markdown"
-                                    value={note.body}
-                                    onChange={emptyFunction}
-                                    fontSize="small"
-                                    disabled
-                                    readOnly
-                                />
-                                <Divider color={Colors.background.border} />
+                                </>
+                            ) : (
+                                <NotAvailableMessage sharedType="Notes" />
+                            )
+                        }
+                        footer={
+                            note &&
+                            note.shared_until && (
                                 <FlexPadding8Horizontal justifyContent="space-between" alignItems="center">
                                     <Flex gap={Spacing._4}>
                                         {isLoggedIn && isUserNoteOwner ? (
@@ -111,11 +118,9 @@ const SharedNoteView = () => {
                                               )}`}
                                     </DeprecatedLabel>
                                 </FlexPadding8Horizontal>
-                            </>
-                        ) : (
-                            <NotAvailableMessage sharedType="Notes" />
-                        )}
-                    </SharedItemBody>
+                            )
+                        }
+                    />
                 </ContentContainer>
             </BackgroundContainer>
         </>
