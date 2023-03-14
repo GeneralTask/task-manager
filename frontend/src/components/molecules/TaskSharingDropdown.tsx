@@ -55,6 +55,25 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
             onClick: copyTaskLink,
         },
         {
+            icon: icons.share,
+            label: 'Share task with',
+            hideCheckmark: true,
+            subItems: [
+                {
+                    icon: icons.users,
+                    label: 'Share with company',
+                    hideCheckmark: true,
+                    onClick: () => shareAndCopy('domain'),
+                },
+                {
+                    icon: icons.globe,
+                    label: 'Share with everyone',
+                    hideCheckmark: true,
+                    onClick: () => shareAndCopy('public'),
+                },
+            ],
+        },
+        {
             icon: icons.link_slashed,
             label: 'Disable shared link',
             hideCheckmark: true,
