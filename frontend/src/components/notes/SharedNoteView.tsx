@@ -21,16 +21,6 @@ import { BackgroundContainer } from '../molecules/shared_item_page/BackgroundCon
 import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
 import NoteActionsDropdown from './NoteActionsDropdown'
 
-export const HeaderContainer = styled.div`
-    position: fixed;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: ${Spacing._24};
-    width: 750px;
-    z-index: 10;
-`
 const ColumnContainer = styled.div`
     position: relative;
     display: flex;
