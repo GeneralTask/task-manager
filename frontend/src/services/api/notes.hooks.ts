@@ -13,6 +13,8 @@ export interface TCreateNoteData {
     shared_until?: string
     shared_access?: TNoteSharedAccess
     linked_event_id?: string
+    linked_event_start?: string
+    linked_event_end?: string
     optimisticId: string
 }
 
@@ -150,5 +152,7 @@ export const createNewNoteHelper = (
         shared_until: data.shared_until,
         shared_access: data.shared_access,
         linked_event_id: data.linked_event_id,
+        linked_event_start: data.linked_event_start,
+        linked_event_end: data.linked_event_end,
     }
 }

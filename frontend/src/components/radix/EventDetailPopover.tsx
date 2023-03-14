@@ -111,6 +111,8 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
             title: event.title || NO_TITLE,
             author: userInfo?.name || 'Anonymous',
             linked_event_id: event.id,
+            linked_event_start: event.datetime_start,
+            linked_event_end: event.datetime_end,
             optimisticId,
         })
         navigate(`/notes/${optimisticId}`)
