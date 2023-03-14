@@ -12,6 +12,12 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type DashboardResult struct {
+	DateStart string             `json:"date_start"`
+	DateEnd   string             `json:"date_end"`
+	Data      []DashboardSubject `json:"data"`
+}
+
 type DashboardSubject struct {
 	ID      string            `json:"id"`
 	Name    string            `json:"name"`
@@ -26,12 +32,65 @@ type DashboardMetric struct {
 }
 
 type DashboardLine struct {
-	Name            string           `json:"name"`
-	Color           string           `json:"color"`
-	AggregatedName  string           `json:"aggregated_name"`
+	Name           string              `json:"name"`
+	Color          string              `json:"color"`
+	AggregatedName string              `json:"aggregated_name"`
+	Intervals      []DashboardInterval `json:"intervals"`
+}
+
+type DashboardInterval struct {
 	AggregatedValue int              `json:"aggregated_value"`
+	DateStart       string           `json:"date_start"`
+	DateEnd         string           `json:"date_end"`
 	Points          []DashboardPoint `json:"points"`
 }
+
+/*
+{
+	"intervals": [
+		{
+			"id": "123",
+			"date_start": "2023-01-02",
+			"date_end": "2023-01-07",
+			"is_default": true
+		}
+	],
+	"subjects": [
+		{
+			"id": "1234",
+			"name": "Your team",
+			"icon": "users",
+			"is_default": true,
+			"graph_ids": ["graph_id123"],
+		}
+	],
+	// you can assume graph definitions will exist for graph ids provided above
+	"graphs": {
+		"graph_id123": {
+			"name": "Code review response time",
+			"icon": "github",
+			"lines": [
+				{
+					"data_id": "data_id12345",
+					"name": "Daily average",
+					"color": "blue",
+					"aggregated_name": "Weekly average (your team)",
+				}
+			]
+		}
+	},
+	// there will not necessarily be data available for all intervals and all lines
+	"data": {
+		"interval_id123": {
+			"data_id12345" : {
+				"aggregated_value": 54,
+				"points": [
+					{"x": 12423423423, "y", 57}
+				]
+			}
+		}
+	},
+}*/
 
 type DashboardPoint struct {
 	X int `json:"x"`
