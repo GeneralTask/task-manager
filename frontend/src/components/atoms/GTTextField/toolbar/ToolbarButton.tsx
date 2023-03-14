@@ -1,6 +1,5 @@
-import Tip from '../../../radix/Tip'
 import { TIconType } from '../../Icon'
-import GTIconButton from '../../buttons/GTIconButton'
+import GTButton from '../../buttons/GTButton'
 
 interface Props {
     icon: TIconType
@@ -11,16 +10,16 @@ interface Props {
 }
 const ToolbarButton = ({ icon, action, isActive, shortcutLabel, shortcut }: Props) => {
     return (
-        <Tip overrideShortcut={shortcut} overrideShortcutLabel={shortcutLabel}>
-            <GTIconButton
-                tooltipText="" // has to be empty string so that we can override it with the shortcut
-                onMouseDown={(e) => e.preventDefault()}
-                icon={icon}
-                iconColor="gray"
-                onClick={() => action()}
-                forceShowHoverEffect={isActive}
-            />
-        </Tip>
+        <GTButton
+            styleType="icon"
+            onMouseDown={(e) => e.preventDefault()}
+            icon={icon}
+            iconColor="gray"
+            onClick={() => action()}
+            active={isActive}
+            overrideShortcut={shortcut}
+            overrideShortcutLabel={shortcutLabel}
+        />
     )
 }
 

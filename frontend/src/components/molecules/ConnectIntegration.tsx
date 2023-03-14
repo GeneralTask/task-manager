@@ -113,10 +113,10 @@ const ConnectIntegration = ({ type, reconnect = false, reauthorizeAccountName }:
             <Text>{getTitle()}</Text>
             <ButtonWrapper>
                 <GTButton
+                    styleType="primary"
                     disabled={isAuthWindowOpen}
                     value={getButtonLabel()}
                     color={Colors.legacyColors.purple}
-                    size="small"
                     onClick={onClick}
                 />
             </ButtonWrapper>

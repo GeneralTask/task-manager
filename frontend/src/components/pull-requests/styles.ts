@@ -2,8 +2,6 @@ import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { TStatusColors } from '../../styles/colors'
 
-const PULL_REQUEST_HEIGHT = '48px'
-
 export const Column = styled.div`
     display: flex;
     align-items: center;
@@ -32,8 +30,7 @@ export const Repository = styled.div`
 `
 export const PullRequestRow = styled.div<{ isSelected: boolean }>`
     display: flex;
-    height: ${PULL_REQUEST_HEIGHT};
-    padding: ${Spacing._4} ${Spacing._4} ${Spacing._4} ${Spacing._24};
+    padding: ${Spacing._12} ${Spacing._8} ${Spacing._12} ${Spacing._16};
     background-color: ${Colors.background.white};
     border-radius: ${Border.radius.small};
     position: relative;
@@ -51,6 +48,7 @@ export const TitleContainer = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
     height: fit-content;
+    ${Typography.deprecated_body};
 `
 export const RepositoryName = styled.div`
     color: ${Colors.text.light};

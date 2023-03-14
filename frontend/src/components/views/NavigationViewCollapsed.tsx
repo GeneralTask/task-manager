@@ -169,7 +169,6 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             isOpen={isDropdownOpen}
                             side="right"
                             setIsOpen={setIsDropdownOpen}
-                            unstyledTrigger
                             hideCheckmark
                             trigger={
                                 <CollapsedIconContainer isSelected={filteredFoldersIds.includes(sectionId || '')}>

@@ -170,7 +170,6 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                 {event.linked_task_id && (
                     <GTButton
                         styleType="secondary"
-                        size="small"
                         value="View task details"
                         fitContent={false}
                         onClick={() => {
@@ -182,7 +181,6 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                 {event.linked_pull_request_id && (
                     <GTButton
                         styleType="secondary"
-                        size="small"
                         value="View PR details"
                         fitContent={false}
                         onClick={() => {
@@ -194,7 +192,6 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                 {isPreviewMode && (
                     <GTButton
                         styleType="secondary"
-                        size="small"
                         value="Meeting Notes"
                         icon={icons.note}
                         fitContent={false}
@@ -212,7 +209,6 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                     <FlexAnchor href={event.conference_call.url}>
                         <GTButton
                             styleType="secondary"
-                            size="small"
                             value="Join"
                             icon={event.conference_call.logo}
                             fitContent={false}
@@ -233,7 +229,6 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
             content={hidePopover ? undefined : content}
             side="left"
             trigger={children}
-            unstyledTrigger
             modal={false}
         />
     )

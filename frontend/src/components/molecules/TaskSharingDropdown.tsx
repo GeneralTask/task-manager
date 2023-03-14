@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { REACT_APP_TASK_BASE_URL, SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
 import { useToast } from '../../hooks'
@@ -13,6 +14,7 @@ interface TaskharingDropdownProps {
 }
 
 const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
+    const [isOpen, setIsOpen] = useState(false)
     const { mutate: modifyTask } = useModifyTask()
     const toast = useToast()
 
@@ -97,9 +99,10 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
 
     return (
         <GTDropdownMenu
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
             items={isShared ? sharedDropdownItems : notSharedDropdownItems}
-            unstyledTrigger
-            trigger={<GTButton size="small" styleType="secondary" icon={icons.share} value="Share" asDiv />}
+            trigger={<GTButton styleType="secondary" icon={icons.share} value="Share" active={isOpen} />}
             description={!isShared ? 'This task is not being shared.' : undefined}
         />
     )

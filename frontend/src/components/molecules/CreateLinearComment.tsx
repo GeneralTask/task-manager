@@ -35,7 +35,7 @@ const CreateLinearComment = ({ taskId, numComments }: CreateLinearCommentProps) 
             minHeight={LINEAR_ADD_COMMENT_HEIGHT}
             onChange={setComment}
             keyDownExceptions={[KEYBOARD_SHORTCUTS.submit.key]}
-            actions={<GTButton value="Comment" styleType="secondary" size="small" onClick={() => submitComment()} />}
+            actions={<GTButton value="Comment" styleType="secondary" onClick={() => submitComment()} />}
         />
     )
 }

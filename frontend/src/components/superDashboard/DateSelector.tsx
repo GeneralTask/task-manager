@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
-import GTIconButton from '../atoms/buttons/GTIconButton'
+import GTButton from '../atoms/buttons/GTButton'
 import { BodyLarge } from '../atoms/typography/Typography'
 import { DAYS_PER_WEEK } from './constants'
 
@@ -25,12 +25,14 @@ const DateSelector = ({ startDate, setStartDate }: DateSelectorProps) => {
                 {startDateStr} - {endDateStr}
             </DateRange>
             <Flex alignItems="center" gap={Spacing._8}>
-                <GTIconButton
+                <GTButton
+                    styleType="icon"
                     icon={icons.arrow_left}
                     tooltipText="Previous week"
                     onClick={() => setStartDate(startDate.minus({ week: 1 }))}
                 />
-                <GTIconButton
+                <GTButton
+                    styleType="icon"
                     icon={icons.arrow_right}
                     tooltipText="Next week"
                     onClick={() => setStartDate(startDate.plus({ week: 1 }))}

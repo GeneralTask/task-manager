@@ -9,7 +9,6 @@ import { TCalendar, TCalendarAccount } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import { DeprecatedBody, DeprecatedBodySmall, DeprecatedLabel } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { getCalendarAuthButton, getCalendarName } from './utils/utils'
@@ -87,7 +86,11 @@ const CalendarSettings = () => {
                                     },
                                 ]}
                                 trigger={
-                                    <GTIconButton icon={icons.ellipsisVertical} tooltipText="More options" asDiv />
+                                    <GTButton
+                                        icon={icons.ellipsisVertical}
+                                        tooltipText="More options"
+                                        styleType="icon"
+                                    />
                                 }
                             />
                         </Flex>
@@ -134,7 +137,6 @@ const CalendarSettings = () => {
                     </DeprecatedBodySmall>
                     <GTButton
                         value="Un-dismiss"
-                        size="small"
                         styleType="secondary"
                         onClick={() => setHasDismissedMulticalPrompt('false')}
                     />

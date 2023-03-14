@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import Log from '../../services/api/log'
 import { useModifyTask } from '../../services/api/tasks.hooks'
-import { Spacing, Typography } from '../../styles'
+import { Spacing } from '../../styles'
 import { externalStatusIcons } from '../../styles/images'
 import { DropType, TTaskV4 } from '../../utils/types'
 import CommentCount from '../atoms/CommentCount'
@@ -23,14 +23,6 @@ const DominoIconContainer = styled.div`
     align-items: center;
     gap: ${Spacing._8};
 `
-const LinearSelectableContainer = styled(SelectableContainer)`
-    display: flex;
-    padding: ${Spacing._8} ${Spacing._8} ${Spacing._8} ${Spacing._16};
-    margin-bottom: ${Spacing._4};
-    align-items: center;
-    ${Typography.deprecated_bodySmall};
-`
-
 const LinearTitle = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
@@ -87,7 +79,7 @@ const LinearTask = ({ task }: LinearTaskProps) => {
     }
 
     return (
-        <LinearSelectableContainer
+        <SelectableContainer
             key={task.id}
             onClick={() => onClick(task.id)}
             isSelected={linearIssueId === task.id}
@@ -109,11 +101,8 @@ const LinearTask = ({ task }: LinearTaskProps) => {
                             }))}
                             trigger={
                                 <GTButtonHack
-                                    value={status}
                                     icon={externalStatusIcons[task.external_status.type]}
-                                    size="small"
-                                    styleType="simple"
-                                    asDiv
+                                    styleType="control"
                                 />
                             }
                         />
@@ -135,7 +124,7 @@ const LinearTask = ({ task }: LinearTaskProps) => {
                 {task.linear_cycle && <LinearCycle cycle={task.linear_cycle} isCondensed />}
                 <ExternalLinkButton link={task.deeplink} />
             </RightContainer>
-        </LinearSelectableContainer>
+        </SelectableContainer>
     )
 }
 

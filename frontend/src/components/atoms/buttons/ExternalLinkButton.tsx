@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useKeyboardShortcut } from '../../../hooks'
 import { icons } from '../../../styles/images'
 import NoStyleAnchor from '../NoStyleAnchor'
-import GTIconButton from './GTIconButton'
+import GTButton from './GTButton'
 
 interface ExternalLinkButtonProps {
     link: string
@@ -14,7 +14,7 @@ const ExternalLinkButton = ({ link }: ExternalLinkButtonProps) => {
     )
     return (
         <NoStyleAnchor href={link} rel="noreferrer">
-            <GTIconButton shortcutName="visitExternalLink" icon={icons.external_link} />
+            <GTButton shortcutName="visitExternalLink" icon={icons.external_link} styleType="icon" />
         </NoStyleAnchor>
     )
 }
