@@ -99,7 +99,7 @@ const NavigationView = ({ isCollapsed, setIsCollapsed }: NavigationViewProps) =>
                 <>
                     <NavigationViewHeader>
                         <GTBetaLogo src={isPreviewMode ? logos.generaltask_beta_blue : logos.generaltask_beta_yellow} />
-                        <Flex>
+                        <Flex gap={Spacing._4}>
                             <GTButton
                                 styleType="icon"
                                 icon={icons.sidebar}
