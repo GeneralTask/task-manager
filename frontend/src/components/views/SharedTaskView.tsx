@@ -13,6 +13,14 @@ import ContentContainer from '../molecules/shared_item_page/ContentContainer'
 import SharedItemBodyContainer from '../molecules/shared_item_page/SharedItemBody'
 import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
 
+const getSharedWithMessage = (domain: string | undefined, sharedAccess: string | undefined) => {
+    if (!domain || !sharedAccess) return ''
+    if (sharedAccess === 'domain') {
+        return `Shared with everyone ${domain}`
+    }
+    return 'Shared with everyone'
+}
+
 const SharedWithText = styled.div`
     ${Typography.body.small};
     color: ${Colors.text.muted};
@@ -26,9 +34,6 @@ const SharedTask = () => {
 
     const { data, isLoading } = useGetSharedTask({ id: taskId ?? '' })
     const { task } = data ?? {}
-
-    const domain = data?.domain && task?.shared_access === 'domain' ? ` ${data.domain}` : ''
-    const sharedWithText = `Shared with everyone${domain} `
 
     if (!isPreviewMode && !isPreviewModeLoading) {
         return <Navigate to="/" replace />
@@ -72,7 +77,9 @@ const SharedTask = () => {
                             />
                         </>
                     }
-                    footer={<SharedWithText>{sharedWithText}</SharedWithText>}
+                    footer={
+                        <SharedWithText>{getSharedWithMessage(data?.domain, data?.task.shared_access)}</SharedWithText>
+                    }
                 />
             </ContentContainer>
         </BackgroundContainer>
