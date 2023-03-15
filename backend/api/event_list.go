@@ -2,9 +2,11 @@ package api
 
 import (
 	"context"
+	"errors"
 	"sort"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -36,6 +38,7 @@ type EventResult struct {
 	LinkedTaskID        string               `json:"linked_task_id"`
 	LinkedViewID        string               `json:"linked_view_id"`
 	LinkedPullRequestID string               `json:"linked_pull_request_id"`
+	LinkedNoteID        string               `json:"linked_note_id,omitempty"`
 	Logo                string               `json:"logo"`
 	ColorBackground     string               `json:"color_background,omitempty"`
 	ColorForeground     string               `json:"color_foreground,omitempty"`
@@ -106,67 +109,11 @@ func (api *API) EventsList(c *gin.Context) {
 			continue
 		}
 		for _, event := range calendarResult.CalendarEvents {
-			if event == nil || *event == (database.CalendarEvent{}) {
-				log.Debug().Msg("event is empty")
-				continue
-			}
-			if event.EventType == "outOfOffice" {
-				continue
-			}
-			taskSourceResult, err := api.ExternalConfig.GetSourceResult(event.SourceID)
+			result, err := api.calendarEventToResult(event, userID)
 			if err != nil {
-				log.Error().Err(err).Msgf("could not find task source: %s for event: %+v", event.SourceID, event)
+				continue
 			}
-
-			logo := taskSourceResult.Details.LogoV2
-			var linkedTaskID string
-			if event.LinkedTaskID != primitive.NilObjectID {
-				linkedTaskID = event.LinkedTaskID.Hex()
-				if event.LinkedSourceID != "" {
-					taskSourceResult, _ = api.ExternalConfig.GetSourceResult(event.LinkedSourceID)
-					logo = taskSourceResult.Details.LogoV2
-				} else {
-					api.Logger.Error().Err(err).Msg("linked task source ID is empty")
-				}
-			}
-			var linkedViewID string
-			if event.LinkedViewID != primitive.NilObjectID {
-				linkedViewID = event.LinkedViewID.Hex()
-			}
-			var linkedPRID string
-			if event.LinkedPullRequestID != primitive.NilObjectID {
-				linkedPRID = event.LinkedPullRequestID.Hex()
-				if event.LinkedSourceID != "" {
-					taskSourceResult, _ = api.ExternalConfig.GetSourceResult(event.LinkedSourceID)
-					logo = taskSourceResult.Details.LogoV2
-				} else {
-					api.Logger.Error().Err(err).Msg("linked task source ID is empty")
-				}
-			}
-			calendarEvents = append(calendarEvents, EventResult{
-				ID:            event.ID,
-				AccountID:     event.SourceAccountID,
-				CalendarID:    event.CalendarID,
-				ColorID:       event.ColorID,
-				Deeplink:      event.Deeplink,
-				Title:         event.Title,
-				Body:          event.Body,
-				Location:      event.Location,
-				CanModify:     event.CanModify,
-				DatetimeEnd:   event.DatetimeEnd,
-				DatetimeStart: event.DatetimeStart,
-				ConferenceCall: utils.ConferenceCall{
-					Logo:     event.CallLogo,
-					Platform: event.CallPlatform,
-					URL:      event.CallURL,
-				},
-				Logo:                logo,
-				LinkedTaskID:        linkedTaskID,
-				LinkedViewID:        linkedViewID,
-				LinkedPullRequestID: linkedPRID,
-				ColorBackground:     event.ColorBackground,
-				ColorForeground:     event.ColorForeground,
-			})
+			calendarEvents = append(calendarEvents, result)
 		}
 		err := api.adjustForCompletedEvents(userID, &calendarEvents, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd)
 		if err != nil {
@@ -183,6 +130,98 @@ func (api *API) EventsList(c *gin.Context) {
 	})
 
 	c.JSON(200, calendarEvents)
+}
+
+func (api *API) calendarEventToResult(event *database.CalendarEvent, userID primitive.ObjectID) (EventResult, error) {
+	if event == nil || cmp.Equal(*event, (database.CalendarEvent{})) {
+		log.Debug().Msg("event is empty")
+		return EventResult{}, errors.New("event is empty")
+	}
+	if event.EventType == "outOfOffice" {
+		return EventResult{}, errors.New("event is out of office")
+	}
+	taskSourceResult, err := api.ExternalConfig.GetSourceResult(event.SourceID)
+	if err != nil {
+		log.Error().Err(err).Msgf("could not find task source: %s for event: %+v", event.SourceID, event)
+	}
+
+	logo := taskSourceResult.Details.LogoV2
+	var linkedTaskID string
+	if event.LinkedTaskID != primitive.NilObjectID {
+		linkedTaskID = event.LinkedTaskID.Hex()
+		if event.LinkedSourceID != "" {
+			taskSourceResult, _ = api.ExternalConfig.GetSourceResult(event.LinkedSourceID)
+			logo = taskSourceResult.Details.LogoV2
+		} else {
+			api.Logger.Error().Err(err).Msg("linked task source ID is empty")
+		}
+	}
+	var linkedViewID string
+	if event.LinkedViewID != primitive.NilObjectID {
+		linkedViewID = event.LinkedViewID.Hex()
+	}
+	var linkedPRID string
+	if event.LinkedPullRequestID != primitive.NilObjectID {
+		linkedPRID = event.LinkedPullRequestID.Hex()
+		if event.LinkedSourceID != "" {
+			taskSourceResult, _ = api.ExternalConfig.GetSourceResult(event.LinkedSourceID)
+			logo = taskSourceResult.Details.LogoV2
+		} else {
+			api.Logger.Error().Err(err).Msg("linked task source ID is empty")
+		}
+	}
+	linkedNoteID := api.getLinkedNoteID(event.ID, userID)
+	return EventResult{
+		ID:            event.ID,
+		AccountID:     event.SourceAccountID,
+		CalendarID:    event.CalendarID,
+		ColorID:       event.ColorID,
+		Deeplink:      event.Deeplink,
+		Title:         event.Title,
+		Body:          event.Body,
+		Location:      event.Location,
+		CanModify:     event.CanModify,
+		DatetimeEnd:   event.DatetimeEnd,
+		DatetimeStart: event.DatetimeStart,
+		ConferenceCall: utils.ConferenceCall{
+			Logo:     event.CallLogo,
+			Platform: event.CallPlatform,
+			URL:      event.CallURL,
+		},
+		Logo:                logo,
+		LinkedTaskID:        linkedTaskID,
+		LinkedViewID:        linkedViewID,
+		LinkedPullRequestID: linkedPRID,
+		LinkedNoteID:        linkedNoteID,
+		ColorBackground:     event.ColorBackground,
+		ColorForeground:     event.ColorForeground,
+	}, nil
+}
+
+func (api *API) EventDetail(c *gin.Context) {
+	eventIDHex := c.Param("event_id")
+	eventID, err := primitive.ObjectIDFromHex(eventIDHex)
+	if err != nil {
+		// This means the event ID is improperly formatted
+		Handle404(c)
+		return
+	}
+
+	userID := getUserIDFromContext(c)
+
+	event, err := database.GetCalendarEvent(api.DB, eventID, userID)
+	if err != nil {
+		Handle404(c)
+		return
+	}
+
+	eventResult, err := api.calendarEventToResult(event, userID)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+
+	c.JSON(200, eventResult)
 }
 
 func (api *API) adjustForCompletedEvents(userID primitive.ObjectID, calendarEvents *[]EventResult, datetimeStart time.Time, datetimeEnd time.Time) error {
@@ -215,4 +254,20 @@ func (api *API) adjustForCompletedEvents(userID primitive.ObjectID, calendarEven
 	}
 
 	return nil
+}
+
+func (api *API) getLinkedNoteID(eventID primitive.ObjectID, userID primitive.ObjectID) string {
+	mongoResult := database.GetNoteCollection(api.DB).FindOne(
+		context.Background(),
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"linked_event_id": eventID},
+			{"is_deleted": bson.M{"$ne": true}},
+		}})
+	var note database.Note
+	err := mongoResult.Decode(&note)
+	if err != nil {
+		return ""
+	}
+	return note.ID.Hex()
 }

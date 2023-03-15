@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDrag } from 'react-dnd'
+import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import Log from '../../services/api/log'
 import { useModifyTask } from '../../services/api/tasks.hooks'
-import { Spacing, Typography } from '../../styles'
+import { Spacing } from '../../styles'
 import { externalStatusIcons } from '../../styles/images'
 import { DropType, TTaskV4 } from '../../utils/types'
 import CommentCount from '../atoms/CommentCount'
@@ -13,6 +14,8 @@ import SelectableContainer, { EdgeHighlight } from '../atoms/SelectableContainer
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
+import PriorityDropdown from '../radix/PriorityDropdown'
+import LinearCycle from './LinearCycle'
 import { GTButtonHack } from './Task'
 
 const DominoIconContainer = styled.div`
@@ -20,14 +23,6 @@ const DominoIconContainer = styled.div`
     align-items: center;
     gap: ${Spacing._8};
 `
-const LinearSelectableContainer = styled(SelectableContainer)`
-    display: flex;
-    padding: ${Spacing._8} ${Spacing._8} ${Spacing._8} ${Spacing._16};
-    margin-bottom: ${Spacing._4};
-    align-items: center;
-    ${Typography.bodySmall};
-`
-
 const LinearTitle = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
@@ -43,7 +38,7 @@ const LeftContainer = styled.div`
 const RightContainer = styled.div`
     display: flex;
     align-items: center;
-    gap: ${Spacing._24};
+    gap: ${Spacing._8};
     margin-left: auto;
 `
 
@@ -57,7 +52,7 @@ const LinearTask = ({ task }: LinearTaskProps) => {
     const [isHovered, setIsHovered] = useState(false)
     const { mutate: modifyTask } = useModifyTask()
 
-    const [, drag] = useDrag(
+    const [, drag, dragPreview] = useDrag(
         () => ({
             type: DropType.NON_REORDERABLE_TASK,
             item: { id: task.id, task },
@@ -69,6 +64,11 @@ const LinearTask = ({ task }: LinearTaskProps) => {
         [task]
     )
 
+    // hide default drag preview
+    useEffect(() => {
+        dragPreview(getEmptyImage())
+    }, [])
+
     const onClick = (id: string) => {
         if (calendarType === 'week' && linearIssueId === id) {
             setCalendarType('day')
@@ -79,7 +79,7 @@ const LinearTask = ({ task }: LinearTaskProps) => {
     }
 
     return (
-        <LinearSelectableContainer
+        <SelectableContainer
             key={task.id}
             onClick={() => onClick(task.id)}
             isSelected={linearIssueId === task.id}
@@ -101,11 +101,8 @@ const LinearTask = ({ task }: LinearTaskProps) => {
                             }))}
                             trigger={
                                 <GTButtonHack
-                                    value={status}
                                     icon={externalStatusIcons[task.external_status.type]}
-                                    size="small"
-                                    styleType="simple"
-                                    asDiv
+                                    styleType="control"
                                 />
                             }
                         />
@@ -114,10 +111,20 @@ const LinearTask = ({ task }: LinearTaskProps) => {
                 <LinearTitle>{task.title}</LinearTitle>
             </LeftContainer>
             <RightContainer>
+                {task.priority_normalized !== 0 && Number.isInteger(task.priority_normalized) && (
+                    <PriorityDropdown
+                        value={task.priority_normalized}
+                        onChange={(priority) =>
+                            modifyTask({ id: task.id, priorityNormalized: priority }, task.optimisticId)
+                        }
+                        condensedTrigger
+                    />
+                )}
                 {task.comments && task.comments.length > 0 && <CommentCount count={task.comments.length} />}
+                {task.linear_cycle && <LinearCycle cycle={task.linear_cycle} isCondensed />}
                 <ExternalLinkButton link={task.deeplink} />
             </RightContainer>
-        </LinearSelectableContainer>
+        </SelectableContainer>
     )
 }
 

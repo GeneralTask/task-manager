@@ -3,30 +3,35 @@ import { useKeyboardShortcut } from '../../hooks'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import { CollapsedIconContainer } from '../navigation_sidebar/NavigationLink'
 import Tip from '../radix/Tip'
 import NoteCreateModal from './NoteCreateModal'
 
 interface NoteCreateButtonProps {
     type: 'icon' | 'button' | 'collapsed'
+    disableShortcut?: boolean
 }
-const NoteCreateButton = ({ type }: NoteCreateButtonProps) => {
+const NoteCreateButton = ({ type, disableShortcut }: NoteCreateButtonProps) => {
     const [modalIsOpen, setModalIsOpen] = useState(false)
 
     useKeyboardShortcut(
         'newNote',
-        useCallback(() => setModalIsOpen(true), [])
+        useCallback(() => setModalIsOpen(true), []),
+        disableShortcut
     )
 
     return (
         <>
             {type === 'icon' && (
-                <GTIconButton icon={icons.penToSquare} onClick={() => setModalIsOpen(true)} shortcutName="newNote" />
+                <GTButton
+                    styleType="icon"
+                    icon={icons.penToSquare}
+                    onClick={() => setModalIsOpen(true)}
+                    shortcutName="newNote"
+                />
             )}
             {type === 'button' && (
                 <GTButton
-                    size="small"
                     styleType="secondary"
                     value="Create new note"
                     icon={icons.penToSquare}

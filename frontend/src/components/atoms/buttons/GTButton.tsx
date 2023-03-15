@@ -1,161 +1,199 @@
+import React from 'react'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled, { css } from 'styled-components'
-import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
+import { TShortcutName } from '../../../constants/shortcuts'
+import { Border, Colors, Spacing, Typography } from '../../../styles'
 import { TIconColor, TTextColor } from '../../../styles/colors'
-import { icons } from '../../../styles/images'
+import Tip, { TTooltipSide } from '../../radix/Tip'
 import { Icon } from '../Icon'
 import NoStyleButton from './NoStyleButton'
 
-type TButtonStyle = 'primary' | 'secondary' | 'simple'
-type TButtonSize = 'small' | 'large'
+type TButtonType = 'primary' | 'secondary' | 'destructive' | 'control' | 'icon'
 
-const PrimaryButtonStyles = css`
-    background-color: ${Colors.button.primary.default};
-    color: ${Colors.text.white};
-    &:hover {
-        box-shadow: ${Shadows.deprecated_button.hover};
-        background-color: ${Colors.button.primary.hover};
+const PrimaryButtonStyles = css<GTButtonProps>`
+    ${Typography.title.small};
+    padding: ${Spacing._8} ${Spacing._16};
+    color: ${Colors.control.primary.label};
+    background-color: ${Colors.control.primary.bg};
+    &:active:enabled,
+    &:focus:enabled {
+        background-color: ${Colors.control.primary.highlight};
+        box-shadow: inset 0px 0px 0px ${Border.stroke.large} ${Colors.control.primary.hover};
     }
-    &:active {
-        box-shadow: ${Shadows.deprecated_button.active};
-        color: ${Colors.button.primary.active_text};
-    }
-`
-const SecondaryButtonStyles = css`
-    background-color: ${Colors.button.secondary.default};
-    color: ${Colors.text.black};
-    &:hover {
-        box-shadow: ${Shadows.deprecated_button.hover};
-        background-color: ${Colors.button.secondary.hover};
-    }
-    &:active {
-        box-shadow: ${Shadows.deprecated_button.active};
-        color: ${Colors.button.secondary.active_text};
-    }
-`
-const SimpleButtonStyles = css<{ active?: boolean; disabled?: boolean }>`
-    background-color: inherit;
-    color: ${Colors.text.light};
-    &:hover {
-        ${({ disabled }) => !disabled && `outline: ${Border.stroke.small} solid ${Colors.background.border};`}
-    }
-    &:active {
-        background-color: ${Colors.background.light};
-        outline: ${Border.stroke.small} solid ${Colors.background.border};
+    &:hover:enabled {
+        background-color: ${Colors.control.primary.hover};
     }
     ${({ active }) =>
         active &&
-        `background-color: ${Colors.background.light};
-        outline: ${Border.stroke.small} solid ${Colors.background.border};`}
-    ${Typography.label};
+        css`
+            background-color: ${Colors.control.primary.highlight};
+            box-shadow: inset 0px 0px 0px ${Border.stroke.large} ${Colors.control.primary.hover};
+        `}
 `
-const LargeButtonStyle = css`
+const SecondaryButtonStyles = css<GTButtonProps>`
+    ${Typography.title.small};
     padding: ${Spacing._8} ${Spacing._16};
-    gap: ${Spacing._8};
-    ${Typography.body};
+    color: ${Colors.control.secondary.label};
+    background-color: ${Colors.control.secondary.bg};
+    box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.secondary.stroke};
+    &:active:enabled,
+    &:focus:enabled {
+        background-color: ${Colors.control.secondary.bg};
+        box-shadow: inset 0px 0px 0px ${Border.stroke.large} ${Colors.control.secondary.highlight};
+    }
+    &:hover:enabled {
+        background-color: ${Colors.control.secondary.hover};
+        box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.secondary.stroke};
+    }
+    ${({ active }) =>
+        active &&
+        css`
+            background-color: ${Colors.control.secondary.bg};
+            box-shadow: inset 0px 0px 0px ${Border.stroke.large} ${Colors.control.secondary.highlight};
+        `}
 `
-const SmallButtonStyle = css`
+const DestructiveButtonStyles = css<GTButtonProps>`
+    ${Typography.title.small};
+    padding: ${Spacing._8} ${Spacing._16};
+    color: ${Colors.control.destructive.label};
+    background-color: ${Colors.control.destructive.bg};
+    &:active:enabled,
+    &:focus:enabled {
+        background-color: ${Colors.control.destructive.highlight};
+        box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.destructive.hover};
+    }
+    &:hover:enabled {
+        background-color: ${Colors.control.destructive.hover};
+    }
+    ${({ active }) =>
+        active &&
+        css`
+            background-color: ${Colors.control.destructive.highlight};
+            box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.destructive.hover};
+        `}
+`
+const ControlButtonStyles = css<GTButtonProps>`
+    ${Typography.label.small};
     padding: ${Spacing._4} ${Spacing._8};
-    gap: ${Spacing._8};
-    ${Typography.bodySmall};
+    color: ${Colors.text.muted};
+    &:active:enabled,
+    &:focus:enabled {
+        color: ${Colors.text.base};
+        box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.background.hover};
+    }
+    &:hover:enabled {
+        color: ${Colors.text.base};
+        background-color: ${Colors.background.border};
+    }
+    ${({ active }) =>
+        active &&
+        css`
+            color: ${Colors.text.base};
+            box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.background.hover};
+        `}
+`
+const IconButtonStyles = css<GTButtonProps>`
+    ${Typography.label.small};
+    padding: ${Spacing._4};
+    color: ${Colors.text.muted};
+    &:active:enabled,
+    &:focus:enabled {
+        color: ${Colors.text.base};
+        box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.background.hover};
+    }
+    &:hover:enabled {
+        color: ${Colors.text.base};
+        background-color: ${Colors.background.border};
+    }
+    ${({ active }) =>
+        active &&
+        css`
+            color: ${Colors.text.base};
+            box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.background.hover};
+        `}
 `
 
-const Button = styled(NoStyleButton)<{
-    styleType: TButtonStyle
-    wrapText: boolean
-    fitContent: boolean
-    size: TButtonSize
-    textColor?: TTextColor
-    active?: boolean
-}>`
+const Button = styled(NoStyleButton)<GTButtonProps>`
+    box-sizing: border-box;
     display: flex;
     justify-content: center;
     align-items: center;
-    border-radius: ${Border.radius.medium};
+    gap: ${Spacing._8};
+    border-radius: ${Border.radius.small};
     text-align: center;
     width: ${({ fitContent }) => (fitContent ? 'fit-content' : '100%')};
-    ${(props) => props.styleType !== 'simple' && `box-shadow: ${Shadows.deprecated_button.default};`};
-    white-space: ${(props) => (props.wrapText ? 'normal' : 'nowrap')};
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: background 0.05s;
-    transition: box-shadow 0.25s;
     user-select: none;
     font-family: inherit;
-    box-sizing: border-box;
-    ${(props) => props.styleType === 'primary' && PrimaryButtonStyles};
-    ${(props) => props.styleType === 'secondary' && SecondaryButtonStyles};
-    ${(props) => props.styleType === 'simple' && SimpleButtonStyles};
-    ${(props) => props.size === 'large' && LargeButtonStyle};
-    ${(props) => props.size === 'small' && SmallButtonStyle};
-    opacity: ${(props) => (props.disabled ? '0.2' : '1')};
-    &:hover {
-        ${(props) =>
-            props.disabled &&
-            (props.styleType === 'primary' || props.styleType === 'secondary') &&
-            `box-shadow: ${Shadows.deprecated_button.default}`};
-        ${(props) =>
-            props.disabled &&
-            `background-color: ${
-                props.styleType === 'primary' ? Colors.button.primary.default : Colors.button.secondary.default
-            }`};
-    }
+    ${({ styleType }) => styleType === 'primary' && PrimaryButtonStyles};
+    ${({ styleType }) => styleType === 'secondary' && SecondaryButtonStyles};
+    ${({ styleType }) => styleType === 'destructive' && DestructiveButtonStyles};
+    ${({ styleType }) => styleType === 'control' && ControlButtonStyles};
+    ${({ styleType }) => styleType === 'icon' && IconButtonStyles};
     ${(props) => props.textColor && `color: ${Colors.text[props.textColor]};`}
-    ${(props) => props.disabled && `cursor: default;`}
+    &:disabled {
+        opacity: 0.5;
+        ${({ overrideDisabledStyle }) => overrideDisabledStyle && 'opacity: 1;'}
+        cursor: default;
+    }
 `
 const MarginLeftAuto = styled.div`
     margin-left: auto;
 `
-
 interface GTButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value'> {
-    styleType?: TButtonStyle
-    size?: TButtonSize
-    wrapText?: boolean
+    // style
+    styleType: TButtonType
+    // text
+    value?: React.ReactNode
+    textColor?: TTextColor
+    // left icon
     icon?: IconProp | string
     iconColor?: TIconColor
     iconColorHex?: string
-    textColor?: TTextColor
-    value?: React.ReactNode
+    // right icon
+    rightIcon?: IconProp | string
+    rightIconColor?: TIconColor
+    rightIconColorHex?: string
+    // tooltip
+    shortcutName?: TShortcutName
+    overrideShortcut?: string
+    overrideShortcutLabel?: string
+    tooltipText?: string
+    tooltipSide?: TTooltipSide
+    // misc
     fitContent?: boolean
     active?: boolean
-    isDropdown?: boolean
-    asDiv?: boolean
+    overrideDisabledStyle?: boolean
 }
-const GTButton = ({
-    styleType = 'primary',
-    size = 'large',
-    wrapText = false,
-    fitContent = true,
-    icon,
-    iconColor,
-    iconColorHex,
-    textColor,
-    value,
-    active,
-    isDropdown = false,
-    asDiv = false,
-    ...rest
-}: GTButtonProps) => {
-    return (
-        <Button
-            styleType={styleType}
-            size={size}
-            wrapText={wrapText}
-            fitContent={fitContent}
-            textColor={textColor}
-            active={active}
-            as={asDiv ? 'div' : 'button'}
-            {...rest}
-        >
-            {icon && <Icon icon={icon} color={iconColor} colorHex={iconColorHex} />}
-            {value}
-            {isDropdown && (
+const GTButton = React.forwardRef((props: GTButtonProps, ref: React.Ref<HTMLButtonElement>) => {
+    const { value, fitContent, ...rest } = props
+    const button = (
+        <Button fitContent={fitContent ?? true} ref={ref} {...rest}>
+            {props.icon && <Icon icon={props.icon} color={props.iconColor} colorHex={props.iconColorHex} />}
+            {props.styleType !== 'icon' ? value : ''}
+            {props.rightIcon && props.styleType !== 'icon' && (
                 <MarginLeftAuto>
-                    <Icon icon={icons.caret_down_solid} color="gray" />
+                    <Icon icon={props.rightIcon} color={props.rightIconColor} colorHex={props.rightIconColorHex} />
                 </MarginLeftAuto>
             )}
         </Button>
     )
-}
+    if (props.tooltipText || props.shortcutName) {
+        return (
+            <Tip
+                content={props.tooltipText}
+                shortcutName={props.shortcutName}
+                side={props.tooltipSide}
+                overrideShortcut={props.overrideShortcut}
+                overrideShortcutLabel={props.overrideShortcutLabel}
+            >
+                {button}
+            </Tip>
+        )
+    }
+    return button
+})
 
 export default GTButton

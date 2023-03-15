@@ -3,7 +3,7 @@ import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
-import { TNote } from '../../utils/types'
+import { TNote, TNoteSharedAccess } from '../../utils/types'
 import { getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 
 export interface TCreateNoteData {
@@ -11,8 +11,11 @@ export interface TCreateNoteData {
     body?: string
     author: string
     shared_until?: string
+    shared_access?: TNoteSharedAccess
+    linked_event_id?: string
+    linked_event_start?: string
+    linked_event_end?: string
     optimisticId: string
-    callback?: (data: TNoteResponse) => void
 }
 
 export interface TNoteResponse {
@@ -28,6 +31,7 @@ export interface TModifyNoteData {
     title?: string
     body?: string
     shared_until?: string
+    shared_access?: TNoteSharedAccess
     is_deleted?: boolean
 }
 
@@ -77,8 +81,6 @@ export const useCreateNote = () => {
             // check response to see if we get anything back for this endpoint
             setOptimisticId(createData.optimisticId, response.note_id)
 
-            if (createData.callback) createData.callback(response)
-
             const notes = queryClient.getImmutableQueryData<TNote[]>('notes')
             if (!notes) return
 
@@ -94,12 +96,7 @@ export const useCreateNote = () => {
 }
 export const createNote = async (data: TCreateNoteData) => {
     try {
-        const res = await apiClient.post('/notes/create/', {
-            title: data.title,
-            body: data.body,
-            author: data.author,
-            shared_until: data.shared_until,
-        })
+        const res = await apiClient.post('/notes/create/', data)
         return castImmutable(res.data)
     } catch {
         throw 'createNote failed'
@@ -125,6 +122,7 @@ export const useModifyNote = () => {
                 note.title = data.title || note.title
                 note.body = data.body ?? note.body
                 note.shared_until = data.shared_until ?? note.shared_until
+                note.shared_access = data.shared_access ?? note.shared_access
                 note.updated_at = DateTime.utc().toISO()
                 note.is_deleted = data.is_deleted ?? note.is_deleted
             })
@@ -154,5 +152,9 @@ export const createNewNoteHelper = (
         updated_at: data.updated_at ?? DateTime.utc().toISO(),
         is_deleted: data.is_deleted ?? false,
         shared_until: data.shared_until,
+        shared_access: data.shared_access,
+        linked_event_id: data.linked_event_id,
+        linked_event_start: data.linked_event_start,
+        linked_event_end: data.linked_event_end,
     }
 }

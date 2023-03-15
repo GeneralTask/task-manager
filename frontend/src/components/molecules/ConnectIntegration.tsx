@@ -14,7 +14,7 @@ const Container = styled(GTShadowContainer)`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
     box-sizing: border-box;
     height: fit-content;
 `
@@ -113,10 +113,10 @@ const ConnectIntegration = ({ type, reconnect = false, reauthorizeAccountName }:
             <Text>{getTitle()}</Text>
             <ButtonWrapper>
                 <GTButton
+                    styleType="primary"
                     disabled={isAuthWindowOpen}
                     value={getButtonLabel()}
                     color={Colors.legacyColors.purple}
-                    size="small"
                     onClick={onClick}
                 />
             </ButtonWrapper>

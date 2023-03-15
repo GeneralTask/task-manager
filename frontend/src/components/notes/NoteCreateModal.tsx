@@ -14,7 +14,7 @@ import { getKeyCode, stopKeydownPropogation } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import GTButton from '../atoms/buttons/GTButton'
-import { Label } from '../atoms/typography/Typography'
+import { DeprecatedLabel } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
 import { getNoteURL } from './utils'
 
@@ -175,12 +175,11 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                             />
                         </Flex>
                         <Flex justifyContent="space-between" alignItems="center">
-                            <Label color="light">{syncIndicatorText}</Label>
+                            <DeprecatedLabel color="light">{syncIndicatorText}</DeprecatedLabel>
                             <Flex gap={Spacing._8}>
                                 <GTButton
                                     value="Share note"
                                     styleType="secondary"
-                                    size="small"
                                     icon={icons.share}
                                     disabled={!optimisticId.current || !getIdFromOptimisticId(optimisticId.current)}
                                     onClick={() => {
@@ -201,7 +200,6 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                 <GTButton
                                     value="Save note"
                                     styleType="secondary"
-                                    size="small"
                                     icon={icons.save}
                                     disabled={!(noteBody || noteTitle)}
                                     onClick={() => {

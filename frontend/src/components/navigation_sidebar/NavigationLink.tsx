@@ -3,7 +3,8 @@ import { useDrag, useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
-import { TASK_FOLDER_DEFAULT_ID } from '../../constants'
+import { TASK_FOLDER_DEFAULT_ID, TRASH_FOLDER_ID } from '../../constants'
+import { useToast } from '../../hooks'
 import Log from '../../services/api/log'
 import { useReorderTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
@@ -21,7 +22,7 @@ export const CollapsedIconContainer = styled.div<{ isSelected?: boolean }>`
     ${({ isSelected }) =>
         isSelected &&
         `
-        background-color: ${Colors.background.medium};
+        background-color: ${Colors.background.sub};
         mix-blend-mode: multiply;
     `}
     :hover {
@@ -39,7 +40,7 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     min-width: 0;
     border-radius: ${Border.radius.medium};
     background-color: ${({ isOver, isSelected }) =>
-        isOver ? Colors.background.white : isSelected ? Colors.background.medium : 'inherit'};
+        isOver ? Colors.background.white : isSelected ? Colors.background.sub : 'inherit'};
     mix-blend-mode: ${({ isOver, isSelected }) => (isSelected && !isOver ? 'multiply' : 'inherit')};
     color: ${Colors.text.black};
     box-sizing: border-box;
@@ -56,12 +57,12 @@ const FolderTitle = styled.span`
     white-space: nowrap;
     flex: 1;
     user-select: none;
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 const FolderTitleItemCount = styled.span`
     margin-left: auto;
     user-select: none;
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 export const NavigationLinkTemplate = styled.div`
     width: 100%;
@@ -100,11 +101,18 @@ const NavigationLink = ({
     const { mutate: reorderTask } = useReorderTask()
     const { showTaskToCalSidebar, setShowTaskToCalSidebar, calendarType } = useCalendarContext()
     const navigate = useNavigate()
+    const toast = useToast()
 
     const onDrop = useCallback(
         (item: DropItem) => {
             if (!taskFolder || !droppable || !item.task) return
             if (taskFolder.id === item.sectionId) return
+            if (item.task.source.name === 'Jira' && taskFolder.id === TRASH_FOLDER_ID) {
+                toast.show({
+                    message: 'Cannot delete Jira tasks',
+                })
+                return
+            }
             reorderTask(
                 {
                     id: item.id,

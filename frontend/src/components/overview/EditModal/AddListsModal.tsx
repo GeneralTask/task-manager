@@ -2,7 +2,7 @@ import { Fragment, useDeferredValue, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { GITHUB_SUPPORTED_VIEW_NAME, TASK_INBOX_NAME } from '../../../constants'
-import { useAuthWindow, usePreviewMode } from '../../../hooks'
+import { useAuthWindow } from '../../../hooks'
 import { useAddView, useGetSupportedViews, useRemoveView } from '../../../services/api/overview.hooks'
 import { useGetLinkedAccounts } from '../../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../../styles'
@@ -31,12 +31,12 @@ const SupportedViewContent = styled.div`
     align-items: center;
     color: ${Colors.text.black};
     gap: ${Spacing._8};
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 const NoListsDialog = styled.div`
     display: flex;
     justify-content: center;
-    ${Typography.body};
+    ${Typography.deprecated_body};
     margin-top: ${Spacing._8};
 `
 const SearchBarContainer = styled.div`
@@ -55,7 +55,6 @@ interface AddListsModalProps {
 }
 
 export const AddListsModalContent = () => {
-    const { isPreviewMode } = usePreviewMode()
     const { data: supportedViews } = useGetSupportedViews()
     const { mutate: addView } = useAddView()
     const { mutate: removeView } = useRemoveView()
@@ -88,7 +87,7 @@ export const AddListsModalContent = () => {
             }
         }
         return filtered
-    }, [supportedViews, deferredSearchTerm, isPreviewMode])
+    }, [supportedViews, deferredSearchTerm])
 
     const onChange = (
         supportedView: TSupportedView,
@@ -123,66 +122,63 @@ export const AddListsModalContent = () => {
                 />
             </SearchBarContainer>
             {filteredSupportedViews.length === 0 && <NoListsDialog>No lists matching your query</NoListsDialog>}
-            {filteredSupportedViews.map((supportedView, viewIndex) =>
-                supportedView.name === 'Jira' && !isPreviewMode ? null : (
-                    <Fragment key={viewIndex}>
-                        <SupportedView>
-                            <SupportedViewContent>
-                                <Icon icon={getIcon(supportedView)} />
-                                {supportedView.name}
-                            </SupportedViewContent>
-                            <Flex alignItems="center" gap={Spacing._8}>
-                                {!supportedView.is_linked && (
-                                    <GTButton
-                                        value="Connect"
-                                        icon={icons.external_link}
-                                        size="small"
-                                        styleType="secondary"
-                                        onClick={() => openAuthWindow({ url: supportedView.authorization_url })}
-                                    />
-                                )}
-                                {!supportedView.is_nested && supportedView.views.length === 1 && (
+            {filteredSupportedViews.map((supportedView, viewIndex) => (
+                <Fragment key={viewIndex}>
+                    <SupportedView>
+                        <SupportedViewContent>
+                            <Icon icon={getIcon(supportedView)} />
+                            {supportedView.name}
+                        </SupportedViewContent>
+                        <Flex alignItems="center" gap={Spacing._8}>
+                            {!supportedView.is_linked && (
+                                <GTButton
+                                    value="Connect"
+                                    icon={icons.external_link}
+                                    styleType="secondary"
+                                    onClick={() => openAuthWindow({ url: supportedView.authorization_url })}
+                                />
+                            )}
+                            {!supportedView.is_nested && supportedView.views.length === 1 && (
+                                <GTCheckbox
+                                    isChecked={supportedView.views[0].is_added}
+                                    onChange={() => {
+                                        onChange(supportedView, viewIndex, supportedView.views[0], 0)
+                                    }}
+                                />
+                            )}
+                        </Flex>
+                    </SupportedView>
+                    {/* Do not show divider if this is the last item in the list */}
+                    {((!supportedView.is_nested && viewIndex !== filteredSupportedViews.length - 1) ||
+                        (supportedView.is_nested && supportedView.views.length > 0)) && (
+                        <Divider color={Colors.background.border} />
+                    )}
+                    {supportedView.is_nested &&
+                        supportedView.views.map((supportedViewItem, viewItemIndex) => (
+                            <Fragment key={viewItemIndex}>
+                                <SupportedView isIndented>
+                                    <SupportedViewContent>
+                                        <Icon icon={getIcon(supportedView)} />
+                                        {supportedViewItem.name}
+                                    </SupportedViewContent>
                                     <GTCheckbox
-                                        isChecked={supportedView.views[0].is_added}
-                                        onChange={() => {
-                                            onChange(supportedView, viewIndex, supportedView.views[0], 0)
-                                        }}
+                                        isChecked={supportedViewItem.is_added}
+                                        onChange={() =>
+                                            onChange(supportedView, viewIndex, supportedViewItem, viewItemIndex)
+                                        }
                                     />
+                                </SupportedView>
+                                {(viewIndex !== filteredSupportedViews.length - 1 ||
+                                    viewItemIndex !== supportedView.views.length - 1) && (
+                                    <Divider color={Colors.background.border} />
                                 )}
-                            </Flex>
-                        </SupportedView>
-                        {/* Do not show divider if this is the last item in the list */}
-                        {((!supportedView.is_nested && viewIndex !== filteredSupportedViews.length - 1) ||
-                            (supportedView.is_nested && supportedView.views.length > 0)) && (
-                            <Divider color={Colors.background.border} />
-                        )}
-                        {supportedView.is_nested &&
-                            supportedView.views.map((supportedViewItem, viewItemIndex) => (
-                                <Fragment key={viewItemIndex}>
-                                    <SupportedView isIndented>
-                                        <SupportedViewContent>
-                                            <Icon icon={getIcon(supportedView)} />
-                                            {supportedViewItem.name}
-                                        </SupportedViewContent>
-                                        <GTCheckbox
-                                            isChecked={supportedViewItem.is_added}
-                                            onChange={() =>
-                                                onChange(supportedView, viewIndex, supportedViewItem, viewItemIndex)
-                                            }
-                                        />
-                                    </SupportedView>
-                                    {(viewIndex !== filteredSupportedViews.length - 1 ||
-                                        viewItemIndex !== supportedView.views.length - 1) && (
-                                        <Divider color={Colors.background.border} />
-                                    )}
-                                </Fragment>
-                            ))}
-                        {supportedView.name === GITHUB_SUPPORTED_VIEW_NAME && isGithubIntegrationLinked && (
-                            <MissingRepositoryMessage />
-                        )}
-                    </Fragment>
-                )
-            )}
+                            </Fragment>
+                        ))}
+                    {supportedView.name === GITHUB_SUPPORTED_VIEW_NAME && isGithubIntegrationLinked && (
+                        <MissingRepositoryMessage />
+                    )}
+                </Fragment>
+            ))}
         </>
     )
 }

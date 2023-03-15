@@ -10,7 +10,7 @@ import { TRecurringTaskTemplate, TTaskV4 } from '../../../../utils/types'
 import { stopKeydownPropogation } from '../../../../utils/utils'
 import Flex from '../../../atoms/Flex'
 import GTButton from '../../../atoms/buttons/GTButton'
-import { BodySmall } from '../../../atoms/typography/Typography'
+import { DeprecatedBodySmall } from '../../../atoms/typography/Typography'
 import GTModal from '../../../mantine/GTModal'
 import CreateNewItemInput from '../../CreateNewItemInput'
 import { getInitialSelectedDate } from '../recurringTasks.utils'
@@ -127,7 +127,7 @@ const RecurringTaskTemplateModal = ({
                                     onSubmit={handleSave}
                                 />
                                 <Flex column gap={Spacing._12}>
-                                    <BodySmall>Which folder should this task appear in?</BodySmall>
+                                    <DeprecatedBodySmall>Which folder should this task appear in?</DeprecatedBodySmall>
                                     <TemplateFolderSelector value={folder} onChange={setFolder} useTriggerWidth />
                                 </Flex>
                                 <RecurrenceRateSelector
@@ -139,7 +139,7 @@ const RecurringTaskTemplateModal = ({
                             <DatePicker date={selectedDate} setDate={setSelectedDate} recurrenceRate={recurrenceRate} />
                         </Flex>
                         <Footer>
-                            <GTButton value="Save" onClick={handleSave} disabled={!isValid} />
+                            <GTButton styleType="primary" value="Save" onClick={handleSave} disabled={!isValid} />
                         </Footer>
                     </>
                 ),

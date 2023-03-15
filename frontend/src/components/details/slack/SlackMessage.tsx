@@ -20,7 +20,7 @@ const BodyContainer = styled.div`
 `
 const BlackText = styled.span`
     color: ${Colors.text.black};
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 const GrayText = styled(BlackText)`
     color: ${Colors.text.light};
@@ -45,7 +45,7 @@ const SlackMessage = ({ sender, slack_message_params }: SlackMessageProps) => {
     return (
         <>
             <DividerContainer>
-                <Divider color={Colors.background.dark} />
+                <Divider color={Colors.background.hover} />
             </DividerContainer>
             <MessageContainer>
                 <TopContainer>

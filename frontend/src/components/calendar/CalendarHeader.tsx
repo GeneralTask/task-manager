@@ -8,8 +8,7 @@ import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
-import { Subtitle } from '../atoms/typography/Typography'
+import { DeprecatedSubtitle } from '../atoms/typography/Typography'
 import { useCalendarContext } from './CalendarContext'
 
 const RelativeDiv = styled.div`
@@ -89,22 +88,19 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
     useKeyboardShortcut(isCalendarExpanded ? 'previousWeek' : 'previousDay', selectPrevious, isFocusMode)
 
     const goToTodayButton = (
-        <GTButton
-            value="Today"
-            onClick={selectToday}
-            size="small"
-            styleType="secondary"
-            disabled={isCalendarShowingToday}
-        />
+        <GTButton value="Today" onClick={selectToday} styleType="control" disabled={isCalendarShowingToday} />
     )
     const nextPreviousButtons = (
         <Flex gap={Spacing._8} alignItems="center">
-            <GTIconButton
+            <GTButton
+                styleType="icon"
                 shortcutName={isCalendarExpanded ? 'previousWeek' : 'previousDay'}
                 onClick={selectPrevious}
                 icon={icons.caret_left}
             />
-            <GTIconButton
+            {goToTodayButton}
+            <GTButton
+                styleType="icon"
                 shortcutName={isCalendarExpanded ? 'nextWeek' : 'nextDay'}
                 onClick={selectNext}
                 icon={icons.caret_right}
@@ -125,7 +121,6 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                                     icon={icons.hamburger}
                                     iconColor="black"
                                     value="Open task list"
-                                    size="small"
                                     styleType="secondary"
                                     onClick={() => {
                                         setShowTaskToCalSidebar(true)
@@ -134,21 +129,20 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                             )}
                             {isCalendarExpanded && (
                                 <>
-                                    {goToTodayButton}
                                     {nextPreviousButtons}
+                                    <DeprecatedSubtitle>{date.toFormat('LLLL yyyy')}</DeprecatedSubtitle>
                                 </>
                             )}
-                            <Subtitle>
-                                {calendarType === 'week' ? date.toFormat('LLLL yyyy') : date.toFormat('ccc, LLLL d')}
-                            </Subtitle>
                         </Flex>
                         <Flex gap={Spacing._8} alignItems="center">
-                            <GTIconButton
+                            <GTButton
+                                styleType="icon"
                                 shortcutName={calendarType === 'week' ? 'toggleDailyCalendar' : 'toggleWeeklyCalendar'}
                                 onClick={toggleCalendar}
                                 icon={calendarType === 'week' ? icons.arrows_in : icons.arrows_out}
                             />
-                            <GTIconButton
+                            <GTButton
+                                styleType="icon"
                                 shortcutName="calendar"
                                 onClick={() => setIsCollapsed(true)}
                                 icon={icons.sidebarFlipped}
@@ -158,8 +152,8 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                     <Divider color={Colors.background.border} />
                     {!isCalendarExpanded && (
                         <PaddedContainer>
+                            <DeprecatedSubtitle>{date.toFormat('ccc, LLLL d')}</DeprecatedSubtitle>
                             {nextPreviousButtons}
-                            {goToTodayButton}
                         </PaddedContainer>
                     )}
                 </>

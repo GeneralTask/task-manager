@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import useOverviewContext from '../../context/OverviewContextProvider'
+import { useGetMeetingPreparationTasks } from '../../services/api/meeting-preparation-tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
@@ -17,7 +18,7 @@ import useOverviewLists from '../overview/useOverviewLists'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const ActionsContainer = styled.div`
-    background-color: ${Colors.background.medium};
+    background-color: ${Colors.background.sub};
     padding: ${Spacing._8} ${Spacing._12};
     border-radius: ${Border.radius.small};
     display: flex;
@@ -25,7 +26,7 @@ const ActionsContainer = styled.div`
     margin-bottom: ${Spacing._16};
 `
 const BannerButton = styled(GTButton)`
-    ${Typography.label};
+    ${Typography.deprecated_label};
 `
 const RightActions = styled.div`
     margin-left: auto;
@@ -64,9 +65,10 @@ const DailyOverviewView = () => {
     useSelectFirstItemOnFirstLoad()
     const { expandAll, collapseAll } = useOverviewContext()
 
-    const { lists, isLoading } = useOverviewLists()
+    const { lists, isLoading: isOverviewListsLoading } = useOverviewLists()
+    const { isLoading: isMeetingTasksLoading } = useGetMeetingPreparationTasks()
 
-    if (isLoading) return <Spinner />
+    if (isOverviewListsLoading || isMeetingTasksLoading) return <Spinner />
     return (
         <>
             <Flex>
@@ -74,8 +76,7 @@ const DailyOverviewView = () => {
                     <Header folderName="Daily Overview" />
                     <ActionsContainer>
                         <BannerButton
-                            styleType="simple"
-                            size="small"
+                            styleType="control"
                             onClick={() => {
                                 setEditListTabIndex(1)
                                 setIsEditListsModalOpen(true)
@@ -90,24 +91,21 @@ const DailyOverviewView = () => {
                         />
                         <RightActions>
                             <BannerButton
-                                styleType="simple"
-                                size="small"
+                                styleType="control"
                                 onClick={collapseAll}
                                 icon={icons.squareMinus}
                                 iconColor="gray"
                                 value="Collapse all"
                             />
                             <BannerButton
-                                styleType="simple"
-                                size="small"
+                                styleType="control"
                                 onClick={expandAll}
                                 icon={icons.squarePlus}
                                 iconColor="gray"
                                 value="Expand all"
                             />
                             <BannerButton
-                                styleType="simple"
-                                size="small"
+                                styleType="control"
                                 onClick={() => {
                                     setEditListTabIndex(0)
                                     setIsEditListsModalOpen(true)

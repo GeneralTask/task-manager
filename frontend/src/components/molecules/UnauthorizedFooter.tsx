@@ -29,7 +29,7 @@ const FooterText = styled.span`
     color: ${Colors.text.white};
     font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu, Cantarell,
         Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-    ${Typography.label};
+    ${Typography.deprecated_label};
 `
 const UnauthorizedFooter = () => {
     const navigate = useNavigate()

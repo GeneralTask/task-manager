@@ -7,8 +7,9 @@ interface PriorityDropdownProps {
     value: number
     onChange: (priority: number) => void
     disabled?: boolean
+    condensedTrigger?: boolean
 }
-const PriorityDropdown = ({ value, onChange, disabled }: PriorityDropdownProps) => {
+const PriorityDropdown = ({ value, onChange, disabled, condensedTrigger }: PriorityDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
 
     if (!Number.isInteger(value)) return null
@@ -26,17 +27,27 @@ const PriorityDropdown = ({ value, onChange, disabled }: PriorityDropdownProps) 
                 selected: index === value,
             }))}
             trigger={
-                <GTButton
-                    value={TASK_PRIORITIES[value].label}
-                    icon={TASK_PRIORITIES[value].icon}
-                    size="small"
-                    styleType="simple"
-                    iconColor={TASK_PRIORITIES[value].color}
-                    onClick={() => setIsOpen(!isOpen)}
-                    active={isOpen}
-                    disabled={disabled}
-                    asDiv
-                />
+                condensedTrigger ? (
+                    <GTButton
+                        styleType="icon"
+                        icon={TASK_PRIORITIES[value].icon}
+                        iconColor={TASK_PRIORITIES[value].color}
+                        tooltipText={TASK_PRIORITIES[value].label}
+                        onClick={() => setIsOpen(!isOpen)}
+                        active={isOpen}
+                        disabled={disabled}
+                    />
+                ) : (
+                    <GTButton
+                        value={TASK_PRIORITIES[value].label}
+                        icon={TASK_PRIORITIES[value].icon}
+                        styleType="control"
+                        iconColor={TASK_PRIORITIES[value].color}
+                        onClick={() => setIsOpen(!isOpen)}
+                        active={isOpen}
+                        disabled={disabled}
+                    />
+                )
             }
         />
     )

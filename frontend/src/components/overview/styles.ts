@@ -16,13 +16,13 @@ export const ViewHeader = styled.div`
 `
 export const ViewName = styled.div`
     color: ${Colors.text.light};
-    ${Typography.subtitle};
+    ${Typography.deprecated_subtitle};
 `
 export const RemoveButton = styled(NoStyleButton)`
     padding: ${Spacing._8};
     border-radius: ${Border.radius.medium};
     &:hover {
-        background-color: ${Colors.background.dark};
+        background-color: ${Colors.background.hover};
     }
 `
 export const SelectedList = styled.div`
@@ -36,7 +36,7 @@ export const SelectedList = styled.div`
     margin: ${Spacing._4} 0;
     gap: ${Spacing._12};
     color: ${Colors.text.black};
-    ${Typography.body};
+    ${Typography.deprecated_body};
     cursor: pointer;
 `
 export const EditViewsDeleteButton = styled(RemoveButton)`
@@ -47,7 +47,7 @@ export const PaginateTextButton = styled(NoStyleButton)`
     text-decoration: underline;
     cursor: pointer;
     margin: ${Spacing._4} ${Spacing._8} 0;
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 export const OptimisticItemsContainer = styled.div`
     height: 100px;

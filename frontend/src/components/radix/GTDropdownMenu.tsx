@@ -6,7 +6,7 @@ import { icons } from '../../styles/images'
 import { emptyFunction, stopKeydownPropogation } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
-import { Label } from '../atoms/typography/Typography'
+import { DeprecatedLabel } from '../atoms/typography/Typography'
 import {
     FixedSizeIcon,
     GTMenuItem,
@@ -14,20 +14,16 @@ import {
     MenuContentShared,
     MenuItemLabel,
     MenuItemShared,
-    MenuTriggerShared,
 } from './RadixUIConstants'
 import Tip from './Tip'
 
 const DROPDOWN_MENU_ITEM_MAX_WIDTH = '240px'
 const DROPDOWN_MENU_ITEM_MAX_HEIGHT = '75vh'
-const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
-    ${MenuTriggerShared};
-`
 const DropdownMenuContent = styled(DropdownMenu.Content)<{
     $menuInModal?: boolean
     $width?: number
     $textColor?: string
-    $fontStyle?: 'body' | 'bodySmall' | 'label'
+    $fontStyle?: 'deprecated_body' | 'deprecated_bodySmall' | 'deprecated_label'
 }>`
     ${MenuContentShared};
     max-height: ${DROPDOWN_MENU_ITEM_MAX_HEIGHT};
@@ -55,7 +51,7 @@ const DropdownMenuSubContent = styled(DropdownMenu.SubContent)`
     ${MenuContentShared};
     user-select: none;
 `
-const Description = styled(Label)`
+const Description = styled(DeprecatedLabel)`
     padding: ${Spacing._8} ${Spacing._12};
     display: block;
 `
@@ -73,9 +69,8 @@ interface GTDropdownMenuProps {
     hideCheckmark?: boolean
     menuInModal?: boolean
     useTriggerWidth?: boolean
-    unstyledTrigger?: boolean
     keepOpenOnSelect?: boolean
-    fontStyle?: 'body' | 'bodySmall' | 'label'
+    fontStyle?: 'deprecated_body' | 'deprecated_bodySmall' | 'deprecated_label'
     description?: string
 }
 
@@ -90,9 +85,8 @@ const GTDropdownMenu = ({
     hideCheckmark = false,
     menuInModal = false,
     useTriggerWidth = false,
-    unstyledTrigger = false,
     keepOpenOnSelect = false,
-    fontStyle = 'body',
+    fontStyle = 'deprecated_body',
     description,
 }: GTDropdownMenuProps) => {
     const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTMenuItem[][]
@@ -113,9 +107,9 @@ const GTDropdownMenu = ({
     return (
         <div onClick={(e) => e.stopPropagation()}>
             <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen}>
-                <DropdownMenuTrigger ref={triggerRef} disabled={disabled} $unstyled={unstyledTrigger}>
+                <DropdownMenu.Trigger ref={triggerRef} disabled={disabled} asChild>
                     {trigger}
-                </DropdownMenuTrigger>
+                </DropdownMenu.Trigger>
                 <DropdownMenu.Portal>
                     <DropdownMenuContent
                         onKeyDown={(e) => stopKeydownPropogation(e, ['Escape'], true)}
@@ -250,13 +244,13 @@ const GTDropdownMenu = ({
                                             )}
                                         </Fragment>
                                     ))}
-                                    {groupIndex !== groups.length - 1 && <Divider color={Colors.background.medium} />}
+                                    {groupIndex !== groups.length - 1 && <Divider color={Colors.background.sub} />}
                                 </DropdownMenu.Group>
                             </Fragment>
                         ))}
                         {description && (
                             <>
-                                <Divider color={Colors.background.medium} />
+                                <Divider color={Colors.background.sub} />
                                 <Description color="light">{description}</Description>
                             </>
                         )}

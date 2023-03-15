@@ -243,6 +243,43 @@ func TestGetEmailDomain(t *testing.T) {
 		assert.Equal(t, "wow.com", domain)
 	})
 }
+
+func TestCheckNoteSharingAccessValid(t *testing.T) {
+	t.Run("Invalid", func(t *testing.T) {
+		invalidInt := -1
+		invalid := SharedAccess(invalidInt)
+		result := CheckNoteSharingAccessValid(&invalid)
+		assert.False(t, result)
+	})
+
+	t.Run("SuccessNil", func(t *testing.T) {
+		// needed for backwards compatibility
+		result := CheckNoteSharingAccessValid(nil)
+		assert.True(t, result)
+	})
+
+	t.Run("Success", func(t *testing.T) {
+		valid := SharedAccessDomain
+		result := CheckNoteSharingAccessValid(&valid)
+		assert.True(t, result)
+	})
+}
+
+func TestCheckTaskSharingAccessValid(t *testing.T) {
+	t.Run("Invalid", func(t *testing.T) {
+		result := CheckTaskSharingAccessValid(-1)
+		assert.False(t, result)
+	})
+	t.Run("SuccessPublic", func(t *testing.T) {
+		result := CheckTaskSharingAccessValid(0)
+		assert.True(t, result)
+	})
+	t.Run("SuccessDomain", func(t *testing.T) {
+		result := CheckTaskSharingAccessValid(1)
+		assert.True(t, result)
+	})
+}
+
 func TestGetSharedTask(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
@@ -282,17 +319,17 @@ func TestGetSharedTask(t *testing.T) {
 		publicTaskID := result.InsertedID.(primitive.ObjectID)
 
 		// Test that the task is returned when the user has same domain
-		task, err := GetSharedTask(db, publicTaskID, userSameDomainID)
+		task, err := GetSharedTask(db, publicTaskID, &userSameDomainID)
 		assert.NoError(t, err)
 		assert.Equal(t, publicTaskID, task.ID)
 
 		// Test that the task is returned when the user has different domain
-		task, err = GetSharedTask(db, publicTaskID, userDifferentDomainID)
+		task, err = GetSharedTask(db, publicTaskID, &userDifferentDomainID)
 		assert.NoError(t, err)
 		assert.Equal(t, publicTaskID, task.ID)
 
 		// Test that the task is return when owner is same as user
-		task, err = GetSharedTask(db, publicTaskID, taskOwnerID)
+		task, err = GetSharedTask(db, publicTaskID, &taskOwnerID)
 		assert.NoError(t, err)
 		assert.Equal(t, publicTaskID, task.ID)
 	})
@@ -306,7 +343,7 @@ func TestGetSharedTask(t *testing.T) {
 		domainTaskID := result.InsertedID.(primitive.ObjectID)
 
 		// Test that the task is returned when the user has same domain
-		task, err := GetSharedTask(db, domainTaskID, userSameDomainID)
+		task, err := GetSharedTask(db, domainTaskID, &userSameDomainID)
 		assert.NoError(t, err)
 		assert.Equal(t, domainTaskID, task.ID)
 	})
@@ -320,7 +357,7 @@ func TestGetSharedTask(t *testing.T) {
 		domainTaskID := result.InsertedID.(primitive.ObjectID)
 
 		// Test that the task is not returned when the user has different domain
-		task, err := GetSharedTask(db, domainTaskID, userDifferentDomainID)
+		task, err := GetSharedTask(db, domainTaskID, &userDifferentDomainID)
 		assert.Error(t, err)
 		assert.Equal(t, "user domain does not match task owner domain", err.Error())
 		assert.Nil(t, task)
@@ -335,7 +372,7 @@ func TestGetSharedTask(t *testing.T) {
 		domainTaskID := result.InsertedID.(primitive.ObjectID)
 
 		// Test that the task is returned when owner is the user
-		task, err := GetSharedTask(db, domainTaskID, taskOwnerID)
+		task, err := GetSharedTask(db, domainTaskID, &taskOwnerID)
 		assert.NoError(t, err)
 		assert.Equal(t, domainTaskID, task.ID)
 	})
@@ -350,7 +387,7 @@ func TestGetSharedTask(t *testing.T) {
 		assert.NoError(t, err)
 		taskID := result.InsertedID.(primitive.ObjectID)
 
-		task, err := GetSharedTask(db, taskID, userSameDomainID)
+		task, err := GetSharedTask(db, taskID, &userSameDomainID)
 		assert.Error(t, err)
 		assert.Equal(t, "task is not shared", err.Error())
 		assert.Nil(t, task)
@@ -366,7 +403,7 @@ func TestGetSharedTask(t *testing.T) {
 		assert.NoError(t, err)
 		taskID := result.InsertedID.(primitive.ObjectID)
 
-		task, err := GetSharedTask(db, taskID, userSameDomainID)
+		task, err := GetSharedTask(db, taskID, &userSameDomainID)
 		assert.Error(t, err)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 		assert.Nil(t, task)
@@ -380,7 +417,7 @@ func TestGetSharedTask(t *testing.T) {
 		assert.NoError(t, err)
 		taskID := result.InsertedID.(primitive.ObjectID)
 
-		task, err := GetSharedTask(db, taskID, userSameDomainID)
+		task, err := GetSharedTask(db, taskID, &userSameDomainID)
 		assert.Error(t, err)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 		assert.Nil(t, task)
@@ -400,7 +437,7 @@ func TestGetSharedTask(t *testing.T) {
 		assert.NoError(t, err)
 		taskID := result.InsertedID.(primitive.ObjectID)
 
-		task, err := GetSharedTask(db, taskID, userSameDomainID)
+		task, err := GetSharedTask(db, taskID, &userSameDomainID)
 		assert.Error(t, err)
 		assert.Equal(t, "invalid email address", err.Error())
 		assert.Nil(t, task)
@@ -421,12 +458,13 @@ func TestGetSharedTask(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		task, err := GetSharedTask(db, taskID, userWithInvalidDomainID)
+		task, err := GetSharedTask(db, taskID, &userWithInvalidDomainID)
 		assert.Error(t, err)
 		assert.Equal(t, "invalid email address", err.Error())
 		assert.Nil(t, task)
 	})
 }
+
 func TestGetNotes(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
@@ -498,6 +536,262 @@ func TestGetNotes(t *testing.T) {
 	t.Run("GetSharedNoteForDeletedNote", func(t *testing.T) {
 		_, err := GetSharedNote(db, note3.ID)
 		assert.Error(t, err)
+	})
+}
+
+func TestGetSharedNoteWithAuth(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+
+	noteOwnerID := primitive.NewObjectID()
+	GetUserCollection(db).InsertOne(context.Background(), &User{
+		ID:    noteOwnerID,
+		Email: "noteOwner@generaltask.com",
+	})
+	noteCollection := GetNoteCollection(db)
+	timeTomorrow := time.Now().AddDate(0, 0, 1)
+	public := SharedAccessPublic
+	domain := SharedAccessDomain
+	attendee := SharedAccessMeetingAttendees
+
+	userSameDomainID := primitive.NewObjectID()
+	_, err = GetUserCollection(db).InsertOne(context.Background(), &User{
+		ID:    userSameDomainID,
+		Email: "differentUserSameDomain@generaltask.com",
+	})
+	assert.NoError(t, err)
+
+	otherUserSameDomainID := primitive.NewObjectID()
+	_, err = GetUserCollection(db).InsertOne(context.Background(), &User{
+		ID:    otherUserSameDomainID,
+		Email: "otherDifferentUserSameDomain@generaltask.com",
+	})
+	assert.NoError(t, err)
+
+	userDifferentDomainID := primitive.NewObjectID()
+	_, err = GetUserCollection(db).InsertOne(context.Background(), &User{
+		ID:    userDifferentDomainID,
+		Email: "differentUserDifferentDomain@lamecompany.com",
+	})
+	assert.NoError(t, err)
+
+	t.Run("SuccessPublicNote", func(t *testing.T) {
+		result, err := noteCollection.InsertOne(context.Background(), &Note{
+			UserID:       noteOwnerID,
+			SharedUntil:  primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess: &public,
+		})
+		assert.NoError(t, err)
+		publicNoteID := result.InsertedID.(primitive.ObjectID)
+
+		// Test that the note is returned when the user has same domain
+		note, err := GetSharedNoteWithAuth(db, publicNoteID, userSameDomainID)
+		assert.NoError(t, err)
+		assert.Equal(t, publicNoteID, note.ID)
+
+		// Test that the note is returned when the user has different domain
+		note, err = GetSharedNoteWithAuth(db, publicNoteID, userDifferentDomainID)
+		assert.NoError(t, err)
+		assert.Equal(t, publicNoteID, note.ID)
+
+		// Test that the note is return when owner is same as user
+		note, err = GetSharedNoteWithAuth(db, publicNoteID, noteOwnerID)
+		assert.NoError(t, err)
+		assert.Equal(t, publicNoteID, note.ID)
+	})
+	t.Run("DifferentUserSameDomain", func(t *testing.T) {
+		result, err := noteCollection.InsertOne(context.Background(), &Note{
+			UserID:       noteOwnerID,
+			SharedUntil:  primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess: &domain,
+		})
+		assert.NoError(t, err)
+		domainNoteID := result.InsertedID.(primitive.ObjectID)
+
+		// Test that the task is returned when the user has same domain
+		note, err := GetSharedNoteWithAuth(db, domainNoteID, userSameDomainID)
+		assert.NoError(t, err)
+		assert.Equal(t, domainNoteID, note.ID)
+	})
+	t.Run("DifferentUserDifferentDomain", func(t *testing.T) {
+		result, err := noteCollection.InsertOne(context.Background(), &Note{
+			UserID:       noteOwnerID,
+			SharedUntil:  primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess: &domain,
+		})
+		assert.NoError(t, err)
+		domainNoteID := result.InsertedID.(primitive.ObjectID)
+
+		// Test that the note is not returned when the user has different domain
+		note, err := GetSharedNoteWithAuth(db, domainNoteID, userDifferentDomainID)
+		assert.Error(t, err)
+		assert.Equal(t, "user domain does not match note owner domain", err.Error())
+		assert.Nil(t, note)
+	})
+	t.Run("UserIsOwnerSameDomain", func(t *testing.T) {
+		result, err := noteCollection.InsertOne(context.Background(), &Note{
+			UserID:       noteOwnerID,
+			SharedUntil:  primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess: &domain,
+		})
+		assert.NoError(t, err)
+		domainNoteID := result.InsertedID.(primitive.ObjectID)
+
+		// Test that the note is returned when owner is the user
+		note, err := GetSharedNoteWithAuth(db, domainNoteID, noteOwnerID)
+		assert.NoError(t, err)
+		assert.Equal(t, domainNoteID, note.ID)
+	})
+
+	t.Run("NoteSharedNil", func(t *testing.T) {
+		result, err := noteCollection.InsertOne(context.Background(), &Note{
+			UserID:       noteOwnerID,
+			SharedUntil:  primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess: nil,
+		})
+		assert.NoError(t, err)
+		noteID := result.InsertedID.(primitive.ObjectID)
+
+		// should return because backwards compatibility
+		note, err := GetSharedNoteWithAuth(db, noteID, userSameDomainID)
+		assert.NoError(t, err)
+		assert.Equal(t, noteID, note.ID)
+	})
+	t.Run("NoteIsDeleted", func(t *testing.T) {
+		isDeleted := true
+		result, err := noteCollection.InsertOne(context.Background(), &Note{
+			UserID:       noteOwnerID,
+			SharedUntil:  primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess: &public,
+			IsDeleted:    &isDeleted,
+		})
+		assert.NoError(t, err)
+		noteID := result.InsertedID.(primitive.ObjectID)
+
+		note, err := GetSharedNoteWithAuth(db, noteID, userSameDomainID)
+		assert.Error(t, err)
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+		assert.Nil(t, note)
+	})
+	t.Run("NoteShareTimeExpired", func(t *testing.T) {
+		result, err := noteCollection.InsertOne(context.Background(), &Note{
+			UserID:       noteOwnerID,
+			SharedUntil:  primitive.NewDateTimeFromTime(time.Now().AddDate(0, 0, -1)),
+			SharedAccess: &public,
+		})
+		assert.NoError(t, err)
+		noteID := result.InsertedID.(primitive.ObjectID)
+
+		note, err := GetSharedTask(db, noteID, &userSameDomainID)
+		assert.Error(t, err)
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+		assert.Nil(t, note)
+	})
+	t.Run("InvalidNoteOwnerDomain", func(t *testing.T) {
+		ownerWithInvalidDomainID := primitive.NewObjectID()
+		_, err = GetUserCollection(db).InsertOne(context.Background(), &User{
+			ID:    ownerWithInvalidDomainID,
+			Email: "hello@",
+		})
+		assert.NoError(t, err)
+		result, err := noteCollection.InsertOne(context.Background(), &Note{
+			UserID:       ownerWithInvalidDomainID,
+			SharedUntil:  primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess: &domain,
+		})
+		assert.NoError(t, err)
+		noteID := result.InsertedID.(primitive.ObjectID)
+
+		note, err := GetSharedNoteWithAuth(db, noteID, userSameDomainID)
+		assert.Error(t, err)
+		assert.Equal(t, "invalid email address", err.Error())
+		assert.Nil(t, note)
+	})
+	t.Run("InvalidUserDomain", func(t *testing.T) {
+		result, err := noteCollection.InsertOne(context.Background(), &Note{
+			UserID:       noteOwnerID,
+			SharedUntil:  primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess: &domain,
+		})
+		assert.NoError(t, err)
+		noteID := result.InsertedID.(primitive.ObjectID)
+
+		userWithInvalidDomainID := primitive.NewObjectID()
+		_, err = GetUserCollection(db).InsertOne(context.Background(), &User{
+			ID:    userWithInvalidDomainID,
+			Email: "hello@",
+		})
+		assert.NoError(t, err)
+
+		note, err := GetSharedNoteWithAuth(db, noteID, userWithInvalidDomainID)
+		assert.Error(t, err)
+		assert.Equal(t, "invalid email address", err.Error())
+		assert.Nil(t, note)
+	})
+	t.Run("SuccessAttendees", func(t *testing.T) {
+		eventCollection := GetCalendarEventCollection(db)
+		event, err := eventCollection.InsertOne(context.Background(), &CalendarEvent{
+			UserID:         noteOwnerID,
+			AttendeeEmails: []string{"differentUserSameDomain@generaltask.com"},
+		})
+		assert.NoError(t, err)
+
+		result, err := noteCollection.InsertOne(context.Background(), &Note{
+			UserID:        noteOwnerID,
+			SharedUntil:   primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess:  &attendee,
+			LinkedEventID: event.InsertedID.(primitive.ObjectID),
+		})
+		assert.NoError(t, err)
+		noteID := result.InsertedID.(primitive.ObjectID)
+
+		note, err := GetSharedNoteWithAuth(db, noteID, userSameDomainID)
+		assert.NoError(t, err)
+		assert.Equal(t, noteID, note.ID)
+	})
+	t.Run("SuccessAttendeesDifferentDomain", func(t *testing.T) {
+		eventCollection := GetCalendarEventCollection(db)
+		event, err := eventCollection.InsertOne(context.Background(), &CalendarEvent{
+			UserID:         noteOwnerID,
+			AttendeeEmails: []string{"differentUserDifferentDomain@lamecompany.com"},
+		})
+		assert.NoError(t, err)
+
+		result, err := noteCollection.InsertOne(context.Background(), &Note{
+			UserID:        noteOwnerID,
+			SharedUntil:   primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess:  &attendee,
+			LinkedEventID: event.InsertedID.(primitive.ObjectID),
+		})
+		assert.NoError(t, err)
+		noteID := result.InsertedID.(primitive.ObjectID)
+
+		note, err := GetSharedNoteWithAuth(db, noteID, userDifferentDomainID)
+		assert.NoError(t, err)
+		assert.Equal(t, noteID, note.ID)
+	})
+	t.Run("NotAttendee", func(t *testing.T) {
+		eventCollection := GetCalendarEventCollection(db)
+		event, err := eventCollection.InsertOne(context.Background(), &CalendarEvent{
+			UserID:         noteOwnerID,
+			AttendeeEmails: []string{"nope@generaltask.com"},
+		})
+		assert.NoError(t, err)
+
+		result, err := noteCollection.InsertOne(context.Background(), &Note{
+			UserID:        noteOwnerID,
+			SharedUntil:   primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess:  &attendee,
+			LinkedEventID: event.InsertedID.(primitive.ObjectID),
+		})
+		assert.NoError(t, err)
+		noteID := result.InsertedID.(primitive.ObjectID)
+
+		note, err := GetSharedNoteWithAuth(db, noteID, userSameDomainID)
+		assert.Error(t, err)
+		assert.Equal(t, "user not found in list of attendees", err.Error())
+		assert.Nil(t, note)
 	})
 }
 
@@ -844,6 +1138,11 @@ func TestGetCalendarEvent(t *testing.T) {
 	})
 	t.Run("Success", func(t *testing.T) {
 		respEvent, err := GetCalendarEvent(db, event.ID, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, event.ID, respEvent.ID)
+	})
+	t.Run("SuccessWithoutUserID", func(t *testing.T) {
+		respEvent, err := GetCalendarEventWithoutUserID(db, event.ID)
 		assert.NoError(t, err)
 		assert.Equal(t, event.ID, respEvent.ID)
 	})

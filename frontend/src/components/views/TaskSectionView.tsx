@@ -12,7 +12,7 @@ import Log from '../../services/api/log'
 import { useGetMeetingPreparationTasks } from '../../services/api/meeting-preparation-tasks.hooks'
 import { useCreateTask, useFetchExternalTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { useGetTasksV4 } from '../../services/api/tasks.hooks'
-import { Colors, Spacing } from '../../styles'
+import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
 import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
@@ -29,21 +29,6 @@ import { Header } from '../molecules/Header'
 import Task from '../molecules/Task'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
-const TaskSectionContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    margin-right: auto;
-    flex-shrink: 0;
-    position: relative;
-`
-const TaskSectionViewContainer = styled.div`
-    flex: 1;
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-    padding-top: 0;
-    background-color: ${Colors.background.light};
-`
 const TasksContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -82,12 +67,12 @@ const TaskSectionView = () => {
             return [
                 ...(meetingPreparationTasks?.filter((t) => t.is_done && !t.is_deleted) || []),
                 ...(allTasks?.filter((t) => t.is_done && !t.is_deleted && !t.id_parent) || []),
-            ].sort((a, b) => +DateTime.fromISO(b.updated_at) - +DateTime.fromISO(a.updated_at))
+            ].sort((a, b) => +DateTime.fromISO(b.completed_at) - +DateTime.fromISO(a.completed_at))
         } else if (folder.id === TRASH_FOLDER_ID) {
             return [
                 ...(meetingPreparationTasks?.filter((t) => t.is_deleted) || []),
                 ...(allTasks?.filter((t) => t.is_deleted) || []),
-            ].sort((a, b) => +DateTime.fromISO(b.updated_at) - +DateTime.fromISO(a.updated_at))
+            ].sort((a, b) => +DateTime.fromISO(b.deleted_at) - +DateTime.fromISO(a.deleted_at))
         }
         return allTasks?.filter((t) => t.id_folder === folder.id && !t.is_done && !t.is_deleted) || []
     }, [allTasks, folder, meetingPreparationTasks])
@@ -201,85 +186,79 @@ const TaskSectionView = () => {
             if (folderIndex == null || taskIndex == null) return
 
             if (folders.length === 0 || sortedTasks.length === 0) return
-            const previousTask = sortedTasks[taskIndex - 1]
-            if (!previousTask) return
-            navigateToTask({ taskId: previousTask.id })
+            const taskToSelect = sortedTasks[taskIndex === 0 ? taskIndex + 1 : taskIndex - 1]
+            if (!taskToSelect) return
+            navigateToTask({ taskId: taskToSelect.id })
         },
         [folders, params.task]
     )
 
     return (
         <>
-            <TaskSectionContainer>
-                <ScrollableListTemplate ref={sectionScrollingRef}>
-                    <TaskSectionViewContainer>
-                        {isLoadingTasks || !folder || (areSettingsLoading && !folder.is_done && !folder.is_trash) ? (
-                            <Spinner />
-                        ) : (
-                            <>
-                                <Header folderName={folder.name} folderId={folder.id} />
-                                {!folder.is_done && !folder.is_trash && (
-                                    <ActionsContainer>
-                                        <SortAndFilterSelectors settings={sortAndFilterSettings} />
-                                    </ActionsContainer>
-                                )}
-                                {!folder.is_done && !folder.is_trash && (
-                                    <CreateNewItemInput
-                                        placeholder="Create new task"
-                                        shortcutName="createTask"
-                                        onSubmit={(title) =>
-                                            createTask({
-                                                title: title,
-                                                id_folder: folder.id,
-                                                optimisticId: uuidv4(),
-                                            })
-                                        }
-                                    />
-                                )}
-                                <TasksContainer ref={sectionViewRef}>
-                                    {sortedTasks.map((task, index) => (
-                                        <ReorderDropContainer
-                                            key={task.id}
-                                            index={index}
-                                            acceptDropType={DropType.TASK}
-                                            onReorder={handleReorderTask}
-                                            disabled={
-                                                sortAndFilterSettings.selectedSort.id !== 'manual' ||
-                                                folder.is_done ||
-                                                folder.is_trash
-                                            }
-                                        >
-                                            <Task
-                                                task={task}
-                                                index={index}
-                                                sectionScrollingRef={sectionScrollingRef}
-                                                isSelected={task.id === params.task}
-                                                link={`/tasks/${params.section}/${task.id}`}
-                                                shouldScrollToTask={shouldScrollToTask}
-                                                setShouldScrollToTask={setShouldScrollToTask}
-                                                onMarkTaskDone={selectTaskAfterCompletion}
-                                            />
-                                        </ReorderDropContainer>
-                                    ))}
-                                </TasksContainer>
+            <ScrollableListTemplate ref={sectionScrollingRef}>
+                {isLoadingTasks || !folder || (areSettingsLoading && !folder.is_done && !folder.is_trash) ? (
+                    <Spinner />
+                ) : (
+                    <>
+                        <Header folderName={folder.name} folderId={folder.id} />
+                        {!folder.is_done && !folder.is_trash && (
+                            <ActionsContainer>
+                                <SortAndFilterSelectors settings={sortAndFilterSettings} />
+                            </ActionsContainer>
+                        )}
+                        {!folder.is_done && !folder.is_trash && (
+                            <CreateNewItemInput
+                                placeholder="Create new task"
+                                shortcutName="createTask"
+                                onSubmit={(title) =>
+                                    createTask({
+                                        title: title,
+                                        id_folder: folder.id,
+                                        optimisticId: uuidv4(),
+                                    })
+                                }
+                            />
+                        )}
+                        <TasksContainer ref={sectionViewRef}>
+                            {sortedTasks.map((task, index) => (
                                 <ReorderDropContainer
-                                    index={sortedTasks.length + 1}
+                                    key={task.id}
+                                    index={index}
                                     acceptDropType={DropType.TASK}
                                     onReorder={handleReorderTask}
-                                    indicatorType="TOP_ONLY"
                                     disabled={
                                         sortAndFilterSettings.selectedSort.id !== 'manual' ||
                                         folder.is_done ||
                                         folder.is_trash
                                     }
                                 >
-                                    <BottomDropArea />
+                                    <Task
+                                        task={task}
+                                        index={index}
+                                        sectionScrollingRef={sectionScrollingRef}
+                                        isSelected={task.id === params.task}
+                                        link={`/tasks/${params.section}/${task.id}`}
+                                        shouldScrollToTask={shouldScrollToTask}
+                                        setShouldScrollToTask={setShouldScrollToTask}
+                                        onMarkTaskDone={selectTaskAfterCompletion}
+                                    />
                                 </ReorderDropContainer>
-                            </>
-                        )}
-                    </TaskSectionViewContainer>
-                </ScrollableListTemplate>
-            </TaskSectionContainer>
+                            ))}
+                        </TasksContainer>
+                        <ReorderDropContainer
+                            index={sortedTasks.length + 1}
+                            acceptDropType={DropType.TASK}
+                            onReorder={handleReorderTask}
+                            indicatorType="TOP_ONLY"
+                            disabled={
+                                sortAndFilterSettings.selectedSort.id !== 'manual' || folder.is_done || folder.is_trash
+                            }
+                        >
+                            <BottomDropArea />
+                        </ReorderDropContainer>
+                    </>
+                )}
+            </ScrollableListTemplate>
             {calendarType === 'day' && (
                 <>
                     {task && folder ? (

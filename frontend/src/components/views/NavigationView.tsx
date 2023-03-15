@@ -8,9 +8,9 @@ import { NAVIGATION_BAR_WIDTH } from '../../styles/dimensions'
 import { icons, logos } from '../../styles/images'
 import { DropType } from '../../utils/types'
 import Flex from '../atoms/Flex'
-import GTIconButton from '../atoms/buttons/GTIconButton'
+import GTButton from '../atoms/buttons/GTButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { Eyebrow } from '../atoms/typography/Typography'
+import { DeprecatedEyebrow } from '../atoms/typography/Typography'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackModal from '../molecules/FeedbackModal'
 import SettingsModalButton from '../molecules/SettingsModalButton'
@@ -25,7 +25,7 @@ const NavigationViewContainer = styled.div<{ showDropShadow: boolean; isCollapse
     flex-direction: column;
     min-width: 0px;
     min-height: 0px;
-    background-color: ${Colors.background.medium};
+    background-color: ${Colors.background.sub};
     box-sizing: border-box;
     z-index: 1;
     ${(props) => props.showDropShadow && `box-shadow: ${Shadows.deprecated_button.hover};`}
@@ -99,8 +99,9 @@ const NavigationView = ({ isCollapsed, setIsCollapsed }: NavigationViewProps) =>
                 <>
                     <NavigationViewHeader>
                         <GTBetaLogo src={isPreviewMode ? logos.generaltask_beta_blue : logos.generaltask_beta_yellow} />
-                        <Flex>
-                            <GTIconButton
+                        <Flex gap={Spacing._4}>
+                            <GTButton
+                                styleType="icon"
                                 icon={icons.sidebar}
                                 onClick={() => setIsCollapsed(!isCollapsed)}
                                 shortcutName="navigationView"
@@ -119,12 +120,12 @@ const NavigationView = ({ isCollapsed, setIsCollapsed }: NavigationViewProps) =>
                     <CopyrightText>
                         {userInfo?.is_employee ? (
                             <NoStyleButton onClick={() => togglePreviewMode()}>
-                                <Eyebrow color={isPreviewMode ? 'purple' : 'light'}>
+                                <DeprecatedEyebrow color={isPreviewMode ? 'purple' : 'light'}>
                                     {isPreviewMode ? '© 2023 GENERAL KENOBI' : '© 2023 GENERAL TASK'}
-                                </Eyebrow>
+                                </DeprecatedEyebrow>
                             </NoStyleButton>
                         ) : (
-                            <Eyebrow color="light">© 2023 GENERAL TASK</Eyebrow>
+                            <DeprecatedEyebrow color="light">© 2023 GENERAL TASK</DeprecatedEyebrow>
                         )}
                     </CopyrightText>
                 </>

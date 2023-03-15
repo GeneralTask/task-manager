@@ -54,7 +54,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     const showGithub = showGitHubSetting.field_value === 'true'
     const showLinear = showLinearSetting.field_value === 'true'
     const showSlack = showSlackSetting.field_value === 'true'
-    const showJira = showJiraSetting.field_value === 'true' && isPreviewMode
+    const showJira = showJiraSetting.field_value === 'true'
 
     const linearTasksCount = useMemo(
         () => activeTasks?.filter((task) => task.source.name === 'Linear').length,
@@ -99,6 +99,15 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                         isCollapsed={isCollapsed}
                     />
                 </Tip>
+                {isPreviewMode && (
+                    <NavigationLink
+                        link="/super-dashboard"
+                        title="Super Dashboard"
+                        icon={icons.chartLineUp}
+                        isCurrentPage={pathname.split('/')[1] === 'super-dashboard'}
+                        isCollapsed={isCollapsed}
+                    />
+                )}
                 <Tip shortcutName="goToRecurringTasksPage" side="right">
                     <NavigationLink
                         link="/recurring-tasks"

@@ -2,8 +2,6 @@ import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { TStatusColors } from '../../styles/colors'
 
-const PULL_REQUEST_HEIGHT = '48px'
-
 export const Column = styled.div`
     display: flex;
     align-items: center;
@@ -21,8 +19,8 @@ export const Status = styled.div<{ type: TStatusColors }>`
     white-space: nowrap;
     text-overflow: ellipsis;
     max-width: fit-content;
-    ${Typography.label};
-    ${Typography.bold};
+    ${Typography.deprecated_label};
+    ${Typography.deprecated_bold};
 `
 
 export const Repository = styled.div`
@@ -32,15 +30,14 @@ export const Repository = styled.div`
 `
 export const PullRequestRow = styled.div<{ isSelected: boolean }>`
     display: flex;
-    height: ${PULL_REQUEST_HEIGHT};
-    padding: ${Spacing._4} ${Spacing._4} ${Spacing._4} ${Spacing._24};
+    padding: ${Spacing._12} ${Spacing._8} ${Spacing._12} ${Spacing._16};
     background-color: ${Colors.background.white};
     border-radius: ${Border.radius.small};
     position: relative;
     cursor: pointer;
     box-shadow: ${Shadows.deprecated_button.default};
     &:hover {
-        background-color: ${Colors.background.medium};
+        background-color: ${Colors.background.sub};
         outline: ${Border.stroke.medium} solid ${Colors.background.border};
     }
     gap: ${Spacing._16};
@@ -51,10 +48,11 @@ export const TitleContainer = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
     height: fit-content;
+    ${Typography.deprecated_body};
 `
 export const RepositoryName = styled.div`
     color: ${Colors.text.light};
-    ${Typography.subtitle};
+    ${Typography.deprecated_subtitle};
 `
 export const BranchNameContainer = styled.div`
     display: flex;
@@ -65,8 +63,8 @@ export const BranchNameContainer = styled.div`
     border-radius: ${Border.radius.medium};
     padding: ${Spacing._4} ${Spacing._8};
     gap: ${Spacing._8};
-    ${Typography.label};
-    ${Typography.bold};
+    ${Typography.deprecated_label};
+    ${Typography.deprecated_bold};
     cursor: pointer;
 `
 export const LinkButtonContainer = styled.div`

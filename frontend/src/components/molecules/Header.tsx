@@ -12,7 +12,6 @@ import { icons } from '../../styles/images'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import RefreshSpinner from '../atoms/buttons/RefreshSpinner'
 import { useCalendarContext } from '../calendar/CalendarContext'
@@ -41,7 +40,7 @@ const HeaderText = styled.div<{ fontColor: TTextColor }>`
     text-align: left;
     border: ${Border.stroke.medium} solid transparent;
     box-sizing: border-box;
-    ${Typography.title};
+    ${Typography.deprecated_title};
 `
 
 const MAX_FOLDER_NAME_LENGTH = 200
@@ -118,7 +117,8 @@ export const Header = (props: HeaderProps) => {
             </HeaderButton>
             <MarginLeftAutoFlex>
                 {props.folderId && isDeletable(props.folderId) && !isEditingTitle && (
-                    <GTIconButton
+                    <GTButton
+                        styleType="icon"
                         onClick={() => handleDelete(props.folderId)}
                         tooltipText="Delete folder"
                         icon={icons.trash}
@@ -126,14 +126,16 @@ export const Header = (props: HeaderProps) => {
                     />
                 )}
                 {props.folderId && isEditable(props.folderId) && !isEditingTitle && (
-                    <GTIconButton
+                    <GTButton
+                        styleType="icon"
                         tooltipText="Edit folder name"
                         onClick={() => setIsEditingTitle(true)}
                         icon={icons.pencil}
                     />
                 )}
                 {isEditingTitle && (
-                    <GTIconButton
+                    <GTButton
+                        styleType="icon"
                         tooltipText="Save folder name"
                         onClick={() => setIsEditingTitle(false)}
                         icon={icons.check}
@@ -142,7 +144,6 @@ export const Header = (props: HeaderProps) => {
                 {calendarType === 'week' && (
                     <GTButton
                         styleType="secondary"
-                        size="small"
                         value="Close task list"
                         icon={icons.x}
                         onClick={() => setShowTaskToCalSidebar(false)}

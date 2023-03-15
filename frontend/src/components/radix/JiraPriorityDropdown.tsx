@@ -10,14 +10,21 @@ interface JiraPriorityDropdownProps {
     currentPriority: TExternalPriority
     allPriorities: TExternalPriority[]
     disabled?: boolean
+    condensedTrigger?: boolean
 }
 
-const JiraPriorityDropdown = ({ taskId, currentPriority, allPriorities, disabled }: JiraPriorityDropdownProps) => {
+const JiraPriorityDropdown = ({
+    taskId,
+    currentPriority,
+    allPriorities,
+    disabled,
+    condensedTrigger,
+}: JiraPriorityDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const { mutate: modifyTask } = useModifyTask()
 
     const items: GTMenuItem[] = allPriorities.map((priority) => ({
-        label: priority.name,
+        label: `${priority.name} priority`,
         onClick: () => {
             modifyTask({
                 id: taskId,
@@ -36,16 +43,25 @@ const JiraPriorityDropdown = ({ taskId, currentPriority, allPriorities, disabled
             disabled={disabled}
             items={items}
             trigger={
-                <GTButton
-                    value={currentPriority.name}
-                    icon={currentPriority.icon_url}
-                    size="small"
-                    styleType="simple"
-                    onClick={() => setIsOpen(!isOpen)}
-                    active={isOpen}
-                    disabled={disabled}
-                    asDiv
-                />
+                condensedTrigger ? (
+                    <GTButton
+                        styleType="icon"
+                        icon={currentPriority.icon_url}
+                        tooltipText={`${currentPriority.name} priority`}
+                        onClick={() => setIsOpen(!isOpen)}
+                        active={isOpen}
+                        disabled={disabled}
+                    />
+                ) : (
+                    <GTButton
+                        value={`${currentPriority.name} priority`}
+                        icon={currentPriority.icon_url}
+                        styleType="control"
+                        onClick={() => setIsOpen(!isOpen)}
+                        active={isOpen}
+                        disabled={disabled}
+                    />
+                )
             }
         />
     )

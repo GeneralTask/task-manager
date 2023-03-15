@@ -34,7 +34,7 @@ const ListContainer = styled.div`
     border-radius: ${Border.radius.medium};
 `
 const Reasoning = styled.span`
-    ${Typography.label};
+    ${Typography.deprecated_label};
     width: 300px;
     color: ${Colors.text.light};
 `
@@ -97,7 +97,7 @@ const SmartSuggestion = ({ suggestions, onRevertToManual }: SmartSuggestionProps
         <>
             <TopButtons justifyContent="space-between" alignItems="center">
                 <GTButton
-                    size="small"
+                    styleType="primary"
                     value={
                         isSaved ? (
                             <Flex alignItems="center" gap={Spacing._8}>
@@ -111,12 +111,7 @@ const SmartSuggestion = ({ suggestions, onRevertToManual }: SmartSuggestionProps
                     onClick={handleSaveSuggestion}
                     disabled={isSaved}
                 />
-                <GTButton
-                    size="small"
-                    value="Revert to manual sorting"
-                    styleType="secondary"
-                    onClick={handleRevertToManual}
-                />
+                <GTButton value="Revert to manual sorting" styleType="secondary" onClick={handleRevertToManual} />
             </TopButtons>
             {suggestions.map(({ id, reasoning }, index) => (
                 <Fragment key={id}>

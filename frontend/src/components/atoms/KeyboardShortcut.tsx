@@ -9,10 +9,10 @@ export const KeyboardShortcutContainer = styled.div<{ isSelected?: boolean }>`
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: ${Colors.background.medium};
+    background-color: ${Colors.background.sub};
     color: ${Colors.text.light};
     user-select: none;
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
     padding: 0 ${Spacing._8};
 `
 

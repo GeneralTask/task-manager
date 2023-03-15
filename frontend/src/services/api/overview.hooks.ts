@@ -6,13 +6,20 @@ import apiClient from '../../utils/api'
 import { TOverviewView, TOverviewViewType, TSupportedView, TSupportedViewItem } from '../../utils/types'
 import { arrayMoveInPlace } from '../../utils/utils'
 import { useGTMutation, useGTQueryClient } from '../queryUtils'
+import { useGetMeetingPreparationTasks } from './meeting-preparation-tasks.hooks'
 
 export const useGetOverviewViews = () => {
+    useGetMeetingPreparationTasks()
     return useQuery<TOverviewView[], void>('overview', getOverviewViews)
 }
 const getOverviewViews = async ({ signal }: QueryFunctionContext) => {
     try {
-        const res = await apiClient.get('/overview/views/', { signal })
+        const res = await apiClient.get('/overview/views', {
+            signal,
+            params: {
+                ignore_meeting_preparation: true,
+            },
+        })
         return castImmutable(res.data)
     } catch {
         throw 'getTasks failed'

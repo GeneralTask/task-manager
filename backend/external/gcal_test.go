@@ -782,6 +782,7 @@ func assertCalendarEventsEqual(t *testing.T, a *database.CalendarEvent, b *datab
 	assert.Equal(t, a.CallLogo, b.CallLogo)
 	assert.Equal(t, a.CallPlatform, b.CallPlatform)
 	assert.Equal(t, a.CallURL, b.CallURL)
+	assert.Equal(t, a.AttendeeEmails, b.AttendeeEmails)
 }
 
 func assertGcalCalendarEventsEqual(t *testing.T, a *calendar.Event, b *calendar.Event) {

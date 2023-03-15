@@ -1,10 +1,7 @@
 import * as Popover from '@radix-ui/react-popover'
 import styled from 'styled-components'
-import { MenuContentShared, MenuTriggerShared } from './RadixUIConstants'
+import { MenuContentShared } from './RadixUIConstants'
 
-const PopoverTrigger = styled(Popover.Trigger)`
-    ${MenuTriggerShared};
-`
 const PopoverContent = styled(Popover.Content)`
     ${MenuContentShared};
     width: unset;
@@ -17,7 +14,6 @@ interface GTPopoverProps {
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
     align?: 'start' | 'center' | 'end'
     side?: 'top' | 'right' | 'bottom' | 'left'
-    unstyledTrigger?: boolean
     modal?: boolean
     disabled?: boolean
 }
@@ -29,14 +25,13 @@ const GTPopover = ({
     disabled,
     align = 'center',
     side,
-    unstyledTrigger,
     modal = true,
 }: GTPopoverProps) => {
     return (
         <Popover.Root modal={modal} open={isOpen} onOpenChange={setIsOpen}>
-            <PopoverTrigger disabled={disabled} $unstyled={unstyledTrigger}>
+            <Popover.Trigger disabled={disabled} asChild>
                 {trigger}
-            </PopoverTrigger>
+            </Popover.Trigger>
             {content && (
                 <Popover.Portal>
                     <PopoverContent align={align} side={side} sideOffset={side ? 8 : 0} sticky="always">

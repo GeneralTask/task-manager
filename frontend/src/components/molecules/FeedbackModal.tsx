@@ -8,7 +8,7 @@ import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
-import { BodySmall } from '../atoms/typography/Typography'
+import { DeprecatedBodySmall } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
 import { CollapsedIconContainer } from '../navigation_sidebar/NavigationLink'
 import Tip from '../radix/Tip'
@@ -60,7 +60,6 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
                 <GTButton
                     value="Share feedback"
                     styleType="secondary"
-                    size="small"
                     fitContent={false}
                     onClick={() => setModalIsOpen(true)}
                 />
@@ -73,10 +72,10 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
                     title: 'Got feedback for us?',
                     body: (
                         <Flex column gap={Spacing._16}>
-                            <BodySmall>
+                            <DeprecatedBodySmall>
                                 Feedback is a gift — thank you. Let us know what things you’d like to see us do more and
                                 what things we can do better.
-                            </BodySmall>
+                            </DeprecatedBodySmall>
                             <FeedbackTextField
                                 type="plaintext"
                                 value={feedback}
@@ -90,8 +89,6 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
                                 disabled={feedback.trim().length === 0}
                                 value="Send feedback"
                                 styleType="primary"
-                                size="small"
-                                fitContent
                             />
                         </Flex>
                     ),

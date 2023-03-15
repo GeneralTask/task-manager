@@ -40,8 +40,13 @@ type TaskResultV4 struct {
 	MeetingPreparationParams *MeetingPreparationParams    `json:"meeting_preparation_params,omitempty"`
 	SubTaskIDs               []primitive.ObjectID         `json:"subtask_ids,omitempty"`
 	NUXNumber                int                          `json:"id_nux_number,omitempty"`
+	LinearCycle              *database.LinearCycle        `json:"linear_cycle,omitempty"`
 	CreatedAt                string                       `json:"created_at,omitempty"`
 	UpdatedAt                string                       `json:"updated_at,omitempty"`
+	CompletedAt              string                       `json:"completed_at,omitempty"`
+	DeletedAt                string                       `json:"deleted_at,omitempty"`
+	SharedAccess             string                       `json:"shared_access,omitempty"`
+	SharedUntil              string                       `json:"shared_until,omitempty"`
 }
 
 func (api *API) TasksListV4(c *gin.Context) {
@@ -104,12 +109,12 @@ func (api *API) mergeTasksV4(
 	allTasks = append(allTasks, *activeTasks...)
 	allTasks = append(allTasks, *completedTasks...)
 	allTasks = append(allTasks, *deletedTasks...)
-	return api.taskListToTaskResultListV4(&allTasks, userID), nil
+	return api.taskListToTaskResultListV4(&allTasks), nil
 }
 
 // shares a lot of duplicate code with taskListToTaskResultList
 // TODO: remove taskListToTaskResultList when frontend switches to new endpoint
-func (api *API) taskListToTaskResultListV4(tasks *[]database.Task, userID primitive.ObjectID) []*TaskResultV4 {
+func (api *API) taskListToTaskResultListV4(tasks *[]database.Task) []*TaskResultV4 {
 	parentToChildIDs := make(map[primitive.ObjectID][]primitive.ObjectID)
 	taskResults := []*TaskResultV4{}
 	taskIDMap := make(map[primitive.ObjectID]bool)
@@ -124,7 +129,7 @@ func (api *API) taskListToTaskResultListV4(tasks *[]database.Task, userID primit
 		}
 		// for implicit memory aliasing
 		tempTask := task
-		taskResults = append(taskResults, api.taskToTaskResultV4(&tempTask, userID))
+		taskResults = append(taskResults, api.taskToTaskResultV4(&tempTask))
 		taskIDMap[task.ID] = true
 	}
 
@@ -151,7 +156,7 @@ func (api *API) taskListToTaskResultListV4(tasks *[]database.Task, userID primit
 
 // shares a lot of duplicate code with taskBaseToTaskResult
 // TODO: remove taskBaseToTaskResult when frontend switches to new endpoint
-func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) *TaskResultV4 {
+func (api *API) taskToTaskResultV4(t *database.Task) *TaskResultV4 {
 	var dueDate string
 	if t.DueDate != nil {
 		if t.DueDate.Time().UTC().Year() <= 1971 {
@@ -193,6 +198,14 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 	if t.PriorityNormalized != nil {
 		priority = *t.PriorityNormalized
 	}
+	var sharedAccess string
+	if t.SharedAccess != nil {
+		if *t.SharedAccess == database.SharedAccessPublic {
+			sharedAccess = constants.StringSharedAccessPublic
+		} else if *t.SharedAccess == database.SharedAccessDomain {
+			sharedAccess = constants.StringSharedAccessDomain
+		}
+	}
 	taskResult := &TaskResultV4{
 		ID:                 t.ID,
 		IDOrdering:         t.IDOrdering,
@@ -209,6 +222,10 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 		NUXNumber:          t.NUXNumber,
 		CreatedAt:          t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
 		UpdatedAt:          t.UpdatedAt.Time().UTC().Format(time.RFC3339),
+		CompletedAt:        t.CompletedAt.Time().UTC().Format(time.RFC3339),
+		DeletedAt:          t.DeletedAt.Time().UTC().Format(time.RFC3339),
+		SharedUntil:        t.SharedUntil.Time().UTC().Format(time.RFC3339),
+		SharedAccess:       sharedAccess,
 	}
 
 	if t.ParentTaskID != primitive.NilObjectID {
@@ -281,6 +298,10 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 
 	if t.RecurringTaskTemplateID != primitive.NilObjectID {
 		taskResult.RecurringTaskTemplateID = t.RecurringTaskTemplateID
+	}
+
+	if t.LinearCycle.ID != "" {
+		taskResult.LinearCycle = &t.LinearCycle
 	}
 
 	return taskResult

@@ -3,8 +3,13 @@ import getEnvVars from './environment'
 import { TIconColor } from './styles/colors'
 import { icons } from './styles/images'
 
-export const { REACT_APP_API_BASE_URL, REACT_APP_FRONTEND_BASE_URL, REACT_APP_NOTES_BASE_URL, COOKIE_DOMAIN } =
-    getEnvVars()
+export const {
+    REACT_APP_API_BASE_URL,
+    REACT_APP_FRONTEND_BASE_URL,
+    REACT_APP_NOTES_BASE_URL,
+    COOKIE_DOMAIN,
+    REACT_APP_TASK_BASE_URL,
+} = getEnvVars()
 
 // API Constants
 export const TASK_FOLDER_DEFAULT_ID = '-1'
@@ -53,6 +58,7 @@ export const PRIVACY_POLICY_ROUTE = 'privacy-policy'
 export const FOCUS_MODE_ROUTE = 'focus-mode'
 export const NOTE_ROUTE = 'note'
 export const GOOGLE_AUTH_ROUTE = 'link/google'
+export const SHAREABLE_TASK_ROUTE = 'task'
 
 export const NO_TITLE = '(no title)'
 export const EMPTY_MONGO_OBJECT_ID = '000000000000000000000000'
@@ -72,11 +78,11 @@ export interface TTaskPriority {
     color: TIconColor
 }
 export const TASK_PRIORITIES: TTaskPriority[] = [
-    { icon: icons.priority_none, label: 'No Priority', color: 'black' },
-    { icon: icons.priority_urgent, label: 'Urgent', color: 'red' },
-    { icon: icons.priority_high, label: 'High Priority', color: 'yellow' },
-    { icon: icons.priority_medium, label: 'Medium Priority', color: 'blue' },
-    { icon: icons.priority_low, label: 'Low Priority', color: 'green' },
+    { icon: icons.priority_none, label: 'No priority', color: 'black' },
+    { icon: icons.priority_urgent, label: 'Urgent priority', color: 'red' },
+    { icon: icons.priority_high, label: 'High priority', color: 'yellow' },
+    { icon: icons.priority_medium, label: 'Medium priority', color: 'blue' },
+    { icon: icons.priority_low, label: 'Low priority', color: 'green' },
 ]
 
 export const GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME = 'Google Calendar'
@@ -88,3 +94,5 @@ export const SYNC_MESSAGES = {
     ERROR: 'There was an error syncing with our servers',
     COMPLETE: '',
 }
+
+export const SHARED_ITEM_INDEFINITE_DATE = '9999-10-31T00:00:00Z'

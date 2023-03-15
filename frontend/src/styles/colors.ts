@@ -4,6 +4,8 @@ export const legacyColors = {
     secondary: '#EEEBFA',
     orange: '#FF8200',
     blue: '#405EFB',
+    black: '#000000',
+    dropIndicator: '#E1D7FD33',
 }
 
 // deprecated
@@ -54,13 +56,6 @@ export const background = {
     sub: '#F4F4F5',
     border: '#E4E4E7',
     hover: '#D4D4D8',
-
-    // deprecated
-    light: '#FBFBFB',
-    medium: '#F0F3F7',
-    dark: '#DADADA',
-    black: '#000000',
-    dropIndicator: '#E1D7FD33',
 }
 
 export const text = {
@@ -90,8 +85,8 @@ export const control = {
         label: '#3F3F46',
         bg: '#FDFDFD',
         stroke: '#E4E4E7',
-        hover: '#E4E4E7',
-        highlight: '#DB2979',
+        hover: '#F4F4F5',
+        highlight: '#D4D4D8',
     },
     destructive: {
         label: '#FFFFFF',
@@ -116,5 +111,9 @@ export const semantic = {
         base: '#FBDD40',
         hover: '#C39A2B',
         faint: '#16A249',
+    },
+    blue: {
+        base: '#3881B4',
+        faint: '#D0ECF9',
     },
 }

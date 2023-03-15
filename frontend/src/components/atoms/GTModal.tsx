@@ -24,7 +24,7 @@ const Header = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    ${Typography.title};
+    ${Typography.deprecated_title};
 `
 const Body = styled.div`
     overflow-y: auto;
@@ -43,7 +43,7 @@ const CloseButton = styled(NoStyleButton)`
     padding: ${Spacing._8};
     border-radius: ${Border.radius.medium};
     &:hover {
-        background-color: ${Colors.background.dark};
+        background-color: ${Colors.background.hover};
     }
 `
 const ButtonsGroup = styled.div`

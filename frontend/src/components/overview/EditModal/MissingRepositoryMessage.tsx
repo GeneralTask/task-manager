@@ -7,14 +7,14 @@ import GTButton from '../../atoms/buttons/GTButton'
 
 const TextContainerWidth = '40%'
 const MessageContainer = styled.div`
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
     border: ${Border.stroke.medium} solid ${Colors.background.border};
     border-radius: ${Border.radius.small};
     padding: ${Spacing._16};
     display: flex;
 `
 const Title = styled.div`
-    ${Typography.bold};
+    ${Typography.deprecated_bold};
 `
 const TextContainer = styled.div`
     width: ${TextContainerWidth};
@@ -46,7 +46,7 @@ const MissingRepositoryMessage = () => {
             </TextContainer>
             <ButtonContainer>
                 <GTButton
-                    size="large"
+                    styleType="primary"
                     value="Request access"
                     onClick={() => openAuthWindow({ url: githubAuthorizationUrl })}
                 />

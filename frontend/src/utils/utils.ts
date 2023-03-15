@@ -41,7 +41,7 @@ export const getHumanTimeSinceDateTime = (date: DateTime) => {
     } else if (hours > 0) {
         return `${hours} ${hours > 1 ? 'hours' : 'hour'} ago`
     } else if (minutes > 0) {
-        return `${minutes} ${minutes > 1 ? 'mins' : 'min'} ago`
+        return `${minutes} ${minutes > 1 ? 'minutes' : 'minute'} ago`
     }
     return `just now`
 }
@@ -55,7 +55,7 @@ export const isSlackLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Slack')
 }
 export const isJiraLinked = (linkedAccounts: TLinkedAccount[]) => {
-    return linkedAccounts.some((account) => account.name === 'Atlassian')
+    return linkedAccounts.some((account) => account.name === 'Jira')
 }
 export const isLinearLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Linear')
@@ -75,6 +75,27 @@ export const getHumanDateTime = (date: DateTime) => {
         return 'Yesterday'
     }
     return date.toLocaleString({ month: 'numeric', day: 'numeric', year: '2-digit' })
+}
+export const getFormattedEventTime = (dateStart: DateTime, dateEnd: DateTime, type: 'short' | 'long') => {
+    const getDayString = () => {
+        const { days: dayDifference } = dateStart
+            .startOf('day')
+            .diff(DateTime.now().startOf('day'), ['milliseconds', 'days'])
+        const sameWeek = dateStart.weekNumber === DateTime.now().weekNumber && dateStart.year === DateTime.now().year
+        if (dayDifference === 0) {
+            return 'Today'
+        } else if (dayDifference === 1) {
+            return 'Tomorrow'
+        } else if (dayDifference === -1) {
+            return 'Yesterday'
+        } else if (sameWeek) {
+            return dateStart.weekdayLong
+        }
+        return dateStart.toLocaleString(DateTime.DATE_FULL)
+    }
+    if (type === 'short') return getDayString()
+    const timeString = `${dateStart.toFormat('h:mm')} – ${dateEnd.toFormat('h:mm a')}`
+    return `${getDayString()} · ${timeString}`
 }
 
 // to avoid creating empty placeholder functions across the app
@@ -204,4 +225,14 @@ export const getFolderIdFromTask = (task: TTaskV4, tasks: TTaskV4[], folders: TT
         folderId = folders.find((folder) => folder.task_ids.includes(task.id))?.id
     }
     return folderId
+}
+
+export const isTaskBeingShared = (task: TTaskV4) => {
+    if (task.shared_until == null || task.shared_access == null) return false
+    const sharedUntil = DateTime.fromISO(task.shared_until)
+    return task.shared_access != null && sharedUntil > DateTime.now()
+}
+
+export const isTaskActive = (task: TTaskV4) => {
+    return !task.is_deleted && !task.is_done
 }

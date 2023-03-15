@@ -209,7 +209,22 @@ func GetEmailDomain(email string) (string, error) {
 	}
 	return domain, nil
 }
-func GetSharedTask(db *mongo.Database, taskID primitive.ObjectID, userID primitive.ObjectID) (*Task, error) {
+
+func CheckNoteSharingAccessValid(sharedAccess *SharedAccess) bool {
+	if sharedAccess == nil {
+		// want backwards compatibility
+		return true
+	} else if *sharedAccess != SharedAccessMeetingAttendees && *sharedAccess != SharedAccessDomain && *sharedAccess != SharedAccessPublic {
+		return false
+	}
+	return true
+}
+
+func CheckTaskSharingAccessValid(sharedAccess SharedAccess) bool {
+	return sharedAccess == SharedAccessDomain || sharedAccess == SharedAccessPublic
+}
+
+func GetSharedTask(db *mongo.Database, taskID primitive.ObjectID, userID *primitive.ObjectID) (*Task, error) {
 	logger := logging.GetSentryLogger()
 	mongoResult := GetTaskCollection(db).FindOne(
 		context.Background(),
@@ -236,7 +251,10 @@ func GetSharedTask(db *mongo.Database, taskID primitive.ObjectID, userID primiti
 
 	// Check if the user is allowed to access the task
 	if *task.SharedAccess == SharedAccessDomain {
-		user, err := GetUser(db, userID)
+		if userID == nil {
+			return nil, errors.New("user is not allowed to access this task")
+		}
+		user, err := GetUser(db, *userID)
 		if err != nil {
 			logger.Error().Err(err).Msgf("failed to get user: %+v", userID)
 			return nil, err
@@ -281,6 +299,91 @@ func GetSharedNote(db *mongo.Database, itemID primitive.ObjectID) (*Note, error)
 		logger.Error().Err(err).Msgf("failed to get note: %+v", itemID)
 		return nil, err
 	}
+
+	if note.SharedAccess != nil && *note.SharedAccess != SharedAccessPublic {
+		return nil, errors.New("unable to fetch note without auth")
+	}
+
+	return &note, nil
+}
+
+func GetSharedNoteWithAuth(db *mongo.Database, itemID primitive.ObjectID, userID primitive.ObjectID) (*Note, error) {
+	logger := logging.GetSentryLogger()
+	mongoResult := GetNoteCollection(db).FindOne(
+		context.Background(),
+		bson.M{"$and": []bson.M{
+			{"_id": itemID},
+			{"shared_until": bson.M{"$gte": time.Now()}},
+			{"is_deleted": bson.M{"$ne": true}},
+		}})
+	var note Note
+	err := mongoResult.Decode(&note)
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to get note: %+v", itemID)
+		return nil, err
+	}
+
+	// Check if the note is shared
+	if note.SharedAccess != nil && *note.SharedAccess != SharedAccessPublic {
+		if !CheckNoteSharingAccessValid(note.SharedAccess) {
+			return nil, errors.New("invalid shared access value")
+		}
+
+		user, err := GetUser(db, userID)
+		if err != nil {
+			logger.Error().Err(err).Msgf("failed to get user: %+v", userID)
+			return nil, err
+		}
+
+		// Check if the user is allowed to access the task
+		if *note.SharedAccess == SharedAccessDomain {
+			noteOwner, err := GetUser(db, note.UserID)
+			if err != nil {
+				logger.Error().Err(err).Msgf("failed to get user: %+v", note.UserID)
+				return nil, err
+			}
+			userDomain, err := GetEmailDomain(user.Email)
+			if err != nil {
+				logger.Error().Err(err).Msgf("failed to get user domain: %+v", user.Email)
+				return nil, err
+			}
+			noteOwnerDomain, err := GetEmailDomain(noteOwner.Email)
+			if err != nil {
+				logger.Error().Err(err).Msgf("failed to get note owner domain: %+v", noteOwner.Email)
+				return nil, err
+			}
+
+			// Check if the user and the task owner are in the same domain
+			if userDomain != noteOwnerDomain {
+				return nil, errors.New("user domain does not match note owner domain")
+			}
+		} else if *note.SharedAccess == SharedAccessMeetingAttendees {
+			if note.LinkedEventID == primitive.NilObjectID {
+				return nil, errors.New("linked event required for note's shared access type")
+			}
+
+			var event CalendarEvent
+			err := GetCalendarEventCollection(db).FindOne(
+				context.Background(),
+				bson.M{
+					"$and": []bson.M{
+						{"_id": note.LinkedEventID},
+					},
+				},
+			).Decode(&event)
+			if err != nil {
+				logger.Error().Err(err).Msgf("failed to get linked event: %+v", note.LinkedEventID)
+				return nil, err
+			}
+
+			for _, attendeeEmail := range event.AttendeeEmails {
+				if user.Email == attendeeEmail {
+					return &note, nil
+				}
+			}
+			return nil, errors.New("user not found in list of attendees")
+		}
+	}
 	return &note, nil
 }
 
@@ -304,6 +407,23 @@ func GetTaskByExternalIDWithoutUser(db *mongo.Database, externalID string, logEr
 	return &task, nil
 }
 
+func GetCalendarEventWithoutUserID(db *mongo.Database, itemID primitive.ObjectID) (*CalendarEvent, error) {
+	logger := logging.GetSentryLogger()
+	mongoResult := GetCalendarEventCollection(db).FindOne(
+		context.Background(),
+		bson.M{"$and": []bson.M{
+			{"_id": itemID},
+		}})
+	var event CalendarEvent
+	err := mongoResult.Decode(&event)
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to get event: %+v", itemID)
+		return nil, err
+	}
+
+	return &event, nil
+}
+
 func GetCalendarEvent(db *mongo.Database, itemID primitive.ObjectID, userID primitive.ObjectID) (*CalendarEvent, error) {
 	logger := logging.GetSentryLogger()
 	eventCollection := GetCalendarEventCollection(db)
@@ -322,11 +442,14 @@ func GetCalendarEventByExternalId(db *mongo.Database, externalID string, userID 
 	logger := logging.GetSentryLogger()
 	eventCollection := GetCalendarEventCollection(db)
 	mongoResult := FindOneExternalWithCollection(eventCollection, userID, externalID)
+	if mongoResult.Err() != nil {
+		return nil, mongoResult.Err()
+	}
 
 	var event CalendarEvent
 	err := mongoResult.Decode(&event)
 	if err != nil {
-		logger.Error().Err(err).Msgf("failed to get event: %+v", externalID)
+		logger.Error().Err(err).Msgf("failed to decode event: %+v", externalID)
 		return nil, err
 	}
 	return &event, nil
@@ -669,6 +792,10 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, 
 	return &tasks, nil
 }
 
+func GetSubtasksFromTask(db *mongo.Database, task *Task) (*[]Task, error) {
+	return GetTasks(db, task.UserID, &[]bson.M{{"parent_task_id": task.ID}}, nil)
+}
+
 func GetDeletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
 	findOptions := options.Find()
 	findOptions.SetSort(bson.D{{Key: "deleted_at", Value: -1}, {Key: "_id", Value: -1}})
@@ -683,10 +810,13 @@ func GetDeletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, er
 	return tasks, nil
 }
 
-func GetAllMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
+func GetAllMeetingPreparationTasksUntilEndOfDay(db *mongo.Database, userID primitive.ObjectID, currentTime time.Time) (*[]Task, error) {
+	timeEndOfDay := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 23, 59, 59, 0, currentTime.Location())
 	return GetTasks(db, userID,
 		&[]bson.M{
 			{"is_meeting_preparation_task": true},
+			{"meeting_preparation_params.datetime_start": bson.M{"$gte": currentTime}},
+			{"meeting_preparation_params.datetime_start": bson.M{"$lte": timeEndOfDay}},
 		},
 		nil,
 	)
@@ -701,6 +831,69 @@ func GetMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (
 		},
 		nil,
 	)
+}
+
+func GetEarlierCompletedMeetingPrepTasks(db *mongo.Database, userID primitive.ObjectID, currentTime time.Time) (*[]Task, error) {
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{Key: "completed_at", Value: -1}, {Key: "_id", Value: -1}})
+	findOptions.SetLimit(int64(constants.MAX_COMPLETED_TASKS))
+
+	cursor, err := GetTaskCollection(db).Find(
+		context.Background(),
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"is_meeting_preparation_task": true},
+				{"meeting_preparation_params.datetime_end": bson.M{"$lte": currentTime}},
+				{"is_completed": true},
+				{"is_deleted": bson.M{"$ne": true}},
+			},
+		},
+		findOptions,
+	)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
+		return nil, err
+	}
+	var tasks []Task
+	err = cursor.All(context.Background(), &tasks)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
+		return nil, err
+	}
+	return &tasks, nil
+}
+
+func GetEarlierDeletedMeetingPrepTasks(db *mongo.Database, userID primitive.ObjectID, currentTime time.Time) (*[]Task, error) {
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{Key: "deleted_at", Value: -1}, {Key: "_id", Value: -1}})
+	findOptions.SetLimit(int64(constants.MAX_DELETED_TASKS))
+
+	cursor, err := GetTaskCollection(db).Find(
+		context.Background(),
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"is_meeting_preparation_task": true},
+				{"meeting_preparation_params.datetime_end": bson.M{"$lte": currentTime}},
+				{"is_deleted": true},
+			},
+		},
+		findOptions,
+	)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
+		return nil, err
+	}
+	var tasks []Task
+	err = cursor.All(context.Background(), &tasks)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
+		return nil, err
+	}
+	return &tasks, nil
 }
 
 func GetTaskSectionName(db *mongo.Database, taskSectionID primitive.ObjectID, userID primitive.ObjectID) (string, error) {
@@ -730,6 +923,7 @@ func GetEventsUntilEndOfDay(db *mongo.Database, userID primitive.ObjectID, curre
 		{"datetime_start": bson.M{"$lte": timeEndOfDay}},
 		{"linked_task_id": bson.M{"$exists": false}},
 		{"linked_view_id": bson.M{"$exists": false}},
+		{"linked_pull_request_id": bson.M{"$exists": false}},
 	})
 }
 
@@ -1136,6 +1330,14 @@ func GetTaskSectionCollection(db *mongo.Database) *mongo.Collection {
 
 func GetRecurringTaskTemplateCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("recurring_task_templates")
+}
+
+func GetDashboardDataPointCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("dashboard_data_points")
+}
+
+func GetJobLocksCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("job_locks")
 }
 
 func HasUserGrantedMultiCalendarScope(scopes []string) bool {

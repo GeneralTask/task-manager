@@ -11,7 +11,7 @@ import {
     SLACK_SOURCE_NAME,
     SYNC_MESSAGES,
 } from '../../constants'
-import { useInterval, useKeyboardShortcut, useNavigateToTask } from '../../hooks'
+import { useInterval, useKeyboardShortcut, useNavigateToTask, usePreviewMode } from '../../hooks'
 import { useModifyRecurringTask } from '../../services/api/recurring-tasks.hooks'
 import {
     TModifyTaskData,
@@ -22,21 +22,24 @@ import {
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { TRecurringTaskTemplate, TTaskV4 } from '../../utils/types'
-import { EMPTY_ARRAY, isTaskParentTask } from '../../utils/utils'
+import { EMPTY_ARRAY, isTaskActive, isTaskBeingShared, isTaskParentTask } from '../../utils/utils'
+import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
 import { Divider } from '../atoms/SectionDivider'
+import SharedItemMessage from '../atoms/SharedItemMessage'
 import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { Label } from '../atoms/typography/Typography'
+import { DeprecatedLabel } from '../atoms/typography/Typography'
 import CreateLinearComment from '../molecules/CreateLinearComment'
 import FolderSelector from '../molecules/FolderSelector'
 import GTDatePicker from '../molecules/GTDatePicker'
+import LinearCycle from '../molecules/LinearCycle'
+import TaskSharingDropdown from '../molecules/TaskSharingDropdown'
 import DeleteRecurringTaskTemplateButton from '../molecules/recurring-tasks/DeleteRecurringTaskTemplateButton'
 import RecurringTaskDetailsBanner from '../molecules/recurring-tasks/RecurringTaskDetailsBanner'
 import RecurringTaskTemplateDetailsBanner from '../molecules/recurring-tasks/RecurringTaskTemplateDetailsBanner'
@@ -60,12 +63,6 @@ const DetailsTopContainer = styled.div`
     flex-basis: 50px;
     flex-shrink: 0;
 `
-const MarginLeftAuto = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-left: auto;
-`
 const DetailItem = styled.div`
     display: flex;
     align-items: center;
@@ -82,8 +79,8 @@ const MeetingPreparationTimeContainer = styled.div`
     gap: ${Spacing._24};
     margin-left: ${Spacing._8};
     color: ${Colors.text.light};
-    ${Typography.label};
-    ${Typography.bold};
+    ${Typography.deprecated_label};
+    ${Typography.deprecated_bold};
 `
 const CommentContainer = styled.div`
     display: flex;
@@ -95,9 +92,9 @@ const BackButtonContainer = styled(NoStyleButton)`
     align-items: center;
     gap: ${Spacing._8};
     color: ${Colors.text.purple};
-    ${Typography.mini};
+    ${Typography.deprecated_mini};
 `
-const BackButtonText = styled(Label)`
+const BackButtonText = styled(DeprecatedLabel)`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -113,6 +110,7 @@ interface TaskDetailsProps {
 const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
+    const { isPreviewMode } = usePreviewMode()
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const { mutate: reorderTask } = useReorderTask()
@@ -243,9 +241,9 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                 {!task.optimisticId && (
                     <>
                         <DetailItem>
-                            <Label color="light">{syncIndicatorText}</Label>
+                            <DeprecatedLabel color="light">{syncIndicatorText}</DeprecatedLabel>
                         </DetailItem>
-                        <MarginLeftAuto>
+                        <Flex alignItems="center" gap={Spacing._4} marginLeftAuto>
                             {task.is_deleted && (
                                 <GTButton
                                     value="Restore Task"
@@ -256,41 +254,54 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                                         )
                                     }
                                     styleType="secondary"
-                                    size="small"
                                 />
                             )}
-                            {!isMeetingPreparationTask && !isRecurringTaskTemplate && task.id_folder && !isSubtask && (
-                                <FolderSelector
-                                    value={task.id_folder}
-                                    onChange={(newFolderId) =>
-                                        reorderTask(
-                                            {
-                                                id: task.id,
-                                                dropSectionId: newFolderId,
-                                                dragSectionId: task.id_folder,
-                                                orderingId: 1,
-                                            },
-                                            task.optimisticId
-                                        )
-                                    }
-                                    renderTrigger={(isOpen, setIsOpen) => (
-                                        <GTIconButton
-                                            icon={icons.folder}
-                                            shortcutName="moveTaskToFolder"
-                                            onClick={() => setIsOpen(!isOpen)}
-                                            forceShowHoverEffect={isOpen}
-                                            asDiv
-                                        />
+                            {isPreviewMode && (
+                                <Flex gap={Spacing._8}>
+                                    {taskv4.shared_access && isTaskBeingShared(taskv4) && (
+                                        <SharedItemMessage shareAccess={taskv4.shared_access} />
                                     )}
-                                    enableKeyboardShortcut
-                                />
+                                    {taskv4.source?.name === 'General Task' && isTaskActive(taskv4) && (
+                                        <TaskSharingDropdown task={taskv4} />
+                                    )}
+                                </Flex>
                             )}
+                            {!isMeetingPreparationTask &&
+                                !isRecurringTaskTemplate &&
+                                task.id_folder &&
+                                !isSubtask &&
+                                !task.is_deleted && (
+                                    <FolderSelector
+                                        value={task.id_folder}
+                                        onChange={(newFolderId) =>
+                                            reorderTask(
+                                                {
+                                                    id: task.id,
+                                                    dropSectionId: newFolderId,
+                                                    dragSectionId: task.id_folder,
+                                                    orderingId: 1,
+                                                },
+                                                task.optimisticId
+                                            )
+                                        }
+                                        renderTrigger={(isOpen, setIsOpen) => (
+                                            <GTButton
+                                                icon={icons.folder}
+                                                shortcutName="moveTaskToFolder"
+                                                onClick={() => setIsOpen(!isOpen)}
+                                                active={isOpen}
+                                                styleType="icon"
+                                            />
+                                        )}
+                                        enableKeyboardShortcut
+                                    />
+                                )}
                             {task.deeplink && <ExternalLinkButton link={task.deeplink} />}
                             {!isRecurringTaskTemplate && <TaskActionsDropdown task={taskv4} />}
                             {isRecurringTaskTemplate && (
                                 <DeleteRecurringTaskTemplateButton template={task as TRecurringTaskTemplate} />
                             )}
-                        </MarginLeftAuto>
+                        </Flex>
                     </>
                 )}
             </DetailsTopContainer>
@@ -353,14 +364,15 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                         />
                     )
                 )}
-                <MarginLeftAuto>
+                <Flex alignItems="center" gap={Spacing._8} marginLeftAuto>
+                    {task.linear_cycle && <LinearCycle cycle={task.linear_cycle} />}
                     {!isRecurringTaskTemplate &&
                         task.external_status &&
                         task.all_statuses &&
                         (task.source?.name === 'Linear' || task.source?.name === 'Jira') && (
                             <StatusDropdown task={taskv4} disabled={task.is_deleted} />
                         )}
-                </MarginLeftAuto>
+                </Flex>
             </TaskStatusContainer>
             {task.optimisticId ? (
                 <Spinner />

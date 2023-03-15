@@ -1,7 +1,7 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import styled from 'styled-components'
 import GTButton from '../../components/atoms/buttons/GTButton'
-import { Bold } from '../../components/atoms/typography/Typography'
+import { DeprecatedBold } from '../../components/atoms/typography/Typography'
 import GTDropdownMenu from '../../components/radix/GTDropdownMenu'
 import { GTMenuItem } from '../../components/radix/RadixUIConstants'
 import { Spacing } from '../../styles'
@@ -31,6 +31,9 @@ const SortAndFilterDropdowns = <T,>({
         setSelectedFilter,
     },
 }: SortAndFilterDropdownsProps<T>) => {
+    const [filterIsOpen, setFilterIsOpen] = useState(false)
+    const [sortIsOpen, setSortIsOpen] = useState(false)
+
     const sortItems: GTMenuItem[] = useMemo(
         () =>
             Object.entries(sortOptions).map(([, value]) => ({
@@ -69,7 +72,7 @@ const SortAndFilterDropdowns = <T,>({
             Object.entries(filterOptions).map(([, value]) => ({
                 ...value,
                 selected: selectedFilter.id === value.id,
-                icon: icons.filter,
+                icon: value.icon ?? icons.filter,
                 onClick: () => setSelectedFilter(value),
             })),
         [filterOptions, selectedFilter, setSelectedFilter]
@@ -89,38 +92,40 @@ const SortAndFilterDropdowns = <T,>({
         <SortAndFilterContainer>
             {filterSelectorItems.length > 0 && (
                 <GTDropdownMenu
+                    isOpen={filterIsOpen}
+                    setIsOpen={setFilterIsOpen}
                     items={filterSelectorItems}
                     trigger={
                         <GTButton
-                            icon={icons.filter}
+                            active={filterIsOpen}
+                            icon={selectedFilter.icon ?? icons.filter}
                             value={
                                 <span>
-                                    <Bold>Filter: </Bold>
+                                    <DeprecatedBold>Filter: </DeprecatedBold>
                                     {filterOptions[selectedFilter.id].label}
                                 </span>
                             }
-                            styleType="simple"
-                            size="small"
-                            asDiv
+                            styleType="control"
                         />
                     }
                 />
             )}
             {sortItems.length > 0 && (
                 <GTDropdownMenu
+                    isOpen={sortIsOpen}
+                    setIsOpen={setSortIsOpen}
                     items={sortSelectorItems}
                     trigger={
                         <GTButton
+                            active={sortIsOpen}
                             icon={sortIcon}
                             value={
                                 <span>
-                                    <Bold>Sort: </Bold>
+                                    <DeprecatedBold>Sort: </DeprecatedBold>
                                     {sortOptions[selectedSort.id].label}
                                 </span>
                             }
-                            styleType="simple"
-                            size="small"
-                            asDiv
+                            styleType="control"
                         />
                     }
                 />

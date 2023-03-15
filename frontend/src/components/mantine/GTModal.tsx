@@ -6,8 +6,8 @@ import BaseModal, { BaseModalProps } from '../atoms/BaseModal'
 import Flex from '../atoms/Flex'
 import { Icon, TIconType } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
-import GTIconButton from '../atoms/buttons/GTIconButton'
-import { Eyebrow, Label, Subtitle } from '../atoms/typography/Typography'
+import GTButton from '../atoms/buttons/GTButton'
+import { DeprecatedEyebrow, DeprecatedLabel, DeprecatedSubtitle } from '../atoms/typography/Typography'
 
 const SIDEBAR_WIDTH = '185px'
 const MODAL_HEIGHT = '642px'
@@ -29,7 +29,7 @@ const ModalSidebar = styled.div`
     flex-direction: column;
     gap: ${Spacing._4};
     padding: ${Spacing._32} ${Spacing._12} ${Spacing._12};
-    background-color: ${Colors.background.light};
+    background-color: ${Colors.background.base};
     border-radius: ${Border.radius.medium} 0 0 ${Border.radius.medium};
     flex-basis: ${SIDEBAR_WIDTH};
     box-sizing: border-box;
@@ -42,7 +42,7 @@ const Link = styled.button<{ isSelected: boolean }>`
     width: 100%;
     border-radius: ${Border.radius.medium};
     border: none;
-    background-color: ${(props) => (props.isSelected ? Colors.background.dark : 'inherit')};
+    background-color: ${(props) => (props.isSelected ? Colors.background.hover : 'inherit')};
     color: ${Colors.text.black};
     gap: ${Spacing._12};
     cursor: pointer;
@@ -84,7 +84,7 @@ const GTModal = ({ title, tabs, defaultTabIndex = 0, ...baseModalProps }: GTModa
                 {Array.isArray(tabs) && (
                     <ModalSidebar>
                         <MarginBottom8>
-                            <Eyebrow color="light">{title}</Eyebrow>
+                            <DeprecatedEyebrow color="light">{title}</DeprecatedEyebrow>
                         </MarginBottom8>
                         {tabs.map((tab, index) => (
                             <Link
@@ -93,15 +93,16 @@ const GTModal = ({ title, tabs, defaultTabIndex = 0, ...baseModalProps }: GTModa
                                 onClick={() => setSelectedTab(index)}
                             >
                                 <Icon icon={tab.icon || icons.arrow_right} color="black" />
-                                <Label>{tab.title}</Label>
+                                <DeprecatedLabel>{tab.title}</DeprecatedLabel>
                             </Link>
                         ))}
                     </ModalSidebar>
                 )}
                 <ModalContent smallGap={!Array.isArray(tabs)}>
                     <Flex justifyContent="space-between" alignItems="center">
-                        <Subtitle>{tab.title}</Subtitle>
-                        <GTIconButton
+                        <DeprecatedSubtitle>{tab.title}</DeprecatedSubtitle>
+                        <GTButton
+                            styleType="icon"
                             tooltipText="Close"
                             icon={icons.x}
                             onClick={() => {
@@ -110,7 +111,7 @@ const GTModal = ({ title, tabs, defaultTabIndex = 0, ...baseModalProps }: GTModa
                             }}
                         />
                     </Flex>
-                    {tab.subtitle && <Label color="light">{tab.subtitle}</Label>}
+                    {tab.subtitle && <DeprecatedLabel color="light">{tab.subtitle}</DeprecatedLabel>}
                     {Array.isArray(tabs) && <Divider color={Colors.background.border} />}
                     <div>{tab.body}</div>
                 </ModalContent>

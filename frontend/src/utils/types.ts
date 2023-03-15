@@ -6,6 +6,10 @@ export type EmptyString = ''
 
 export type TTaskSourceName = 'General Task' | 'Google Calendar' | 'Git PR' | 'Jira' | 'Linear' | 'Slack'
 
+export type TTaskSharedAccess = 'public' | 'domain'
+
+export type TNoteSharedAccess = 'public' | 'domain' | 'meeting_attendees'
+
 export interface TTaskSource {
     name: TTaskSourceName
     logo: string
@@ -34,6 +38,15 @@ export interface TExternalPriority {
     priority_normalized: number
     color: string
     icon_url: string
+}
+
+export interface TLinearCycle {
+    id: string
+    name?: string
+    number: number
+    is_current_cycle?: boolean
+    is_previous_cycle?: boolean
+    is_next_cycle?: boolean
 }
 
 export interface TTask {
@@ -82,6 +95,8 @@ export interface TTaskV4 {
     is_deleted: boolean
     created_at: string
     updated_at: string
+    deleted_at: string
+    completed_at: string
     id_folder?: string
     id_nux_number?: number
     id_parent?: string
@@ -93,6 +108,9 @@ export interface TTaskV4 {
     recurring_task_template_id?: string
     priority?: TExternalPriority
     all_priorities?: TExternalPriority[]
+    linear_cycle?: TLinearCycle
+    shared_until?: string
+    shared_access?: TTaskSharedAccess
 
     all_statuses?: TExternalStatus[] // Deprecated but still in response (will be moved to userInfo)
 }
@@ -167,6 +185,7 @@ export interface TEvent {
     linked_task_id: string
     linked_view_id: string
     linked_pull_request_id: string
+    linked_note_id?: string
 }
 
 export interface TMeetingBanner {
@@ -400,13 +419,17 @@ export type TLinkedAccountName = 'Atlassian' | 'GitHub' | 'Google Calendar' | 'S
 
 export interface TNote {
     id: string
+    linked_event_id?: string
+    linked_event_start?: string
+    linked_event_end?: string
     title: string
     body: string
     author: string
     created_at: string
     updated_at: string
-    is_deleted: boolean
     shared_until?: string
+    shared_access?: TNoteSharedAccess
+    is_deleted: boolean
     optimisticId?: string
 }
 

@@ -11,8 +11,8 @@ import { icons, logos } from '../../styles/images'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
-import GTIconButton from '../atoms/buttons/GTIconButton'
-import { Label, Truncated } from '../atoms/typography/Typography'
+import GTButton from '../atoms/buttons/GTButton'
+import { DeprecatedLabel, Truncated } from '../atoms/typography/Typography'
 import { getCalendarAuthButton } from './utils/utils'
 
 const Container = styled.div`
@@ -24,7 +24,7 @@ const Container = styled.div`
     border-radius: ${Border.radius.medium};
 `
 const AccountName = styled(Truncated)`
-    ${Typography.bodySmall};
+    ${Typography.deprecated_bodySmall};
 `
 const MarginLeftAuto = styled.div`
     margin-left: auto;
@@ -106,12 +106,12 @@ const EnableCalendarsBanner = () => {
             {calendarsWithBadTokens.length > 0 && (
                 <>
                     <Flex justifyContent="space-between" alignItems="center">
-                        <Label color="light">
+                        <DeprecatedLabel color="light">
                             {calendarsWithBadTokens.length > 1
                                 ? 'There was a problem authorizing your accounts. Re-link to display and create events for these accounts'
                                 : 'There was a problem authorizing your account. Re-link to display and create events for this account'}
-                        </Label>
-                        <GTIconButton icon={icons.x} tooltipText="Dismiss" onClick={handleDismiss} />
+                        </DeprecatedLabel>
+                        <GTButton icon={icons.x} tooltipText="Dismiss" onClick={handleDismiss} styleType="icon" />
                     </Flex>
                     {calendarsWithBadTokens.map((calendar) => (
                         <Flex
@@ -140,13 +140,13 @@ const EnableCalendarsBanner = () => {
                         <Divider color={Colors.background.border} />
                     )}
                     <Flex justifyContent="space-between" alignItems="center">
-                        <Label color="light">
+                        <DeprecatedLabel color="light">
                             Authorize our app to see all the calendars in your account
                             {calendarsNeedingMultical.length > 1 && 's'}.
-                        </Label>
+                        </DeprecatedLabel>
                         {/* only show dismiss button if these are the only calendars being displayed */}
                         {calendarsWithBadTokens.length === 0 && (
-                            <GTIconButton icon={icons.x} tooltipText="Dismiss" onClick={handleDismiss} />
+                            <GTButton icon={icons.x} tooltipText="Dismiss" onClick={handleDismiss} styleType="icon" />
                         )}
                     </Flex>
                     {calendarsNeedingMultical.map((calendar) => (
