@@ -57,6 +57,7 @@ export const background = {
     border: '#E4E4E7',
     hover: '#D4D4D8',
 }
+export type TBackgroundColor = keyof typeof background
 
 export const text = {
     title: '#18181B',
