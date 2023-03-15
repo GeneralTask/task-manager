@@ -7,8 +7,8 @@ export interface Dashboard {
         [key: string]: Graph // key is prefixed with "graph_id"
     }
     data: {
+        // key is prefixed with "interval_id"
         [key: string]: {
-            // key is prefixed with "interval_id"
             [key: string]: Data // key is prefixed with "data_id" from Line
         }
     }
