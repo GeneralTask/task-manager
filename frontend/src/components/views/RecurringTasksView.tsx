@@ -9,6 +9,7 @@ import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
 import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
 import { TRecurringTaskTemplate } from '../../utils/types'
 import { EMPTY_ARRAY } from '../../utils/utils'
+import ActionsContainer from '../atoms/ActionsContainer'
 import Flex from '../atoms/Flex'
 import Spinner from '../atoms/Spinner'
 import { useCalendarContext } from '../calendar/CalendarContext'
@@ -67,7 +68,9 @@ const RecurringTasksView = () => {
                         <Spinner />
                     ) : (
                         <>
-                            <SortAndFilterSelectors settings={sortAndFilterSettings} />
+                            <ActionsContainer
+                                leftActions={<SortAndFilterSelectors settings={sortAndFilterSettings} />}
+                            />
                             <AddRecurringTask />
                             {filteredRecurringTasks.map((recurringTask) => (
                                 <RecurringTask
