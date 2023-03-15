@@ -120,8 +120,9 @@ const SharedTask = () => {
                                     />
                                 </TaskFieldContainer>
                                 <GTTextField
+                                    key={displayedTask.id}
                                     type="markdown"
-                                    value={displayedTask?.body ?? ''}
+                                    value={displayedTask?.body}
                                     onChange={emptyFunction}
                                     fontSize="small"
                                     disabled
