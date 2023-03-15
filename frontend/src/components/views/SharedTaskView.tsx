@@ -1,5 +1,6 @@
-import { useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 import { DateTime } from 'luxon'
+import { usePreviewMode } from '../../hooks'
 import { useGetSharedTask } from '../../services/api/tasks.hooks'
 import { emptyFunction } from '../../utils/utils'
 import GTTextField from '../atoms/GTTextField'
@@ -11,12 +12,20 @@ import SharedItemBodyContainer from '../molecules/shared_item_page/SharedItemBod
 import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
 
 const SharedTask = () => {
+    const { isPreviewMode, isLoading: isPreviewModeLoading } = usePreviewMode()
     const { taskId } = useParams()
+
     const { data, isLoading } = useGetSharedTask({ id: taskId ?? '' })
     const { task } = data ?? {}
 
+    if (!isPreviewMode && !isPreviewModeLoading) {
+        return <Navigate to="/" replace />
+    }
     if (isLoading) {
         return <Spinner />
+    }
+    if (!task && !isLoading) {
+        return <Navigate to="/" replace />
     }
     return (
         <BackgroundContainer>
@@ -39,6 +48,7 @@ const SharedTask = () => {
                                 onClick={emptyFunction}
                                 isOpen={false}
                                 disabled
+                                overrideDisabledStyle
                             />
                             <GTTextField
                                 type="markdown"
