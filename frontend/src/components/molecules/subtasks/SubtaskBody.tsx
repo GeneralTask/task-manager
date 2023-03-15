@@ -9,11 +9,12 @@ import { RightContainer, SubtaskContainer, TitleSpan } from './Subtask'
 
 interface SubtaskBodyInterface {
     subtask: TSubtask
+    onClick?: () => void
 }
-const SubtaskBody = ({ subtask }: SubtaskBodyInterface) => {
+const SubtaskBody = ({ subtask, onClick }: SubtaskBodyInterface) => {
     const dueDate = DateTime.fromISO(subtask.due_date)
     return (
-        <SubtaskContainer>
+        <SubtaskContainer onClick={onClick}>
             <MarkTaskDoneButton
                 isDone={subtask.is_done}
                 taskId={subtask.id}
