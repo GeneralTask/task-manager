@@ -58,7 +58,6 @@ const DailyOverviewView = () => {
                 <ScrollableListTemplate>
                     <Header folderName="Daily Overview" />
                     <ActionsContainer
-                        backgroundColor="sub"
                         leftActions={
                             <GTButton
                                 styleType="control"
