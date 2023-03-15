@@ -112,4 +112,8 @@ export const semantic = {
         hover: '#C39A2B',
         faint: '#16A249',
     },
+    blue: {
+        base: '#3881B4',
+        faint: '#D0ECF9',
+    },
 }

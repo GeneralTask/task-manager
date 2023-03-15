@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Spacing } from '../../styles'
@@ -5,20 +6,38 @@ import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { BodyLarge } from '../atoms/typography/Typography'
+import { useSuperDashboardContext } from './SuperDashboardContext'
 import { DAYS_PER_WEEK } from './constants'
 
 const DateRange = styled(BodyLarge)`
     min-width: 150px;
 `
 
-interface DateSelectorProps {
-    startDate: DateTime
-    setStartDate: (date: DateTime) => void
-}
-const DateSelector = ({ startDate, setStartDate }: DateSelectorProps) => {
+const DateSelector = () => {
+    const { dashboard, selectedInterval, setSelectedInterval } = useSuperDashboardContext()
+    const startDate = DateTime.fromFormat(selectedInterval.date_start, 'yyyy-MM-dd')
     const endDate = startDate.plus({ days: DAYS_PER_WEEK - 1 })
     const startDateStr = startDate.toFormat('MMM d')
     const endDateStr = endDate.toFormat('MMM d')
+
+    const selectedIntervalIndex = useMemo(
+        () => dashboard.intervals.findIndex((interval) => interval.id === selectedInterval.id),
+        [dashboard.intervals, selectedInterval.id]
+    )
+    const canSelectPreviousInterval = dashboard.intervals.length > 1 && selectedIntervalIndex > 0
+    const canSelectNextInterval =
+        dashboard.intervals.length > 1 && selectedIntervalIndex < dashboard.intervals.length - 1
+    const selectPreviousInterval = () => {
+        if (canSelectPreviousInterval) {
+            setSelectedInterval(dashboard.intervals[selectedIntervalIndex - 1])
+        }
+    }
+    const selectNextInterval = () => {
+        if (canSelectNextInterval) {
+            setSelectedInterval(dashboard.intervals[selectedIntervalIndex + 1])
+        }
+    }
+
     return (
         <Flex alignItems="center">
             <DateRange color="muted">
@@ -28,12 +47,14 @@ const DateSelector = ({ startDate, setStartDate }: DateSelectorProps) => {
                 <GTIconButton
                     icon={icons.arrow_left}
                     tooltipText="Previous week"
-                    onClick={() => setStartDate(startDate.minus({ week: 1 }))}
+                    disabled={!canSelectPreviousInterval}
+                    onClick={selectPreviousInterval}
                 />
                 <GTIconButton
                     icon={icons.arrow_right}
                     tooltipText="Next week"
-                    onClick={() => setStartDate(startDate.plus({ week: 1 }))}
+                    disabled={!canSelectNextInterval}
+                    onClick={selectNextInterval}
                 />
             </Flex>
         </Flex>
