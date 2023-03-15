@@ -41,7 +41,7 @@ export const getHumanTimeSinceDateTime = (date: DateTime) => {
     } else if (hours > 0) {
         return `${hours} ${hours > 1 ? 'hours' : 'hour'} ago`
     } else if (minutes > 0) {
-        return `${minutes} ${minutes > 1 ? 'mins' : 'min'} ago`
+        return `${minutes} ${minutes > 1 ? 'minutes' : 'minute'} ago`
     }
     return `just now`
 }
@@ -75,6 +75,27 @@ export const getHumanDateTime = (date: DateTime) => {
         return 'Yesterday'
     }
     return date.toLocaleString({ month: 'numeric', day: 'numeric', year: '2-digit' })
+}
+export const getFormattedEventTime = (dateStart: DateTime, dateEnd: DateTime, type: 'short' | 'long') => {
+    const getDayString = () => {
+        const { days: dayDifference } = dateStart
+            .startOf('day')
+            .diff(DateTime.now().startOf('day'), ['milliseconds', 'days'])
+        const sameWeek = dateStart.weekNumber === DateTime.now().weekNumber && dateStart.year === DateTime.now().year
+        if (dayDifference === 0) {
+            return 'Today'
+        } else if (dayDifference === 1) {
+            return 'Tomorrow'
+        } else if (dayDifference === -1) {
+            return 'Yesterday'
+        } else if (sameWeek) {
+            return dateStart.weekdayLong
+        }
+        return dateStart.toLocaleString(DateTime.DATE_FULL)
+    }
+    if (type === 'short') return getDayString()
+    const timeString = `${dateStart.toFormat('h:mm')} – ${dateEnd.toFormat('h:mm a')}`
+    return `${getDayString()} · ${timeString}`
 }
 
 // to avoid creating empty placeholder functions across the app

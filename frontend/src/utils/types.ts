@@ -1,12 +1,14 @@
 import { TStatusColors } from '../styles/colors'
 import { TIconImage, TLogoImage } from '../styles/images'
-import { RecurrenceRate, SharedAccess } from './enums'
+import { RecurrenceRate } from './enums'
 
 export type EmptyString = ''
 
 export type TTaskSourceName = 'General Task' | 'Google Calendar' | 'Git PR' | 'Jira' | 'Linear' | 'Slack'
 
 export type TTaskSharedAccess = 'public' | 'domain'
+
+export type TNoteSharedAccess = 'public' | 'domain' | 'meeting_attendees'
 
 export interface TTaskSource {
     name: TTaskSourceName
@@ -183,6 +185,7 @@ export interface TEvent {
     linked_task_id: string
     linked_view_id: string
     linked_pull_request_id: string
+    linked_note_id?: string
 }
 
 export interface TMeetingBanner {
@@ -417,13 +420,15 @@ export type TLinkedAccountName = 'Atlassian' | 'GitHub' | 'Google Calendar' | 'S
 export interface TNote {
     id: string
     linked_event_id?: string
+    linked_event_start?: string
+    linked_event_end?: string
     title: string
     body: string
     author: string
     created_at: string
     updated_at: string
     shared_until?: string
-    shared_access?: SharedAccess
+    shared_access?: TNoteSharedAccess
     is_deleted: boolean
     optimisticId?: string
 }

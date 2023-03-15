@@ -11,7 +11,7 @@ import GTButton from '../../atoms/buttons/GTButton'
 import NoStyleButton from '../../atoms/buttons/NoStyleButton'
 
 const Logo = styled.img`
-    width: 153px;
+    width: 193px;
 `
 export const HeaderContainer = styled.div`
     box-sizing: border-box;
