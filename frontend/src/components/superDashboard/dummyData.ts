@@ -15,21 +15,9 @@ const dummyData: TDashboard = {
     intervals: [
         {
             id: 'interval_id123',
-            date_start: '2023-03-06',
-            date_end: '2023-03-10',
-            is_default: false,
-        },
-        {
-            id: 'interval_id123',
             date_start: '2023-03-13',
             date_end: '2023-03-17',
             is_default: true,
-        },
-        {
-            id: 'interval_id123',
-            date_start: '2023-03-20',
-            date_end: '2023-03-24',
-            is_default: false,
         },
     ],
     subjects: [
