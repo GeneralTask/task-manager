@@ -7,7 +7,7 @@ const SharedItemBody = styled.div`
     background: ${Colors.background.white};
     border-radius: ${Border.radius.medium};
     box-shadow: ${Shadows.deprecated_medium};
-    gap: ${Spacing._24};
+    gap: ${Spacing._16};
     margin: ${Spacing._24};
 `
 

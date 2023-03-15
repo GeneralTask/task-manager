@@ -23,6 +23,7 @@ const MarkTaskDoneButton = ({
 }: MarkTaskDoneButtonProps) => {
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const onMarkTaskDone = useCallback(() => {
+        if (isDisabled) return
         if (onMarkComplete) onMarkComplete()
         markTaskDoneOrDeleted(
             {
@@ -47,6 +48,7 @@ const MarkTaskDoneButton = ({
             animated
             shortcutName="markAsDone"
             shortcutDisabled={!isSelected || isDisabled}
+            disabled={isDisabled}
         />
     )
 }
