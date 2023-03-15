@@ -1,6 +1,7 @@
 package api
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -10,10 +11,10 @@ import (
 )
 
 type DashboardResult struct {
-	Intervals []DashboardInterval                 `json:"intervals"`
-	Subjects  []DashboardSubject                  `json:"subjects"`
-	Graphs    map[string]DashboardGraph           `json:"graphs"`
-	Data      map[string]map[string]DashboardData `json:"data"`
+	Intervals []DashboardInterval                                                                `json:"intervals"`
+	Subjects  []DashboardSubject                                                                 `json:"subjects"`
+	Graphs    map[primitive.ObjectID]DashboardGraph                                              `json:"graphs"`
+	Data      map[primitive.ObjectID]map[primitive.ObjectID]map[primitive.ObjectID]DashboardData `json:"data"`
 }
 
 type DashboardInterval struct {
@@ -40,10 +41,10 @@ type DashboardGraph struct {
 }
 
 type DashboardLine struct {
-	DataID         string `json:"data_id"`
-	Name           string `json:"name"`
-	Color          string `json:"color"`
-	AggregatedName string `json:"aggregated_name"`
+	Name           string             `json:"name"`
+	Color          string             `json:"color"`
+	AggregatedName string             `json:"aggregated_name"`
+	DataID         primitive.ObjectID `json:"data_id"`
 }
 
 type DashboardData struct {
@@ -61,10 +62,17 @@ const DEFAULT_LOOKBACK_DAYS = 14
 const ICON_TEAM = "team"
 const ICON_USER = "user"
 
-var IDTeamPRChart = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}
-var IDIndividualPRChart = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}
-var IDTeamFocusTimeChart = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3}
-var IDIndividualFocusTimeChart = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4}
+var GraphIDTeamPR = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}
+var GraphIDIndividualPR = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}
+var GraphIDTeamFocusTime = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3}
+var GraphIDIndividualFocusTime = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4}
+
+var DataIDPRChartIndustryAverage = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5}
+var DataIDPRChartTeamAverage = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}
+var DataIDPRChartUserAverage = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7}
+var DataIDFocusTimeIndustryAverage = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8}
+var DataIDFocusTimeTeamAverage = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9}
+var DataIDFocusTimeUserAverage = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0}
 
 func (api *API) DashboardData(c *gin.Context) {
 	userID := getUserIDFromContext(c)
@@ -92,7 +100,7 @@ func (api *API) DashboardData(c *gin.Context) {
 		ID:        dashboardTeam.ID,
 		Name:      "Your Team",
 		Icon:      ICON_TEAM,
-		GraphIDs:  []primitive.ObjectID{IDTeamFocusTimeChart, IDTeamPRChart},
+		GraphIDs:  []primitive.ObjectID{GraphIDTeamFocusTime, GraphIDTeamPR},
 		IsDefault: true,
 	}}
 	for _, teamMember := range *dashboardTeamMembers {
@@ -100,9 +108,17 @@ func (api *API) DashboardData(c *gin.Context) {
 			ID:       teamMember.ID,
 			Name:     teamMember.Name,
 			Icon:     ICON_USER,
-			GraphIDs: []primitive.ObjectID{IDIndividualFocusTimeChart, IDIndividualPRChart},
+			GraphIDs: []primitive.ObjectID{GraphIDIndividualFocusTime, GraphIDIndividualPR},
 		})
 	}
+
+	// data := make(map[primitive.ObjectID]map[primitive.ObjectID]map[primitive.ObjectID]DashboardData)
+	// for _, interval := range intervals {
+	// 	for _, subject := range subjects {
+
+	// 	}
+	// }
+
 	// subjectIDToGraphTypeToDataPoints := make(map[string]map[string][]database.DashboardDataPoint)
 	// for _, dataPoint := range *dashboardDataPoints {
 	// 	subjectID := constants.DashboardSubjectGlobal
@@ -143,23 +159,25 @@ func (api *API) DashboardData(c *gin.Context) {
 	c.JSON(200, DashboardResult{
 		Intervals: intervals,
 		Subjects:  subjects,
+		Graphs:    getGraphs(),
 	})
 }
 
 func (api *API) getIntervalsFromLookbackDays(lookbackDays int) []DashboardInterval {
+	now := api.GetCurrentTime()
 	numIntervals := lookbackDays/7 + 1
 	intervals := []DashboardInterval{}
 	for index := 0; index < numIntervals; index++ {
-		numDaysBackForMonday := 7*(numIntervals-index-1) + int(api.GetCurrentTime().Weekday()) - 1
-		monday := time.Now().Add(-time.Hour * 24 * time.Duration(numDaysBackForMonday))
+		numDaysBackForMonday := 7*(numIntervals-index-1) + int(now.Weekday()) - 1
+		monday := now.Add(-time.Hour * 24 * time.Duration(numDaysBackForMonday))
 		mondayStartOfDay := primitive.NewDateTimeFromTime(time.Date(monday.Year(), monday.Month(), monday.Day(), constants.UTC_OFFSET, 0, 0, 0, time.UTC)).Time()
 
 		numDaysBackForSaturday := numDaysBackForMonday - 5
-		saturday := time.Now().Add(-time.Hour * 24 * time.Duration(numDaysBackForSaturday))
+		saturday := now.Add(-time.Hour * 24 * time.Duration(numDaysBackForSaturday))
 		saturdayStartOfDay := primitive.NewDateTimeFromTime(time.Date(saturday.Year(), saturday.Month(), saturday.Day(), constants.UTC_OFFSET, 0, 0, 0, time.UTC)).Time()
 		isDefault := index+1 == numIntervals
 		intervals = append(intervals, DashboardInterval{
-			ID:            primitive.NewObjectID(),
+			ID:            primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, []byte(strconv.Itoa(index))[0]},
 			DateStart:     mondayStartOfDay.Format("2006-01-02"),
 			DateEnd:       saturdayStartOfDay.Format("2006-01-02"),
 			DatetimeStart: mondayStartOfDay,
@@ -168,4 +186,81 @@ func (api *API) getIntervalsFromLookbackDays(lookbackDays int) []DashboardInterv
 		})
 	}
 	return intervals
+}
+
+func getGraphs() map[primitive.ObjectID]DashboardGraph {
+	graphs := make(map[primitive.ObjectID]DashboardGraph)
+	graphs[GraphIDTeamPR] = DashboardGraph{
+		Name: "Code review response time",
+		Icon: "github",
+		Lines: []DashboardLine{
+			{
+				Name:           "Daily average (Your team)",
+				Color:          "pink",
+				AggregatedName: "Weekly average (Your team)",
+				DataID:         DataIDPRChartTeamAverage,
+			},
+			{
+				Name:           "Daily average (Industry)",
+				Color:          "grey",
+				AggregatedName: "Weekly average (Industry)",
+				DataID:         DataIDPRChartIndustryAverage,
+			},
+		},
+	}
+	graphs[GraphIDTeamFocusTime] = DashboardGraph{
+		Name: "Hours per day in big blocks",
+		Icon: "gcal",
+		Lines: []DashboardLine{
+			{
+				Name:           "Daily average (Your team)",
+				Color:          "pink",
+				AggregatedName: "Weekly average (Your team)",
+				DataID:         DataIDFocusTimeTeamAverage,
+			},
+			{
+				Name:           "Daily average (Industry)",
+				Color:          "grey",
+				AggregatedName: "Weekly average (Industry)",
+				DataID:         DataIDFocusTimeIndustryAverage,
+			},
+		},
+	}
+	graphs[GraphIDIndividualPR] = DashboardGraph{
+		Name: "Code review response time",
+		Icon: "github",
+		Lines: []DashboardLine{
+			{
+				Name:           "Daily average (Team member)",
+				Color:          "blue",
+				AggregatedName: "Weekly average (Team member)",
+				DataID:         DataIDPRChartUserAverage,
+			},
+			{
+				Name:           "Daily average (Your team)",
+				Color:          "grey",
+				AggregatedName: "Weekly average (Your team)",
+				DataID:         DataIDPRChartTeamAverage,
+			},
+		},
+	}
+	graphs[GraphIDIndividualFocusTime] = DashboardGraph{
+		Name: "Hours per day in big blocks",
+		Icon: "gcal",
+		Lines: []DashboardLine{
+			{
+				Name:           "Daily average (Team member)",
+				Color:          "blue",
+				AggregatedName: "Weekly average (Team member)",
+				DataID:         DataIDFocusTimeUserAverage,
+			},
+			{
+				Name:           "Daily average (Your team)",
+				Color:          "grey",
+				AggregatedName: "Weekly average (Your team)",
+				DataID:         DataIDFocusTimeTeamAverage,
+			},
+		},
+	}
+	return graphs
 }

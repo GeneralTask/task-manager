@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
@@ -20,6 +21,8 @@ func TestDashboardData(t *testing.T) {
 	UnauthorizedTest(t, "GET", "/dashboard/data/", nil)
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
+	testTime := time.Date(2023, time.January, 4, 20, 0, 0, 0, time.UTC)
+	api.OverrideTime = &testTime
 	router := GetRouter(api)
 	t.Run("NoBusinessAccess", func(t *testing.T) {
 		request, _ := http.NewRequest("GET", "/dashboard/data/", nil)
@@ -57,9 +60,6 @@ func TestDashboardData(t *testing.T) {
 		for v0, just do github chart
 	*/
 	t.Run("SuccessNoData", func(t *testing.T) {
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
 		request, _ := http.NewRequest("GET", "/dashboard/data/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -78,3 +78,59 @@ func TestDashboardData(t *testing.T) {
 		fmt.Printf("MarshalIndent funnction output %s\n", string(empJSON))
 	})
 }
+
+/*
+  // all lists will be consistently ordered in the way they should show up
+   // you can assume intervals will always exist
+ "intervals": [
+       {
+           "id": "123",
+           "date_start": "2023-01-02",
+           "date_end": "2023-01-07",
+           "is_default": true
+       }
+   ],
+   // you can assume at least 2 subjects will always exist (team and one individual)
+   "subjects": [
+       {
+           "id": "1234",
+           "name": "Your team",
+           "icon": "users",
+           "is_default": true,
+           "graph_ids": ["graph_id123"],
+       }
+   ],
+   // you can assume graph definitions will exist for graph ids provided above
+   "graphs": {
+       "graph_id123": {
+           "name": "Code review response time",
+           "icon": "github",
+           "lines": [
+               {
+                   "data_id": "data_id12345",
+                   "name": "Daily average",
+                   "color": "blue",
+                   "aggregated_name": "Weekly average (your team)",
+               }
+           ]
+       }
+   },
+   // there will not necessarily be data available for all intervals and all lines
+   "data": {
+       "subject_id12456": {
+           "interval_id123": {
+               "data_id12345" : {
+                   "aggregated_value": 54,
+                   "points": [
+                       {"x": 12423423423, "y", 57}
+                   ]
+               }
+           }
+       }
+
+
+   },
+}
+
+
+*/
