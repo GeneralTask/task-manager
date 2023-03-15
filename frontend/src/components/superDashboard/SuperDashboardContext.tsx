@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from 'react'
 import { emptyFunction } from '../../utils/utils'
-import { dummyData2 } from './dummyData'
+import dummyData from './dummyData'
 import { Dashboard, Interval, Subject } from './types'
 
 export interface ContextValues {
@@ -44,7 +44,7 @@ interface SuperDashboardContextProviderProps {
 }
 
 export const SuperDashboardContextProvider = ({ children }: SuperDashboardContextProviderProps) => {
-    const dashboard = dummyData2
+    const dashboard = dummyData // will make this an API request
 
     const [selectedInterval, setSelectedInterval] = useState<Interval>(
         () => dashboard.intervals.find((i) => i.is_default) ?? dashboard.intervals[0]
