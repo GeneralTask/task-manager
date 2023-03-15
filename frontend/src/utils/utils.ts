@@ -78,7 +78,9 @@ export const getHumanDateTime = (date: DateTime) => {
 }
 export const getFormattedEventTime = (dateStart: DateTime, dateEnd: DateTime, type: 'short' | 'long') => {
     const getDayString = () => {
-        const { days: dayDifference } = dateStart.diff(DateTime.now().endOf('day'), ['milliseconds', 'days'])
+        const { days: dayDifference } = dateStart
+            .startOf('day')
+            .diff(DateTime.now().startOf('day'), ['milliseconds', 'days'])
         const sameWeek = dateStart.weekNumber === DateTime.now().weekNumber && dateStart.year === DateTime.now().year
         if (dayDifference === 0) {
             return 'Today'
