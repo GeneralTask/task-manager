@@ -10,14 +10,15 @@ const SubjectSelector = () => {
     const items: GTMenuItem[] = dashboard.subjects.map((subject) => ({
         label: subject.name,
         icon: icons[subject.icon],
+        selected: subject.id === selectedSubject.id,
         onClick: () => setSelectedSubject(subject),
     }))
 
     return (
         <GTDropdownMenu
             items={items}
-            hideCheckmark
             align="end"
+            description="Select a team member to view their data."
             trigger={<GTButton value={selectedSubject.name} icon={icons[selectedSubject.icon]} styleType="secondary" />}
         />
     )

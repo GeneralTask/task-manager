@@ -31,7 +31,7 @@ const dummyData: TDashboard = {
         {
             id: 'scott',
             name: 'Scott',
-            icon: 'user',
+            icon: 'priority_urgent',
             graph_ids: ['graph_idyou', 'graph_idindustry'],
         },
         {
