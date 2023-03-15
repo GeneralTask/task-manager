@@ -1,4 +1,4 @@
-import { useMutation } from 'react-query'
+import { useMutation } from '@tanstack/react-query'
 import { castImmutable } from 'immer'
 import apiClient from '../../utils/api'
 

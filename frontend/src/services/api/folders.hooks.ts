@@ -1,5 +1,5 @@
-import { QueryFunctionContext, useQuery } from 'react-query'
 import { useNavigate } from 'react-router-dom'
+import { QueryFunctionContext, useQuery } from '@tanstack/react-query'
 import produce, { castImmutable } from 'immer'
 import { DEFAULT_FOLDER_ID } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
@@ -26,7 +26,7 @@ interface TModifyFolderData {
 }
 
 export const useGetFolders = (isEnabled = true) => {
-    return useQuery<TTaskFolder[], void>('folders', getFolders, { enabled: isEnabled, refetchOnMount: false })
+    return useQuery<TTaskFolder[], void>(['folders'], getFolders, { enabled: isEnabled, refetchOnMount: false })
 }
 const getFolders = async ({ signal }: QueryFunctionContext) => {
     try {
@@ -43,12 +43,12 @@ export const useAddFolder = () => {
     const navigate = useNavigate()
 
     return useGTMutation((data: TAddFolderData) => addFolder(data), {
-        tag: 'folders',
-        invalidateTagsOnSettled: ['folders', 'settings', 'overview-supported-views'],
+        tag: ['folders'],
+        invalidateTagsOnSettled: [['folders'], ['settings'], ['overview-supported-views']],
         onMutate: async (data) => {
-            await queryClient.cancelQueries('folders')
+            await queryClient.cancelQueries(['folders'])
 
-            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('folders')
+            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>(['folders'])
             if (!folders) return
             const newFolder: TTaskFolder = {
                 id: data.optimisticId,
@@ -61,11 +61,11 @@ export const useAddFolder = () => {
             const newFolders = produce(folders, (draft) => {
                 draft.splice(folders.length - 1, 0, newFolder)
             })
-            queryClient.setQueryData('folders', newFolders)
+            queryClient.setQueryData(['folders'], newFolders)
         },
         onSuccess: ({ id }: TAddFolderResponse, { optimisticId }) => {
             setOptimisticId(optimisticId, id)
-            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('folders')
+            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>(['folders'])
             if (!folders) return
             const newFolders = produce(folders, (draft) => {
                 const folder = draft.find((folder) => folder.optimisticId === optimisticId)
@@ -73,7 +73,7 @@ export const useAddFolder = () => {
                 folder.id = id
                 folder.optimisticId = undefined
             })
-            queryClient.setQueryData('folders', newFolders)
+            queryClient.setQueryData(['folders'], newFolders)
             if (window.location.pathname.includes(`tasks/${optimisticId}`)) {
                 navigate(window.location.pathname.replace(optimisticId, id), { replace: true })
             }
@@ -92,21 +92,21 @@ const addFolder = async (data: TAddFolderData) => {
 export const useDeleteFolder = () => {
     const queryClient = useGTQueryClient()
     return useGTMutation(({ id }: TDeleteFolderData) => deleteFolder(id), {
-        tag: 'folders',
-        invalidateTagsOnSettled: ['folders', 'settings', 'overview-supported-views', 'recurring-tasks'],
+        tag: ['folders'],
+        invalidateTagsOnSettled: [['folders'], ['settings'], ['overview-supported-views'], ['recurring-tasks']],
         onMutate: async ({ id }) => {
-            await Promise.all([queryClient.cancelQueries('folders'), queryClient.cancelQueries('recurring-tasks')])
+            await Promise.all([queryClient.cancelQueries(['folders']), queryClient.cancelQueries(['recurring-tasks'])])
 
-            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('folders')
+            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>(['folders'])
             if (!folders) return
             const newFolders = produce(folders, (draft) => {
                 const folderIndex = draft.findIndex((folder) => folder.id === id)
                 if (folderIndex === -1) return
                 draft.splice(folderIndex, 1)
             })
-            queryClient.setQueryData('folders', newFolders)
+            queryClient.setQueryData(['folders'], newFolders)
 
-            const templates = queryClient.getImmutableQueryData<TRecurringTaskTemplate[]>('recurring-tasks')
+            const templates = queryClient.getImmutableQueryData<TRecurringTaskTemplate[]>(['recurring-tasks'])
             if (!templates) return
             const newTemplates = produce(templates, (draft) => {
                 draft.forEach((t) => {
@@ -115,7 +115,7 @@ export const useDeleteFolder = () => {
                     }
                 })
             })
-            queryClient.setQueryData('recurring-tasks', newTemplates)
+            queryClient.setQueryData(['recurring-tasks'], newTemplates)
         },
     })
 }
@@ -131,12 +131,12 @@ const deleteFolder = async (id: string) => {
 export const useModifyFolder = () => {
     const queryClient = useGTQueryClient()
     return useGTMutation((data: TModifyFolderData) => modifyFolder(data), {
-        tag: 'folders',
-        invalidateTagsOnSettled: ['folders', 'overview-supported-views'],
+        tag: ['folders'],
+        invalidateTagsOnSettled: [['folders'], ['overview-supported-views']],
         onMutate: async (data: TModifyFolderData) => {
-            await queryClient.cancelQueries('folders')
+            await queryClient.cancelQueries(['folders'])
 
-            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('folders')
+            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>(['folders'])
             if (!folders) return
 
             const newFolders = produce(folders, (draft) => {
@@ -151,7 +151,7 @@ export const useModifyFolder = () => {
                     arrayMoveInPlace(draft, folderIndex, endIndex)
                 }
             })
-            queryClient.setQueryData('folders', newFolders)
+            queryClient.setQueryData(['folders'], newFolders)
         },
     })
 }

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
-import { useMutation, useQueryClient } from 'react-query'
 import { useNavigate } from 'react-router-dom'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
 import styled from 'styled-components'
 import { AUTHORIZATION_COOKE } from '../../constants'
@@ -86,7 +86,7 @@ const TermsOfServiceSummaryView = () => {
             }),
         {
             onSuccess: () => {
-                queryClient.invalidateQueries('user_info')
+                queryClient.invalidateQueries(['user_info'])
             },
         }
     )

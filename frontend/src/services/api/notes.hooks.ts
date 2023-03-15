@@ -1,4 +1,4 @@
-import { QueryFunctionContext, useQuery } from 'react-query'
+import { QueryFunctionContext, useQuery } from '@tanstack/react-query'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import useQueryContext from '../../context/QueryContext'
@@ -48,7 +48,7 @@ const getNote = async ({ id }: TGetNoteParams, { signal }: QueryFunctionContext)
 }
 
 export const useGetNotes = (isEnabled = true) => {
-    return useQuery<TNote[], void>('notes', getNotes, { enabled: isEnabled, ...getBackgroundQueryOptions() })
+    return useQuery<TNote[], void>(['notes'], getNotes, { enabled: isEnabled, ...getBackgroundQueryOptions() })
 }
 const getNotes = async ({ signal }: QueryFunctionContext) => {
     try {
@@ -63,24 +63,24 @@ export const useCreateNote = () => {
     const queryClient = useGTQueryClient()
     const { setOptimisticId } = useQueryContext()
     return useGTMutation((data: TCreateNoteData) => createNote(data), {
-        tag: 'notes',
-        invalidateTagsOnSettled: ['notes'],
+        tag: ['notes'],
+        invalidateTagsOnSettled: [['notes']],
         onMutate: async (data: TCreateNoteData) => {
-            await queryClient.cancelQueries('notes')
-            const notes = queryClient.getImmutableQueryData<TNote[]>('notes')
+            await queryClient.cancelQueries(['notes'])
+            const notes = queryClient.getImmutableQueryData<TNote[]>(['notes'])
             if (!notes) return
 
             const updatedNotes = produce(notes, (draft) => {
                 const newNote = createNewNoteHelper(data)
                 draft.push(newNote)
             })
-            queryClient.setQueryData('notes', updatedNotes)
+            queryClient.setQueryData(['notes'], updatedNotes)
         },
         onSuccess: async (response: TNoteResponse, createData: TCreateNoteData) => {
             // check response to see if we get anything back for this endpoint
             setOptimisticId(createData.optimisticId, response.note_id)
 
-            const notes = queryClient.getImmutableQueryData<TNote[]>('notes')
+            const notes = queryClient.getImmutableQueryData<TNote[]>(['notes'])
             if (!notes) return
 
             const updatedNotes = produce(notes, (draft) => {
@@ -89,7 +89,7 @@ export const useCreateNote = () => {
                 note.id = response.note_id
                 note.optimisticId = undefined
             })
-            queryClient.setQueryData('notes', updatedNotes)
+            queryClient.setQueryData(['notes'], updatedNotes)
         },
     })
 }
@@ -106,12 +106,12 @@ export const useModifyNote = () => {
     const queryClient = useGTQueryClient()
     const { getIdFromOptimisticId } = useQueryContext()
     return useGTMutation((data: TModifyNoteData) => modifyNote(data), {
-        tag: 'notes',
-        invalidateTagsOnSettled: ['notes'],
+        tag: ['notes'],
+        invalidateTagsOnSettled: [['notes']],
         onMutate: async (data: TModifyNoteData) => {
-            await queryClient.cancelQueries('notes')
+            await queryClient.cancelQueries(['notes'])
 
-            const notes = queryClient.getImmutableQueryData<TNote[]>('notes')
+            const notes = queryClient.getImmutableQueryData<TNote[]>(['notes'])
             if (!notes) return
 
             const updatedNotes = produce(notes, (draft) => {
@@ -124,7 +124,7 @@ export const useModifyNote = () => {
                 note.updated_at = DateTime.utc().toISO()
                 note.is_deleted = data.is_deleted ?? note.is_deleted
             })
-            queryClient.setQueryData('notes', updatedNotes)
+            queryClient.setQueryData(['notes'], updatedNotes)
         },
     })
 }
