@@ -283,7 +283,7 @@ const Task = ({
                             isDone={task.is_done}
                             isSelected={isSelected}
                             isDisabled={!!task.optimisticId || task.is_deleted}
-                            onMarkComplete={!task.is_deleted ? taskFadeOut : undefined}
+                            onMarkComplete={taskFadeOut}
                             optimsticId={task.optimisticId}
                         />
                     )}

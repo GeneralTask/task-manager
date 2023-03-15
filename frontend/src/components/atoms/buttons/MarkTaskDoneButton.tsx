@@ -42,6 +42,7 @@ const MarkTaskDoneButton = ({
     return (
         <GTCheckbox
             isChecked={isDone}
+            disabled={isDisabled}
             onChange={onMarkTaskDone}
             animated
             shortcutName="markAsDone"
