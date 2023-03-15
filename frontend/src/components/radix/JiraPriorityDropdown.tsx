@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { TExternalPriority } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTDropdownMenu from './GTDropdownMenu'
 import { GTMenuItem } from './RadixUIConstants'
 
@@ -43,25 +42,24 @@ const JiraPriorityDropdown = ({
             setIsOpen={setIsOpen}
             disabled={disabled}
             items={items}
-            unstyledTrigger
             trigger={
                 condensedTrigger ? (
-                    <GTIconButton
+                    <GTButton
+                        styleType="icon"
                         icon={currentPriority.icon_url}
                         tooltipText={`${currentPriority.name} priority`}
-                        forceShowHoverEffect={isOpen}
-                        asDiv
+                        onClick={() => setIsOpen(!isOpen)}
+                        active={isOpen}
+                        disabled={disabled}
                     />
                 ) : (
                     <GTButton
                         value={`${currentPriority.name} priority`}
                         icon={currentPriority.icon_url}
-                        size="small"
-                        styleType="simple"
+                        styleType="control"
                         onClick={() => setIsOpen(!isOpen)}
                         active={isOpen}
                         disabled={disabled}
-                        asDiv
                     />
                 )
             }

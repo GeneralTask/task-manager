@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Border, Colors, Shadows } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 
 const SelectableContainer = styled.div<{ isSelected: boolean }>`
     background-color: ${Colors.background.white};
@@ -11,6 +11,12 @@ const SelectableContainer = styled.div<{ isSelected: boolean }>`
         background-color: ${Colors.background.sub};
         outline: ${Border.stroke.medium} solid ${Colors.background.border};
     }
+    display: flex;
+    align-items: center;
+    gap: ${Spacing._8};
+    padding: ${Spacing._12} ${Spacing._8} ${Spacing._12} ${Spacing._16};
+    margin-bottom: ${Spacing._4};
+    ${Typography.deprecated_bodySmall};
 `
 
 export const EdgeHighlight = styled.div<{ color: string; squareStart?: boolean; squareEnd?: boolean }>`

@@ -8,7 +8,7 @@ import { useCreateTask, useMarkTaskDoneOrDeleted, useModifyTask, useReorderTask 
 import { icons } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
 import Flex from '../atoms/Flex'
-import GTIconButton from '../atoms/buttons/GTIconButton'
+import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedMini } from '../atoms/typography/Typography'
 import GTDropdownMenu from './GTDropdownMenu'
 import { GTMenuItem } from './RadixUIConstants'
@@ -101,14 +101,13 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
             setIsOpen={setIsOpen}
             hideCheckmark
             items={getItems()}
-            unstyledTrigger
             trigger={
-                <GTIconButton
+                <GTButton
+                    styleType="icon"
                     icon={icons.ellipsisVertical}
                     tooltipText="Task Actions"
                     onClick={() => setIsOpen(!isOpen)}
-                    forceShowHoverEffect={isOpen}
-                    asDiv
+                    active={isOpen}
                 />
             }
         />

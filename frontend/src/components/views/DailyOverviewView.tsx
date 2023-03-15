@@ -76,8 +76,7 @@ const DailyOverviewView = () => {
                     <Header folderName="Daily Overview" />
                     <ActionsContainer>
                         <BannerButton
-                            styleType="simple"
-                            size="small"
+                            styleType="control"
                             onClick={() => {
                                 setEditListTabIndex(1)
                                 setIsEditListsModalOpen(true)
@@ -92,24 +91,21 @@ const DailyOverviewView = () => {
                         />
                         <RightActions>
                             <BannerButton
-                                styleType="simple"
-                                size="small"
+                                styleType="control"
                                 onClick={collapseAll}
                                 icon={icons.squareMinus}
                                 iconColor="gray"
                                 value="Collapse all"
                             />
                             <BannerButton
-                                styleType="simple"
-                                size="small"
+                                styleType="control"
                                 onClick={expandAll}
                                 icon={icons.squarePlus}
                                 iconColor="gray"
                                 value="Expand all"
                             />
                             <BannerButton
-                                styleType="simple"
-                                size="small"
+                                styleType="control"
                                 onClick={() => {
                                     setEditListTabIndex(0)
                                     setIsEditListsModalOpen(true)

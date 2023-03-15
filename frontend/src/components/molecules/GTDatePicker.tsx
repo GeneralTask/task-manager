@@ -1,14 +1,14 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useLayoutEffect } from 'react'
 import { Calendar } from '@mantine/dates'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
+import { getFormattedDate } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
-import GTIconButton from '../atoms/buttons/GTIconButton'
+import GTButton from '../atoms/buttons/GTButton'
 import GTPopover from '../radix/GTPopover'
-import GTDatePickerButton from './GTDatePickerButton'
 
 const CALENDAR_DAY_SIZE = '32px'
 
@@ -46,6 +46,7 @@ interface GTDatePickerProps {
 const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = false, disabled }: GTDatePickerProps) => {
     const [currentDate, setCurrentDate] = useState<DateTime | null>(initialDate)
     const [isOpen, setIsOpen] = useState(false)
+    const formattedDate = useMemo(() => getFormattedDate(currentDate), [currentDate])
 
     useLayoutEffect(() => {
         if (!currentDate) return
@@ -63,9 +64,6 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
         }
     }
 
-    const onClick = () => {
-        setIsOpen(!isOpen)
-    }
     const calendar = (
         <GTDatePickerWrapper>
             <Calendar
@@ -117,10 +115,11 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                 <DateViewContainer>
                     <Icon icon={icons.calendar_blank} color="black" />
                     <DateViewText>{currentDate.toFormat('ccc LLL d y')}</DateViewText>
-                    <GTIconButton
+                    <GTButton
+                        styleType="icon"
                         tooltipText="Remove due date"
                         icon={icons.x}
-                        color="black"
+                        iconColor="black"
                         onClick={() => handleOnChange(null)}
                     />
                 </DateViewContainer>
@@ -139,12 +138,15 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                 disabled={disabled}
                 align="start"
                 trigger={
-                    <GTDatePickerButton
-                        currentDate={currentDate}
-                        showIcon={showIcon}
-                        onClick={onClick}
-                        isOpen={isOpen}
-                        disabled={!!disabled}
+                    <GTButton
+                        styleType="control"
+                        icon={showIcon ? icons.clock : undefined}
+                        value={formattedDate.dateString}
+                        textColor={formattedDate.textColor}
+                        iconColor={formattedDate.iconColor}
+                        onClick={() => setIsOpen(!isOpen)}
+                        active={isOpen}
+                        disabled={disabled}
                     />
                 }
             />

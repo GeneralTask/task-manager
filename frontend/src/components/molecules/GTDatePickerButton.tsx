@@ -12,20 +12,11 @@ interface GTDatePickerButtonProps {
     disabled: boolean
     overrideDisabledStyle?: boolean
 }
-const GTDatePickerButton = ({
-    currentDate,
-    showIcon,
-    onClick,
-    isOpen,
-    disabled,
-    overrideDisabledStyle,
-}: GTDatePickerButtonProps) => {
+const GTDatePickerButton = ({ currentDate, showIcon, onClick, isOpen, disabled }: GTDatePickerButtonProps) => {
     const formattedDate = useMemo(() => getFormattedDate(currentDate), [currentDate])
 
     return (
         <GTButton
-            styleType="simple"
-            size="small"
             icon={showIcon ? icons.clock : undefined}
             value={formattedDate.dateString}
             textColor={formattedDate.textColor}
@@ -33,8 +24,7 @@ const GTDatePickerButton = ({
             onClick={onClick}
             active={isOpen}
             disabled={disabled}
-            overrideDisabledStyle={overrideDisabledStyle}
-            asDiv
+            styleType="control"
         />
     )
 }

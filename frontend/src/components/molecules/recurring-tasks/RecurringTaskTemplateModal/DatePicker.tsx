@@ -6,7 +6,7 @@ import { Border, Colors, Spacing, Typography } from '../../../../styles'
 import { icons } from '../../../../styles/images'
 import { RecurrenceRate } from '../../../../utils/enums'
 import Flex from '../../../atoms/Flex'
-import GTIconButton from '../../../atoms/buttons/GTIconButton'
+import GTButton from '../../../atoms/buttons/GTButton'
 import { DeprecatedEyebrow, DeprecatedLabel } from '../../../atoms/typography/Typography'
 
 const Container = styled.div`
@@ -20,7 +20,7 @@ const Header = styled.div`
     justify-content: space-between;
     margin-bottom: ${Spacing._4};
 `
-const ReturnToCurrentMonthButton = styled(GTIconButton)<{ visible: boolean }>`
+const ReturnToCurrentMonthButton = styled(GTButton)<{ visible: boolean }>`
     visibility: ${(props) => (props.visible ? 'visible' : 'hidden')};
 `
 const MonthLabel = styled(DeprecatedEyebrow)`
@@ -150,6 +150,7 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
         <Container>
             <Header>
                 <ReturnToCurrentMonthButton
+                    styleType="icon"
                     icon={icons.calendar_star}
                     iconColor="gray"
                     tooltipText="Return to current month"
@@ -158,13 +159,15 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
                 />
                 <MonthLabel color="light">{calendarDate.toFormat('LLL yyyy')}</MonthLabel>
                 <Flex>
-                    <GTIconButton
+                    <GTButton
+                        styleType="icon"
                         icon={icons.arrow_left}
                         iconColor="gray"
                         tooltipText="Previous month"
                         onClick={() => setCalendarDate(calendarDate.minus({ month: 1 }))}
                     />
-                    <GTIconButton
+                    <GTButton
+                        styleType="icon"
                         icon={icons.arrow_right}
                         iconColor="gray"
                         tooltipText="Next month"
