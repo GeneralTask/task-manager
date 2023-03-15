@@ -2,6 +2,10 @@ package api
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -61,6 +65,16 @@ func TestDashboardData(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		assert.Equal(t, 1, 2)
+		body, err := io.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		var dashboardResult DashboardResult
+		err = json.Unmarshal(body, &dashboardResult)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, dashboardResult)
+		empJSON, err := json.MarshalIndent(dashboardResult, "", "  ")
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
+		fmt.Printf("MarshalIndent funnction output %s\n", string(empJSON))
 	})
 }

@@ -77,7 +77,7 @@ func updateGithubIndustryData(endCutoff time.Time, lookbackDays int) error {
 		}
 		responseTime := int(firstCommentTime.Sub(pullRequest.CreatedAtExternal.Time()).Minutes())
 		createdAt := pullRequest.CreatedAtExternal.Time()
-		pullRequestDate := primitive.NewDateTimeFromTime(time.Date(createdAt.Year(), createdAt.Month(), createdAt.Day(), 8, 0, 0, 0, time.UTC))
+		pullRequestDate := primitive.NewDateTimeFromTime(time.Date(createdAt.Year(), createdAt.Month(), createdAt.Day(), constants.UTC_OFFSET, 0, 0, 0, time.UTC))
 		dateToTotalResponseTime[pullRequestDate] += responseTime
 		dateToPRCount[pullRequestDate] += 1
 	}
