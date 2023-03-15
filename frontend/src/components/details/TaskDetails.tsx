@@ -258,10 +258,10 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                             )}
                             {isPreviewMode && (
                                 <Flex gap={Spacing._8}>
-                                    {taskv4.shared_access && isTaskBeingShared(taskv4) && (
+                                    {taskv4.shared_access && isTaskBeingShared(taskv4) && !isSubtask && (
                                         <SharedItemMessage shareAccess={taskv4.shared_access} />
                                     )}
-                                    {taskv4.source?.name === 'General Task' && isTaskActive(taskv4) && (
+                                    {taskv4.source?.name === 'General Task' && isTaskActive(taskv4) && !isSubtask && (
                                         <TaskSharingDropdown task={taskv4} />
                                     )}
                                 </Flex>
