@@ -40,7 +40,12 @@ const PriorityDropdown = ({ value, onChange, disabled, condensedTrigger }: Prior
                         disabled={disabled}
                     />
                 ) : (
-                    <PriorityDropdownTrigger value={value} onClick={() => setIsOpen(!isOpen)} disabled={disabled} />
+                    <PriorityDropdownTrigger
+                        value={value}
+                        onClick={() => setIsOpen(!isOpen)}
+                        disabled={disabled}
+                        isOpen={isOpen}
+                    />
                 )
             }
         />
