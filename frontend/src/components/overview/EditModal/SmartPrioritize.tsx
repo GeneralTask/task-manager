@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from 'react-query'
 import styled from 'styled-components'
 import { usePreviewMode } from '../../../hooks'
 import {
@@ -59,11 +59,11 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
         setState(SmartPrioritizeState.LOADING)
         try {
             const suggestion = await getOverviewSmartSuggestion()
-            await queryClient.invalidateQueries(['overview-suggestions-remaining'])
+            await queryClient.invalidateQueries('overview-suggestions-remaining')
             setSuggestions(suggestion)
             setState(SmartPrioritizeState.LOADED)
         } catch (e) {
-            await queryClient.invalidateQueries(['overview-suggestions-remaining'])
+            await queryClient.invalidateQueries('overview-suggestions-remaining')
             if (e instanceof Error && e.message === 'prompt is too long for suggestion') {
                 setState(SmartPrioritizeState.ERROR_TOO_LONG)
             } else {

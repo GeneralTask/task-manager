@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { QueryFunctionContext, useQuery } from '@tanstack/react-query'
+import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { useCalendarContext } from '../../components/calendar/CalendarContext'
@@ -141,8 +141,8 @@ export const useCreateEvent = () => {
     }, [selectedEvent])
 
     return useGTMutation(({ createEventPayload }: TCreateEventParams) => createEvent(createEventPayload), {
-        tag: ['events'],
-        invalidateTagsOnSettled: [['events']],
+        tag: 'events',
+        invalidateTagsOnSettled: ['events'],
         onMutate: ({
             createEventPayload,
             date,
@@ -237,8 +237,8 @@ const createEvent = async (data: TCreateEventPayload) => {
 export const useDeleteEvent = () => {
     const queryClient = useGTQueryClient()
     const useMutationResult = useGTMutation((data: TDeleteEventData) => deleteEvent(data.id), {
-        tag: ['events'],
-        invalidateTagsOnSettled: [['events']],
+        tag: 'events',
+        invalidateTagsOnSettled: ['events'],
         onMutate: (data: TDeleteEventData) => {
             const { events, blockStartTime } = queryClient.getCurrentEvents(
                 data.date,
@@ -293,8 +293,8 @@ export const useModifyEvent = () => {
     const queryClient = useGTQueryClient()
 
     return useGTMutation((data: TModifyEventData) => modifyEvent(data), {
-        tag: ['events'],
-        invalidateTagsOnSettled: [['events']],
+        tag: 'events',
+        invalidateTagsOnSettled: ['events'],
         onMutate: ({ event, payload, date }: TModifyEventData) => {
             const { events, blockStartTime } = queryClient.getCurrentEvents(
                 date,
@@ -337,7 +337,7 @@ const modifyEvent = async (data: TModifyEventData) => {
 }
 
 export const useGetCalendars = () => {
-    return useQuery<TCalendarAccount[]>(['calendars'], getCalendars, getBackgroundQueryOptions(EVENTS_REFETCH_INTERVAL))
+    return useQuery<TCalendarAccount[]>('calendars', getCalendars, getBackgroundQueryOptions(EVENTS_REFETCH_INTERVAL))
 }
 const getCalendars = async () => {
     try {

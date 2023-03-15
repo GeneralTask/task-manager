@@ -1,5 +1,5 @@
+import { QueryFunctionContext, QueryKey, useQuery } from 'react-query'
 import { useNavigate } from 'react-router-dom'
-import { QueryFunctionContext, QueryKey, useQuery } from '@tanstack/react-query'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { DONE_FOLDER_ID, TASK_MARK_AS_DONE_TIMEOUT, TRASH_FOLDER_ID } from '../../constants'
@@ -109,13 +109,13 @@ const getSharedTask = async ({ id }: TGetSharedTaskParams, { signal }: QueryFunc
 
 export const useGetSharedTask = (params: TGetSharedTaskParams) => {
     return useQuery<TSharedTaskResponse, void>(
-        ['sharedTask'],
+        'sharedTask',
         (context) => getSharedTask(params, context),
         getBackgroundQueryOptions()
     )
 }
 export const useGetTasksV4 = (isEnabled = true) => {
-    return useQuery<TTaskV4[], void>([['tasks_v4']], getTasksV4, { enabled: isEnabled, refetchOnMount: false })
+    return useQuery<TTaskV4[], void>('tasks_v4', getTasksV4, { enabled: isEnabled, refetchOnMount: false })
 }
 const getTasksV4 = async ({ signal }: QueryFunctionContext) => {
     try {
@@ -128,11 +128,11 @@ const getTasksV4 = async ({ signal }: QueryFunctionContext) => {
 
 export const useFetchExternalTasks = () => {
     const queryClient = useGTQueryClient()
-    return useQuery(['tasksExternal'], fetchExternalTasks, {
+    return useQuery('tasksExternal', fetchExternalTasks, {
         onSettled: () => {
-            queryClient.invalidateQueries([['tasks_v4']])
-            queryClient.invalidateQueries([['folders']])
-            queryClient.invalidateQueries([['overview']])
+            queryClient.invalidateQueries('tasks_v4')
+            queryClient.invalidateQueries('folders')
+            queryClient.invalidateQueries('overview')
         },
         ...getBackgroundQueryOptions(),
     })
@@ -152,15 +152,15 @@ export const useCreateTask = () => {
     const navigateToTask = useNavigateToTask()
 
     return useGTMutation((data: TCreateTaskData) => createTask(data), {
-        tag: ['tasks_v4'],
-        invalidateTagsOnSettled: [['tasks_v4'], ['folders'], ['overview']],
+        tag: 'tasks_v4',
+        invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
         onMutate: async (data: TCreateTaskData) => {
             await Promise.all([
-                queryClient.cancelQueries(['tasks_v4']),
-                queryClient.cancelQueries(['folders']),
-                queryClient.cancelQueries(['overview']),
+                queryClient.cancelQueries('tasks_v4'),
+                queryClient.cancelQueries('folders'),
+                queryClient.cancelQueries('overview'),
             ])
-            const tasks_v4 = queryClient.getImmutableQueryData<TTaskV4[]>(['tasks_v4'])
+            const tasks_v4 = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
             if (tasks_v4) {
                 const updatedTasks = produce(tasks_v4, (draft) => {
                     const newTask = createNewTaskV4Helper(data)
@@ -171,42 +171,42 @@ export const useCreateTask = () => {
                         parentTask.subtask_ids = [data.optimisticId, ...(parentTask.subtask_ids || [])]
                     }
                 })
-                queryClient.setQueryData(['tasks_v4'], updatedTasks)
+                queryClient.setQueryData('tasks_v4', updatedTasks)
             }
 
-            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>(['folders'])
+            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('folders')
             if (folders) {
                 const updatedFolders = produce(folders, (draft) => {
                     const folder = draft.find((folder) => folder.id === data.id_folder)
                     if (!folder) return
                     folder.task_ids.unshift(data.optimisticId)
                 })
-                queryClient.setQueryData(['folders'], updatedFolders)
+                queryClient.setQueryData('folders', updatedFolders)
             }
 
-            const lists = queryClient.getImmutableQueryData<TOverviewView[]>(['overview'])
+            const lists = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             if (lists) {
                 const updatedLists = produce(lists, (draft) => {
                     const list = draft.find((view) => view.task_section_id === data.id_folder)
                     if (!list) return
                     list.view_item_ids.unshift(data.optimisticId)
                 })
-                queryClient.setQueryData(['overview'], updatedLists)
+                queryClient.setQueryData('overview', updatedLists)
             }
         },
         onSuccess: async (response: TCreateTaskResponse, createData: TCreateTaskData) => {
             setOptimisticId(createData.optimisticId, response.task_id)
 
-            const tasks = queryClient.getImmutableQueryData<TTaskV4[]>(['tasks_v4'])
+            const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
             const updatedTasks = produce(tasks, (draft) => {
                 const task = draft?.find((task) => task.id === createData.optimisticId)
                 if (!task) return
                 task.id = response.task_id
                 task.optimisticId = undefined
             })
-            if (updatedTasks) queryClient.setQueryData(['tasks_v4'], updatedTasks)
+            if (updatedTasks) queryClient.setQueryData('tasks_v4', updatedTasks)
 
-            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>(['folders'])
+            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('folders')
             const updatedFolders = produce(folders, (draft) => {
                 const folder = draft?.find((folder) => folder.id === createData.id_folder)
                 if (!folder) return
@@ -214,9 +214,9 @@ export const useCreateTask = () => {
                 if (taskIdIndex === -1) return
                 folder.task_ids[taskIdIndex] = response.task_id
             })
-            if (updatedFolders) queryClient.setQueryData(['folders'], updatedFolders)
+            if (updatedFolders) queryClient.setQueryData('folders', updatedFolders)
 
-            const lists = queryClient.getImmutableQueryData<TOverviewView[]>(['overview'])
+            const lists = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             const updatedLists = produce(lists, (draft) => {
                 const list = draft?.find((view) => view.task_section_id === createData.id_folder)
                 if (!list) return
@@ -224,7 +224,7 @@ export const useCreateTask = () => {
                 if (taskIdIndex === -1) return
                 list.view_item_ids[taskIdIndex] = response.task_id
             })
-            if (lists) queryClient.setQueryData(['overview'], updatedLists)
+            if (lists) queryClient.setQueryData('overview', updatedLists)
 
             if (window.location.pathname.includes(createData.optimisticId)) {
                 navigateToTask({
@@ -289,20 +289,20 @@ export const useModifyTask = (useQueueing = true) => {
     return useGTMutation(
         (data: TModifyTaskData) => modifyTask(data),
         {
-            tag: ['tasks_v4'],
-            invalidateTagsOnSettled: [['tasks_v4'], ['overview'], ['folders'], ['meeting_preparation_tasks']],
+            tag: 'tasks_v4',
+            invalidateTagsOnSettled: ['tasks_v4', 'overview', 'folders', 'meeting_preparation_tasks'],
             onMutate: async (data: TModifyTaskData) => {
                 await Promise.all([
-                    queryClient.cancelQueries(['overview']),
-                    queryClient.cancelQueries(['folders']),
-                    queryClient.cancelQueries(['tasks_v4']),
-                    queryClient.cancelQueries(['meeting_preparation_tasks']),
+                    queryClient.cancelQueries('overview'),
+                    queryClient.cancelQueries('folders'),
+                    queryClient.cancelQueries('tasks_v4'),
+                    queryClient.cancelQueries('meeting_preparation_tasks'),
                 ])
-                optimisticallyUpdateTask(queryClient, data, ['tasks_v4'])
-                optimisticallyUpdateTask(queryClient, data, ['meeting_preparation_tasks'])
+                optimisticallyUpdateTask(queryClient, data, 'tasks_v4')
+                optimisticallyUpdateTask(queryClient, data, 'meeting_preparation_tasks')
 
                 if (!COMPLETED_TASK_TYPES.includes(data.status?.type ?? '')) return
-                const folders = queryClient.getImmutableQueryData<TTaskFolder[]>(['folders'])
+                const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('folders')
                 if (!folders) return
                 const updatedFolders = produce(folders, (draft) => {
                     const currentFolder = draft.find((folder) => folder.task_ids.includes(data.id))
@@ -311,9 +311,9 @@ export const useModifyTask = (useQueueing = true) => {
                     currentFolder.task_ids = currentFolder.task_ids.filter((id) => id !== data.id)
                     doneFolder.task_ids.unshift(data.id)
                 })
-                queryClient.setQueryData(['folders'], updatedFolders)
+                queryClient.setQueryData('folders', updatedFolders)
 
-                const lists = queryClient.getImmutableQueryData<TOverviewView[]>(['overview'])
+                const lists = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
                 if (!lists) return
                 const updatedLists = produce(lists, (draft) => {
                     const currentLists = draft.filter((list) => list.view_item_ids.includes(data.id))
@@ -322,7 +322,7 @@ export const useModifyTask = (useQueueing = true) => {
                         list.view_item_ids = list.view_item_ids.filter((id) => id !== data.id)
                     }
                 })
-                queryClient.setQueryData(['overview'], updatedLists)
+                queryClient.setQueryData('overview', updatedLists)
             },
         },
         useQueueing
@@ -366,16 +366,16 @@ export const useMarkTaskDoneOrDeleted = (useQueueing = true) => {
     return useGTMutation(
         (data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data),
         {
-            tag: ['tasks_v4'],
-            invalidateTagsOnSettled: [['tasks_v4'], ['folders'], ['overview']],
+            tag: 'tasks_v4',
+            invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
             onMutate: async (data: TMarkTaskDoneOrDeletedData) => {
                 await Promise.all([
-                    queryClient.cancelQueries(['tasks_v4']),
-                    queryClient.cancelQueries(['folders']),
-                    queryClient.cancelQueries(['overview']),
-                    queryClient.cancelQueries(['meeting_preparation_tasks']),
+                    queryClient.cancelQueries('tasks_v4'),
+                    queryClient.cancelQueries('folders'),
+                    queryClient.cancelQueries('overview'),
+                    queryClient.cancelQueries('meeting_preparation_tasks'),
                 ])
-                const meetingTasks = queryClient.getImmutableQueryData<TTaskV4[]>(['meeting_preparation_tasks'])
+                const meetingTasks = queryClient.getImmutableQueryData<TTaskV4[]>('meeting_preparation_tasks')
                 const updateMeetingTasks = async () => {
                     if (!meetingTasks) return
                     const updatedMeetingTasks = produce(meetingTasks, (draft) => {
@@ -387,10 +387,10 @@ export const useMarkTaskDoneOrDeleted = (useQueueing = true) => {
                     if (data.waitForAnimation) {
                         await sleep(TASK_MARK_AS_DONE_TIMEOUT)
                     }
-                    queryClient.setQueryData(['meeting_preparation_tasks'], updatedMeetingTasks)
+                    queryClient.setQueryData('meeting_preparation_tasks', updatedMeetingTasks)
                 }
 
-                const tasks = queryClient.getImmutableQueryData<TTaskV4[]>(['tasks_v4'])
+                const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
                 const updateTasks = async () => {
                     if (!tasks) return
                     const updatedTasks = produce(tasks, (draft) => {
@@ -402,10 +402,10 @@ export const useMarkTaskDoneOrDeleted = (useQueueing = true) => {
                     if (data.waitForAnimation) {
                         await sleep(TASK_MARK_AS_DONE_TIMEOUT)
                     }
-                    queryClient.setQueryData(['tasks_v4'], updatedTasks)
+                    queryClient.setQueryData('tasks_v4', updatedTasks)
                 }
 
-                const folders = queryClient.getImmutableQueryData<TTaskFolder[]>(['folders'])
+                const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('folders')
                 const updateFolders = async () => {
                     if (!folders) return
                     const updatedFolders = produce(folders, (draft) => {
@@ -435,10 +435,10 @@ export const useMarkTaskDoneOrDeleted = (useQueueing = true) => {
                     if (data.waitForAnimation) {
                         await sleep(TASK_MARK_AS_DONE_TIMEOUT)
                     }
-                    queryClient.setQueryData(['folders'], updatedFolders)
+                    queryClient.setQueryData('folders', updatedFolders)
                 }
 
-                const lists = queryClient.getImmutableQueryData<TOverviewView[]>(['overview'])
+                const lists = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
                 const updateLists = async () => {
                     if (!lists) return
                     const updatedLists = produce(lists, (draft) => {
@@ -464,7 +464,7 @@ export const useMarkTaskDoneOrDeleted = (useQueueing = true) => {
                         await sleep(TASK_MARK_AS_DONE_TIMEOUT)
                     }
 
-                    queryClient.setQueryData(['overview'], updatedLists)
+                    queryClient.setQueryData('overview', updatedLists)
 
                     if (window.location.pathname.split('/')[1] !== 'overview') return
                     if (!lists.some((list) => list.view_item_ids.includes(data.id))) return
@@ -503,16 +503,16 @@ export const useReorderTask = (useQueueing = true) => {
     return useGTMutation(
         (data: TReorderTaskData) => reorderTask(data),
         {
-            tag: ['tasks_v4'],
-            invalidateTagsOnSettled: [['tasks_v4'], ['folders'], ['overview']],
+            tag: 'tasks_v4',
+            invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
             onMutate: async (data: TReorderTaskData) => {
                 await Promise.all([
-                    queryClient.cancelQueries(['tasks_v4']),
-                    queryClient.cancelQueries(['folders']),
-                    queryClient.cancelQueries(['overview']),
+                    queryClient.cancelQueries('tasks_v4'),
+                    queryClient.cancelQueries('folders'),
+                    queryClient.cancelQueries('overview'),
                 ])
 
-                const tasks = queryClient.getImmutableQueryData<TTaskV4[]>(['tasks_v4'])
+                const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
                 if (tasks) {
                     const updatedTasks = produce(tasks, (draft) => {
                         const task = draft.find((task) => task.id === data.id)
@@ -540,12 +540,12 @@ export const useReorderTask = (useQueueing = true) => {
                             resetOrderingIds(dropFolder)
                         }
                     })
-                    queryClient.setQueryData(['tasks_v4'], updatedTasks)
+                    queryClient.setQueryData('tasks_v4', updatedTasks)
                 }
 
                 if (!data.dragSectionId || data.dropSectionId === data.dragSectionId) return
 
-                const folders = queryClient.getImmutableQueryData<TTaskFolder[]>(['folders'])
+                const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('folders')
                 if (folders) {
                     const updatedFolders = produce(folders, (draft) => {
                         const previousFolder = draft.find((folder) => folder.id === data.dragSectionId)
@@ -554,10 +554,10 @@ export const useReorderTask = (useQueueing = true) => {
                         previousFolder.task_ids = previousFolder.task_ids.filter((id) => id !== data.id)
                         newFolder.task_ids.unshift(data.id)
                     })
-                    queryClient.setQueryData(['folders'], updatedFolders)
+                    queryClient.setQueryData('folders', updatedFolders)
                 }
 
-                const lists = queryClient.getImmutableQueryData<TOverviewView[]>(['overview'])
+                const lists = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
                 if (lists) {
                     const updatedLists = produce(lists, (draft) => {
                         const previousList = draft.find((list) => list.task_section_id === data.dragSectionId)
@@ -566,7 +566,7 @@ export const useReorderTask = (useQueueing = true) => {
                         previousList.view_item_ids = previousList.view_item_ids.filter((id) => id !== data.id)
                         newList.view_item_ids.unshift(data.id)
                     })
-                    queryClient.setQueryData(['overview'], updatedLists)
+                    queryClient.setQueryData('overview', updatedLists)
                 }
             },
         },
@@ -594,14 +594,14 @@ export const reorderTask = async (data: TReorderTaskData) => {
 export const usePostComment = () => {
     const queryClient = useGTQueryClient()
     return useGTMutation((data: TPostCommentData) => postComment(data), {
-        tag: ['tasks_v4'],
-        invalidateTagsOnSettled: [['tasks_v4']],
+        tag: 'tasks_v4',
+        invalidateTagsOnSettled: ['tasks_v4'],
         onMutate: async (data: TPostCommentData) => {
-            await queryClient.cancelQueries(['tasks_v4'])
+            await queryClient.cancelQueries('tasks_v4')
 
-            const userInfo = queryClient.getImmutableQueryData<TUserInfo>(['user_info'])
+            const userInfo = queryClient.getImmutableQueryData<TUserInfo>('user_info')
 
-            const tasks = queryClient.getImmutableQueryData<TTaskV4[]>(['tasks_v4'])
+            const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
             if (tasks) {
                 const updatedTasks = produce(tasks, (draft) => {
                     const task = draft.find((task) => task.id === data.id)
@@ -618,7 +618,7 @@ export const usePostComment = () => {
                     })
                 })
 
-                queryClient.setQueryData(['tasks_v4'], updatedTasks)
+                queryClient.setQueryData('tasks_v4', updatedTasks)
             }
         },
     })

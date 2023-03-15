@@ -1,12 +1,5 @@
-import {
-    MutationFunction,
-    QueryClient,
-    QueryKey,
-    UseMutationOptions,
-    useMutation,
-    useQueryClient,
-} from '@tanstack/react-query'
-import { QueryFilters } from '@tanstack/react-query/build/lib'
+import { MutationFunction, QueryClient, QueryKey, UseMutationOptions, useMutation, useQueryClient } from 'react-query'
+import { QueryFilters } from 'react-query/types/core/utils'
 import { Immutable } from 'immer'
 import { DateTime } from 'luxon'
 import { DEFAULT_BACKGROUND_QUERY_STALE_TIME, QUEUED_MUTATION_DEBOUNCE, TASK_REFETCH_INTERVAL } from '../constants'
