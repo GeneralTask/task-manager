@@ -96,7 +96,7 @@ export const useGTMutation = <TData = unknown, TError = unknown, TVariables = vo
                 await sleep(QUEUED_MUTATION_DEBOUNCE)
                 // check if another request was sent during the debounce period
                 if (getLastSentQuery(mutationOptions.tag) != thisRequest) return
-                mutationOptions.invalidateTagsOnSettled?.forEach((tag) => queryClient.invalidateQueries([tag]))
+                mutationOptions.invalidateTagsOnSettled?.forEach((tag) => queryClient.invalidateQueries(tag))
             }
         },
     })
