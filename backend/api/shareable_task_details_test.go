@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -89,5 +90,42 @@ func TestShareableTaskDetails(t *testing.T) {
 	})
 	t.Run("DomainUnauthorizedUser", func(t *testing.T) {
 		ServeRequest(t, "", "GET", fmt.Sprintf("/shareable_tasks/detail/%s/", domainSharedTaskID), nil, 404, api)
+	})
+	t.Run("NoSubtasks", func(t *testing.T) {
+		response := ServeRequest(t, authToken, "GET", fmt.Sprintf("/shareable_tasks/detail/%s/", publicSharedTaskID), nil, 200, api)
+		var result ShareableTaskDetailsResponse
+		err := json.Unmarshal(response, &result)
+		assert.NoError(t, err)
+		assert.Equal(t, 0, len(result.Subtasks))
+	})
+	t.Run("WithSubtasks", func(t *testing.T) {
+		mongoResult, err = taskCollection.InsertOne(context.Background(), &database.Task{
+			UserID:       userID,
+			SharedUntil:  futureTime,
+			SharedAccess: &publicSharedAccess,
+		})
+		assert.NoError(t, err)
+		taskID := mongoResult.InsertedID.(primitive.ObjectID)
+
+		subtasksTitle := "subtasksTitle"
+		taskCollection.InsertOne(context.Background(), &database.Task{
+			UserID:       userID,
+			ParentTaskID: taskID,
+			Title:        &subtasksTitle,
+		})
+
+		response := ServeRequest(t, authToken, "GET", fmt.Sprintf("/shareable_tasks/detail/%s/", taskID.Hex()), nil, 200, api)
+		var result ShareableTaskDetailsResponse
+		err := json.Unmarshal(response, &result)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(result.Subtasks))
+		assert.Equal(t, subtasksTitle, result.Subtasks[0].Title)
+	})
+	t.Run("CorrectDomainResponse", func(t *testing.T) {
+		response := ServeRequest(t, authToken, "GET", fmt.Sprintf("/shareable_tasks/detail/%s/", domainSharedTaskID), nil, 200, api)
+		var result ShareableTaskDetailsResponse
+		err := json.Unmarshal(response, &result)
+		assert.NoError(t, err)
+		assert.Equal(t, "@generaltask.com", result.Domain)
 	})
 }

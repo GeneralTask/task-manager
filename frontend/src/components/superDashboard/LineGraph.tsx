@@ -1,10 +1,10 @@
-import { useMemo } from 'react'
-import produce from 'immer'
+import { Fragment, useMemo } from 'react'
 import { DateTime } from 'luxon'
 import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, XAxis, YAxis } from 'recharts'
 import styled from 'styled-components'
 import { Colors, Typography } from '../../styles'
 import { BodyMedium } from '../atoms/typography/Typography'
+import { useSuperDashboardContext } from './SuperDashboardContext'
 import {
     DAYS_PER_WEEK,
     GRAPH_HEIGHT,
@@ -14,7 +14,7 @@ import {
     LINE_STROKE_WIDTH,
     STROKE_DASH_ARRAY,
 } from './constants'
-import { TMetric } from './types'
+import { getLineColor } from './utils'
 
 const StyledResponsiveContainer = styled(ResponsiveContainer)`
     /* tick labels */
@@ -33,22 +33,13 @@ const StyledResponsiveContainer = styled(ResponsiveContainer)`
 `
 
 interface LineGraphProps {
-    data: TMetric
-    startDate: DateTime
+    graphId: string
 }
 
-const LineGraph = ({ data, startDate }: LineGraphProps) => {
-    const endDate = startDate.plus({ days: DAYS_PER_WEEK - 1 })
-
-    const slicedData = useMemo(() => {
-        return produce(data.lines, (draft) => {
-            draft.forEach((line) => {
-                line.points = line.points.filter(
-                    (point) => point.x >= startDate.toUnixInteger() && point.x <= endDate.toUnixInteger()
-                )
-            })
-        })
-    }, [data, startDate])
+const LineGraph = ({ graphId }: LineGraphProps) => {
+    const { dashboard, selectedInterval } = useSuperDashboardContext()
+    const startDate = DateTime.fromFormat(selectedInterval.date_start, 'yyyy-MM-dd')
+    const endDate = DateTime.fromFormat(selectedInterval.date_end, 'yyyy-MM-dd')
 
     const ticks = useMemo(() => {
         return Array.from({ length: DAYS_PER_WEEK }).map((_, i) => startDate.plus({ days: i }).toUnixInteger())
@@ -78,26 +69,25 @@ const LineGraph = ({ data, startDate }: LineGraphProps) => {
                     stroke={Colors.text.muted}
                 />
                 <Legend iconType="circle" formatter={(value) => <BodyMedium color="muted">{value}</BodyMedium>} />
-                {slicedData.map((line) => (
-                    <>
+                {dashboard.graphs[graphId].lines.map((line) => (
+                    <Fragment key={line.data_id}>
                         <Line
-                            key={line.name}
                             name={line.name}
                             dataKey="y"
-                            fill={line.color}
+                            fill={getLineColor(line.color)}
                             type="monotoneX"
-                            data={line.points}
-                            stroke={line.color}
+                            data={dashboard.data[selectedInterval.id][line.data_id].points}
+                            stroke={getLineColor(line.color)}
                             strokeWidth={LINE_STROKE_WIDTH}
                             animationDuration={LINE_ANIMATION_DURATION}
                         />
                         <ReferenceLine
-                            y={line.aggregated_value}
-                            stroke={line.color}
+                            y={dashboard.data[selectedInterval.id][line.data_id].aggregated_value}
+                            stroke={getLineColor(line.color)}
                             strokeDasharray={STROKE_DASH_ARRAY}
                             strokeWidth={LINE_STROKE_WIDTH}
                         />
-                    </>
+                    </Fragment>
                 ))}
             </LineChart>
         </StyledResponsiveContainer>

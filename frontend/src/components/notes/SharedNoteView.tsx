@@ -5,17 +5,16 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { AUTHORIZATION_COOKE } from '../../constants'
 import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
-import { Colors, Spacing } from '../../styles'
+import { Spacing } from '../../styles'
 import { emptyFunction, getFormattedEventTime, getHumanTimeSinceDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
-import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import { LabelSmall, TitleLarge } from '../atoms/typography/Typography'
 import { BackgroundContainer } from '../molecules/shared_item_page/BackgroundContainer'
 import ContentContainer from '../molecules/shared_item_page/ContentContainer'
 import NotAvailableMessage from '../molecules/shared_item_page/NotAvailableMessage'
-import SharedItemBody from '../molecules/shared_item_page/SharedItemBody'
+import SharedItemBodyContainer from '../molecules/shared_item_page/SharedItemBody'
 import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
 import NoteActionsDropdown from './NoteActionsDropdown'
 
@@ -53,32 +52,40 @@ const SharedNoteView = () => {
             <BackgroundContainer>
                 <ContentContainer>
                     <SharedItemHeader sharedType="Notes" />
-                    <SharedItemBody>
-                        {note && note.shared_until ? (
-                            <>
-                                <Flex alignItems="flex-start" justifyContent="space-between">
-                                    <TitleLarge>{note.title}</TitleLarge>
-                                    <NoteActionsDropdown note={note} isOwner={isUserNoteOwner} />
-                                </Flex>
-                                {note.linked_event_id && note.linked_event_start && note.linked_event_end && (
-                                    <LabelSmall color="light">
-                                        {getFormattedEventTime(
-                                            DateTime.fromISO(note.linked_event_start),
-                                            DateTime.fromISO(note.linked_event_end),
-                                            'long'
-                                        )}
-                                    </LabelSmall>
-                                )}
-                                <GTTextField
-                                    key={note.id}
-                                    type="markdown"
-                                    value={note.body}
-                                    onChange={emptyFunction}
-                                    fontSize="small"
-                                    disabled
-                                    readOnly
-                                />
-                                <Divider color={Colors.background.border} />
+                    <SharedItemBodyContainer
+                        content={
+                            note && note.shared_until ? (
+                                <>
+                                    <Flex alignItems="flex-start" justifyContent="space-between">
+                                        <TitleLarge>{note.title}</TitleLarge>
+                                        <NoteActionsDropdown note={note} isOwner={isUserNoteOwner} />
+                                    </Flex>
+                                    {note.linked_event_id && note.linked_event_start && note.linked_event_end && (
+                                        <LabelSmall color="light">
+                                            {getFormattedEventTime(
+                                                DateTime.fromISO(note.linked_event_start),
+                                                DateTime.fromISO(note.linked_event_end),
+                                                'long'
+                                            )}
+                                        </LabelSmall>
+                                    )}
+                                    <GTTextField
+                                        key={note.id}
+                                        type="markdown"
+                                        value={note.body}
+                                        onChange={emptyFunction}
+                                        fontSize="small"
+                                        disabled
+                                        readOnly
+                                    />
+                                </>
+                            ) : (
+                                <NotAvailableMessage sharedType="Notes" />
+                            )
+                        }
+                        footer={
+                            note &&
+                            note.shared_until && (
                                 <FlexPadding8Horizontal justifyContent="space-between" alignItems="center">
                                     <Flex gap={Spacing._4}>
                                         {isLoggedIn && isUserNoteOwner ? (
@@ -102,11 +109,9 @@ const SharedNoteView = () => {
                                     </Flex>
                                     <LabelSmall color="light">{`Shared with ${getSharedWithText()}`}</LabelSmall>
                                 </FlexPadding8Horizontal>
-                            </>
-                        ) : (
-                            <NotAvailableMessage sharedType="Notes" />
-                        )}
-                    </SharedItemBody>
+                            )
+                        }
+                    />
                 </ContentContainer>
             </BackgroundContainer>
         </>

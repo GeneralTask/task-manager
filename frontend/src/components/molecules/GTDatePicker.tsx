@@ -46,6 +46,7 @@ interface GTDatePickerProps {
 const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = false, disabled }: GTDatePickerProps) => {
     const [currentDate, setCurrentDate] = useState<DateTime | null>(initialDate)
     const [isOpen, setIsOpen] = useState(false)
+    const formattedDate = useMemo(() => getFormattedDate(currentDate), [currentDate])
 
     useLayoutEffect(() => {
         if (!currentDate) return
@@ -53,8 +54,6 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
             setCurrentDate(initialDate)
         }
     }, [initialDate])
-
-    const formattedDate = useMemo(() => getFormattedDate(currentDate), [currentDate])
 
     const handleOnChange = (date: Date | null) => {
         if (!date) {

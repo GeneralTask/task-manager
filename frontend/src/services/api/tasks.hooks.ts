@@ -90,6 +90,11 @@ export interface TPostCommentData {
     optimisticId: string
 }
 
+interface TSharedTaskResponse {
+    task: TTaskV4
+    subtasks: TTaskV4[]
+    domain: string
+}
 interface TGetSharedTaskParams {
     id: string
 }
@@ -103,7 +108,7 @@ const getSharedTask = async ({ id }: TGetSharedTaskParams, { signal }: QueryFunc
 }
 
 export const useGetSharedTask = (params: TGetSharedTaskParams) => {
-    return useQuery<TTaskV4, void>(
+    return useQuery<TSharedTaskResponse, void>(
         'sharedTask',
         (context) => getSharedTask(params, context),
         getBackgroundQueryOptions()
