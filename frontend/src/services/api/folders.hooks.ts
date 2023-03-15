@@ -44,7 +44,6 @@ export const useAddFolder = () => {
 
     return useGTMutation((data: TAddFolderData) => addFolder(data), {
         tag: ['folders'],
-        errorMessage: 'add folder',
         invalidateTagsOnSettled: ['folders', 'settings', 'overview-supported-views'],
         onMutate: async (data) => {
             await queryClient.cancelQueries(['folders'])
@@ -94,7 +93,6 @@ export const useDeleteFolder = () => {
     const queryClient = useGTQueryClient()
     return useGTMutation(({ id }: TDeleteFolderData) => deleteFolder(id), {
         tag: ['folders'],
-        errorMessage: 'delete folder',
         invalidateTagsOnSettled: ['folders', 'settings', 'overview-supported-views', 'recurring-tasks'],
         onMutate: async ({ id }) => {
             await Promise.all([queryClient.cancelQueries(['folders']), queryClient.cancelQueries(['recurring-tasks'])])
@@ -134,7 +132,6 @@ export const useModifyFolder = () => {
     const queryClient = useGTQueryClient()
     return useGTMutation((data: TModifyFolderData) => modifyFolder(data), {
         tag: ['folders'],
-        errorMessage: 'modify folder',
         invalidateTagsOnSettled: ['folders', 'overview-supported-views'],
         onMutate: async (data: TModifyFolderData) => {
             await queryClient.cancelQueries(['folders'])

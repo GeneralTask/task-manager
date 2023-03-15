@@ -136,7 +136,6 @@ export const useDeleteLinkedAccount = () => {
 
     return useGTMutation(deleteLinkedAccount, {
         tag: ['linked_accounts'],
-        errorMessage: 'delete account',
         invalidateTagsOnSettled: ['linked_accounts', 'calendars', 'events', 'settings'],
         onMutate: ({ id }: { id: string }) => {
             const linkedAccounts = queryClient.getQueryData<TLinkedAccount[]>(['linked_accounts'])

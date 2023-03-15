@@ -124,7 +124,6 @@ export const useCreateEvent = () => {
 
     return useGTMutation(({ createEventPayload }: TCreateEventParams) => createEvent(createEventPayload), {
         tag: ['events'],
-        errorMessage: 'create event',
         invalidateTagsOnSettled: ['events'],
         onMutate: ({
             createEventPayload,
@@ -221,7 +220,6 @@ export const useDeleteEvent = () => {
     const queryClient = useGTQueryClient()
     const useMutationResult = useGTMutation((data: TDeleteEventData) => deleteEvent(data.id), {
         tag: ['events'],
-        errorMessage: 'delete event',
         invalidateTagsOnSettled: ['events'],
         onMutate: (data: TDeleteEventData) => {
             const { events, blockStartTime } = queryClient.getCurrentEvents(
@@ -278,7 +276,6 @@ export const useModifyEvent = () => {
 
     return useGTMutation((data: TModifyEventData) => modifyEvent(data), {
         tag: ['events'],
-        errorMessage: 'modify event',
         invalidateTagsOnSettled: ['events'],
         onMutate: ({ event, payload, date }: TModifyEventData) => {
             const { events, blockStartTime } = queryClient.getCurrentEvents(
