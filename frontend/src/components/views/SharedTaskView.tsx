@@ -11,6 +11,7 @@ import Spinner from '../atoms/Spinner'
 import GTDatePickerButton from '../molecules/GTDatePickerButton'
 import { BackgroundContainer } from '../molecules/shared_item_page/BackgroundContainer'
 import ContentContainer from '../molecules/shared_item_page/ContentContainer'
+import NotAvailableMessage from '../molecules/shared_item_page/NotAvailableMessage'
 import SharedItemBodyContainer from '../molecules/shared_item_page/SharedItemBody'
 import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
 import SubtaskBody from '../molecules/subtasks/SubtaskBody'
@@ -63,58 +64,63 @@ const SharedTask = () => {
     if (isLoading) {
         return <Spinner />
     }
-    if (!task && !isLoading) {
-        return <Navigate to="/" replace />
-    }
     return (
         <BackgroundContainer>
             <ContentContainer>
                 <SharedItemHeader sharedType="Tasks" />
                 <SharedItemBodyContainer
                     content={
-                        <>
-                            <TitleContainer>
+                        task ? (
+                            <>
+                                <TitleContainer>
+                                    <GTTextField
+                                        type="plaintext"
+                                        value={task?.title ?? ''}
+                                        onChange={emptyFunction}
+                                        fontSize="large"
+                                        disabled
+                                        readOnly
+                                    />
+                                </TitleContainer>
+                                <TaskFieldContainer>
+                                    <GTDatePickerButton
+                                        currentDate={DateTime.fromISO(task?.due_date ?? '')}
+                                        showIcon
+                                        onClick={emptyFunction}
+                                        isOpen={false}
+                                        disabled
+                                        overrideDisabledStyle
+                                    />
+                                </TaskFieldContainer>
                                 <GTTextField
-                                    type="plaintext"
-                                    value={task?.title ?? ''}
+                                    type="markdown"
+                                    value={task?.body ?? ''}
                                     onChange={emptyFunction}
-                                    fontSize="large"
+                                    fontSize="small"
                                     disabled
                                     readOnly
                                 />
-                            </TitleContainer>
-                            <TaskFieldContainer>
-                                <GTDatePickerButton
-                                    currentDate={DateTime.fromISO(task?.due_date ?? '')}
-                                    showIcon
-                                    onClick={emptyFunction}
-                                    isOpen={false}
-                                    disabled
-                                    overrideDisabledStyle
-                                />
-                            </TaskFieldContainer>
-                            <GTTextField
-                                type="markdown"
-                                value={task?.body ?? ''}
-                                onChange={emptyFunction}
-                                fontSize="small"
-                                disabled
-                                readOnly
-                            />
-                            {data?.subtasks && data?.subtasks.length > 0 && (
-                                <SubtaskContainer>
-                                    Subtasks
-                                    <SubtaskList>
-                                        {data?.subtasks?.map((subtask) => (
-                                            <SubtaskBody key={subtask.id} subtask={subtask as TSubtask} />
-                                        ))}
-                                    </SubtaskList>
-                                </SubtaskContainer>
-                            )}
-                        </>
+                                {data?.subtasks && data?.subtasks.length > 0 && (
+                                    <SubtaskContainer>
+                                        Subtasks
+                                        <SubtaskList>
+                                            {data?.subtasks?.map((subtask) => (
+                                                <SubtaskBody key={subtask.id} subtask={subtask as TSubtask} />
+                                            ))}
+                                        </SubtaskList>
+                                    </SubtaskContainer>
+                                )}
+                            </>
+                        ) : (
+                            <NotAvailableMessage sharedType="Tasks" />
+                        )
                     }
                     footer={
-                        <SharedWithText>{getSharedWithMessage(data?.domain, data?.task.shared_access)}</SharedWithText>
+                        task && (
+                            <SharedWithText>
+                                {getSharedWithMessage(data?.domain, data?.task.shared_access)}
+                            </SharedWithText>
+                        )
                     }
                 />
             </ContentContainer>

@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom'
-import { Flex } from '@mantine/core'
 import Cookies from 'js-cookie'
 import styled from 'styled-components'
 import { AUTHORIZATION_COOKE } from '../../../constants'
 import getEnvVars from '../../../environment'
 import useAnalyticsEventTracker from '../../../hooks/useAnalyticsEventTracker'
 import { Spacing } from '../../../styles'
+import Flex from '../../atoms/Flex'
 import NoStyleAnchor from '../../atoms/NoStyleAnchor'
 import GTButton from '../../atoms/buttons/GTButton'
 import { DeprecatedBody, DeprecatedTitle } from '../../atoms/typography/Typography'
@@ -24,7 +24,7 @@ const NotAvailableMessage = ({ sharedType }: NotAvailableMessageProps) => {
     const isLoggedIn = !!Cookies.get(AUTHORIZATION_COOKE)
 
     return (
-        <>
+        <Flex column>
             <DeprecatedTitle>This {type} is not available</DeprecatedTitle>
             <DeprecatedBody>
                 If you need access to this {type}, please reach out to the person who sent it.
@@ -50,7 +50,7 @@ const NotAvailableMessage = ({ sharedType }: NotAvailableMessageProps) => {
                     </>
                 )}
             </FlexMargin8Top>
-        </>
+        </Flex>
     )
 }
 
