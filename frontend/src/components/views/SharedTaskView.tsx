@@ -18,6 +18,7 @@ import NotAvailableMessage from '../molecules/shared_item_page/NotAvailableMessa
 import SharedItemBodyContainer from '../molecules/shared_item_page/SharedItemBody'
 import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
 import SubtaskBody from '../molecules/subtasks/SubtaskBody'
+import PriorityDropdownTrigger from '../radix/PriorityDropdownTrigger'
 
 const getSharedWithMessage = (domain: string | undefined, sharedAccess: string | undefined) => {
     if (!domain || !sharedAccess) return ''
@@ -110,6 +111,12 @@ const SharedTask = () => {
                                     />
                                 </TitleContainer>
                                 <TaskFieldContainer>
+                                    <PriorityDropdownTrigger
+                                        value={displayedTask?.priority_normalized ?? 0}
+                                        onClick={emptyFunction}
+                                        disabled
+                                        overrideDisabledStyle
+                                    />
                                     <GTDatePickerButton
                                         currentDate={DateTime.fromISO(displayedTask?.due_date ?? '')}
                                         showIcon
