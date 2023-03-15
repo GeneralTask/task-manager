@@ -41,7 +41,7 @@ export const getHumanTimeSinceDateTime = (date: DateTime) => {
     } else if (hours > 0) {
         return `${hours} ${hours > 1 ? 'hours' : 'hour'} ago`
     } else if (minutes > 0) {
-        return `${minutes} ${minutes > 1 ? 'mins' : 'min'} ago`
+        return `${minutes} ${minutes > 1 ? 'minutes' : 'minute'} ago`
     }
     return `just now`
 }
