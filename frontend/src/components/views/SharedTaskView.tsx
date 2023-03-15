@@ -35,6 +35,11 @@ const ReturnToParentTaskContainer = styled.div`
     gap: ${Spacing._8};
     user-select: none;
 `
+const ReturnToParentTaskText = styled.span`
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+`
 const SharedWithText = styled.div`
     ${Typography.label.small};
     color: ${Colors.text.muted};
@@ -96,7 +101,7 @@ const SharedTask = () => {
                                 {selectedSubtaskId != null && (
                                     <ReturnToParentTaskContainer onClick={returnToParentTask}>
                                         <Icon icon={icons.caret_left} color="gray" />
-                                        Return to {task?.title}
+                                        <ReturnToParentTaskText>Return to {task?.title}</ReturnToParentTaskText>
                                     </ReturnToParentTaskContainer>
                                 )}
                                 <TitleContainer>
