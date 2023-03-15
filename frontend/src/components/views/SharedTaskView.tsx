@@ -56,6 +56,7 @@ const SharedTask = () => {
 
     const { data, isLoading } = useGetSharedTask({ id: taskId ?? '' })
     const { task } = data ?? {}
+    const subtasks = data?.subtasks.sort((a, b) => a.id_ordering - b.id_ordering) ?? []
 
     if (!isPreviewMode && !isPreviewModeLoading) {
         return <Navigate to="/" replace />
@@ -101,11 +102,11 @@ const SharedTask = () => {
                                 disabled
                                 readOnly
                             />
-                            {data?.subtasks && data?.subtasks.length > 0 && (
+                            {subtasks.length > 0 && (
                                 <SubtaskContainer>
                                     Subtasks
                                     <SubtaskList>
-                                        {data?.subtasks?.map((subtask) => (
+                                        {subtasks.map((subtask) => (
                                             <SubtaskBody key={subtask.id} subtask={subtask as TSubtask} />
                                         ))}
                                     </SubtaskList>
