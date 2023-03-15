@@ -8,7 +8,7 @@ import { Spacing } from '../../../styles'
 import Flex from '../../atoms/Flex'
 import NoStyleAnchor from '../../atoms/NoStyleAnchor'
 import GTButton from '../../atoms/buttons/GTButton'
-import { DeprecatedBody, DeprecatedTitle } from '../../atoms/typography/Typography'
+import { BodyLarge, TitleLarge } from '../../atoms/typography/Typography'
 
 const FlexMargin8Top = styled(Flex)`
     margin-top: ${Spacing._8};
@@ -25,10 +25,12 @@ const NotAvailableMessage = ({ sharedType }: NotAvailableMessageProps) => {
 
     return (
         <Flex column>
-            <DeprecatedTitle>This {type} is not available</DeprecatedTitle>
-            <DeprecatedBody>
-                If you need access to this {type}, please reach out to the person who sent it.
-            </DeprecatedBody>
+            <TitleLarge>{type === 'task' ? 'This task is not available' : 'Sign in to view this note'}</TitleLarge>
+            <BodyLarge>
+                {type === 'task'
+                    ? 'If you need access to this task, please reach out to the person who sent it.'
+                    : 'To view this note, you need to sign in or sign up for an account. Please make sure that the email address you use to log in matches the one that the note was shared with.'}
+            </BodyLarge>
             <FlexMargin8Top gap={Spacing._8}>
                 {isLoggedIn ? (
                     <GTButton

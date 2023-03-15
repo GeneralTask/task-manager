@@ -1,7 +1,6 @@
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
 const MAX_POPUP_LENGTH = 315
 const MAX_POPUP_HEIGHT = 500
@@ -18,25 +17,15 @@ export const EventHeader = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-`
-export const EventHeaderIcons = styled.div`
-    display: flex;
-    align-items: center;
-`
-export const IconButton = styled(NoStyleButton)`
-    padding: ${Spacing._8};
-    border-radius: 50vh;
-    &:hover {
-        background-color: ${Colors.background.sub};
-    }
+    gap: ${Spacing._8};
 `
 export const EventTitle = styled.span`
-    ${Typography.deprecated_body}
     color: ${Colors.text.black};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
+    ${Typography.deprecated_bodySmall};
 `
 export const Description = styled.div`
     ${Typography.deprecated_label};
@@ -49,9 +38,6 @@ export const Description = styled.div`
 `
 export const FlexAnchor = styled(NoStyleAnchor)`
     flex: 1;
-`
-export const CopyButton = styled(IconButton)`
-    margin: 0 ${Spacing._8};
 `
 export const Overlay = styled.div`
     position: fixed;

@@ -1,18 +1,16 @@
-import { useEffect } from 'react'
 import { Helmet } from 'react-helmet'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { AUTHORIZATION_COOKE, SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
-import useAnalyticsEventTracker from '../../hooks/useAnalyticsEventTracker'
+import { AUTHORIZATION_COOKE } from '../../constants'
 import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
 import { Spacing } from '../../styles'
-import { emptyFunction, getFormattedDuration, getHumanTimeSinceDateTime } from '../../utils/utils'
+import { emptyFunction, getFormattedEventTime, getHumanTimeSinceDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import Spinner from '../atoms/Spinner'
-import { DeprecatedLabel } from '../atoms/typography/Typography'
+import { LabelSmall, TitleLarge } from '../atoms/typography/Typography'
 import { BackgroundContainer } from '../molecules/shared_item_page/BackgroundContainer'
 import ContentContainer from '../molecules/shared_item_page/ContentContainer'
 import NotAvailableMessage from '../molecules/shared_item_page/NotAvailableMessage'
@@ -25,18 +23,18 @@ const FlexPadding8Horizontal = styled(Flex)`
 `
 
 const SharedNoteView = () => {
-    const GALog = useAnalyticsEventTracker('Notes')
-    useEffect(() => {
-        GALog('Page view', 'Shared Note View')
-    }, [])
     const navigate = useNavigate()
     const { noteId } = useParams()
     const isLoggedIn = !!Cookies.get(AUTHORIZATION_COOKE)
-
     const { data: note, isLoading } = useGetNote({ id: noteId ?? '' })
-
     const { data: notes, isLoading: isLoadingNotes } = useGetNotes(isLoggedIn)
     const isUserNoteOwner = (notes ?? []).some((userNote) => userNote.id === note?.id)
+
+    const getSharedWithText = () => {
+        if (note?.shared_access === 'domain') return 'all members of the organization'
+        if (note?.shared_access === 'meeting_attendees') return 'all attendees of the meeting'
+        return 'everyone'
+    }
 
     if (!noteId) navigate('/')
 
@@ -58,17 +56,21 @@ const SharedNoteView = () => {
                         content={
                             note && note.shared_until ? (
                                 <>
-                                    <Flex alignItems="flex-start">
-                                        <GTTextField
-                                            type="plaintext"
-                                            value={note.title}
-                                            onChange={emptyFunction}
-                                            fontSize="large"
-                                            disabled
-                                            readOnly
-                                        />
+                                    <FlexPadding8Horizontal alignItems="flex-start" justifyContent="space-between">
+                                        <TitleLarge>{note.title}</TitleLarge>
                                         <NoteActionsDropdown note={note} isOwner={isUserNoteOwner} />
-                                    </Flex>
+                                    </FlexPadding8Horizontal>
+                                    {note.linked_event_id && note.linked_event_start && note.linked_event_end && (
+                                        <FlexPadding8Horizontal>
+                                            <LabelSmall color="light">
+                                                {getFormattedEventTime(
+                                                    DateTime.fromISO(note.linked_event_start),
+                                                    DateTime.fromISO(note.linked_event_end),
+                                                    'long'
+                                                )}
+                                            </LabelSmall>
+                                        </FlexPadding8Horizontal>
+                                    )}
                                     <GTTextField
                                         key={note.id}
                                         type="markdown"
@@ -90,33 +92,24 @@ const SharedNoteView = () => {
                                     <Flex gap={Spacing._4}>
                                         {isLoggedIn && isUserNoteOwner ? (
                                             <>
-                                                <DeprecatedLabel color="light">{`You shared this note ${getHumanTimeSinceDateTime(
+                                                <LabelSmall color="base">{`You shared this note ${getHumanTimeSinceDateTime(
                                                     DateTime.fromISO(note.updated_at)
-                                                )}`}</DeprecatedLabel>
-                                                <DeprecatedLabel>
+                                                )}`}</LabelSmall>
+                                                <LabelSmall>
                                                     {'('}
                                                     <Link to={`/notes/${noteId}`}>edit note</Link>
                                                     {')'}
-                                                </DeprecatedLabel>
+                                                </LabelSmall>
                                             </>
                                         ) : (
-                                            <DeprecatedLabel color="light">{`${
+                                            <LabelSmall color="base">{`${
                                                 note.author
                                             } shared this note ${getHumanTimeSinceDateTime(
                                                 DateTime.fromISO(note.updated_at)
-                                            )}`}</DeprecatedLabel>
+                                            )}`}</LabelSmall>
                                         )}
                                     </Flex>
-                                    <DeprecatedLabel color="light">
-                                        {note.shared_until === SHARED_ITEM_INDEFINITE_DATE
-                                            ? ''
-                                            : `Link expires in ${getFormattedDuration(
-                                                  DateTime.fromISO(note.shared_until).diffNow('milliseconds', {
-                                                      conversionAccuracy: 'longterm',
-                                                  }),
-                                                  2
-                                              )}`}
-                                    </DeprecatedLabel>
+                                    <LabelSmall color="light">{`Shared with ${getSharedWithText()}`}</LabelSmall>
                                 </FlexPadding8Horizontal>
                             )
                         }
