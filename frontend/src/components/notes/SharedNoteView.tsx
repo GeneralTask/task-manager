@@ -56,18 +56,20 @@ const SharedNoteView = () => {
                         content={
                             note && note.shared_until ? (
                                 <>
-                                    <Flex alignItems="flex-start" justifyContent="space-between">
+                                    <FlexPadding8Horizontal alignItems="flex-start" justifyContent="space-between">
                                         <TitleLarge>{note.title}</TitleLarge>
                                         <NoteActionsDropdown note={note} isOwner={isUserNoteOwner} />
-                                    </Flex>
+                                    </FlexPadding8Horizontal>
                                     {note.linked_event_id && note.linked_event_start && note.linked_event_end && (
-                                        <LabelSmall color="light">
-                                            {getFormattedEventTime(
-                                                DateTime.fromISO(note.linked_event_start),
-                                                DateTime.fromISO(note.linked_event_end),
-                                                'long'
-                                            )}
-                                        </LabelSmall>
+                                        <FlexPadding8Horizontal>
+                                            <LabelSmall color="light">
+                                                {getFormattedEventTime(
+                                                    DateTime.fromISO(note.linked_event_start),
+                                                    DateTime.fromISO(note.linked_event_end),
+                                                    'long'
+                                                )}
+                                            </LabelSmall>
+                                        </FlexPadding8Horizontal>
                                     )}
                                     <GTTextField
                                         key={note.id}
