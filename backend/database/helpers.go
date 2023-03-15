@@ -1230,8 +1230,8 @@ func GetDashboardDataPoints(db *mongo.Database, teamID primitive.ObjectID, lookb
 		context.Background(),
 		bson.M{"$and": []bson.M{
 			// this timestamp is approximate for now, will refine as needed
-			bson.M{"date": bson.M{"$gte": time.Now().Add(-time.Hour * 24 * time.Duration(lookbackDays))}},
-			bson.M{"$or": []bson.M{
+			{"date": bson.M{"$gte": time.Now().Add(-time.Hour * 24 * time.Duration(lookbackDays))}},
+			{"$or": []bson.M{
 				{"subject": constants.DashboardSubjectGlobal},
 				{"team_id": teamID},
 			}}}},
