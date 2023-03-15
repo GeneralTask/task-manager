@@ -72,6 +72,8 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
                   label: 'Disable shared link',
                   hideCheckmark: true,
                   onClick: unshareNote,
+                  iconColor: 'red',
+                  textColor: 'red',
               },
               {
                   label: 'Shared note info',
