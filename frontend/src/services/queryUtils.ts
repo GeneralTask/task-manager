@@ -97,7 +97,17 @@ export const useGTMutation = <TData = unknown, TError = unknown, TVariables = vo
         },
         onError: (error, variables, context) => {
             mutationOptions.onError?.(error, variables, context)
-            toast.requestFailed(mutationOptions.errorMessage)
+            toast.show(
+                {
+                    title: `Failed to ${mutationOptions.errorMessage}:`,
+                    message: 'Request failed.',
+                },
+                {
+                    autoClose: 4000,
+                    pauseOnFocusLoss: false,
+                    theme: 'light',
+                }
+            )
         },
     })
     const newMutate = (variables: TVariables, optimisticId?: string) => {
