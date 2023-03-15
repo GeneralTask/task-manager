@@ -11,6 +11,7 @@ import {
     useInterval,
     useKeyboardShortcut,
     usePageFocus,
+    usePreviewMode,
     useToast,
 } from '../../hooks'
 import { useDeleteEvent, useEvents } from '../../services/api/events.hooks'
@@ -207,6 +208,7 @@ const FocusModeScreen = () => {
     const { onEdit } = useDebouncedEdit({ onSave, isError, isLoading }, NOTE_SYNC_TIMEOUT)
     const currentEvents = getEventsCurrentlyHappening(events ?? [])
     const [chosenEvent, setChosenEvent] = useState<TEvent | null>(null)
+    const { isPreviewMode } = usePreviewMode()
     const [time, setTime] = useState(DateTime.local())
     const [shouldAutoAdvanceEvent, setShouldAutoAdvanceEvent] = useState(true)
     usePageFocus(true)
@@ -384,35 +386,37 @@ const FocusModeScreen = () => {
                                             </>
                                         )}
                                     </div>
-                                    <div>
-                                        <BodyHeader>MEETING NOTES</BodyHeader>
-                                        {linkedNote ? (
-                                            <GTTextField
-                                                key={linkedNote.id}
-                                                type="markdown"
-                                                value={linkedNote.body}
-                                                placeholder="Add details"
-                                                onChange={(val) => onEdit({ id: linkedNote.id, body: val })}
-                                                fontSize="small"
-                                            />
-                                        ) : (
-                                            <GTButton
-                                                styleType="secondary"
-                                                value="Add meeting notes"
-                                                icon={icons.penToSquare}
-                                                onClick={() => {
-                                                    createNote({
-                                                        title: chosenEvent.title || NO_TITLE,
-                                                        author: userInfo?.name || 'Anonymous',
-                                                        linked_event_id: chosenEvent.id,
-                                                        linked_event_start: chosenEvent.datetime_start,
-                                                        linked_event_end: chosenEvent.datetime_end,
-                                                        optimisticId: uuidv4(),
-                                                    })
-                                                }}
-                                            />
-                                        )}
-                                    </div>
+                                    {isPreviewMode && (
+                                        <div>
+                                            <BodyHeader>MEETING NOTES</BodyHeader>
+                                            {linkedNote ? (
+                                                <GTTextField
+                                                    key={linkedNote.id}
+                                                    type="markdown"
+                                                    value={linkedNote.body}
+                                                    placeholder="Add details"
+                                                    onChange={(val) => onEdit({ id: linkedNote.id, body: val })}
+                                                    fontSize="small"
+                                                />
+                                            ) : (
+                                                <GTButton
+                                                    styleType="secondary"
+                                                    value="Add meeting notes"
+                                                    icon={icons.penToSquare}
+                                                    onClick={() => {
+                                                        createNote({
+                                                            title: chosenEvent.title || NO_TITLE,
+                                                            author: userInfo?.name || 'Anonymous',
+                                                            linked_event_id: chosenEvent.id,
+                                                            linked_event_start: chosenEvent.datetime_start,
+                                                            linked_event_end: chosenEvent.datetime_end,
+                                                            optimisticId: uuidv4(),
+                                                        })
+                                                    }}
+                                                />
+                                            )}
+                                        </div>
+                                    )}
                                 </>
                             )}
                             {!chosenEvent && currentEvents.length === 0 && <FlexTime nextEvent={nextEvent} />}
