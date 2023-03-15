@@ -4,7 +4,7 @@ import GTButton from '../atoms/buttons/GTButton'
 
 interface PriorityDropdownTriggerProps {
     value: number
-    onClick: () => void
+    onClick?: () => void
     disabled?: boolean
     overrideDisabledStyle?: boolean
 }
