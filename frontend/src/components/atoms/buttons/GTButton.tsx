@@ -135,6 +135,7 @@ const Button = styled(NoStyleButton)<GTButtonProps>`
     ${(props) => props.textColor && `color: ${Colors.text[props.textColor]};`}
     &:disabled {
         opacity: 0.5;
+        ${({ overrideDisabledStyle }) => overrideDisabledStyle && 'opacity: 1;'}
         cursor: default;
     }
 `
@@ -164,6 +165,7 @@ interface GTButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElemen
     // misc
     fitContent?: boolean
     active?: boolean
+    overrideDisabledStyle?: boolean
 }
 const GTButton = React.forwardRef((props: GTButtonProps, ref: React.Ref<HTMLButtonElement>) => {
     const { value, fitContent, ...rest } = props
