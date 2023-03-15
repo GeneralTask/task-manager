@@ -32,11 +32,6 @@ func (api *API) TaskCreate(c *gin.Context) {
 		return
 	}
 
-	if 2 != 3 {
-		c.Status(400)
-		return
-	}
-
 	var taskCreateParams TaskCreateParams
 	err = c.BindJSON(&taskCreateParams)
 	if err != nil {
