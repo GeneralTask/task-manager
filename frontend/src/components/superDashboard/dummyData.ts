@@ -28,6 +28,24 @@ const dummyData: TDashboard = {
             is_default: true,
             graph_ids: ['graph_idyou', 'graph_idindustry'],
         },
+        {
+            id: 'scott',
+            name: 'Scott',
+            icon: 'priority_urgent',
+            graph_ids: ['graph_idyou', 'graph_idindustry'],
+        },
+        {
+            id: 'john',
+            name: 'John',
+            icon: 'user',
+            graph_ids: [],
+        },
+        {
+            id: 'jiyoon',
+            name: 'Ji Yoon',
+            icon: 'user',
+            graph_ids: [],
+        },
     ],
     // you can assume graph definitions will exist for graph ids provided above
     graphs: {
