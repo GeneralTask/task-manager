@@ -19,7 +19,6 @@ import { Icon } from '../atoms/Icon'
 import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { DeprecatedBold } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import EventMeetingAction from '../focus-mode/EventMeetingAction'
@@ -38,13 +37,7 @@ const ActionsContainer = styled.div`
     margin-left: auto;
     display: flex;
     height: fit-content;
-`
-export const IconButton = styled(NoStyleButton)`
-    padding: ${Spacing._8};
-    border-radius: 50vh;
-    &:hover {
-        background-color: ${Colors.background.hover};
-    }
+    gap: ${Spacing._4};
 `
 const TemplateViewContainer = styled.div`
     height: 100%;
@@ -339,9 +332,7 @@ const FocusModeScreen = () => {
                                         <GTHeader>{title || NO_TITLE}</GTHeader>
                                         <ActionsContainer>
                                             <ExternalLinkButton link={chosenEvent.deeplink} />
-                                            <IconButton onClick={onDelete}>
-                                                <Icon icon={icons.trash} />
-                                            </IconButton>
+                                            <GTButton styleType="icon" onClick={onDelete} icon={icons.trash} />
                                         </ActionsContainer>
                                     </EventHeaderContainer>
                                     <GTTitle>
