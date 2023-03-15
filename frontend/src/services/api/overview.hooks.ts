@@ -35,7 +35,7 @@ export const useReorderViews = () => {
     const [, setIsUsingSmartPrioritization] = useGTLocalStorage('isUsingSmartPrioritization', false, true)
     return useGTMutation((data: TReorderViewData) => reorderView(data), {
         tag: ['overview'],
-        invalidateTagsOnSettled: ['overview'],
+        invalidateTagsOnSettled: [['overview']],
         onMutate: async ({ id, idOrdering }: TReorderViewData) => {
             setIsUsingSmartPrioritization(false)
             const views = queryClient.getImmutableQueryData<TOverviewView[]>(['overview'])
@@ -77,7 +77,7 @@ export const useBulkModifyViews = () => {
     const queryClient = useGTQueryClient()
     return useGTMutation((data: TBulkModifyViewsData) => bulkModifyViews(data), {
         tag: ['overview'],
-        invalidateTagsOnSettled: ['overview'],
+        invalidateTagsOnSettled: [['overview']],
         onMutate: async (data: TBulkModifyViewsData) => {
             const views = queryClient.getImmutableQueryData<TOverviewView[]>(['overview'])
             if (!views) return
@@ -153,7 +153,7 @@ export const useAddView = () => {
         },
         {
             tag: ['overview'],
-            invalidateTagsOnSettled: ['overview', 'overview-supported-views'],
+            invalidateTagsOnSettled: [['overview'], ['overview-supported-views']],
             onMutate: async ({
                 optimisticId,
                 supportedView,
@@ -231,7 +231,7 @@ export const useRemoveView = () => {
 
     return useGTMutation(({ id }: TRemoveViewData) => removeView(id), {
         tag: ['overview'],
-        invalidateTagsOnSettled: ['overview', 'overview-supported-views'],
+        invalidateTagsOnSettled: [['overview'], ['overview-supported-views']],
         onMutate: async ({ id }) => {
             setIsUsingSmartPrioritization(false)
             const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>(['overview-supported-views'])

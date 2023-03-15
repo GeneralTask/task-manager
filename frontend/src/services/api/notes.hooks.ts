@@ -62,7 +62,7 @@ export const useCreateNote = () => {
     const { setOptimisticId } = useQueryContext()
     return useGTMutation((data: TCreateNoteData) => createNote(data), {
         tag: ['notes'],
-        invalidateTagsOnSettled: ['notes'],
+        invalidateTagsOnSettled: [['notes']],
         onMutate: async (data: TCreateNoteData) => {
             await queryClient.cancelQueries(['notes'])
             const notes = queryClient.getImmutableQueryData<TNote[]>(['notes'])
@@ -110,7 +110,7 @@ export const useModifyNote = () => {
     const { getIdFromOptimisticId } = useQueryContext()
     return useGTMutation((data: TModifyNoteData) => modifyNote(data), {
         tag: ['notes'],
-        invalidateTagsOnSettled: ['notes'],
+        invalidateTagsOnSettled: [['notes']],
         onMutate: async (data: TModifyNoteData) => {
             await queryClient.cancelQueries(['notes'])
 

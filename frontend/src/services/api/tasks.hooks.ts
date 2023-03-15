@@ -148,7 +148,7 @@ export const useCreateTask = () => {
 
     return useGTMutation((data: TCreateTaskData) => createTask(data), {
         tag: ['tasks_v4'],
-        invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
+        invalidateTagsOnSettled: [['tasks_v4'], ['folders'], ['overview']],
         onMutate: async (data: TCreateTaskData) => {
             await Promise.all([
                 queryClient.cancelQueries(['tasks_v4']),
@@ -285,7 +285,7 @@ export const useModifyTask = (useQueueing = true) => {
         (data: TModifyTaskData) => modifyTask(data),
         {
             tag: ['tasks_v4'],
-            invalidateTagsOnSettled: ['tasks_v4', 'overview', 'folders', 'meeting_preparation_tasks'],
+            invalidateTagsOnSettled: [['tasks_v4'], ['overview'], ['folders'], ['meeting_preparation_tasks']],
             onMutate: async (data: TModifyTaskData) => {
                 await Promise.all([
                     queryClient.cancelQueries(['overview']),
@@ -362,7 +362,7 @@ export const useMarkTaskDoneOrDeleted = (useQueueing = true) => {
         (data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data),
         {
             tag: ['tasks_v4'],
-            invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
+            invalidateTagsOnSettled: [['tasks_v4'], ['folders'], ['overview']],
             onMutate: async (data: TMarkTaskDoneOrDeletedData) => {
                 await Promise.all([
                     queryClient.cancelQueries(['tasks_v4']),
@@ -499,7 +499,7 @@ export const useReorderTask = (useQueueing = true) => {
         (data: TReorderTaskData) => reorderTask(data),
         {
             tag: ['tasks_v4'],
-            invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
+            invalidateTagsOnSettled: [['tasks_v4'], ['folders'], ['overview']],
             onMutate: async (data: TReorderTaskData) => {
                 await Promise.all([
                     queryClient.cancelQueries(['tasks_v4']),
@@ -590,7 +590,7 @@ export const usePostComment = () => {
     const queryClient = useGTQueryClient()
     return useGTMutation((data: TPostCommentData) => postComment(data), {
         tag: ['tasks_v4'],
-        invalidateTagsOnSettled: ['tasks_v4'],
+        invalidateTagsOnSettled: [['tasks_v4']],
         onMutate: async (data: TPostCommentData) => {
             await queryClient.cancelQueries(['tasks_v4'])
 
