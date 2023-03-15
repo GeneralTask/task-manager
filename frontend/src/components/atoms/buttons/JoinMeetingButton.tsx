@@ -11,7 +11,7 @@ const JoinMeetingButton = ({ conferenceCall, shortened = true }: JoinMeetingButt
     const message = shortened ? 'Join' : 'Join Meeting'
     return (
         <NoStyleAnchor href={conferenceCall.url}>
-            <GTButton icon={conferenceCall.logo} iconColor="black" styleType="secondary" value={message} />
+            <GTButton icon={conferenceCall.logo} styleType="secondary" value={message} />
         </NoStyleAnchor>
     )
 }

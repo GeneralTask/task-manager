@@ -27,7 +27,6 @@ const GTDatePickerButton = ({
             icon={showIcon ? icons.clock : undefined}
             value={formattedDate.dateString}
             textColor={formattedDate.textColor}
-            iconColor={formattedDate.iconColor}
             onClick={onClick}
             active={isOpen}
             disabled={disabled}
