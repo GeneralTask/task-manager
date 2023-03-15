@@ -25,6 +25,7 @@ const GTDatePickerButton = ({ currentDate, showIcon, onClick, isOpen, disabled }
             active={isOpen}
             disabled={disabled}
             styleType="control"
+            overrideDisabledStyle
         />
     )
 }

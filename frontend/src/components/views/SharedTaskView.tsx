@@ -12,10 +12,9 @@ import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
 
 const SharedTask = () => {
     const { taskId } = useParams()
-
     const { data, isLoading } = useGetSharedTask({ id: taskId ?? '' })
     const { task } = data ?? {}
-    console.log(data)
+
     if (isLoading) {
         return <Spinner />
     }
