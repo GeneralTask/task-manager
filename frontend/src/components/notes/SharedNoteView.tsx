@@ -33,7 +33,7 @@ const SharedNoteView = () => {
     const getSharedWithText = () => {
         if (note?.shared_access === 'domain') return 'all members of the organization'
         if (note?.shared_access === 'meeting_attendees') return 'all attendees of the meeting'
-        if (note?.shared_access === 'public') return 'everyone'
+        return 'everyone'
     }
 
     if (!noteId) navigate('/')
