@@ -3,6 +3,7 @@ package jobs
 import (
 	"context"
 	"errors"
+	"strconv"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -36,6 +37,7 @@ func updateGithubIndustryData(endCutoff time.Time, lookbackDays int) error {
 		return err
 	}
 	defer cleanup()
+	database.InsertLogEvent(db, primitive.NilObjectID, "github_industry_job_start")
 
 	repositoryCollection := database.GetRepositoryCollection(db)
 	findOptions := options.Find()
@@ -56,6 +58,7 @@ func updateGithubIndustryData(endCutoff time.Time, lookbackDays int) error {
 		logger.Error().Err(err).Msg("failed to iterate through github PRs")
 		return err
 	}
+	database.InsertLogEvent(db, primitive.NilObjectID, "github_industry_job_fetched_prs"+strconv.Itoa(len(pullRequests)))
 	pullRequestIDToValue := make(map[string]database.PullRequest)
 	for _, pullRequest := range pullRequests {
 		pullRequestIDToValue[pullRequest.IDExternal] = pullRequest
@@ -80,6 +83,7 @@ func updateGithubIndustryData(endCutoff time.Time, lookbackDays int) error {
 		dateToTotalResponseTime[pullRequestDate] += responseTime
 		dateToPRCount[pullRequestDate] += 1
 	}
+	database.InsertLogEvent(db, primitive.NilObjectID, "github_industry_job_calc_response_time"+strconv.Itoa(len(dateToTotalResponseTime)))
 	dataPointCollection := database.GetDashboardDataPointCollection(db)
 	for dateTime, totalResponseTime := range dateToTotalResponseTime {
 		pullRequestCount := dateToPRCount[dateTime]
@@ -111,5 +115,6 @@ func updateGithubIndustryData(endCutoff time.Time, lookbackDays int) error {
 			return err
 		}
 	}
+	database.InsertLogEvent(db, primitive.NilObjectID, "github_industry_job_completed")
 	return nil
 }
