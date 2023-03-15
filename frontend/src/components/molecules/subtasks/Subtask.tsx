@@ -47,7 +47,7 @@ export const SubtaskContainer = styled.div<{ forceHoverStyle?: boolean; isDone?:
     box-sizing: border-box;
     ${({ isDone }) => isDone && `background-color: ${Colors.background.base};`}
 `
-const TitleSpan = styled.span<{ isDone: boolean; shouldAnimate: boolean }>`
+export const TitleSpan = styled.span<{ isDone: boolean; shouldAnimate: boolean }>`
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
