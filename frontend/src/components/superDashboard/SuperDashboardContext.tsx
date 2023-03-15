@@ -1,29 +1,29 @@
 import { createContext, useContext, useState } from 'react'
 import { emptyFunction } from '../../utils/utils'
 import dummyData from './dummyData'
-import { Dashboard, Interval, Subject } from './types'
+import { TDashboard, TInterval, TSubject } from './types'
 
 export interface ContextValues {
-    dashboard: Dashboard
-    selectedInterval: Interval
-    setSelectedInterval: React.Dispatch<React.SetStateAction<Interval>>
-    selectedSubject: Subject
-    setSelectedSubject: React.Dispatch<React.SetStateAction<Subject>>
+    dashboard: TDashboard
+    selectedInterval: TInterval
+    setSelectedInterval: React.Dispatch<React.SetStateAction<TInterval>>
+    selectedSubject: TSubject
+    setSelectedSubject: React.Dispatch<React.SetStateAction<TSubject>>
     isLoading: boolean
 }
 
-const emptyInterval: Interval = {
+const emptyInterval: TInterval = {
     id: '',
     date_start: '',
     date_end: '',
 }
-const emptySubject: Subject = {
+const emptySubject: TSubject = {
     id: '',
     icon: 'users',
     name: '',
     graph_ids: [],
 }
-const emptyDashboard: Dashboard = {
+const emptyDashboard: TDashboard = {
     intervals: [emptyInterval],
     subjects: [emptySubject],
     graphs: {},
@@ -46,10 +46,10 @@ interface SuperDashboardContextProviderProps {
 export const SuperDashboardContextProvider = ({ children }: SuperDashboardContextProviderProps) => {
     const dashboard = dummyData // will make this an API request
 
-    const [selectedInterval, setSelectedInterval] = useState<Interval>(
+    const [selectedInterval, setSelectedInterval] = useState<TInterval>(
         () => dashboard.intervals.find((i) => i.is_default) ?? dashboard.intervals[0]
     )
-    const [selectedSubject, setSelectedSubject] = useState<Subject>(
+    const [selectedSubject, setSelectedSubject] = useState<TSubject>(
         () => dashboard.subjects.find((s) => s.is_default) ?? dashboard.subjects[0]
     )
 

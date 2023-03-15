@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import type { Dashboard } from './types'
+import type { TDashboard } from './types'
 
 const START_DATE = DateTime.local().startOf('week')
 const Y_MIN = 200
@@ -11,7 +11,7 @@ const getRandomPoints = () =>
         y: Math.floor(Math.random() * (Y_MAX - Y_MIN + 1)) + Y_MIN,
     }))
 
-const dummyData: Dashboard = {
+const dummyData: TDashboard = {
     intervals: [
         {
             id: 'interval_id123',

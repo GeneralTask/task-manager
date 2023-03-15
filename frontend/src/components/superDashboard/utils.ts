@@ -1,7 +1,7 @@
 import { Colors } from '../../styles'
-import { LineColor } from './types'
+import { TLineColor } from './types'
 
-export const getLineColor = (colorKey: LineColor) => {
+export const getLineColor = (colorKey: TLineColor) => {
     switch (colorKey) {
         case 'pink':
             return Colors.control.primary.bg

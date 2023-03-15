@@ -1,29 +1,29 @@
 import { TIconImage } from '../../styles/images'
 
-export interface Dashboard {
-    intervals: Interval[]
-    subjects: Subject[]
+export interface TDashboard {
+    intervals: TInterval[]
+    subjects: TSubject[]
     graphs: {
-        [key: string]: Graph // key is prefixed with "graph_id"
+        [key: string]: TGraph // key is prefixed with "graph_id"
     }
     data: {
         // key is prefixed with "interval_id"
         [key: string]: {
-            [key: string]: Data // key is prefixed with "data_id" from Line
+            [key: string]: TData // key is prefixed with "data_id" from Line
         }
     }
 }
 
-export type LineColor = 'pink' | 'gray' | 'blue'
+export type TLineColor = 'pink' | 'gray' | 'blue'
 
-export interface Interval {
+export interface TInterval {
     id: string
     date_start: string
     date_end: string
     is_default?: boolean
 }
 
-export interface Subject {
+export interface TSubject {
     id: string
     name: string
     icon: TIconImage
@@ -31,25 +31,25 @@ export interface Subject {
     graph_ids: string[]
 }
 
-export interface Graph {
+export interface TGraph {
     name: string
     icon: TIconImage
-    lines: Line[]
+    lines: TLine[]
 }
 
-export interface Line {
+export interface TLine {
     data_id: string
     name: string
-    color: LineColor
+    color: TLineColor
     aggregated_name: string
 }
 
-export interface Data {
+export interface TData {
     aggregated_value: number
-    points: Point[]
+    points: TPoint[]
 }
 
-export interface Point {
+export interface TPoint {
     x: number
     y: number
 }
