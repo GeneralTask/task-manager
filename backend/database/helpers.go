@@ -807,12 +807,11 @@ func GetDeletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, er
 }
 
 func GetAllMeetingPreparationTasksUntilEndOfDay(db *mongo.Database, userID primitive.ObjectID, currentTime time.Time) (*[]Task, error) {
-	timeStartOfDay := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 0, 0, 0, 0, currentTime.Location())
 	timeEndOfDay := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 23, 59, 59, 0, currentTime.Location())
 	return GetTasks(db, userID,
 		&[]bson.M{
 			{"is_meeting_preparation_task": true},
-			{"meeting_preparation_params.datetime_start": bson.M{"$gte": timeStartOfDay}},
+			{"meeting_preparation_params.datetime_start": bson.M{"$gte": currentTime}},
 			{"meeting_preparation_params.datetime_start": bson.M{"$lte": timeEndOfDay}},
 		},
 		nil,
@@ -830,7 +829,7 @@ func GetMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (
 	)
 }
 
-func GetCompletedMeetingPreparationTasksBeforeToday(db *mongo.Database, userID primitive.ObjectID, currentTime time.Time) (*[]Task, error) {
+func GetEarlierCompletedMeetingPrepTasks(db *mongo.Database, userID primitive.ObjectID, currentTime time.Time) (*[]Task, error) {
 	findOptions := options.Find()
 	findOptions.SetSort(bson.D{{Key: "completed_at", Value: -1}, {Key: "_id", Value: -1}})
 	findOptions.SetLimit(int64(constants.MAX_COMPLETED_TASKS))
@@ -842,7 +841,39 @@ func GetCompletedMeetingPreparationTasksBeforeToday(db *mongo.Database, userID p
 				{"user_id": userID},
 				{"is_meeting_preparation_task": true},
 				{"meeting_preparation_params.datetime_end": bson.M{"$lte": currentTime}},
+				{"is_completed": true},
 				{"is_deleted": bson.M{"$ne": true}},
+			},
+		},
+		findOptions,
+	)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
+		return nil, err
+	}
+	var tasks []Task
+	err = cursor.All(context.Background(), &tasks)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
+		return nil, err
+	}
+	return &tasks, nil
+}
+
+func GetEarlierDeletedMeetingPrepTasks(db *mongo.Database, userID primitive.ObjectID, currentTime time.Time) (*[]Task, error) {
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{Key: "deleted_at", Value: -1}, {Key: "_id", Value: -1}})
+	findOptions.SetLimit(int64(constants.MAX_DELETED_TASKS))
+
+	cursor, err := GetTaskCollection(db).Find(
+		context.Background(),
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"is_meeting_preparation_task": true},
+				{"meeting_preparation_params.datetime_end": bson.M{"$lte": currentTime}},
+				{"is_deleted": true},
 			},
 		},
 		findOptions,
@@ -888,6 +919,7 @@ func GetEventsUntilEndOfDay(db *mongo.Database, userID primitive.ObjectID, curre
 		{"datetime_start": bson.M{"$lte": timeEndOfDay}},
 		{"linked_task_id": bson.M{"$exists": false}},
 		{"linked_view_id": bson.M{"$exists": false}},
+		{"linked_pull_request_id": bson.M{"$exists": false}},
 	})
 }
 
