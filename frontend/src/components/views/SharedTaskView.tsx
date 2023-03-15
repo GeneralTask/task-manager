@@ -19,6 +19,7 @@ import SharedItemBodyContainer from '../molecules/shared_item_page/SharedItemBod
 import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
 import SubtaskBody from '../molecules/subtasks/SubtaskBody'
 
+const PARENT_TASK_TITLE_MAX_WIDTH = '200px'
 const getSharedWithMessage = (domain: string | undefined, sharedAccess: string | undefined) => {
     if (!domain || !sharedAccess) return ''
     if (sharedAccess === 'domain') {
@@ -34,6 +35,7 @@ const ReturnToParentTaskContainer = styled.div`
     cursor: pointer;
     gap: ${Spacing._8};
     user-select: none;
+    max-width: ${PARENT_TASK_TITLE_MAX_WIDTH};
 `
 const ReturnToParentTaskText = styled.span`
     white-space: nowrap;
