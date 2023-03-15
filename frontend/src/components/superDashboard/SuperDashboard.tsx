@@ -3,6 +3,7 @@ import { Spacing } from '../../styles'
 import Flex from '../atoms/Flex'
 import DateSelector from './DateSelector'
 import Metric from './Metric'
+import SubjectSelector from './SubjectSelector'
 import { useSuperDashboardContext } from './SuperDashboardContext'
 
 const Metrics = styled.div`
@@ -17,7 +18,10 @@ const SuperDashboard = () => {
 
     return (
         <Flex column gap={Spacing._24}>
-            <DateSelector />
+            <Flex justifyContent="space-between" alignItems="center">
+                <DateSelector />
+                <SubjectSelector />
+            </Flex>
             <Metrics>
                 {selectedSubject.graph_ids.map((graphId) => (
                     <Metric key={graphId} graphId={graphId} />
