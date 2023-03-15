@@ -792,6 +792,10 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, 
 	return &tasks, nil
 }
 
+func GetSubtasksFromTask(db *mongo.Database, task *Task) (*[]Task, error) {
+	return GetTasks(db, task.UserID, &[]bson.M{{"parent_task_id": task.ID}}, nil)
+}
+
 func GetDeletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
 	findOptions := options.Find()
 	findOptions.SetSort(bson.D{{Key: "deleted_at", Value: -1}, {Key: "_id", Value: -1}})
