@@ -1,8 +1,9 @@
 import styled from 'styled-components'
 import { Border, Colors, Spacing } from '../../styles'
+import { TBackgroundColor } from '../../styles/colors'
 
-const Container = styled.div`
-    background-color: ${Colors.background.sub};
+const Container = styled.div<{ bgColor?: TBackgroundColor }>`
+    background-color: ${({ bgColor }) => (bgColor ? Colors.background[bgColor] : 'transparent')};
     padding: ${Spacing._8} ${Spacing._12};
     border-radius: ${Border.radius.small};
     display: flex;
@@ -15,12 +16,13 @@ const RightActions = styled.div`
 `
 
 interface ActionsContainerProps {
+    backgroundColor?: TBackgroundColor
     leftActions?: React.ReactNode
     rightActions?: React.ReactNode
 }
-const ActionsContainer = ({ leftActions, rightActions }: ActionsContainerProps) => {
+const ActionsContainer = ({ backgroundColor, leftActions, rightActions }: ActionsContainerProps) => {
     return (
-        <Container>
+        <Container bgColor={backgroundColor}>
             {leftActions}
             <RightActions>{rightActions}</RightActions>
         </Container>
