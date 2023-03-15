@@ -21,8 +21,8 @@ const DateSelector = () => {
     const endDateStr = endDate.toFormat('MMM d')
 
     const selectedIntervalIndex = useMemo(
-        () => dashboard.intervals.findIndex((interval) => interval.id === selectedInterval.id),
-        [dashboard.intervals, selectedInterval.id]
+        () => dashboard.intervals.findIndex((interval) => interval == selectedInterval),
+        [dashboard.intervals, selectedInterval]
     )
     const canSelectPreviousInterval = dashboard.intervals.length > 1 && selectedIntervalIndex > 0
     const canSelectNextInterval =
