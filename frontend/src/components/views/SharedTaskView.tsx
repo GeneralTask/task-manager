@@ -1,12 +1,15 @@
+import { useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { usePreviewMode } from '../../hooks'
 import { useGetSharedTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
+import { icons } from '../../styles/images'
 import { TSubtask } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 import GTTextField from '../atoms/GTTextField'
+import { Icon } from '../atoms/Icon'
 import Spinner from '../atoms/Spinner'
 import GTDatePickerButton from '../molecules/GTDatePickerButton'
 import { BackgroundContainer } from '../molecules/shared_item_page/BackgroundContainer'
@@ -24,8 +27,16 @@ const getSharedWithMessage = (domain: string | undefined, sharedAccess: string |
     return 'Shared with everyone'
 }
 
+const ReturnToParentTaskContainer = styled.div`
+    ${Typography.label.small};
+    color: ${Colors.text.muted};
+    display: flex;
+    cursor: pointer;
+    gap: ${Spacing._8};
+    user-select: none;
+`
 const SharedWithText = styled.div`
-    ${Typography.body.small};
+    ${Typography.label.small};
     color: ${Colors.text.muted};
     display: flex;
     align-items: center;
@@ -60,6 +71,14 @@ const SharedTask = () => {
     const { task } = data ?? {}
     const subtasks = data?.subtasks.sort((a, b) => a.id_ordering - b.id_ordering) ?? []
 
+    const [selectedSubtaskId, setSelectedSubtaskId] = useState<string | null>(null)
+    const selectedSubtask = subtasks.find((subtask) => subtask.id === selectedSubtaskId)
+    const displayedTask = selectedSubtask ?? task
+
+    const returnToParentTask = () => {
+        setSelectedSubtaskId(null)
+    }
+
     if (!isPreviewMode && !isPreviewModeLoading) {
         return <Navigate to="/" replace />
     }
@@ -72,12 +91,18 @@ const SharedTask = () => {
                 <SharedItemHeader sharedType="Tasks" />
                 <SharedItemBodyContainer
                     content={
-                        task ? (
+                        displayedTask ? (
                             <>
+                                {selectedSubtaskId != null && (
+                                    <ReturnToParentTaskContainer onClick={returnToParentTask}>
+                                        <Icon icon={icons.caret_left} color="gray" />
+                                        Return to {task?.title}
+                                    </ReturnToParentTaskContainer>
+                                )}
                                 <TitleContainer>
                                     <GTTextField
                                         type="plaintext"
-                                        value={task?.title ?? ''}
+                                        value={displayedTask?.title ?? ''}
                                         onChange={emptyFunction}
                                         fontSize="large"
                                         disabled
@@ -86,7 +111,7 @@ const SharedTask = () => {
                                 </TitleContainer>
                                 <TaskFieldContainer>
                                     <GTDatePickerButton
-                                        currentDate={DateTime.fromISO(task?.due_date ?? '')}
+                                        currentDate={DateTime.fromISO(displayedTask?.due_date ?? '')}
                                         showIcon
                                         onClick={emptyFunction}
                                         isOpen={false}
@@ -96,18 +121,22 @@ const SharedTask = () => {
                                 </TaskFieldContainer>
                                 <GTTextField
                                     type="markdown"
-                                    value={task?.body ?? ''}
+                                    value={displayedTask?.body ?? ''}
                                     onChange={emptyFunction}
                                     fontSize="small"
                                     disabled
                                     readOnly
                                 />
-                                {subtasks.length > 0 && (
+                                {selectedSubtaskId == null && subtasks.length > 0 && (
                                     <SubtaskContainer>
                                         Subtasks
                                         <SubtaskList>
                                             {subtasks.map((subtask) => (
-                                                <SubtaskBody key={subtask.id} subtask={subtask as TSubtask} />
+                                                <SubtaskBody
+                                                    key={subtask.id}
+                                                    subtask={subtask as TSubtask}
+                                                    onClick={() => setSelectedSubtaskId(subtask.id)}
+                                                />
                                             ))}
                                         </SubtaskList>
                                     </SubtaskContainer>

@@ -102,7 +102,7 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
             isOpen={isOpen}
             setIsOpen={setIsOpen}
             items={isShared ? sharedDropdownItems : notSharedDropdownItems}
-            trigger={<GTButton styleType="secondary" icon={icons.share} value="Share" active={isOpen} />}
+            trigger={<GTButton styleType="icon" icon={icons.share} value="Share" active={isOpen} />}
             description={!isShared ? 'This task is not being shared.' : undefined}
         />
     )
