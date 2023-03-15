@@ -1224,14 +1224,14 @@ func GetDashboardTeamMembers(db *mongo.Database, teamID primitive.ObjectID) (*[]
 	return &teamMembers, nil
 }
 
-func GetDashboardDataPoints(db *mongo.Database, teamID primitive.ObjectID, lookbackDays int) (*[]DashboardDataPoint, error) {
+func GetDashboardDataPoints(db *mongo.Database, teamID primitive.ObjectID, now time.Time, lookbackDays int) (*[]DashboardDataPoint, error) {
 	dataPointCollection := GetDashboardDataPointCollection(db)
 	cursor, err := dataPointCollection.Find(
 		context.Background(),
 		bson.M{"$and": []bson.M{
 			// this timestamp is approximate for now, will refine as needed
-			{"date": bson.M{"$gte": time.Now().Add(-time.Hour * 24 * time.Duration(lookbackDays))}},
-			{"$or": []bson.M{
+			bson.M{"date": bson.M{"$gte": now.Add(-time.Hour * 24 * time.Duration(lookbackDays))}},
+			bson.M{"$or": []bson.M{
 				{"subject": constants.DashboardSubjectGlobal},
 				{"team_id": teamID},
 			}}}},

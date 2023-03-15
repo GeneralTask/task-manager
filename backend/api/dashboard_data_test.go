@@ -11,6 +11,10 @@ import (
 	"testing"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"github.com/GeneralTask/task-manager/backend/constants"
+
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
@@ -33,6 +37,22 @@ func TestDashboardData(t *testing.T) {
 	})
 	userID := getUserIDFromAuthToken(t, api.DB, authToken)
 	_, err := database.GetUserCollection(api.DB).UpdateOne(context.Background(), bson.M{"_id": userID}, bson.M{"$set": bson.M{"business_mode_enabled": true}})
+	assert.NoError(t, err)
+
+	dashboardDataPointCollection := database.GetDashboardDataPointCollection(api.DB)
+	_, err = dashboardDataPointCollection.InsertOne(context.Background(), database.DashboardDataPoint{
+		Subject:   "global",
+		GraphType: constants.DashboardGraphTypePRResponseTime,
+		Value:     15,
+		Date:      primitive.NewDateTimeFromTime(time.Date(2023, time.January, 1, 0, 0, 0, 0, time.UTC)),
+	})
+	assert.NoError(t, err)
+	_, err = dashboardDataPointCollection.InsertOne(context.Background(), database.DashboardDataPoint{
+		Subject:   "global",
+		GraphType: constants.DashboardGraphTypePRResponseTime,
+		Value:     20,
+		Date:      primitive.NewDateTimeFromTime(time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)),
+	})
 	assert.NoError(t, err)
 	/*
 		team

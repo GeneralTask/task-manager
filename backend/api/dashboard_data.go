@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -87,8 +88,9 @@ func (api *API) DashboardData(c *gin.Context) {
 		return
 	}
 	// this lookback calculation is approximate for now, will refine as needed
-	lookbackDays := DEFAULT_LOOKBACK_DAYS + int(api.GetCurrentTime().Weekday())
-	dashboardDataPoints, err := database.GetDashboardDataPoints(api.DB, dashboardTeam.ID, lookbackDays)
+	now := api.GetCurrentTime()
+	lookbackDays := DEFAULT_LOOKBACK_DAYS + int(now.Weekday())
+	dashboardDataPoints, err := database.GetDashboardDataPoints(api.DB, dashboardTeam.ID, now, lookbackDays)
 	if err != nil || dashboardDataPoints == nil {
 		Handle500(c)
 		return
@@ -112,25 +114,22 @@ func (api *API) DashboardData(c *gin.Context) {
 		})
 	}
 
-	// data := make(map[primitive.ObjectID]map[primitive.ObjectID]map[primitive.ObjectID]DashboardData)
-	// for _, interval := range intervals {
-	// 	for _, subject := range subjects {
-
-	// 	}
-	// }
-
-	// subjectIDToGraphTypeToDataPoints := make(map[string]map[string][]database.DashboardDataPoint)
-	// for _, dataPoint := range *dashboardDataPoints {
-	// 	subjectID := constants.DashboardSubjectGlobal
-	// 	if dataPoint.TeamID != primitive.NilObjectID {
-	// 		subjectID = dataPoint.TeamID.Hex()
-	// 	}
-	// 	if dataPoint.IndividualID != primitive.NilObjectID {
-	// 		subjectID = dataPoint.IndividualID.Hex()
-	// 	}
-	// 	dataPointsOfType := subjectIDToGraphTypeToDataPoints[subjectID][dataPoint.GraphType]
-	// 	subjectIDToGraphTypeToDataPoints[subjectID][dataPoint.GraphType] = append(dataPointsOfType, dataPoint)
-	// }
+	subjectIDToGraphTypeToDataPoints := make(map[string]map[string][]database.DashboardDataPoint)
+	for _, dataPoint := range *dashboardDataPoints {
+		subjectID := constants.DashboardSubjectGlobal
+		if dataPoint.TeamID != primitive.NilObjectID {
+			subjectID = dataPoint.TeamID.Hex()
+		}
+		if dataPoint.IndividualID != primitive.NilObjectID {
+			subjectID = dataPoint.IndividualID.Hex()
+		}
+		if _, exists := subjectIDToGraphTypeToDataPoints[subjectID]; !exists {
+			subjectIDToGraphTypeToDataPoints[subjectID] = make(map[string][]database.DashboardDataPoint)
+		}
+		dataPointsOfType := subjectIDToGraphTypeToDataPoints[subjectID][dataPoint.GraphType]
+		subjectIDToGraphTypeToDataPoints[subjectID][dataPoint.GraphType] = append(dataPointsOfType, dataPoint)
+	}
+	fmt.Println(subjectIDToGraphTypeToDataPoints)
 	// result := []DashboardSubject{{
 	// 	ID:   dashboardTeam.ID.Hex(),
 	// 	Name: "Your team",
