@@ -5,7 +5,6 @@ import GTButton from '../atoms/buttons/GTButton'
 interface PriorityDropdownTriggerProps {
     value: number
     onClick: () => void
-    isOpen: boolean
     disabled?: boolean
     overrideDisabledStyle?: boolean
 }
@@ -18,7 +17,6 @@ const PriorityDropdownTrigger = forwardRef<HTMLButtonElement, PriorityDropdownTr
             styleType="control"
             iconColor={TASK_PRIORITIES[props.value].color}
             onClick={props.onClick}
-            active={props.isOpen}
             disabled={props.disabled}
             overrideDisabledStyle={props.overrideDisabledStyle}
         />

@@ -89,7 +89,6 @@ const SharedTask = () => {
                                 <PriorityDropdownTrigger
                                     value={task?.priority_normalized ?? 0}
                                     onClick={emptyFunction}
-                                    isOpen={false}
                                     disabled
                                     overrideDisabledStyle
                                 />
