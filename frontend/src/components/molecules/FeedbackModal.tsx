@@ -60,7 +60,6 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
                 <GTButton
                     value="Share feedback"
                     styleType="secondary"
-                    size="small"
                     fitContent={false}
                     onClick={() => setModalIsOpen(true)}
                 />
@@ -90,8 +89,6 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
                                 disabled={feedback.trim().length === 0}
                                 value="Send feedback"
                                 styleType="primary"
-                                size="small"
-                                fitContent
                             />
                         </Flex>
                     ),

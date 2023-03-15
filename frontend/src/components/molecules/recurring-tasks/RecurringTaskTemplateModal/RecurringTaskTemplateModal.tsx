@@ -139,7 +139,7 @@ const RecurringTaskTemplateModal = ({
                             <DatePicker date={selectedDate} setDate={setSelectedDate} recurrenceRate={recurrenceRate} />
                         </Flex>
                         <Footer>
-                            <GTButton value="Save" onClick={handleSave} disabled={!isValid} />
+                            <GTButton styleType="primary" value="Save" onClick={handleSave} disabled={!isValid} />
                         </Footer>
                     </>
                 ),

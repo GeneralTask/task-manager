@@ -6,7 +6,7 @@ import BaseModal, { BaseModalProps } from '../atoms/BaseModal'
 import Flex from '../atoms/Flex'
 import { Icon, TIconType } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
-import GTIconButton from '../atoms/buttons/GTIconButton'
+import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedEyebrow, DeprecatedLabel, DeprecatedSubtitle } from '../atoms/typography/Typography'
 
 const SIDEBAR_WIDTH = '185px'
@@ -101,7 +101,8 @@ const GTModal = ({ title, tabs, defaultTabIndex = 0, ...baseModalProps }: GTModa
                 <ModalContent smallGap={!Array.isArray(tabs)}>
                     <Flex justifyContent="space-between" alignItems="center">
                         <DeprecatedSubtitle>{tab.title}</DeprecatedSubtitle>
-                        <GTIconButton
+                        <GTButton
+                            styleType="icon"
                             tooltipText="Close"
                             icon={icons.x}
                             onClick={() => {

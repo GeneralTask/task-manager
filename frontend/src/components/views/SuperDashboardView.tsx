@@ -5,6 +5,7 @@ import { usePreviewMode } from '../../hooks'
 import { Colors, Spacing } from '../../styles'
 import Spinner from '../atoms/Spinner'
 import { Header } from '../molecules/Header'
+import { SuperDashboardContextProvider } from '../superDashboard/SuperDashboardContext'
 
 const SuperDashboard = lazy(() => import('../superDashboard/SuperDashboard'))
 
@@ -26,12 +27,14 @@ const SuperDashboardView = () => {
     }
 
     return (
-        <FullWidthScroller>
-            <Header folderName="Super Dashboard" />
-            <Suspense fallback={<Spinner />}>
-                <SuperDashboard />
-            </Suspense>
-        </FullWidthScroller>
+        <SuperDashboardContextProvider>
+            <FullWidthScroller>
+                <Header folderName="Super Dashboard" />
+                <Suspense fallback={<Spinner />}>
+                    <SuperDashboard />
+                </Suspense>
+            </FullWidthScroller>
+        </SuperDashboardContextProvider>
     )
 }
 
