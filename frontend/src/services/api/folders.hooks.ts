@@ -33,7 +33,7 @@ const getFolders = async ({ signal }: QueryFunctionContext) => {
         const res = await apiClient.get('/sections/v2/', { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getFolders failed')
+        throw 'getFolders failed'
     }
 }
 
@@ -86,7 +86,7 @@ const addFolder = async (data: TAddFolderData) => {
         const res = await apiClient.post('/sections/create/', data)
         return castImmutable(res.data)
     } catch {
-        throw new Error('addFolder failed')
+        throw 'addFolder failed'
     }
 }
 
@@ -126,7 +126,7 @@ const deleteFolder = async (id: string) => {
         const res = await apiClient.delete(`/sections/delete/${id}/`)
         return castImmutable(res.data)
     } catch {
-        throw new Error('deleteFolder failed')
+        throw 'deleteFolder failed'
     }
 }
 
@@ -166,6 +166,6 @@ const modifyFolder = async ({ id, name, id_ordering }: TModifyFolderData) => {
         })
         return castImmutable(res.data)
     } catch {
-        throw new Error('modifyFolder failed')
+        throw 'modifyFolder failed'
     }
 }

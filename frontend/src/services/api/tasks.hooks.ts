@@ -94,7 +94,7 @@ const getTasksV4 = async ({ signal }: QueryFunctionContext) => {
         const res = await apiClient.get('/tasks/v4/', { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getTasks failed')
+        throw 'getTasks failed'
     }
 }
 
@@ -114,7 +114,7 @@ const fetchExternalTasks = async ({ signal }: QueryFunctionContext) => {
         const res = await apiClient.get('/tasks/fetch/', { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('fetchExternalTasks failed')
+        throw 'fetchExternalTasks failed'
     }
 }
 
@@ -220,7 +220,7 @@ export const createTask = async (data: TCreateTaskData) => {
         })
         return castImmutable(res.data)
     } catch {
-        throw new Error('createTask failed')
+        throw 'createTask failed'
     }
 }
 
@@ -320,7 +320,7 @@ const modifyTask = async (data: TModifyTaskData) => {
         const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
         return castImmutable(res.data)
     } catch {
-        throw new Error('modifyTask failed')
+        throw 'modifyTask failed'
     }
 }
 
@@ -458,7 +458,7 @@ export const markTaskDoneOrDeleted = async (data: TMarkTaskDoneOrDeletedData) =>
         const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
         return castImmutable(res.data)
     } catch {
-        throw new Error('markTaskDoneOrDeleted failed')
+        throw 'markTaskDoneOrDeleted failed'
     }
 }
 
@@ -549,7 +549,7 @@ export const reorderTask = async (data: TReorderTaskData) => {
         const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
         return castImmutable(res.data)
     } catch {
-        throw new Error('reorderTask failed')
+        throw 'reorderTask failed'
     }
 }
 
@@ -592,7 +592,7 @@ const postComment = async (data: TPostCommentData) => {
         const res = await apiClient.post(`/tasks/${data.id}/comments/add/`, data)
         return castImmutable(res.data)
     } catch {
-        throw new Error('postComment failed')
+        throw 'postComment failed'
     }
 }
 

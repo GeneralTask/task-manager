@@ -39,7 +39,7 @@ const getNote = async ({ id }: TGetNoteParams, { signal }: QueryFunctionContext)
         const res = await apiClient.get(`/notes/detail/${id}/`, { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getNote failed')
+        throw 'getNote failed'
     }
 }
 
@@ -51,7 +51,7 @@ const getNotes = async ({ signal }: QueryFunctionContext) => {
         const res = await apiClient.get('/notes/', { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getNotes failed')
+        throw 'getNotes failed'
     }
 }
 
@@ -102,7 +102,7 @@ export const createNote = async (data: TCreateNoteData) => {
         })
         return castImmutable(res.data)
     } catch {
-        throw new Error('createNote failed')
+        throw 'createNote failed'
     }
 }
 
@@ -137,7 +137,7 @@ const modifyNote = async (data: TModifyNoteData) => {
         const res = await apiClient.patch(`/notes/modify/${data.id}/`, data)
         return castImmutable(res.data)
     } catch {
-        throw new Error('modifyNote failed')
+        throw 'modifyNote failed'
     }
 }
 

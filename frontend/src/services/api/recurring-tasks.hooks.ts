@@ -55,7 +55,7 @@ const getRecurringTaskTemplates = async ({ signal }: QueryFunctionContext) => {
         if (res.data === null) return []
         return castImmutable(res.data)
     } catch {
-        throw new Error('getRecurringTaskTemplates failed')
+        throw 'getRecurringTaskTemplates failed'
     }
 }
 
@@ -127,7 +127,7 @@ const createRecurringTask = async (payload: TCreateRecurringTaskPayload) => {
         const res = await apiClient.post('/recurring_task_templates/create/', payload)
         return castImmutable(res.data)
     } catch {
-        throw new Error('createRecurringTask failed')
+        throw 'createRecurringTask failed'
     }
 }
 
@@ -170,7 +170,7 @@ const modifyRecurringTask = async (payload: TModifyRecurringTaskPayload) => {
         const res = await apiClient.patch(`/recurring_task_templates/modify/${payload.id}/`, payload)
         return castImmutable(res.data)
     } catch {
-        throw new Error('modifyRecurringTask failed')
+        throw 'modifyRecurringTask failed'
     }
 }
 
@@ -189,6 +189,6 @@ const backfillRecurringTasks = async ({ signal }: QueryFunctionContext) => {
         })
         return castImmutable<TRecurringTaskTemplate[]>(res.data)
     } catch {
-        throw new Error('backfillRecurringTaskTemplates failed')
+        throw 'backfillRecurringTaskTemplates failed'
     }
 }

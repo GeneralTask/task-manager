@@ -105,7 +105,7 @@ export const getEvents = async (
         })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getEvents failed')
+        throw 'getEvents failed'
     }
 }
 
@@ -212,7 +212,7 @@ const createEvent = async (data: TCreateEventPayload) => {
         const res = await apiClient.post('/events/create/gcal/', data)
         return castImmutable(res.data)
     } catch {
-        throw new Error('createEvent failed')
+        throw 'createEvent failed'
     }
 }
 
@@ -268,7 +268,7 @@ const deleteEvent = async (eventId: string) => {
         const res = await apiClient.delete(`/events/delete/${eventId}/`)
         return castImmutable(res.data)
     } catch {
-        throw new Error('deleteEvent failed')
+        throw 'deleteEvent failed'
     }
 }
 
@@ -316,7 +316,7 @@ const modifyEvent = async (data: TModifyEventData) => {
         const res = await apiClient.patch(`/events/modify/${data.id}/`, data.payload)
         return castImmutable(res.data)
     } catch {
-        throw new Error('modifyEvent failed')
+        throw 'modifyEvent failed'
     }
 }
 
@@ -328,7 +328,7 @@ const getCalendars = async () => {
         const res = await apiClient.get('/calendars/')
         return castImmutable(res.data)
     } catch {
-        throw new Error('getCalendars failed')
+        throw 'getCalendars failed'
     }
 }
 
