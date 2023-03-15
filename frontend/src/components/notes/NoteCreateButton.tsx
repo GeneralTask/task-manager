@@ -32,7 +32,7 @@ const NoteCreateButton = ({ type, disableShortcut }: NoteCreateButtonProps) => {
             )}
             {type === 'button' && (
                 <GTButton
-                    styleType="secondary"
+                    styleType="control"
                     value="Create new note"
                     icon={icons.penToSquare}
                     onClick={() => setModalIsOpen(true)}

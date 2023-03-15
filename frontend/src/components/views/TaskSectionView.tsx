@@ -12,13 +12,13 @@ import Log from '../../services/api/log'
 import { useGetMeetingPreparationTasks } from '../../services/api/meeting-preparation-tasks.hooks'
 import { useCreateTask, useFetchExternalTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { useGetTasksV4 } from '../../services/api/tasks.hooks'
-import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
 import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
 import { TASK_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/tasks.config'
 import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
 import { DropItem, DropType, TTaskV4 } from '../../utils/types'
+import ActionsContainer from '../atoms/ActionsContainer'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import Spinner from '../atoms/Spinner'
 import { useCalendarContext } from '../calendar/CalendarContext'
@@ -35,12 +35,6 @@ const TasksContainer = styled.div`
 `
 const BottomDropArea = styled.div`
     height: 100px;
-`
-const ActionsContainer = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: ${Spacing._4};
 `
 
 const TaskSectionView = () => {
@@ -202,9 +196,9 @@ const TaskSectionView = () => {
                     <>
                         <Header folderName={folder.name} folderId={folder.id} />
                         {!folder.is_done && !folder.is_trash && (
-                            <ActionsContainer>
-                                <SortAndFilterSelectors settings={sortAndFilterSettings} />
-                            </ActionsContainer>
+                            <ActionsContainer
+                                leftActions={<SortAndFilterSelectors settings={sortAndFilterSettings} />}
+                            />
                         )}
                         {!folder.is_done && !folder.is_trash && (
                             <CreateNewItemInput

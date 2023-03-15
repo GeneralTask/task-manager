@@ -4,14 +4,11 @@ import GTButton from '../../components/atoms/buttons/GTButton'
 import { DeprecatedBold } from '../../components/atoms/typography/Typography'
 import GTDropdownMenu from '../../components/radix/GTDropdownMenu'
 import { GTMenuItem } from '../../components/radix/RadixUIConstants'
-import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { SORT_DIRECTION, SortAndFilterSettings } from './types'
 
 const SortAndFilterContainer = styled.div`
     display: flex;
-    gap: ${Spacing._8};
-    margin-bottom: ${Spacing._16};
     z-index: 1;
 `
 

@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 import useOverviewContext from '../../context/OverviewContextProvider'
 import { useGetMeetingPreparationTasks } from '../../services/api/meeting-preparation-tasks.hooks'
-import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
+import ActionsContainer from '../atoms/ActionsContainer'
 import Flex from '../atoms/Flex'
 import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
@@ -16,22 +15,6 @@ import OverviewDetails from '../overview/OverviewDetails'
 import SmartPrioritizationBanner from '../overview/SmartPrioritizationBanner'
 import useOverviewLists from '../overview/useOverviewLists'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
-
-const ActionsContainer = styled.div`
-    background-color: ${Colors.background.sub};
-    padding: ${Spacing._8} ${Spacing._12};
-    border-radius: ${Border.radius.small};
-    display: flex;
-    gap: ${Spacing._24};
-    margin-bottom: ${Spacing._16};
-`
-const BannerButton = styled(GTButton)`
-    ${Typography.deprecated_label};
-`
-const RightActions = styled.div`
-    margin-left: auto;
-    display: flex;
-`
 
 const useSelectFirstItemOnFirstLoad = () => {
     const { setOpenListIds } = useOverviewContext()
@@ -74,44 +57,48 @@ const DailyOverviewView = () => {
             <Flex>
                 <ScrollableListTemplate>
                     <Header folderName="Daily Overview" />
-                    <ActionsContainer>
-                        <BannerButton
-                            styleType="control"
-                            onClick={() => {
-                                setEditListTabIndex(1)
-                                setIsEditListsModalOpen(true)
-                            }}
-                            icon={icons.bolt}
-                            value={
-                                <span>
-                                    Smart Prioritize<sup>AI</sup>
-                                </span>
-                            }
-                        />
-                        <RightActions>
-                            <BannerButton
-                                styleType="control"
-                                onClick={collapseAll}
-                                icon={icons.squareMinus}
-                                value="Collapse all"
-                            />
-                            <BannerButton
-                                styleType="control"
-                                onClick={expandAll}
-                                icon={icons.squarePlus}
-                                value="Expand all"
-                            />
-                            <BannerButton
+                    <ActionsContainer
+                        leftActions={
+                            <GTButton
                                 styleType="control"
                                 onClick={() => {
-                                    setEditListTabIndex(0)
+                                    setEditListTabIndex(1)
                                     setIsEditListsModalOpen(true)
                                 }}
-                                icon={icons.gear}
-                                value="Edit lists"
+                                icon={icons.bolt}
+                                value={
+                                    <span>
+                                        Smart Prioritize<sup>AI</sup>
+                                    </span>
+                                }
                             />
-                        </RightActions>
-                    </ActionsContainer>
+                        }
+                        rightActions={
+                            <>
+                                <GTButton
+                                    styleType="control"
+                                    onClick={collapseAll}
+                                    icon={icons.squareMinus}
+                                    value="Collapse all"
+                                />
+                                <GTButton
+                                    styleType="control"
+                                    onClick={expandAll}
+                                    icon={icons.squarePlus}
+                                    value="Expand all"
+                                />
+                                <GTButton
+                                    styleType="control"
+                                    onClick={() => {
+                                        setEditListTabIndex(0)
+                                        setIsEditListsModalOpen(true)
+                                    }}
+                                    icon={icons.gear}
+                                    value="Edit lists"
+                                />
+                            </>
+                        }
+                    />
                     <SmartPrioritizationBanner />
                     {lists.map((list) => (
                         <AccordionItem key={list.id} list={list} />
