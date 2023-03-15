@@ -11,6 +11,7 @@ import { emptyFunction } from '../../utils/utils'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import Spinner from '../atoms/Spinner'
+import { Truncated } from '../atoms/typography/Typography'
 import GTDatePickerButton from '../molecules/GTDatePickerButton'
 import { BackgroundContainer } from '../molecules/shared_item_page/BackgroundContainer'
 import ContentContainer from '../molecules/shared_item_page/ContentContainer'
@@ -19,6 +20,7 @@ import SharedItemBodyContainer from '../molecules/shared_item_page/SharedItemBod
 import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
 import SubtaskBody from '../molecules/subtasks/SubtaskBody'
 
+const PARENT_TASK_TITLE_MAX_WIDTH = '200px'
 const getSharedWithMessage = (domain: string | undefined, sharedAccess: string | undefined) => {
     if (!domain || !sharedAccess) return ''
     if (sharedAccess === 'domain') {
@@ -34,6 +36,7 @@ const ReturnToParentTaskContainer = styled.div`
     cursor: pointer;
     gap: ${Spacing._8};
     user-select: none;
+    max-width: ${PARENT_TASK_TITLE_MAX_WIDTH};
 `
 const SharedWithText = styled.div`
     ${Typography.label.small};
@@ -96,7 +99,7 @@ const SharedTask = () => {
                                 {selectedSubtaskId != null && (
                                     <ReturnToParentTaskContainer onClick={returnToParentTask}>
                                         <Icon icon={icons.caret_left} color="gray" />
-                                        Return to {task?.title}
+                                        <Truncated>Return to {task?.title}</Truncated>
                                     </ReturnToParentTaskContainer>
                                 )}
                                 <TitleContainer>
