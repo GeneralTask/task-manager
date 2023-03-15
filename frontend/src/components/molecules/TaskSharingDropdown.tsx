@@ -79,6 +79,8 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
             icon: icons.link_slashed,
             label: 'Disable shared link',
             hideCheckmark: true,
+            iconColor: 'red',
+            textColor: 'red',
             onClick: unshareTask,
         },
     ]
