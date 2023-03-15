@@ -7,7 +7,6 @@ import Flex from '../atoms/Flex'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { BodyLarge } from '../atoms/typography/Typography'
 import { useSuperDashboardContext } from './SuperDashboardContext'
-import { DAYS_PER_WEEK } from './constants'
 
 const DateRange = styled(BodyLarge)`
     min-width: 150px;
@@ -16,9 +15,7 @@ const DateRange = styled(BodyLarge)`
 const DateSelector = () => {
     const { dashboard, selectedInterval, setSelectedInterval } = useSuperDashboardContext()
     const startDate = DateTime.fromFormat(selectedInterval.date_start, 'yyyy-MM-dd')
-    const endDate = startDate.plus({ days: DAYS_PER_WEEK - 1 })
-    const startDateStr = startDate.toFormat('MMM d')
-    const endDateStr = endDate.toFormat('MMM d')
+    const endDate = DateTime.fromFormat(selectedInterval.date_end, 'yyyy-MM-dd')
 
     const selectedIntervalIndex = useMemo(
         () => dashboard.intervals.findIndex((interval) => interval == selectedInterval),
@@ -41,7 +38,7 @@ const DateSelector = () => {
     return (
         <Flex alignItems="center">
             <DateRange color="muted">
-                {startDateStr} - {endDateStr}
+                {startDate.toFormat('MMM d')} - {endDate.toFormat('MMM d')}
             </DateRange>
             <Flex alignItems="center" gap={Spacing._8}>
                 <GTIconButton

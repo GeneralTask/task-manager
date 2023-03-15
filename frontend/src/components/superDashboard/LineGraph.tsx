@@ -39,6 +39,7 @@ interface LineGraphProps {
 const LineGraph = ({ graphId }: LineGraphProps) => {
     const { dashboard, selectedInterval } = useSuperDashboardContext()
     const startDate = DateTime.fromFormat(selectedInterval.date_start, 'yyyy-MM-dd')
+    const endDate = DateTime.fromFormat(selectedInterval.date_end, 'yyyy-MM-dd')
 
     const ticks = useMemo(() => {
         return Array.from({ length: DAYS_PER_WEEK }).map((_, i) => startDate.plus({ days: i }).toUnixInteger())
@@ -52,7 +53,7 @@ const LineGraph = ({ graphId }: LineGraphProps) => {
                     dataKey="x"
                     type="number"
                     scale="time"
-                    domain={[startDate.toUnixInteger(), startDate.plus({ days: DAYS_PER_WEEK - 1 }).toUnixInteger()]}
+                    domain={[startDate.toUnixInteger(), endDate.toUnixInteger()]}
                     tickFormatter={(unixTime: number) => DateTime.fromSeconds(unixTime).toFormat('EEE MM/dd')}
                     ticks={ticks}
                     tickLine={false}
