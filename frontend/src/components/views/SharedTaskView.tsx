@@ -13,7 +13,6 @@ import { BackgroundContainer } from '../molecules/shared_item_page/BackgroundCon
 import ContentContainer from '../molecules/shared_item_page/ContentContainer'
 import SharedItemBodyContainer from '../molecules/shared_item_page/SharedItemBody'
 import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
-import Subtask from '../molecules/subtasks/Subtask'
 import SubtaskBody from '../molecules/subtasks/SubtaskBody'
 
 const getSharedWithMessage = (domain: string | undefined, sharedAccess: string | undefined) => {
