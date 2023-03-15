@@ -20,7 +20,6 @@ const SuperDashboard = () => {
             <DateSelector />
             <Metrics>
                 {selectedSubject.graph_ids.map((graphId) => (
-                    // <Metric key={metric.name} metric={metric} startDate={startDate} />
                     <Metric key={graphId} graphId={graphId} />
                 ))}
             </Metrics>
