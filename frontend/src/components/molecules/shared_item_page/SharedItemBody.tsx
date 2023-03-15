@@ -1,6 +1,6 @@
-import { Divider } from '@mantine/core'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing } from '../../../styles'
+import { Divider } from '../../atoms/SectionDivider'
 
 const SharedItemBody = styled.div`
     margin-top: 110px;
@@ -11,8 +11,11 @@ const SharedItemBody = styled.div`
     margin: ${Spacing._24};
 `
 
-const PaddedContainer = styled.div`
+const PaddedContainerContent = styled.div`
     padding: ${Spacing._24};
+`
+const PaddedContainerFooter = styled.div`
+    padding: ${Spacing._16} ${Spacing._24};
 `
 
 interface SharedItemBodyContainerProps {
@@ -23,11 +26,11 @@ interface SharedItemBodyContainerProps {
 const SharedItemBodyContainer = ({ content, footer }: SharedItemBodyContainerProps) => {
     return (
         <SharedItemBody>
-            <PaddedContainer>{content}</PaddedContainer>
+            <PaddedContainerContent>{content}</PaddedContainerContent>
             {footer && (
                 <>
                     <Divider />
-                    <PaddedContainer>{footer}</PaddedContainer>
+                    <PaddedContainerFooter>{footer}</PaddedContainerFooter>
                 </>
             )}
         </SharedItemBody>
