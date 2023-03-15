@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from 'react-query'
 import Cookie from 'js-cookie'
 import { AUTHORIZATION_COOKE, COOKIE_DOMAIN, GOOGLE_AUTH_ROUTE, SINGLE_SECOND_INTERVAL } from '../constants'
 import getEnvVars from '../environment'

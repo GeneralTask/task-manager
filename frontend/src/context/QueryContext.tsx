@@ -1,5 +1,5 @@
 import { ReactNode, createContext, useContext, useRef } from 'react'
-import { QueryKey } from '@tanstack/react-query'
+import { QueryKey } from 'react-query'
 import { emptyFunction } from '../utils/utils'
 
 export interface TRequest {

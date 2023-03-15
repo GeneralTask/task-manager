@@ -1,4 +1,4 @@
-import { QueryFunctionContext, useQuery } from '@tanstack/react-query'
+import { QueryFunctionContext, useQuery } from 'react-query'
 import { castImmutable } from 'immer'
 import { PR_REFETCH_INTERVAL } from '../../constants'
 import apiClient from '../../utils/api'
@@ -6,7 +6,7 @@ import { TRepository } from '../../utils/types'
 import { getBackgroundQueryOptions, useGTQueryClient } from '../queryUtils'
 
 export const useGetPullRequests = () => {
-    return useQuery<TRepository[]>(['pull_requests'], getPullRequests)
+    return useQuery<TRepository[]>('pull_requests', getPullRequests)
 }
 const getPullRequests = async () => {
     try {
@@ -19,10 +19,10 @@ const getPullRequests = async () => {
 
 export const useFetchPullRequests = () => {
     const queryClient = useGTQueryClient()
-    return useQuery(['fetch_pull_requests'], fetchPullRequests, {
+    return useQuery('fetch_pull_requests', fetchPullRequests, {
         onSettled: () => {
-            queryClient.invalidateQueries(['pull_requests'])
-            queryClient.invalidateQueries(['overview'])
+            queryClient.invalidateQueries('pull_requests')
+            queryClient.invalidateQueries('overview')
         },
         ...getBackgroundQueryOptions(PR_REFETCH_INTERVAL),
     })

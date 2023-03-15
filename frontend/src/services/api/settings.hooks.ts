@@ -1,5 +1,5 @@
+import { QueryFunctionContext, useMutation, useQuery } from 'react-query'
 import * as Sentry from '@sentry/browser'
-import { QueryFunctionContext, useMutation, useQuery } from '@tanstack/react-query'
 import produce, { castImmutable } from 'immer'
 import { useSetting } from '../../hooks'
 import apiClient from '../../utils/api'
@@ -49,7 +49,7 @@ type TUpdateSettingsData = {
 }
 
 export const useGetSettings = () => {
-    return useQuery<TSetting[]>(['settings'], getSettings)
+    return useQuery<TSetting[]>('settings', getSettings)
 }
 const getSettings = async ({ signal }: QueryFunctionContext) => {
     try {
@@ -75,8 +75,8 @@ export const useUpdateSetting = () => {
     const queryClient = useGTQueryClient()
     return useMutation(updateSettings, {
         onMutate: async ({ key, value }) => {
-            await queryClient.cancelQueries(['settings'])
-            const settings = queryClient.getQueryData<TSetting[]>(['settings'])
+            await queryClient.cancelQueries('settings')
+            const settings = queryClient.getQueryData<TSetting[]>('settings')
             if (!settings) return
 
             const newSettings = produce(settings, (draft) => {
@@ -86,10 +86,10 @@ export const useUpdateSetting = () => {
                     Sentry.captureMessage(`Setting ${key} not found`)
                 }
             })
-            queryClient.setQueryData(['settings'], newSettings)
+            queryClient.setQueryData('settings', newSettings)
         },
         onSettled: () => {
-            queryClient.invalidateQueries(['settings'])
+            queryClient.invalidateQueries('settings')
         },
     })
 }
@@ -102,7 +102,7 @@ const updateSettings = async (data: TUpdateSettingsData) => {
 }
 
 export const useGetLinkedAccounts = () => {
-    return useQuery<TLinkedAccount[]>(['linked_accounts'], getLinkedAccounts)
+    return useQuery<TLinkedAccount[]>('linked_accounts', getLinkedAccounts)
 }
 const getLinkedAccounts = async ({ signal }: QueryFunctionContext) => {
     try {
@@ -114,7 +114,7 @@ const getLinkedAccounts = async ({ signal }: QueryFunctionContext) => {
 }
 
 export const useGetSupportedTypes = () => {
-    return useQuery<TSupportedType[]>(['supported_types'], getSupportedTypes)
+    return useQuery<TSupportedType[]>('supported_types', getSupportedTypes)
 }
 const getSupportedTypes = async ({ signal }: QueryFunctionContext) => {
     try {
@@ -135,11 +135,11 @@ export const useDeleteLinkedAccount = () => {
     const { updateSetting: setTaskToCalCalendar } = useSetting('calendar_calendar_id_for_new_tasks')
 
     return useGTMutation(deleteLinkedAccount, {
-        tag: ['linked_accounts'],
-        invalidateTagsOnSettled: [['linked_accounts'], ['calendars'], ['events'], ['settings']],
+        tag: 'linked_accounts',
+        invalidateTagsOnSettled: ['linked_accounts', 'calendars', 'events', 'settings'],
         onMutate: ({ id }: { id: string }) => {
-            const linkedAccounts = queryClient.getQueryData<TLinkedAccount[]>(['linked_accounts'])
-            const calendars = queryClient.getQueryData<TCalendarAccount[]>(['calendars'])
+            const linkedAccounts = queryClient.getQueryData<TLinkedAccount[]>('linked_accounts')
+            const calendars = queryClient.getQueryData<TCalendarAccount[]>('calendars')
 
             const linkedAccountIdx = linkedAccounts?.findIndex((linkedAccount) => linkedAccount.id === id)
             if (linkedAccountIdx === -1 || linkedAccountIdx === undefined || !linkedAccounts) return
@@ -147,7 +147,7 @@ export const useDeleteLinkedAccount = () => {
             const newLinkedAccounts = produce(linkedAccounts, (draft) => {
                 draft.splice(linkedAccountIdx, 1)
             })
-            queryClient.setQueryData(['linked_accounts'], newLinkedAccounts)
+            queryClient.setQueryData('linked_accounts', newLinkedAccounts)
 
             if (calendars) {
                 const newCalendars = produce(calendars, (draft) => {
@@ -157,7 +157,7 @@ export const useDeleteLinkedAccount = () => {
                     if (calendarIdx === -1) return
                     draft.splice(calendarIdx, 1)
                 })
-                queryClient.setQueryData(['calendars'], newCalendars)
+                queryClient.setQueryData('calendars', newCalendars)
             }
 
             if (taskToCalAccount === linkedAccounts[linkedAccountIdx].display_id) {
@@ -170,9 +170,9 @@ export const useDeleteLinkedAccount = () => {
             }
         },
         onSettled: () => {
-            queryClient.invalidateQueries(['linked_accounts'])
-            queryClient.invalidateQueries(['calendars'])
-            queryClient.invalidateQueries(['events'])
+            queryClient.invalidateQueries('linked_accounts')
+            queryClient.invalidateQueries('calendars')
+            queryClient.invalidateQueries('events')
         },
     })
 }

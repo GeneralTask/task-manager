@@ -1,11 +1,11 @@
+import { QueryFunctionContext, useQuery } from 'react-query'
 import * as Sentry from '@sentry/react'
-import { QueryFunctionContext, useQuery } from '@tanstack/react-query'
 import { castImmutable } from 'immer'
 import apiClient from '../../utils/api'
 import { TUserInfo } from '../../utils/types'
 
 export const useGetUserInfo = () => {
-    return useQuery<TUserInfo>(['user_info'], getUserInfo, { refetchOnMount: false })
+    return useQuery<TUserInfo>('user_info', getUserInfo, { refetchOnMount: false })
 }
 const getUserInfo = async ({ signal }: QueryFunctionContext) => {
     try {
