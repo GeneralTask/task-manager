@@ -16,7 +16,6 @@ interface NoteSharingDropdownProps {
     note: TNote
 }
 const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
-    const [isOpen, setIsOpen] = useState(false)
     const { mutate: modifyNote } = useModifyNote()
     const { isPreviewMode } = usePreviewMode()
     const toast = useToast()
@@ -187,12 +186,8 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
 
     return (
         <GTDropdownMenu
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
             items={isPreviewMode ? previewDropdownItems : dropdownItems}
-            trigger={
-                <GTButton styleType="secondary" icon={icons.share} value="Share" onClick={() => setIsOpen(!isOpen)} />
-            }
+            trigger={<GTButton styleType="secondary" icon={icons.share} value="Share" />}
         />
     )
 }
