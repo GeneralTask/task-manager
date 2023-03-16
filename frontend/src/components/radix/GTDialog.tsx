@@ -5,13 +5,16 @@ import Flex from '../atoms/Flex'
 import GTButton from '../atoms/buttons/GTButton'
 import { MenuContentShared } from './RadixUIConstants'
 
+const OVERLAY_COLOR = 'rgba(255, 255, 255, 0.55)'
+const MAX_WIDTH = '289px'
+
 const DialogOverlay = styled(Dialog.Overlay)`
     position: fixed;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
-    background: rgba(255, 255, 255, 0.55);
+    background: ${OVERLAY_COLOR};
     backdrop-filter: blur(3px);
     z-index: 1001;
 `
@@ -19,8 +22,7 @@ const DialogOverlay = styled(Dialog.Overlay)`
 const DialogContent = styled(Dialog.Content)`
     ${MenuContentShared};
     border-radius: ${Border.radius.medium};
-    max-width: 289px;
-    background-color: #fff;
+    max-width: ${MAX_WIDTH};
     position: fixed;
     top: 50%;
     left: 50%;
@@ -48,8 +50,18 @@ interface GTDialogProps {
     title?: string
     description?: string
     actions?: React.ReactNode
+    hideCancelButton?: boolean
 }
-const GTDialog = ({ trigger, isOpen, setIsOpen, disabled, title, description, actions }: GTDialogProps) => {
+const GTDialog = ({
+    trigger,
+    isOpen,
+    setIsOpen,
+    disabled,
+    title,
+    description,
+    actions,
+    hideCancelButton,
+}: GTDialogProps) => {
     return (
         <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
             <Dialog.Trigger disabled={disabled} asChild>
@@ -63,9 +75,11 @@ const GTDialog = ({ trigger, isOpen, setIsOpen, disabled, title, description, ac
                         {description && <DialogDescription>{description}</DialogDescription>}
                         <Flex gap={Spacing._8}>
                             {actions}
-                            <Dialog.Close asChild>
-                                <GTButton styleType="secondary" value="Cancel" />
-                            </Dialog.Close>
+                            {!hideCancelButton && (
+                                <Dialog.Close asChild>
+                                    <GTButton styleType="secondary" value="Cancel" />
+                                </Dialog.Close>
+                            )}
                         </Flex>
                     </Flex>
                 </DialogContent>
