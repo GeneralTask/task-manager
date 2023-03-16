@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_FOLDER_ID } from '../../constants'
@@ -18,7 +17,6 @@ interface TaskActionsDropdownProps {
     task: TTaskV4
 }
 const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
-    const [isOpen, setIsOpen] = useState(false)
     const { data: folders } = useGetFolders()
     const { mutate: createTask } = useCreateTask()
     const { mutate: modifyTask } = useModifyTask()
@@ -97,19 +95,9 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
 
     return (
         <GTDropdownMenu
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
             hideCheckmark
             items={getItems()}
-            trigger={
-                <GTButton
-                    styleType="icon"
-                    icon={icons.ellipsisVertical}
-                    tooltipText="Task Actions"
-                    onClick={() => setIsOpen(!isOpen)}
-                    active={isOpen}
-                />
-            }
+            trigger={<GTButton styleType="icon" icon={icons.ellipsisVertical} tooltipText="Task Actions" />}
         />
     )
 }

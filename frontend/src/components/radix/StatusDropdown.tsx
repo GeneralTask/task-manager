@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { externalStatusIcons, icons } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
@@ -13,7 +12,6 @@ interface StatusDropdownProps {
 }
 
 const StatusDropdown = ({ task, disabled, condensedTrigger }: StatusDropdownProps) => {
-    const [isOpen, setIsOpen] = useState(false)
     const { mutate: modifyTask } = useModifyTask()
 
     const externalStatus = task.external_status ? task.external_status : null
@@ -36,15 +34,12 @@ const StatusDropdown = ({ task, disabled, condensedTrigger }: StatusDropdownProp
 
     return (
         <GTDropdownMenu
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
             items={dropdownItems}
             trigger={
                 condensedTrigger ? (
                     <GTButtonHack
                         icon={externalStatusIcons[externalStatus.type]}
                         styleType="control"
-                        active={isOpen}
                         disabled={disabled}
                         tooltipText={externalStatus.state}
                     />
@@ -55,7 +50,6 @@ const StatusDropdown = ({ task, disabled, condensedTrigger }: StatusDropdownProp
                         icon={externalStatusIcons[externalStatus.type]}
                         rightIcon={icons.caret_down_solid}
                         rightIconColor="gray"
-                        active={isOpen}
                         disabled={disabled}
                     />
                 )

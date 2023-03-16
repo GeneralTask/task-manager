@@ -28,7 +28,6 @@ const PriorityDropdown = ({ value, onChange, disabled, condensedTrigger }: Prior
                     icon={TASK_PRIORITIES[value].icon}
                     iconColor={TASK_PRIORITIES[value].color}
                     tooltipText={condensedTrigger ? TASK_PRIORITIES[value].label : undefined}
-                    disabled={disabled}
                 />
             }
         />

@@ -45,7 +45,6 @@ interface GTDatePickerProps {
 }
 const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = false, disabled }: GTDatePickerProps) => {
     const [currentDate, setCurrentDate] = useState<DateTime | null>(initialDate)
-    const [isOpen, setIsOpen] = useState(false)
     const formattedDate = useMemo(() => getFormattedDate(currentDate), [currentDate])
 
     useLayoutEffect(() => {
@@ -132,8 +131,6 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
     return (
         <div>
             <GTPopover
-                isOpen={isOpen}
-                setIsOpen={setIsOpen}
                 content={calendar}
                 disabled={disabled}
                 align="start"
@@ -144,9 +141,6 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                         value={formattedDate.dateString}
                         textColor={formattedDate.textColor}
                         iconColor={formattedDate.iconColor}
-                        onClick={() => setIsOpen(!isOpen)}
-                        active={isOpen}
-                        disabled={disabled}
                     />
                 }
             />

@@ -10,8 +10,8 @@ const PopoverContent = styled(Popover.Content)`
 interface GTPopoverProps {
     content: React.ReactNode
     trigger: React.ReactNode // component that opens the dropdown menu when clicked
-    isOpen: boolean
-    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+    isOpen?: boolean
+    setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>
     align?: 'start' | 'center' | 'end'
     side?: 'top' | 'right' | 'bottom' | 'left'
     modal?: boolean

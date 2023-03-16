@@ -139,7 +139,6 @@ interface GTButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElemen
     tooltipSide?: TTooltipSide
     // misc
     fitContent?: boolean
-    active?: boolean
     overrideDisabledStyle?: boolean
 }
 const GTButton = React.forwardRef((props: GTButtonProps, ref: React.Ref<HTMLButtonElement>) => {

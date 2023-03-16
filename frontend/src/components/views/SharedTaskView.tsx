@@ -115,14 +115,7 @@ const SharedTask = () => {
                                 </TitleContainer>
                                 <TaskFieldContainer>
                                     <PriorityDropdownTrigger value={displayedTask?.priority_normalized ?? 0} />
-                                    <GTDatePickerButton
-                                        currentDate={DateTime.fromISO(displayedTask?.due_date ?? '')}
-                                        showIcon
-                                        onClick={emptyFunction}
-                                        isOpen={false}
-                                        disabled
-                                        overrideDisabledStyle
-                                    />
+                                    <GTDatePickerButton currentDate={DateTime.fromISO(displayedTask?.due_date ?? '')} />
                                 </TaskFieldContainer>
                                 <GTTextField
                                     key={displayedTask.id}
