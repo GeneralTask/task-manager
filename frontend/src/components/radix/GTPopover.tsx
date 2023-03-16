@@ -14,21 +14,11 @@ interface GTPopoverProps {
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
     align?: 'start' | 'center' | 'end'
     side?: 'top' | 'right' | 'bottom' | 'left'
-    modal?: boolean
     disabled?: boolean
 }
-const GTPopover = ({
-    trigger,
-    content,
-    isOpen,
-    setIsOpen,
-    disabled,
-    align = 'center',
-    side,
-    modal = true,
-}: GTPopoverProps) => {
+const GTPopover = ({ trigger, content, isOpen, setIsOpen, disabled, align = 'center', side }: GTPopoverProps) => {
     return (
-        <Popover.Root modal={modal} open={isOpen} onOpenChange={setIsOpen}>
+        <Popover.Root modal={false} open={isOpen} onOpenChange={setIsOpen}>
             <Popover.Trigger disabled={disabled} asChild>
                 {trigger}
             </Popover.Trigger>
