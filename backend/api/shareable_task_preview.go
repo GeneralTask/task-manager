@@ -12,7 +12,6 @@ import (
 func (api *API) ShareableTaskPreview(c *gin.Context) {
 	taskIDHex := c.Param("task_id")
 	taskID, err := primitive.ObjectIDFromHex(taskIDHex)
-
 	if err != nil {
 		Handle404(c)
 		return
