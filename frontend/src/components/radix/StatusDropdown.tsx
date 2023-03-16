@@ -54,7 +54,6 @@ const StatusDropdown = ({ task, disabled, condensedTrigger }: StatusDropdownProp
                         styleType="control"
                         icon={externalStatusIcons[externalStatus.type]}
                         rightIcon={icons.caret_down_solid}
-                        rightIconColor="gray"
                         active={isOpen}
                         disabled={disabled}
                     />
