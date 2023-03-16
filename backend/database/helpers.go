@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"golang.org/x/exp/slices"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
-	"github.com/GeneralTask/task-manager/backend/logging"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -1246,28 +1246,43 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 
 func GetOrCreateDashboardTeam(db *mongo.Database, userID primitive.ObjectID) (*DashboardTeam, error) {
 	teamCollection := GetDashboardTeamCollection(db)
-	_, err := teamCollection.UpdateOne(
+	// _, err := teamCollection.UpdateOne(
+	// 	context.Background(),
+	// 	bson.M{"user_id": userID},
+	// 	bson.M{"$setOnInsert": DashboardTeam{
+	// 		UserID:    userID,
+	// 		CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
+	// 	}},
+	// 	options.Update().SetUpsert(true),
+	// )
+
+	// mongoResult := teamCollection.FindOneAndUpdate(
+	// 	context.Background(),
+	// 	bson.M{"user_id": userID},
+	// 	bson.M{"$setOnInsert": DashboardTeam{
+	// 		UserID:    userID,
+	// 		CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
+	// 	}},
+	// 	options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
+	// ).Decode(&dashboardTeam)
+	// logger := logging.GetSentryLogger()
+	// if err != nil {
+	// 	logger.Error().Err(err).Msg("failed to get or create dashboard team")
+	// 	return nil, err
+	// }
+
+	var dashboardTeam DashboardTeam
+	err := teamCollection.FindOneAndUpdate(
 		context.Background(),
 		bson.M{"user_id": userID},
 		bson.M{"$setOnInsert": DashboardTeam{
 			UserID:    userID,
 			CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
 		}},
-		options.Update().SetUpsert(true),
-	)
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to get or create dashboard team")
-		return nil, err
-	}
-
-	var dashboardTeam DashboardTeam
-	err = teamCollection.FindOne(
-		context.Background(),
-		bson.M{"user_id": userID},
+		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
 	).Decode(&dashboardTeam)
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to load dashboard team")
+		logging.GetSentryLogger().Error().Err(err).Msg("failed to find and update dashboard team")
 		return nil, err
 	}
 	return &dashboardTeam, nil

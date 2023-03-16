@@ -160,7 +160,7 @@ func TestDashboardData(t *testing.T) {
 		Date:      primitive.NewDateTimeFromTime(time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)),
 	})
 	assert.NoError(t, err)
-	t.Run("SuccessNoData", func(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
 		request, _ := http.NewRequest("GET", "/dashboard/data/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -180,25 +180,19 @@ func TestDashboardData(t *testing.T) {
 			"id": "000000000000000000000030",
 			"date_start": "2022-12-19",
 			"date_end": "2022-12-24",
-			"is_default": false,
-			"DatetimeStart": "2022-12-19T03:00:00-05:00",
-			"DatetimeEnd": "2022-12-24T03:00:00-05:00"
+			"is_default": false
 		},
 		{
 			"id": "000000000000000000000031",
 			"date_start": "2022-12-26",
 			"date_end": "2022-12-31",
-			"is_default": false,
-			"DatetimeStart": "2022-12-26T03:00:00-05:00",
-			"DatetimeEnd": "2022-12-31T03:00:00-05:00"
+			"is_default": false
 		},
 		{
 			"id": "000000000000000000000032",
 			"date_start": "2023-01-02",
 			"date_end": "2023-01-07",
-			"is_default": true,
-			"DatetimeStart": "2023-01-02T03:00:00-05:00",
-			"DatetimeEnd": "2023-01-07T03:00:00-05:00"
+			"is_default": true
 		}
 	],
 	"subjects": [

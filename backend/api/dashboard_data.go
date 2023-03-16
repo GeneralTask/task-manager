@@ -1,9 +1,10 @@
 package api
 
 import (
-	"fmt"
 	"strconv"
 	"time"
+
+	"github.com/GeneralTask/task-manager/backend/logging"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -23,8 +24,8 @@ type DashboardInterval struct {
 	DateStart     string             `json:"date_start"`
 	DateEnd       string             `json:"date_end"`
 	IsDefault     bool               `json:"is_default"`
-	DatetimeStart time.Time
-	DatetimeEnd   time.Time
+	DatetimeStart time.Time          `json:"-"`
+	DatetimeEnd   time.Time          `json:"-"`
 }
 
 type DashboardSubject struct {
@@ -60,9 +61,29 @@ type DashboardPoint struct {
 }
 
 const DEFAULT_LOOKBACK_DAYS = 14
+const NUM_DAYS_IN_WEEK = 7
+const NUM_DAYS_IN_WEEKEND = 2
+const NUM_HOURS_IN_DAY = 24
+const NUM_WEEKDAYS = NUM_DAYS_IN_WEEK - NUM_DAYS_IN_WEEKEND
 
 const ICON_TEAM = "team"
 const ICON_USER = "user"
+const ICON_GITHUB = "github"
+const ICON_GCAL = "gcal"
+
+const COLOR_PINK = "pink"
+const COLOR_BLUE = "blue"
+const COLOR_GREY = "grey"
+
+const TEAM_DAILY_AVERAGE = "Daily average (Your team)"
+const TEAM_WEEKLY_AVERAGE = "Weekly average (Your team)"
+const TEAM_MEMBER_DAILY_AVERAGE = "Daily average (Team member)"
+const TEAM_MEMBER_WEEKLY_AVERAGE = "Weekly average (Team member)"
+const INDUSTRY_DAILY_AVERAGE = "Daily average (Industry)"
+const INDUSTRY_WEEKLY_AVERAGE = "Weekly average (Industry)"
+
+const GRAPH_NAME_GITHUB_PR = "Code review response time"
+const GRAPH_NAME_FOCUS_TIME = "Hours per day in big blocks"
 
 var GraphIDTeamPR = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}
 var GraphIDIndividualPR = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}
@@ -79,6 +100,7 @@ var DataIDFocusTimeUserAverage = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 var SubjectIDTeam = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1}
 
 func (api *API) DashboardData(c *gin.Context) {
+	logger := logging.GetSentryLogger()
 	userID := getUserIDFromContext(c)
 	dashboardTeam, err := database.GetOrCreateDashboardTeam(api.DB, userID)
 	if err != nil || dashboardTeam == nil {
@@ -99,7 +121,7 @@ func (api *API) DashboardData(c *gin.Context) {
 		return
 	}
 
-	intervals := api.getIntervalsFromLookbackDays(lookbackDays)
+	intervals := api.getWeekdayIntervalsFromLookbackDays(lookbackDays)
 
 	subjects := []DashboardSubject{{
 		ID:        SubjectIDTeam,
@@ -109,7 +131,6 @@ func (api *API) DashboardData(c *gin.Context) {
 		IsDefault: true,
 	}}
 	for _, teamMember := range *dashboardTeamMembers {
-		fmt.Println("team member ID:", teamMember.ID)
 		subjects = append(subjects, DashboardSubject{
 			ID:       teamMember.ID,
 			Name:     teamMember.Name,
@@ -145,7 +166,7 @@ func (api *API) DashboardData(c *gin.Context) {
 			} else {
 				dataID = DataIDPRChartUserAverage
 			}
-		} else {
+		} else if dataPoint.GraphType == constants.DashboardGraphTypeFocusTime {
 			if subjectID == SubjectIDTeam {
 				if dataPoint.TeamID == primitive.NilObjectID {
 					dataID = DataIDFocusTimeIndustryAverage
@@ -155,6 +176,9 @@ func (api *API) DashboardData(c *gin.Context) {
 			} else {
 				dataID = DataIDFocusTimeUserAverage
 			}
+		} else {
+			logger.Error().Msgf("invalid data point graph type value: '%s'", dataPoint.GraphType)
+			continue
 		}
 		if _, exists := data[subjectID]; !exists {
 			data[subjectID] = make(map[primitive.ObjectID]map[primitive.ObjectID]DashboardData)
@@ -174,12 +198,15 @@ func (api *API) DashboardData(c *gin.Context) {
 	}
 
 	for subjectID := range data {
-		fmt.Println("subject ID:", subjectID)
 		for intervalID := range data[subjectID] {
 			for dataID := range data[subjectID][intervalID] {
 				total := 0
 				dataSeries := data[subjectID][intervalID][dataID]
 				points := dataSeries.Points
+				if len(points) == 0 {
+					logger.Error().Msgf("zero data points found: subjectID:'%s', intervalID:'%s', dataID:'%s'", subjectID.Hex(), intervalID.Hex(), dataID.Hex())
+					continue
+				}
 				for _, point := range points {
 					total += point.Y
 				}
@@ -197,17 +224,17 @@ func (api *API) DashboardData(c *gin.Context) {
 	})
 }
 
-func (api *API) getIntervalsFromLookbackDays(lookbackDays int) []DashboardInterval {
+func (api *API) getWeekdayIntervalsFromLookbackDays(lookbackDays int) []DashboardInterval {
 	now := api.GetCurrentTime()
-	numIntervals := lookbackDays/7 + 1
+	numIntervals := lookbackDays/NUM_DAYS_IN_WEEK + 1
 	intervals := []DashboardInterval{}
 	for index := 0; index < numIntervals; index++ {
-		numDaysBackForMonday := 7*(numIntervals-index-1) + int(now.Weekday()) - 1
-		monday := now.Add(-time.Hour * 24 * time.Duration(numDaysBackForMonday))
+		numDaysBackForMonday := NUM_DAYS_IN_WEEK*(numIntervals-index-1) + int(now.Weekday()) - 1
+		monday := now.Add(-time.Hour * NUM_HOURS_IN_DAY * time.Duration(numDaysBackForMonday))
 		mondayStartOfDay := primitive.NewDateTimeFromTime(time.Date(monday.Year(), monday.Month(), monday.Day(), constants.UTC_OFFSET, 0, 0, 0, time.UTC)).Time()
 
-		numDaysBackForSaturday := numDaysBackForMonday - 5
-		saturday := now.Add(-time.Hour * 24 * time.Duration(numDaysBackForSaturday))
+		numDaysBackForSaturday := numDaysBackForMonday - NUM_WEEKDAYS
+		saturday := now.Add(-time.Hour * NUM_HOURS_IN_DAY * time.Duration(numDaysBackForSaturday))
 		saturdayStartOfDay := primitive.NewDateTimeFromTime(time.Date(saturday.Year(), saturday.Month(), saturday.Day(), constants.UTC_OFFSET, 0, 0, 0, time.UTC)).Time()
 		isDefault := index+1 == numIntervals
 		intervals = append(intervals, DashboardInterval{
@@ -225,74 +252,74 @@ func (api *API) getIntervalsFromLookbackDays(lookbackDays int) []DashboardInterv
 func getGraphs() map[primitive.ObjectID]DashboardGraph {
 	graphs := make(map[primitive.ObjectID]DashboardGraph)
 	graphs[GraphIDTeamPR] = DashboardGraph{
-		Name: "Code review response time",
-		Icon: "github",
+		Name: GRAPH_NAME_GITHUB_PR,
+		Icon: ICON_GITHUB,
 		Lines: []DashboardLine{
 			{
-				Name:           "Daily average (Your team)",
-				Color:          "pink",
-				AggregatedName: "Weekly average (Your team)",
+				Name:           TEAM_DAILY_AVERAGE,
+				Color:          COLOR_PINK,
+				AggregatedName: TEAM_WEEKLY_AVERAGE,
 				DataID:         DataIDPRChartTeamAverage,
 			},
 			{
-				Name:           "Daily average (Industry)",
-				Color:          "grey",
-				AggregatedName: "Weekly average (Industry)",
+				Name:           INDUSTRY_DAILY_AVERAGE,
+				Color:          COLOR_GREY,
+				AggregatedName: INDUSTRY_WEEKLY_AVERAGE,
 				DataID:         DataIDPRChartIndustryAverage,
 			},
 		},
 	}
 	graphs[GraphIDTeamFocusTime] = DashboardGraph{
-		Name: "Hours per day in big blocks",
-		Icon: "gcal",
+		Name: GRAPH_NAME_FOCUS_TIME,
+		Icon: ICON_GCAL,
 		Lines: []DashboardLine{
 			{
-				Name:           "Daily average (Your team)",
-				Color:          "pink",
-				AggregatedName: "Weekly average (Your team)",
+				Name:           TEAM_DAILY_AVERAGE,
+				Color:          COLOR_PINK,
+				AggregatedName: TEAM_WEEKLY_AVERAGE,
 				DataID:         DataIDFocusTimeTeamAverage,
 			},
 			{
-				Name:           "Daily average (Industry)",
-				Color:          "grey",
-				AggregatedName: "Weekly average (Industry)",
+				Name:           INDUSTRY_DAILY_AVERAGE,
+				Color:          COLOR_GREY,
+				AggregatedName: INDUSTRY_WEEKLY_AVERAGE,
 				DataID:         DataIDFocusTimeIndustryAverage,
 			},
 		},
 	}
 	graphs[GraphIDIndividualPR] = DashboardGraph{
-		Name: "Code review response time",
-		Icon: "github",
+		Name: GRAPH_NAME_GITHUB_PR,
+		Icon: ICON_GITHUB,
 		Lines: []DashboardLine{
 			{
-				Name:           "Daily average (Team member)",
-				Color:          "blue",
-				AggregatedName: "Weekly average (Team member)",
+				Name:           TEAM_MEMBER_DAILY_AVERAGE,
+				Color:          COLOR_BLUE,
+				AggregatedName: TEAM_MEMBER_WEEKLY_AVERAGE,
 				DataID:         DataIDPRChartUserAverage,
 			},
 			{
-				Name:           "Daily average (Your team)",
-				Color:          "grey",
-				AggregatedName: "Weekly average (Your team)",
+				Name:           TEAM_DAILY_AVERAGE,
+				Color:          COLOR_GREY,
+				AggregatedName: TEAM_WEEKLY_AVERAGE,
 				DataID:         DataIDPRChartTeamAverage,
 				SubjectID:      &SubjectIDTeam,
 			},
 		},
 	}
 	graphs[GraphIDIndividualFocusTime] = DashboardGraph{
-		Name: "Hours per day in big blocks",
-		Icon: "gcal",
+		Name: GRAPH_NAME_FOCUS_TIME,
+		Icon: ICON_GCAL,
 		Lines: []DashboardLine{
 			{
-				Name:           "Daily average (Team member)",
-				Color:          "blue",
-				AggregatedName: "Weekly average (Team member)",
+				Name:           TEAM_MEMBER_DAILY_AVERAGE,
+				Color:          COLOR_BLUE,
+				AggregatedName: TEAM_MEMBER_WEEKLY_AVERAGE,
 				DataID:         DataIDFocusTimeUserAverage,
 			},
 			{
-				Name:           "Daily average (Your team)",
-				Color:          "grey",
-				AggregatedName: "Weekly average (Your team)",
+				Name:           TEAM_DAILY_AVERAGE,
+				Color:          COLOR_GREY,
+				AggregatedName: TEAM_WEEKLY_AVERAGE,
 				DataID:         DataIDFocusTimeTeamAverage,
 				SubjectID:      &SubjectIDTeam,
 			},
