@@ -23,6 +23,7 @@ const MarkTaskDoneButton = ({
 }: MarkTaskDoneButtonProps) => {
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const onMarkTaskDone = useCallback(() => {
+        if (isDisabled) return
         if (onMarkComplete) onMarkComplete()
         markTaskDoneOrDeleted(
             {
@@ -42,6 +43,7 @@ const MarkTaskDoneButton = ({
     return (
         <GTCheckbox
             isChecked={isDone}
+            disabled={isDisabled}
             onChange={onMarkTaskDone}
             animated
             shortcutName="markAsDone"

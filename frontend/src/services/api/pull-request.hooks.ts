@@ -13,7 +13,7 @@ const getPullRequests = async () => {
         const res = await apiClient.get('/pull_requests/')
         return castImmutable(res.data)
     } catch {
-        throw new Error('getPullRequests failed')
+        throw 'getPullRequests failed'
     }
 }
 
@@ -32,6 +32,6 @@ const fetchPullRequests = async ({ signal }: QueryFunctionContext) => {
         const res = await apiClient.get('/pull_requests/fetch/', { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('fetchPullRequests failed')
+        throw 'fetchPullRequests failed'
     }
 }

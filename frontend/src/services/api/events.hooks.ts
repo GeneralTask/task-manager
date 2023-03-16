@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useQuery } from 'react-query'
+import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { useCalendarContext } from '../../components/calendar/CalendarContext'
@@ -79,6 +79,24 @@ interface TDeleteEventData {
     datetime_end: string
 }
 
+interface TGetEventParams {
+    id?: string
+}
+
+export const useGetEvent = (params: TGetEventParams) => {
+    return useQuery<TEvent>(['events', params.id], (context) => getEvent(params, context), {
+        ...getBackgroundQueryOptions(),
+        enabled: !!params.id,
+    })
+}
+const getEvent = async ({ id }: TGetEventParams, { signal }: QueryFunctionContext) => {
+    try {
+        const res = await apiClient.get(`/events/${id}/`, { signal })
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('getEvent failed')
+    }
+}
 const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
     const queryClient = useGTQueryClient()
     return useQuery<TEvent[]>(
@@ -106,7 +124,7 @@ export const getEvents = async (
         })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getEvents failed')
+        throw 'getEvents failed'
     }
 }
 
@@ -125,6 +143,7 @@ export const useCreateEvent = () => {
     return useGTMutation(({ createEventPayload }: TCreateEventParams) => createEvent(createEventPayload), {
         tag: 'events',
         invalidateTagsOnSettled: ['events'],
+        errorMessage: 'create event',
         onMutate: ({
             createEventPayload,
             date,
@@ -212,7 +231,7 @@ const createEvent = async (data: TCreateEventPayload) => {
         const res = await apiClient.post('/events/create/gcal/', data)
         return castImmutable(res.data)
     } catch {
-        throw new Error('createEvent failed')
+        throw 'createEvent failed'
     }
 }
 
@@ -221,6 +240,7 @@ export const useDeleteEvent = () => {
     const useMutationResult = useGTMutation((data: TDeleteEventData) => deleteEvent(data.id), {
         tag: 'events',
         invalidateTagsOnSettled: ['events'],
+        errorMessage: 'delete event',
         onMutate: (data: TDeleteEventData) => {
             const { events, blockStartTime } = queryClient.getCurrentEvents(
                 data.date,
@@ -267,7 +287,7 @@ const deleteEvent = async (eventId: string) => {
         const res = await apiClient.delete(`/events/delete/${eventId}/`)
         return castImmutable(res.data)
     } catch {
-        throw new Error('deleteEvent failed')
+        throw 'deleteEvent failed'
     }
 }
 
@@ -277,6 +297,7 @@ export const useModifyEvent = () => {
     return useGTMutation((data: TModifyEventData) => modifyEvent(data), {
         tag: 'events',
         invalidateTagsOnSettled: ['events'],
+        errorMessage: 'modify event',
         onMutate: ({ event, payload, date }: TModifyEventData) => {
             const { events, blockStartTime } = queryClient.getCurrentEvents(
                 date,
@@ -314,7 +335,7 @@ const modifyEvent = async (data: TModifyEventData) => {
         const res = await apiClient.patch(`/events/modify/${data.id}/`, data.payload)
         return castImmutable(res.data)
     } catch {
-        throw new Error('modifyEvent failed')
+        throw 'modifyEvent failed'
     }
 }
 
@@ -326,7 +347,7 @@ const getCalendars = async () => {
         const res = await apiClient.get('/calendars/')
         return castImmutable(res.data)
     } catch {
-        throw new Error('getCalendars failed')
+        throw 'getCalendars failed'
     }
 }
 

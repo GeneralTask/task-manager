@@ -1,12 +1,13 @@
-import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_FOLDER_ID } from '../../constants'
+import { useToast } from '../../hooks'
+import { useGetFolders } from '../../services/api/folders.hooks'
 import { useCreateTask, useMarkTaskDoneOrDeleted, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
 import Flex from '../atoms/Flex'
-import GTIconButton from '../atoms/buttons/GTIconButton'
+import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedMini } from '../atoms/typography/Typography'
 import GTDropdownMenu from './GTDropdownMenu'
 import { GTMenuItem } from './RadixUIConstants'
@@ -16,11 +17,12 @@ interface TaskActionsDropdownProps {
     task: TTaskV4
 }
 const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
-    const [isOpen, setIsOpen] = useState(false)
+    const { data: folders } = useGetFolders()
     const { mutate: createTask } = useCreateTask()
     const { mutate: modifyTask } = useModifyTask()
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
+    const toast = useToast()
 
     const updatedAt = DateTime.fromISO(task.updated_at).toFormat(`MMM d 'at' h:mm a`)
     const createdAt = DateTime.fromISO(task.created_at).toFormat(`MMM d 'at' h:mm a`)
@@ -54,6 +56,11 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
                 },
                 optimisticId
             )
+            toast.show({
+                message: `Task duplicated in folder ${
+                    folders?.find((f) => f.id === task.id_folder)?.name ?? 'Task Inbox'
+                }`,
+            })
         },
     })
 
@@ -88,20 +95,9 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
 
     return (
         <GTDropdownMenu
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
             hideCheckmark
             items={getItems()}
-            unstyledTrigger
-            trigger={
-                <GTIconButton
-                    icon={icons.ellipsisVertical}
-                    tooltipText="Task Actions"
-                    onClick={() => setIsOpen(!isOpen)}
-                    forceShowHoverEffect={isOpen}
-                    asDiv
-                />
-            }
+            trigger={<GTButton styleType="icon" icon={icons.ellipsisVertical} tooltipText="Task Actions" />}
         />
     )
 }

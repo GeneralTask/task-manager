@@ -1,9 +1,13 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
+import { v4 as uuidv4 } from 'uuid'
 import { EVENT_UNDO_TIMEOUT, NO_TITLE } from '../../constants'
-import { useKeyboardShortcut, useNavigateToPullRequest, useNavigateToTask, useToast } from '../../hooks'
+import { useKeyboardShortcut, useNavigateToPullRequest, useNavigateToTask, usePreviewMode, useToast } from '../../hooks'
 import { useDeleteEvent, useGetCalendars } from '../../services/api/events.hooks'
+import { useCreateNote, useGetNotes } from '../../services/api/notes.hooks'
+import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
@@ -12,16 +16,7 @@ import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedLabel } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
-import {
-    CopyButton,
-    Description,
-    EventBoxStyle,
-    EventHeader,
-    EventHeaderIcons,
-    EventTitle,
-    FlexAnchor,
-    IconButton,
-} from '../molecules/EventDetailPopover-styles'
+import { Description, EventBoxStyle, EventHeader, EventTitle, FlexAnchor } from '../molecules/EventDetailPopover-styles'
 import GTPopover from './GTPopover'
 
 interface EventDetailPopoverProps {
@@ -39,7 +34,12 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
     const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
     const navigateToTask = useNavigateToTask()
     const navigateToPullRequest = useNavigateToPullRequest()
+    const { data: notes } = useGetNotes()
+    const { mutate: createNote } = useCreateNote()
+    const { data: userInfo } = useGetUserInfo()
     const { data: calendars } = useGetCalendars()
+    const navigate = useNavigate()
+    const { isPreviewMode } = usePreviewMode()
 
     useEffect(() => {
         if (isOpen || hidePopover) return
@@ -96,6 +96,20 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
         )
     }
 
+    const createMeetingNote = () => {
+        const optimisticId = uuidv4()
+        createNote({
+            title: event.title || NO_TITLE,
+            author: userInfo?.name || 'Anonymous',
+            linked_event_id: event.id,
+            linked_event_start: event.datetime_start,
+            linked_event_end: event.datetime_end,
+            optimisticId,
+        })
+        navigate(`/notes/${optimisticId}`)
+        return optimisticId
+    }
+
     useKeyboardShortcut(
         'close',
         useCallback(() => setIsOpen(false), [])
@@ -109,18 +123,15 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
         <EventBoxStyle>
             <EventHeader>
                 <Icon icon={logos[event.logo]} />
-                <EventHeaderIcons>
-                    {event.can_modify && (
-                        <IconButton onClick={onDelete}>
-                            <Icon icon={icons.trash} />
-                        </IconButton>
-                    )}
-                    <IconButton onClick={() => setIsOpen(false)}>
-                        <Icon icon={icons.x} />
-                    </IconButton>
-                </EventHeaderIcons>
+                <EventTitle>{event.title || NO_TITLE}</EventTitle>
+                <Flex alignItems="center" gap={Spacing._4}>
+                    <FlexAnchor href={event.deeplink}>
+                        <GTButton styleType="icon" icon={icons.external_link} />
+                    </FlexAnchor>
+                    {event.can_modify && <GTButton styleType="icon" icon={icons.trash} onClick={onDelete} />}
+                    <GTButton styleType="icon" icon={icons.x} onClick={() => setIsOpen(false)} autoFocus />
+                </Flex>
             </EventHeader>
-            <EventTitle>{event.title || NO_TITLE}</EventTitle>
             {calendarAccount && calendar && (
                 <Flex gap={Spacing._8}>
                     <Icon icon={icons.square} colorHex={calendar.color_background} />
@@ -142,7 +153,6 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                 {event.linked_task_id && (
                     <GTButton
                         styleType="secondary"
-                        size="small"
                         value="View task details"
                         fitContent={false}
                         onClick={() => {
@@ -154,7 +164,6 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                 {event.linked_pull_request_id && (
                     <GTButton
                         styleType="secondary"
-                        size="small"
                         value="View PR details"
                         fitContent={false}
                         onClick={() => {
@@ -163,30 +172,32 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                         }}
                     />
                 )}
-                <FlexAnchor href={event.deeplink}>
+                {isPreviewMode && (
                     <GTButton
                         styleType="secondary"
-                        size="small"
-                        value="Google Calendar"
-                        icon={icons.external_link}
+                        value="Meeting Notes"
+                        icon={icons.note}
                         fitContent={false}
+                        onClick={() => {
+                            setIsOpen(false)
+                            const note = notes?.find((n) => n.linked_event_id === event.id && !n.is_deleted)
+                            const id = note ? note.id : createMeetingNote()
+                            navigate(`/notes/${id}`)
+                        }}
                     />
-                </FlexAnchor>
+                )}
             </Flex>
             {event.conference_call.logo && (
-                <Flex flex="1" alignItems="center">
+                <Flex flex="1" alignItems="center" gap={Spacing._4}>
                     <FlexAnchor href={event.conference_call.url}>
                         <GTButton
                             styleType="secondary"
-                            size="small"
                             value="Join"
                             icon={event.conference_call.logo}
                             fitContent={false}
                         />
                     </FlexAnchor>
-                    <CopyButton onClick={onCopyMeetingLink}>
-                        <Icon icon={icons.copy} />
-                    </CopyButton>
+                    <GTButton styleType="icon" icon={icons.copy} onClick={onCopyMeetingLink} />
                 </Flex>
             )}
         </EventBoxStyle>
@@ -199,8 +210,6 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
             content={hidePopover ? undefined : content}
             side="left"
             trigger={children}
-            unstyledTrigger
-            modal={false}
         />
     )
 }

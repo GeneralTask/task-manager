@@ -10,7 +10,7 @@ const SignOutButton = () => {
     const handleConfirm = useCallback(() => authSignOut(), [])
     return (
         <>
-            <GTButton onClick={() => setModalIsOpen(true)} value="Sign Out" size="small" />
+            <GTButton styleType="primary" onClick={() => setModalIsOpen(true)} value="Sign Out" />
             <GTModal
                 isOpen={modalIsOpen}
                 title="Sign out?"

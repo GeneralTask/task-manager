@@ -20,14 +20,14 @@ const ItemContainerDiv = styled.div<{
     border-radius: ${Border.radius.small};
     :hover {
         outline: ${Border.stroke.medium} solid ${Colors.background.border};
-        background-color: ${Colors.background.medium};
+        background-color: ${Colors.background.sub};
     }
 
     ${({ forceHoverStyle }) =>
         forceHoverStyle &&
         `
     outline: ${Border.stroke.medium} solid ${Colors.background.border};
-        background-color: ${Colors.background.medium};
+        background-color: ${Colors.background.sub};
         `}
     ${({ isMultiSelected }) =>
         isMultiSelected &&

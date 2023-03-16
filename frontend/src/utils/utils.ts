@@ -1,7 +1,7 @@
 import { DateTime, Duration, DurationUnit } from 'luxon'
 import { DONE_FOLDER_ID, GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME, TRASH_FOLDER_ID } from '../constants'
 import KEYBOARD_SHORTCUTS from '../constants/shortcuts'
-import { TIconColor, TTextColor } from '../styles/colors'
+import { TTextColor } from '../styles/colors'
 import { TLinkedAccount, TLinkedAccountName, TParentTask, TTaskFolder, TTaskV4 } from './types'
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
@@ -41,7 +41,7 @@ export const getHumanTimeSinceDateTime = (date: DateTime) => {
     } else if (hours > 0) {
         return `${hours} ${hours > 1 ? 'hours' : 'hour'} ago`
     } else if (minutes > 0) {
-        return `${minutes} ${minutes > 1 ? 'mins' : 'min'} ago`
+        return `${minutes} ${minutes > 1 ? 'minutes' : 'minute'} ago`
     }
     return `just now`
 }
@@ -75,6 +75,27 @@ export const getHumanDateTime = (date: DateTime) => {
         return 'Yesterday'
     }
     return date.toLocaleString({ month: 'numeric', day: 'numeric', year: '2-digit' })
+}
+export const getFormattedEventTime = (dateStart: DateTime, dateEnd: DateTime, type: 'short' | 'long') => {
+    const getDayString = () => {
+        const { days: dayDifference } = dateStart
+            .startOf('day')
+            .diff(DateTime.now().startOf('day'), ['milliseconds', 'days'])
+        const sameWeek = dateStart.weekNumber === DateTime.now().weekNumber && dateStart.year === DateTime.now().year
+        if (dayDifference === 0) {
+            return 'Today'
+        } else if (dayDifference === 1) {
+            return 'Tomorrow'
+        } else if (dayDifference === -1) {
+            return 'Yesterday'
+        } else if (sameWeek) {
+            return dateStart.weekdayLong
+        }
+        return dateStart.toLocaleString(DateTime.DATE_FULL)
+    }
+    if (type === 'short') return getDayString()
+    const timeString = `${dateStart.toFormat('h:mm')} – ${dateEnd.toFormat('h:mm a')}`
+    return `${getDayString()} · ${timeString}`
 }
 
 // to avoid creating empty placeholder functions across the app
@@ -128,43 +149,39 @@ export const getFormattedDate = (
     isDoneOrDeleted?: boolean
 ): {
     dateString: string
-    textColor: TTextColor
-    iconColor: TIconColor
+    textColor?: TTextColor
 } => {
     // Empty due dates are represented using 0 epoch time
     if (!date || !date.isValid || +date === 0) {
-        return { dateString: 'No due date', textColor: 'light', iconColor: 'gray' }
+        return { dateString: 'No due date' }
     }
     if (date.hasSame(DateTime.local(), 'day')) {
         if (isDoneOrDeleted) {
-            return { dateString: 'Today', textColor: 'light', iconColor: 'gray' }
+            return { dateString: 'Today' }
         }
-        return { dateString: 'Today', textColor: 'red', iconColor: 'red' }
+        return { dateString: 'Today', textColor: 'red' }
     }
     if (date.hasSame(DateTime.local().plus({ days: 1 }), 'day')) {
         if (isDoneOrDeleted) {
-            return { dateString: 'Tomorrow', textColor: 'light', iconColor: 'gray' }
+            return { dateString: 'Tomorrow' }
         }
-        return { dateString: 'Tomorrow', textColor: 'orange', iconColor: 'orange' }
+        return { dateString: 'Tomorrow', textColor: 'orange' }
     }
     if (date < DateTime.local()) {
         if (isDoneOrDeleted) {
             return {
                 dateString: `${date.toFormat('LLL dd')}`,
-                textColor: 'light',
-                iconColor: 'gray',
             }
         }
         return {
             dateString: `Overdue (${date.toFormat('LLL dd')})`,
             textColor: 'red',
-            iconColor: 'red',
         }
     }
     if (!date.hasSame(DateTime.local(), 'year')) {
-        return { dateString: date.toFormat('LLL dd yyyy'), textColor: 'light', iconColor: 'gray' }
+        return { dateString: date.toFormat('LLL dd yyyy') }
     }
-    return { dateString: date.toFormat('LLL dd'), textColor: 'light', iconColor: 'gray' }
+    return { dateString: date.toFormat('LLL dd') }
 }
 export const getFormattedDuration = (duration: Duration, maxUnits?: number) => {
     const allUnits: DurationUnit[] = ['years', 'months', 'days', 'hours', 'minutes', 'seconds']
@@ -204,4 +221,14 @@ export const getFolderIdFromTask = (task: TTaskV4, tasks: TTaskV4[], folders: TT
         folderId = folders.find((folder) => folder.task_ids.includes(task.id))?.id
     }
     return folderId
+}
+
+export const isTaskBeingShared = (task: TTaskV4) => {
+    if (task.shared_until == null || task.shared_access == null) return false
+    const sharedUntil = DateTime.fromISO(task.shared_until)
+    return task.shared_access != null && sharedUntil > DateTime.now()
+}
+
+export const isTaskActive = (task: TTaskV4) => {
+    return !task.is_deleted && !task.is_done
 }

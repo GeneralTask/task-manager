@@ -55,7 +55,7 @@ const getRecurringTaskTemplates = async ({ signal }: QueryFunctionContext) => {
         if (res.data === null) return []
         return castImmutable(res.data)
     } catch {
-        throw new Error('getRecurringTaskTemplates failed')
+        throw 'getRecurringTaskTemplates failed'
     }
 }
 
@@ -67,6 +67,7 @@ export const useCreateRecurringTask = () => {
     return useGTMutation((payload: TCreateRecurringTaskPayload) => createRecurringTask(payload), {
         tag: 'recurring-tasks',
         invalidateTagsOnSettled: ['recurring-tasks'],
+        errorMessage: 'create recurring task',
         onMutate: async (payload) => {
             await Promise.all([queryClient.cancelQueries('recurring-tasks'), queryClient.cancelQueries('tasks')])
 
@@ -126,7 +127,7 @@ const createRecurringTask = async (payload: TCreateRecurringTaskPayload) => {
         const res = await apiClient.post('/recurring_task_templates/create/', payload)
         return castImmutable(res.data)
     } catch {
-        throw new Error('createRecurringTask failed')
+        throw 'createRecurringTask failed'
     }
 }
 
@@ -136,6 +137,7 @@ export const useModifyRecurringTask = () => {
     return useGTMutation((payload: TModifyRecurringTaskPayload) => modifyRecurringTask(payload), {
         tag: 'recurring-tasks',
         invalidateTagsOnSettled: ['recurring-tasks'],
+        errorMessage: 'modify recurring task',
         onMutate: async (payload) => {
             await queryClient.cancelQueries('recurring-tasks')
 
@@ -168,7 +170,7 @@ const modifyRecurringTask = async (payload: TModifyRecurringTaskPayload) => {
         const res = await apiClient.patch(`/recurring_task_templates/modify/${payload.id}/`, payload)
         return castImmutable(res.data)
     } catch {
-        throw new Error('modifyRecurringTask failed')
+        throw 'modifyRecurringTask failed'
     }
 }
 
@@ -187,6 +189,6 @@ const backfillRecurringTasks = async ({ signal }: QueryFunctionContext) => {
         })
         return castImmutable<TRecurringTaskTemplate[]>(res.data)
     } catch {
-        throw new Error('backfillRecurringTaskTemplates failed')
+        throw 'backfillRecurringTaskTemplates failed'
     }
 }

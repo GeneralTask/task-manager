@@ -5,7 +5,6 @@ import { useItemSelectionController } from '../../hooks'
 import Log from '../../services/api/log'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import { Spacing } from '../../styles'
 import { logos } from '../../styles/images'
 import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
 import { PR_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/pull-requests.config'
@@ -13,6 +12,7 @@ import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
 import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
 import { TPullRequest } from '../../utils/types'
 import { doesAccountNeedRelinking, isGithubLinked } from '../../utils/utils'
+import ActionsContainer from '../atoms/ActionsContainer'
 import Spinner from '../atoms/Spinner'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
@@ -26,9 +26,6 @@ import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 const PullRequestsContainer = styled.div`
     display: flex;
     flex-direction: column;
-`
-const MarginBottom4 = styled.div`
-    margin-bottom: ${Spacing._4};
 `
 
 const PullRequestsView = () => {
@@ -97,9 +94,7 @@ const PullRequestsView = () => {
                 <ScrollableListTemplate>
                     <Header folderName="GitHub Pull Requests" />
                     {doesNeedRelinking && <ConnectIntegration type="github" reconnect />}
-                    <MarginBottom4>
-                        <SortAndFilterSelectors settings={sortAndFilterSettings} />
-                    </MarginBottom4>
+                    <ActionsContainer leftActions={<SortAndFilterSelectors settings={sortAndFilterSettings} />} />
                     {!isGithubIntegrationLinked && !isLinkedAccountsLoading ? (
                         <ConnectIntegration type="github" />
                     ) : (
