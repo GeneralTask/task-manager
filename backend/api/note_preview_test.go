@@ -54,16 +54,25 @@ func TestNotePreview(t *testing.T) {
 	router := GetRouter(api)
 
 	t.Run("InvalidNoteID", func(t *testing.T) {
+		invalidNoteID := primitive.NewObjectID().Hex()
 		request, _ := http.NewRequest(
 			"GET",
-			fmt.Sprintf("/note/%s/", primitive.NewObjectID()),
+			fmt.Sprintf("/note/%s/", invalidNoteID),
 			nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusNotFound, recorder.Code)
-		response, err := io.ReadAll(recorder.Body)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"not found\"}", string(response))
+		assert.Equal(t, `
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Refresh" content="0; url='http://localhost:3000/note/`+invalidNoteID+`'" />
+</head>
+<body>
+</body>
+</html>`, string(body))
 	})
 	t.Run("NoteIsNotShared", func(t *testing.T) {
 		request, _ := http.NewRequest(
