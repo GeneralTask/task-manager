@@ -50,12 +50,12 @@ func TestShareableTaskPreview(t *testing.T) {
 	
 
 	t.Run("MalformmatedTaskID", func(t *testing.T) {
-		response := ServeRequest(t, authToken, "GET", "/shareable_tasks/preview/123/", nil, http.StatusNotFound, api)
+		response := ServeRequest(t, authToken, "GET", "/shareable_tasks/123/", nil, http.StatusNotFound, api)
 		assert.Equal(t, `{"detail":"not found"}`, string(response))
 	})
 	t.Run("InvalidTaskID", func(t *testing.T) {
 		invalidTaskID := primitive.NewObjectID().Hex()
-		response := ServeRequest(t,authToken, "GET", fmt.Sprintf("/shareable_tasks/preview/%s/", invalidTaskID), nil, http.StatusOK, api)
+		response := ServeRequest(t,authToken, "GET", fmt.Sprintf("/shareable_tasks/%s/", invalidTaskID), nil, http.StatusOK, api)
 		assert.Equal(t, `
 <!DOCTYPE html>
 <html>
@@ -67,7 +67,7 @@ func TestShareableTaskPreview(t *testing.T) {
 </html>`, string(response))
 	})
 	t.Run("TaskIsNotShared", func(t *testing.T) {
-		response := ServeRequest(t, authToken, "GET", fmt.Sprintf("/shareable_tasks/preview/%s/", task2.ID.Hex()), nil, http.StatusOK, api)
+		response := ServeRequest(t, authToken, "GET", fmt.Sprintf("/shareable_tasks/%s/", task2.ID.Hex()), nil, http.StatusOK, api)
 		assert.Equal(t, `
 <!DOCTYPE html>
 <html>
@@ -79,7 +79,7 @@ func TestShareableTaskPreview(t *testing.T) {
 </html>`, string(response))
 	})
 	t.Run("TaskIsShared", func(t *testing.T) {
-		response := ServeRequest(t,authToken, "GET", fmt.Sprintf("/shareable_tasks/preview/%s/", task1.ID.Hex()), nil, http.StatusOK, api)
+		response := ServeRequest(t,authToken, "GET", fmt.Sprintf("/shareable_tasks/%s/", task1.ID.Hex()), nil, http.StatusOK, api)
 		assert.Equal(t, `
 <!DOCTYPE html>
 <html>
