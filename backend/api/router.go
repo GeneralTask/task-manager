@@ -60,6 +60,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	// Middlware for endpoints that can be reached by authorized and unauthorized users
 	router.Use(UserTokenMiddleware(handlers.DB))
 	router.GET("/shareable_tasks/detail/:task_id/", handlers.ShareableTaskDetails)
+	router.GET("/shareable_tasks/:task_id/", handlers.ShareableTaskPreview)
 	// only notes with is_shared=true can be shared
 	router.GET("/notes/detail/:note_id/", handlers.NoteDetails)
 	router.GET("/note/:note_id/", handlers.NotePreview)

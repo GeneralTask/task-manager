@@ -205,3 +205,16 @@ func LogRequestMiddleware(db *mongo.Database) func(c *gin.Context) {
 		database.LogRequestInfo(db, startTime, userObjectID, c.Request.URL.Path, time.Now().UnixMilli()-startTime.UnixMilli(), &objectID, status)
 	}
 }
+
+func NotFoundRedirect(c *gin.Context, url string) {
+	body := []byte(`
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Refresh" content="0; url='` + url + `'" />
+</head>
+<body>
+</body>
+</html>`)
+	c.Data(200, "text/html; charset=utf-8", body)
+}
