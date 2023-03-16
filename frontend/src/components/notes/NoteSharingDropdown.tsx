@@ -1,21 +1,16 @@
 import { useState } from 'react'
 import { DateTime } from 'luxon'
-import styled from 'styled-components'
 import { SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
-import { useToast } from '../../hooks'
+import { usePreviewMode, useToast } from '../../hooks'
 import { useModifyNote } from '../../services/api/notes.hooks'
 import { icons } from '../../styles/images'
-import { TNote } from '../../utils/types'
+import { TNote, TNoteSharedAccess } from '../../utils/types'
 import { getFormattedDuration } from '../../utils/utils'
 import GTButton from '../atoms/buttons/GTButton'
-import { DeprecatedLabel } from '../atoms/typography/Typography'
+import { LabelWrap } from '../radix/DropdownLabel'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
-import { GTMenuItem, MENU_WIDTH } from '../radix/RadixUIConstants'
+import { GTMenuItem } from '../radix/RadixUIConstants'
 import { getNoteURL } from './utils'
-
-const LabelWrap = styled(DeprecatedLabel)`
-    width: ${MENU_WIDTH};
-`
 
 interface NoteSharingDropdownProps {
     note: TNote
@@ -23,10 +18,11 @@ interface NoteSharingDropdownProps {
 const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const { mutate: modifyNote } = useModifyNote()
+    const { isPreviewMode } = usePreviewMode()
     const toast = useToast()
 
-    const shareNote = (expiryDate: string) => {
-        modifyNote({ id: note.id, shared_until: expiryDate })
+    const shareNote = (sharedUntil?: string, sharedAccess?: TNoteSharedAccess) => {
+        modifyNote({ id: note.id, shared_until: sharedUntil, shared_access: sharedAccess })
     }
     const unshareNote = () => {
         modifyNote({ id: note.id, shared_until: DateTime.fromMillis(1).toISO() })
@@ -40,7 +36,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
             {
                 autoClose: 2000,
                 pauseOnFocusLoss: false,
-                theme: 'dark',
+                theme: 'light',
             }
         )
     }
@@ -76,6 +72,8 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
                   label: 'Disable shared link',
                   hideCheckmark: true,
                   onClick: unshareNote,
+                  iconColor: 'red',
+                  textColor: 'red',
               },
               {
                   label: 'Shared note info',
@@ -123,21 +121,77 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
               },
           ]
 
+    const previewSharingMenuItems: GTMenuItem[] = [
+        {
+            icon: icons.user,
+            label: 'Share with attendees',
+            hideCheckmark: !isShared,
+            selected: note.shared_access === 'meeting_attendees',
+            onClick: () => {
+                shareNote(SHARED_ITEM_INDEFINITE_DATE, 'meeting_attendees')
+                copyNoteLink()
+            },
+        },
+        {
+            icon: icons.users,
+            label: 'Share with company',
+            hideCheckmark: !isShared,
+            selected: note.shared_access === 'domain',
+            onClick: () => {
+                shareNote(SHARED_ITEM_INDEFINITE_DATE, 'domain')
+                copyNoteLink()
+            },
+        },
+        {
+            icon: icons.globe,
+            label: 'Share with everyone',
+            hideCheckmark: !isShared,
+            selected: note.shared_access === 'public',
+            onClick: () => {
+                shareNote(SHARED_ITEM_INDEFINITE_DATE, 'public')
+                copyNoteLink()
+            },
+        },
+    ]
+
+    const previewDropdownItems: GTMenuItem[] = isShared
+        ? [
+              {
+                  icon: icons.share,
+                  label: 'Share note',
+                  hideCheckmark: true,
+                  subItems: previewSharingMenuItems,
+              },
+              {
+                  icon: icons.external_link,
+                  label: 'Go to shared note page',
+                  hideCheckmark: true,
+                  onClick: goToSharedLink,
+              },
+              {
+                  icon: icons.copy,
+                  label: 'Copy link',
+                  hideCheckmark: true,
+                  onClick: copyNoteLink,
+              },
+              {
+                  icon: icons.link_slashed,
+                  iconColor: 'red',
+                  label: 'Disable shared link',
+                  textColor: 'red',
+                  hideCheckmark: true,
+                  onClick: unshareNote,
+              },
+          ]
+        : previewSharingMenuItems
+
     return (
         <GTDropdownMenu
             isOpen={isOpen}
             setIsOpen={setIsOpen}
-            items={dropdownItems}
-            unstyledTrigger
+            items={isPreviewMode ? previewDropdownItems : dropdownItems}
             trigger={
-                <GTButton
-                    size="small"
-                    styleType="secondary"
-                    icon={icons.share}
-                    value="Share"
-                    onClick={() => setIsOpen(!isOpen)}
-                    asDiv
-                />
+                <GTButton styleType="secondary" icon={icons.share} value="Share" onClick={() => setIsOpen(!isOpen)} />
             }
         />
     )

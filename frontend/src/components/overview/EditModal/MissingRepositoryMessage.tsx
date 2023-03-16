@@ -46,7 +46,7 @@ const MissingRepositoryMessage = () => {
             </TextContainer>
             <ButtonContainer>
                 <GTButton
-                    size="large"
+                    styleType="primary"
                     value="Request access"
                     onClick={() => openAuthWindow({ url: githubAuthorizationUrl })}
                 />

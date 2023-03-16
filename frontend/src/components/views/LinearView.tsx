@@ -13,6 +13,7 @@ import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
 import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
 import { TTaskV4 } from '../../utils/types'
 import { doesAccountNeedRelinking, isLinearLinked } from '../../utils/utils'
+import ActionsContainer from '../atoms/ActionsContainer'
 import Flex from '../atoms/Flex'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
@@ -79,7 +80,9 @@ const LinearView = () => {
                     {isLinearIntegrationLinked ? (
                         <>
                             <LinearBodyHeader>All issues assigned to you.</LinearBodyHeader>
-                            <SortAndFilterSelectors settings={sortAndFilterSettings} />
+                            <ActionsContainer
+                                leftActions={<SortAndFilterSelectors settings={sortAndFilterSettings} />}
+                            />
                             {linearTasks?.map((task) => (
                                 <LinearTask key={task.id} task={task} />
                             ))}

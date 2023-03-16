@@ -6,6 +6,7 @@ import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSe
 import { TASK_SORT_AND_FILTER_CONFIG } from '../../../utils/sortAndFilter/tasks.config'
 import useSortAndFilterSettings from '../../../utils/sortAndFilter/useSortAndFilterSettings'
 import { DropItem, DropType, TTaskV4 } from '../../../utils/types'
+import ActionsContainer from '../../atoms/ActionsContainer'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import CreateNewItemInput from '../../molecules/CreateNewItemInput'
 import Task from '../../molecules/Task'
@@ -66,7 +67,9 @@ const TaskSectionViewItems = forwardRef(
                         <ViewName>{view.name}</ViewName>
                     </ViewHeader>
                 )}
-                {view.total_view_items !== 0 && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
+                {view.total_view_items !== 0 && (
+                    <ActionsContainer leftActions={<SortAndFilterSelectors settings={sortAndFilterSettings} />} />
+                )}
                 {sectionId && <CreateNewItemInput placeholder="Create new task" onSubmit={onCreateNewTaskSubmit} />}
                 {view.view_items.length > 0 ? (
                     view.view_items.slice(0, visibleItemsCount).map((item, index) => (

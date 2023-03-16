@@ -22,7 +22,7 @@ func EnsureJobOnlyRunsOnceToday(jobName string) error {
 		return err
 	}
 
-	resourceName := jobName + "_" + time.Now().Format("01-02-2006")
+	resourceName := jobName + "_" + time.Now().Format("01-02-2006 15")
 	// leave resource locked forever so all future job attempts on this day will fail (err returned if can't instantly get lock)
 	return lockClient.XLock(context.Background(), resourceName, primitive.NewObjectID().Hex(), lock.LockDetails{})
 }

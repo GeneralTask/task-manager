@@ -128,7 +128,7 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
                         .sort((a, b) => +DateTime.fromISO(a.last_updated_at) - +DateTime.fromISO(b.last_updated_at))
                         .map((c) => (
                             <PullRequestComment
-                                key={c.last_updated_at}
+                                key={`${c.last_updated_at}${c.body}`}
                                 author={c.author}
                                 body={c.body}
                                 lastUpdatedAt={c.last_updated_at}

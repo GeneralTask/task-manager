@@ -8,7 +8,6 @@ import { icons } from '../../styles/images'
 import { getFormattedDate } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTPopover from '../radix/GTPopover'
 
 const CALENDAR_DAY_SIZE = '32px'
@@ -29,7 +28,7 @@ const DateViewContainer = styled.div`
     gap: ${Spacing._8};
     border-radius: ${Border.radius.small};
     border: ${Border.stroke.medium} solid ${Colors.background.border};
-    background-color: ${Colors.background.light};
+    background-color: ${Colors.background.base};
 `
 const DateViewText = styled.span`
     ${Typography.deprecated_bodySmall};
@@ -46,7 +45,7 @@ interface GTDatePickerProps {
 }
 const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = false, disabled }: GTDatePickerProps) => {
     const [currentDate, setCurrentDate] = useState<DateTime | null>(initialDate)
-    const [isOpen, setIsOpen] = useState(false)
+    const formattedDate = useMemo(() => getFormattedDate(currentDate), [currentDate])
 
     useLayoutEffect(() => {
         if (!currentDate) return
@@ -54,8 +53,6 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
             setCurrentDate(initialDate)
         }
     }, [initialDate])
-
-    const formattedDate = useMemo(() => getFormattedDate(currentDate), [currentDate])
 
     const handleOnChange = (date: Date | null) => {
         if (!date) {
@@ -85,6 +82,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                     if (date.toDateString() === new Date().toDateString()) {
                         return {
                             border: `${Border.stroke.medium} solid ${Colors.legacyColors.purple}`,
+                            color: Colors.text.black,
                             zIndex: 1,
                         }
                     }
@@ -116,10 +114,10 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                 <DateViewContainer>
                     <Icon icon={icons.calendar_blank} color="black" />
                     <DateViewText>{currentDate.toFormat('ccc LLL d y')}</DateViewText>
-                    <GTIconButton
+                    <GTButton
+                        styleType="icon"
                         tooltipText="Remove due date"
                         icon={icons.x}
-                        color="black"
                         onClick={() => handleOnChange(null)}
                     />
                 </DateViewContainer>
@@ -132,23 +130,15 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
     return (
         <div>
             <GTPopover
-                isOpen={isOpen}
-                setIsOpen={setIsOpen}
                 content={calendar}
                 disabled={disabled}
                 align="start"
                 trigger={
                     <GTButton
-                        styleType="simple"
-                        size="small"
+                        styleType="control"
                         icon={showIcon ? icons.clock : undefined}
                         value={formattedDate.dateString}
                         textColor={formattedDate.textColor}
-                        iconColor={formattedDate.iconColor}
-                        onClick={() => setIsOpen(!isOpen)}
-                        active={isOpen}
-                        disabled={disabled}
-                        asDiv
                     />
                 }
             />

@@ -4,8 +4,8 @@ import { Colors, Typography } from '../../styles'
 import { TTextColor } from '../../styles/colors'
 import { getFormattedDate } from '../../utils/utils'
 
-export const DueDateContainer = styled.span<{ color: TTextColor }>`
-    color: ${(props) => Colors.text[props.color]};
+export const DueDateContainer = styled.span<{ color?: TTextColor }>`
+    ${({ color }) => color && `color: ${Colors.text[color]}`};
     ${Typography.deprecated_bodySmall};
 `
 

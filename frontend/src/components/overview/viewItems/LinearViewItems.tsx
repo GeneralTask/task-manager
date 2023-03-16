@@ -4,6 +4,7 @@ import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSe
 import { LINEAR_SORT_AND_FILTER_CONFIG } from '../../../utils/sortAndFilter/linear.config'
 import useSortAndFilterSettings from '../../../utils/sortAndFilter/useSortAndFilterSettings'
 import { DropType, TTaskV4 } from '../../../utils/types'
+import ActionsContainer from '../../atoms/ActionsContainer'
 import Task from '../../molecules/Task'
 import { ViewHeader, ViewName } from '../styles'
 import EmptyListMessage from './EmptyListMessage'
@@ -25,7 +26,7 @@ const LinearViewItems = forwardRef(
                         <ViewName>{view.name}</ViewName>
                     </ViewHeader>
                 )}
-                <SortAndFilterSelectors settings={sortAndFilterSettings} />
+                <ActionsContainer leftActions={<SortAndFilterSelectors settings={sortAndFilterSettings} />} />
                 {view.view_items.length === 0 && view.is_linked && <EmptyListMessage list={view} />}
                 {view.view_items.slice(0, visibleItemsCount).map((item) => (
                     <Task

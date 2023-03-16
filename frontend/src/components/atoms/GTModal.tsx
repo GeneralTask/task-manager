@@ -43,7 +43,7 @@ const CloseButton = styled(NoStyleButton)`
     padding: ${Spacing._8};
     border-radius: ${Border.radius.medium};
     &:hover {
-        background-color: ${Colors.background.dark};
+        background-color: ${Colors.background.hover};
     }
 `
 const ButtonsGroup = styled.div`

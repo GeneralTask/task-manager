@@ -4,7 +4,7 @@ import { Colors, Spacing, Typography } from '../../styles'
 const HeaderContainer = styled.div`
     display: flex;
     align-items: center;
-    padding: ${Spacing._16} ${Spacing._4} ${Spacing._4};
+    padding: ${Spacing._16} ${Spacing._8} ${Spacing._4};
 `
 const Title = styled.span`
     color: ${Colors.text.black};
