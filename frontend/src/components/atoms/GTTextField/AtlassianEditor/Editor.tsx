@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Editor as AtlaskitEditor, EditorActions } from '@atlaskit/editor-core'
 import { JSONTransformer } from '@atlaskit/editor-json-transformer'
 import { MarkdownTransformer } from '@atlaskit/editor-markdown-transformer'
@@ -84,6 +85,13 @@ const Editor = ({
 }: EditorProps) => {
     useReplaceEditorButtonIcons()
 
+    useEffect(() => {
+        const contenteditable = document.getElementsByClassName('ProseMirror')[0]
+        if (contenteditable) {
+            contenteditable.setAttribute('data-enable-grammarly', 'false')
+        }
+    }, [])
+
     const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
         if (e.key === 'Escape' || (enterBehavior === 'blur' && e.key === 'Enter')) {
             editorActions.blur()
@@ -92,13 +100,7 @@ const Editor = ({
     const isMarkdown = type === 'markdown'
 
     return (
-        <EditorContainer
-            onKeyDown={handleKeyDown}
-            isMarkdown={isMarkdown}
-            data-gramm="false"
-            data-gramm_editor="false"
-            data-enable-grammarly="false"
-        >
+        <EditorContainer onKeyDown={handleKeyDown} isMarkdown={isMarkdown}>
             <AtlaskitEditor
                 defaultValue={value}
                 placeholder={placeholder}
