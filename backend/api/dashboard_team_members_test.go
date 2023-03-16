@@ -18,7 +18,7 @@ type DashboardTeamMemberCreateResponse struct {
 
 func TestDashboardTeamMemberCreate(t *testing.T) {
 	authToken := login("test_dashboard_team_members_create@generaltask.com", "")
-	UnauthorizedTest(t, "GET", "/dashboard/data/", nil)
+	UnauthorizedTest(t, "POST", "/dashboard/team_members/", nil)
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	userID := getUserIDFromAuthToken(t, api.DB, authToken)
