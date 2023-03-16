@@ -4,6 +4,7 @@ import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSe
 import { PR_SORT_AND_FILTER_CONFIG } from '../../../utils/sortAndFilter/pull-requests.config'
 import useSortAndFilterSettings from '../../../utils/sortAndFilter/useSortAndFilterSettings'
 import { TPullRequest } from '../../../utils/types'
+import ActionsContainer from '../../atoms/ActionsContainer'
 import PullRequest from '../../pull-requests/PullRequest'
 import { Repository } from '../../pull-requests/styles'
 import { ViewHeader, ViewName } from '../styles'
@@ -22,7 +23,9 @@ const PullRequestViewItems = forwardRef(
                         <ViewName>{view.name}</ViewName>
                     </ViewHeader>
                 )}
-                {view.total_view_items !== 0 && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
+                {view.total_view_items !== 0 && (
+                    <ActionsContainer leftActions={<SortAndFilterSelectors settings={sortAndFilterSettings} />} />
+                )}
                 {view.view_items.length === 0 && view.is_linked && <EmptyListMessage list={view} />}
                 <Repository>
                     {view.view_items.slice(0, visibleItemsCount).map((pr) => (
