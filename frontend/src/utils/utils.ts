@@ -1,7 +1,7 @@
 import { DateTime, Duration, DurationUnit } from 'luxon'
 import { DONE_FOLDER_ID, GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME, TRASH_FOLDER_ID } from '../constants'
 import KEYBOARD_SHORTCUTS from '../constants/shortcuts'
-import { TIconColor, TTextColor } from '../styles/colors'
+import { TTextColor } from '../styles/colors'
 import { TLinkedAccount, TLinkedAccountName, TParentTask, TTaskFolder, TTaskV4 } from './types'
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
@@ -149,43 +149,39 @@ export const getFormattedDate = (
     isDoneOrDeleted?: boolean
 ): {
     dateString: string
-    textColor: TTextColor
-    iconColor: TIconColor
+    textColor?: TTextColor
 } => {
     // Empty due dates are represented using 0 epoch time
     if (!date || !date.isValid || +date === 0) {
-        return { dateString: 'No due date', textColor: 'light', iconColor: 'gray' }
+        return { dateString: 'No due date' }
     }
     if (date.hasSame(DateTime.local(), 'day')) {
         if (isDoneOrDeleted) {
-            return { dateString: 'Today', textColor: 'light', iconColor: 'gray' }
+            return { dateString: 'Today' }
         }
-        return { dateString: 'Today', textColor: 'red', iconColor: 'red' }
+        return { dateString: 'Today', textColor: 'red' }
     }
     if (date.hasSame(DateTime.local().plus({ days: 1 }), 'day')) {
         if (isDoneOrDeleted) {
-            return { dateString: 'Tomorrow', textColor: 'light', iconColor: 'gray' }
+            return { dateString: 'Tomorrow' }
         }
-        return { dateString: 'Tomorrow', textColor: 'orange', iconColor: 'orange' }
+        return { dateString: 'Tomorrow', textColor: 'orange' }
     }
     if (date < DateTime.local()) {
         if (isDoneOrDeleted) {
             return {
                 dateString: `${date.toFormat('LLL dd')}`,
-                textColor: 'light',
-                iconColor: 'gray',
             }
         }
         return {
             dateString: `Overdue (${date.toFormat('LLL dd')})`,
             textColor: 'red',
-            iconColor: 'red',
         }
     }
     if (!date.hasSame(DateTime.local(), 'year')) {
-        return { dateString: date.toFormat('LLL dd yyyy'), textColor: 'light', iconColor: 'gray' }
+        return { dateString: date.toFormat('LLL dd yyyy') }
     }
-    return { dateString: date.toFormat('LLL dd'), textColor: 'light', iconColor: 'gray' }
+    return { dateString: date.toFormat('LLL dd') }
 }
 export const getFormattedDuration = (duration: Duration, maxUnits?: number) => {
     const allUnits: DurationUnit[] = ['years', 'months', 'days', 'hours', 'minutes', 'seconds']

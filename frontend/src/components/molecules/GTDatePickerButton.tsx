@@ -16,7 +16,6 @@ const GTDatePickerButton = ({ currentDate }: GTDatePickerButtonProps) => {
             icon={icons.clock}
             value={formattedDate.dateString}
             textColor={formattedDate.textColor}
-            iconColor={formattedDate.iconColor}
             disabled
             overrideDisabledStyle
         />

@@ -33,7 +33,7 @@ const getFolders = async ({ signal }: QueryFunctionContext) => {
         const res = await apiClient.get('/sections/v2/', { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getFolders failed')
+        throw 'getFolders failed'
     }
 }
 
@@ -45,6 +45,7 @@ export const useAddFolder = () => {
     return useGTMutation((data: TAddFolderData) => addFolder(data), {
         tag: 'folders',
         invalidateTagsOnSettled: ['folders', 'settings', 'overview-supported-views'],
+        errorMessage: 'add folder',
         onMutate: async (data) => {
             await queryClient.cancelQueries('folders')
 
@@ -85,7 +86,7 @@ const addFolder = async (data: TAddFolderData) => {
         const res = await apiClient.post('/sections/create/', data)
         return castImmutable(res.data)
     } catch {
-        throw new Error('addFolder failed')
+        throw 'addFolder failed'
     }
 }
 
@@ -94,6 +95,7 @@ export const useDeleteFolder = () => {
     return useGTMutation(({ id }: TDeleteFolderData) => deleteFolder(id), {
         tag: 'folders',
         invalidateTagsOnSettled: ['folders', 'settings', 'overview-supported-views', 'recurring-tasks'],
+        errorMessage: 'delete folder',
         onMutate: async ({ id }) => {
             await Promise.all([queryClient.cancelQueries('folders'), queryClient.cancelQueries('recurring-tasks')])
 
@@ -124,7 +126,7 @@ const deleteFolder = async (id: string) => {
         const res = await apiClient.delete(`/sections/delete/${id}/`)
         return castImmutable(res.data)
     } catch {
-        throw new Error('deleteFolder failed')
+        throw 'deleteFolder failed'
     }
 }
 
@@ -133,6 +135,7 @@ export const useModifyFolder = () => {
     return useGTMutation((data: TModifyFolderData) => modifyFolder(data), {
         tag: 'folders',
         invalidateTagsOnSettled: ['folders', 'overview-supported-views'],
+        errorMessage: 'modify folder',
         onMutate: async (data: TModifyFolderData) => {
             await queryClient.cancelQueries('folders')
 
@@ -163,6 +166,6 @@ const modifyFolder = async ({ id, name, id_ordering }: TModifyFolderData) => {
         })
         return castImmutable(res.data)
     } catch {
-        throw new Error('modifyFolder failed')
+        throw 'modifyFolder failed'
     }
 }

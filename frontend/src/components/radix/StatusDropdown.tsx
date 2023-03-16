@@ -35,12 +35,12 @@ const StatusDropdown = ({ task, disabled, condensedTrigger }: StatusDropdownProp
     return (
         <GTDropdownMenu
             items={dropdownItems}
+            disabled={disabled}
             trigger={
                 condensedTrigger ? (
                     <GTButtonHack
                         icon={externalStatusIcons[externalStatus.type]}
                         styleType="control"
-                        disabled={disabled}
                         tooltipText={externalStatus.state}
                     />
                 ) : (
@@ -49,8 +49,6 @@ const StatusDropdown = ({ task, disabled, condensedTrigger }: StatusDropdownProp
                         styleType="control"
                         icon={externalStatusIcons[externalStatus.type]}
                         rightIcon={icons.caret_down_solid}
-                        rightIconColor="gray"
-                        disabled={disabled}
                     />
                 )
             }

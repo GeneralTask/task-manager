@@ -118,7 +118,6 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                         styleType="icon"
                         tooltipText="Remove due date"
                         icon={icons.x}
-                        iconColor="black"
                         onClick={() => handleOnChange(null)}
                     />
                 </DateViewContainer>
@@ -140,7 +139,6 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                         icon={showIcon ? icons.clock : undefined}
                         value={formattedDate.dateString}
                         textColor={formattedDate.textColor}
-                        iconColor={formattedDate.iconColor}
                     />
                 }
             />
