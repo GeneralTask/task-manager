@@ -81,9 +81,7 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
                     <GTButton
                         styleType="icon"
                         icon={icons.ellipsisVertical}
-                        onClick={() => setIsOpen(!isOpen)}
                         disabled={disabled}
-                        active={isOpen}
                         tooltipText="Hide/show services"
                     />
                 }

@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { useModifyNote } from '../../services/api/notes.hooks'
 import { icons } from '../../styles/images'
@@ -14,7 +13,6 @@ interface NoteActionsDropdownProps {
     isOwner?: boolean
 }
 const NoteActionsDropdown = ({ note, isOwner = true }: NoteActionsDropdownProps) => {
-    const [isOpen, setIsOpen] = useState(false)
     const { mutate: modifyNote } = useModifyNote()
 
     const updatedAt = DateTime.fromISO(note.updated_at).toFormat(`MMM d 'at' h:mm a`)
@@ -32,8 +30,6 @@ const NoteActionsDropdown = ({ note, isOwner = true }: NoteActionsDropdownProps)
 
     return (
         <GTDropdownMenu
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
             hideCheckmark
             items={[
                 ...(isOwner ? [ownerItems] : []),
@@ -50,15 +46,7 @@ const NoteActionsDropdown = ({ note, isOwner = true }: NoteActionsDropdownProps)
                     },
                 ],
             ]}
-            trigger={
-                <GTButton
-                    styleType="icon"
-                    icon={icons.ellipsisVertical}
-                    tooltipText="Note Actions"
-                    onClick={() => setIsOpen(!isOpen)}
-                    active={isOpen}
-                />
-            }
+            trigger={<GTButton styleType="icon" icon={icons.ellipsisVertical} tooltipText="Note Actions" />}
         />
     )
 }

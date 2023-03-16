@@ -15,9 +15,9 @@ const ToolbarButton = ({ icon, action, isActive, shortcutLabel, shortcut }: Prop
             onMouseDown={(e) => e.preventDefault()}
             icon={icon}
             onClick={() => action()}
-            active={isActive}
             overrideShortcut={shortcut}
             overrideShortcutLabel={shortcutLabel}
+            data-state={isActive ? 'open' : 'closed'}
         />
     )
 }

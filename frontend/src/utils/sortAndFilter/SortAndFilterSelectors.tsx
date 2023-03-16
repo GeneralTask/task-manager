@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import styled from 'styled-components'
 import GTButton from '../../components/atoms/buttons/GTButton'
 import { DeprecatedBold } from '../../components/atoms/typography/Typography'
@@ -28,9 +28,6 @@ const SortAndFilterDropdowns = <T,>({
         setSelectedFilter,
     },
 }: SortAndFilterDropdownsProps<T>) => {
-    const [filterIsOpen, setFilterIsOpen] = useState(false)
-    const [sortIsOpen, setSortIsOpen] = useState(false)
-
     const sortItems: GTMenuItem[] = useMemo(
         () =>
             Object.entries(sortOptions).map(([, value]) => ({
@@ -89,12 +86,9 @@ const SortAndFilterDropdowns = <T,>({
         <SortAndFilterContainer>
             {filterSelectorItems.length > 0 && (
                 <GTDropdownMenu
-                    isOpen={filterIsOpen}
-                    setIsOpen={setFilterIsOpen}
                     items={filterSelectorItems}
                     trigger={
                         <GTButton
-                            active={filterIsOpen}
                             icon={selectedFilter.icon ?? icons.filter}
                             value={
                                 <span>
@@ -109,12 +103,9 @@ const SortAndFilterDropdowns = <T,>({
             )}
             {sortItems.length > 0 && (
                 <GTDropdownMenu
-                    isOpen={sortIsOpen}
-                    setIsOpen={setSortIsOpen}
                     items={sortSelectorItems}
                     trigger={
                         <GTButton
-                            active={sortIsOpen}
                             icon={sortIcon}
                             value={
                                 <span>
