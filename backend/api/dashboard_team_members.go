@@ -10,7 +10,7 @@ import (
 
 type DashboardTeamMemberCreateParams struct {
 	Name     string `json:"name" binding:"required"`
-	Email    string `json:"email" binding:"required"`
+	Email    string `json:"email"`
 	GithubID string `json:"github_id"`
 }
 

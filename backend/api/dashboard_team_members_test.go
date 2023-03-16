@@ -28,6 +28,7 @@ func TestDashboardTeamMemberCreate(t *testing.T) {
 	_, err := database.GetUserCollection(api.DB).UpdateOne(context.Background(), bson.M{"_id": userID}, bson.M{"$set": bson.M{"business_mode_enabled": true}})
 	assert.NoError(t, err)
 	t.Run("MissingName", func(t *testing.T) {
+		database.GetDashboardTeamMemberCollection(api.DB).DeleteMany(context.Background(), bson.M{})
 		bodyParams, err := json.Marshal(DashboardTeamMemberCreateParams{
 			Email: "scott@gt.com",
 		})
@@ -35,16 +36,34 @@ func TestDashboardTeamMemberCreate(t *testing.T) {
 
 		ServeRequest(t, authToken, "POST", "/dashboard/team_members/", bytes.NewBuffer(bodyParams), http.StatusBadRequest, api)
 	})
-	t.Run("MissingEmail", func(t *testing.T) {
+	t.Run("SuccessNameOnly", func(t *testing.T) {
+		database.GetDashboardTeamMemberCollection(api.DB).DeleteMany(context.Background(), bson.M{})
+		dashboardTeam, err := database.GetOrCreateDashboardTeam(api.DB, userID)
+		assert.NoError(t, err)
+
 		bodyParams, err := json.Marshal(DashboardTeamMemberCreateParams{
-			Name:     "scott",
-			GithubID: "scottmai",
+			Name: "scott",
 		})
 		assert.NoError(t, err)
 
-		ServeRequest(t, authToken, "POST", "/dashboard/team_members/", bytes.NewBuffer(bodyParams), http.StatusBadRequest, api)
+		response := ServeRequest(t, authToken, "POST", "/dashboard/team_members/", bytes.NewBuffer(bodyParams), http.StatusCreated, api)
+		var result DashboardTeamMemberCreateResponse
+		err = json.Unmarshal(response, &result)
+
+		assert.NoError(t, err)
+
+		teamMembers, err := database.GetDashboardTeamMembers(api.DB, dashboardTeam.ID)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(*teamMembers))
+		teamMember := (*teamMembers)[0]
+		assertDashboardTeamMembersAreEqual(t, database.DashboardTeamMember{
+			ID:     teamMember.ID,
+			TeamID: dashboardTeam.ID,
+			Name:   "scott",
+		}, teamMember)
 	})
-	t.Run("SuccessNoGithubID", func(t *testing.T) {
+	t.Run("SuccessNameAndEmail", func(t *testing.T) {
+		database.GetDashboardTeamMemberCollection(api.DB).DeleteMany(context.Background(), bson.M{})
 		dashboardTeam, err := database.GetOrCreateDashboardTeam(api.DB, userID)
 		assert.NoError(t, err)
 
@@ -72,13 +91,14 @@ func TestDashboardTeamMemberCreate(t *testing.T) {
 		}, teamMember)
 	})
 	t.Run("SuccessAllFields", func(t *testing.T) {
+		database.GetDashboardTeamMemberCollection(api.DB).DeleteMany(context.Background(), bson.M{})
 		dashboardTeam, err := database.GetOrCreateDashboardTeam(api.DB, userID)
 		assert.NoError(t, err)
 
 		bodyParams, err := json.Marshal(DashboardTeamMemberCreateParams{
-			Name:     "scott",
-			Email:    "scott@gt.com",
-			GithubID: "scottmai",
+			Name:     "john",
+			Email:    "john@gt.com",
+			GithubID: "jreinstra",
 		})
 		assert.NoError(t, err)
 
@@ -95,9 +115,9 @@ func TestDashboardTeamMemberCreate(t *testing.T) {
 		assertDashboardTeamMembersAreEqual(t, database.DashboardTeamMember{
 			ID:       teamMember.ID,
 			TeamID:   dashboardTeam.ID,
-			Name:     "scott",
-			Email:    "scott@gt.com",
-			GithubID: "scottmai",
+			Name:     "john",
+			Email:    "john@gt.com",
+			GithubID: "jreinstra",
 		}, teamMember)
 	})
 }
