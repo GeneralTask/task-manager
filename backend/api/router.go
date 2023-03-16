@@ -137,6 +137,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	// Add business middleware. Endpoints below this require business mode to be enabled
 	router.Use(BusinessMiddleware(handlers.DB))
 	router.GET("/dashboard/data/", handlers.DashboardData)
+	router.GET("/dashboard/team_members/", handlers.DashboardTeamMembersList)
 	router.POST("/dashboard/team_members/", handlers.DashboardTeamMemberCreate)
 	router.GET("/ping_business/", handlers.Ping)
 
