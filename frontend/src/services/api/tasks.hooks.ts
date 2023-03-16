@@ -122,7 +122,7 @@ const getTasksV4 = async ({ signal }: QueryFunctionContext) => {
         const res = await apiClient.get('/tasks/v4/', { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getTasks failed')
+        throw 'getTasks failed'
     }
 }
 
@@ -142,7 +142,7 @@ const fetchExternalTasks = async ({ signal }: QueryFunctionContext) => {
         const res = await apiClient.get('/tasks/fetch/', { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('fetchExternalTasks failed')
+        throw 'fetchExternalTasks failed'
     }
 }
 
@@ -154,6 +154,7 @@ export const useCreateTask = () => {
     return useGTMutation((data: TCreateTaskData) => createTask(data), {
         tag: 'tasks_v4',
         invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
+        errorMessage: 'create task',
         onMutate: async (data: TCreateTaskData) => {
             await Promise.all([
                 queryClient.cancelQueries('tasks_v4'),
@@ -247,7 +248,7 @@ export const createTask = async (data: TCreateTaskData) => {
         })
         return castImmutable(res.data)
     } catch {
-        throw new Error('createTask failed')
+        throw 'createTask failed'
     }
 }
 
@@ -286,11 +287,13 @@ const optimisticallyUpdateTask = async (queryClient: GTQueryClient, data: TModif
 
 export const useModifyTask = (useQueueing = true) => {
     const queryClient = useGTQueryClient()
+
     return useGTMutation(
         (data: TModifyTaskData) => modifyTask(data),
         {
             tag: 'tasks_v4',
             invalidateTagsOnSettled: ['tasks_v4', 'overview', 'folders', 'meeting_preparation_tasks'],
+            errorMessage: 'modfiy task',
             onMutate: async (data: TModifyTaskData) => {
                 await Promise.all([
                     queryClient.cancelQueries('overview'),
@@ -353,7 +356,7 @@ const modifyTask = async (data: TModifyTaskData) => {
         const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
         return castImmutable(res.data)
     } catch {
-        throw new Error('modifyTask failed')
+        throw 'modifyTask failed'
     }
 }
 
@@ -368,6 +371,7 @@ export const useMarkTaskDoneOrDeleted = (useQueueing = true) => {
         {
             tag: 'tasks_v4',
             invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
+            errorMessage: 'complete task',
             onMutate: async (data: TMarkTaskDoneOrDeletedData) => {
                 await Promise.all([
                     queryClient.cancelQueries('tasks_v4'),
@@ -494,7 +498,7 @@ export const markTaskDoneOrDeleted = async (data: TMarkTaskDoneOrDeletedData) =>
         const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
         return castImmutable(res.data)
     } catch {
-        throw new Error('markTaskDoneOrDeleted failed')
+        throw 'markTaskDoneOrDeleted failed'
     }
 }
 
@@ -505,6 +509,7 @@ export const useReorderTask = (useQueueing = true) => {
         {
             tag: 'tasks_v4',
             invalidateTagsOnSettled: ['tasks_v4', 'folders', 'overview'],
+            errorMessage: 'move task',
             onMutate: async (data: TReorderTaskData) => {
                 await Promise.all([
                     queryClient.cancelQueries('tasks_v4'),
@@ -587,15 +592,17 @@ export const reorderTask = async (data: TReorderTaskData) => {
         const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
         return castImmutable(res.data)
     } catch {
-        throw new Error('reorderTask failed')
+        throw 'reorderTask failed'
     }
 }
 
 export const usePostComment = () => {
     const queryClient = useGTQueryClient()
+
     return useGTMutation((data: TPostCommentData) => postComment(data), {
         tag: 'tasks_v4',
         invalidateTagsOnSettled: ['tasks_v4'],
+        errorMessage: 'post comment',
         onMutate: async (data: TPostCommentData) => {
             await queryClient.cancelQueries('tasks_v4')
 
@@ -628,7 +635,7 @@ const postComment = async (data: TPostCommentData) => {
         const res = await apiClient.post(`/tasks/${data.id}/comments/add/`, data)
         return castImmutable(res.data)
     } catch {
-        throw new Error('postComment failed')
+        throw 'postComment failed'
     }
 }
 

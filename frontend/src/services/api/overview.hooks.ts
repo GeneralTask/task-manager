@@ -22,7 +22,7 @@ const getOverviewViews = async ({ signal }: QueryFunctionContext) => {
         })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getTasks failed')
+        throw 'getTasks failed'
     }
 }
 
@@ -36,6 +36,7 @@ export const useReorderViews = () => {
     return useGTMutation((data: TReorderViewData) => reorderView(data), {
         tag: 'overview',
         invalidateTagsOnSettled: ['overview'],
+        errorMessage: 'reorder view',
         onMutate: async ({ id, idOrdering }: TReorderViewData) => {
             setIsUsingSmartPrioritization(false)
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
@@ -66,7 +67,7 @@ const reorderView = async (data: TReorderViewData) => {
         })
         return castImmutable(res.data)
     } catch {
-        throw new Error('reorderView failed')
+        throw 'reorderView failed'
     }
 }
 
@@ -78,6 +79,7 @@ export const useBulkModifyViews = () => {
     return useGTMutation((data: TBulkModifyViewsData) => bulkModifyViews(data), {
         tag: 'overview',
         invalidateTagsOnSettled: ['overview'],
+        errorMessage: 'modify lists',
         onMutate: async (data: TBulkModifyViewsData) => {
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             if (!views) return
@@ -104,7 +106,7 @@ const bulkModifyViews = async (data: TBulkModifyViewsData) => {
         const res = await apiClient.patch('/overview/views/bulk_modify/', data)
         return castImmutable(res.data)
     } catch {
-        throw new Error('bulkModifyViews failed')
+        throw 'bulkModifyViews failed'
     }
 }
 
@@ -116,7 +118,7 @@ const getSupportedViews = async ({ signal }: QueryFunctionContext) => {
         const res = await apiClient.get('/overview/supported_views/', { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getSupportedViews failed')
+        throw 'getSupportedViews failed'
     }
 }
 
@@ -154,6 +156,7 @@ export const useAddView = () => {
         {
             tag: 'overview',
             invalidateTagsOnSettled: ['overview', 'overview-supported-views'],
+            errorMessage: 'add list',
             onMutate: async ({
                 optimisticId,
                 supportedView,
@@ -218,7 +221,7 @@ const addView = async (data: TAddViewPayload) => {
         const res = await apiClient.post('/overview/views/', data)
         return castImmutable(res.data)
     } catch {
-        throw new Error('addView failed')
+        throw 'addView failed'
     }
 }
 
@@ -232,6 +235,7 @@ export const useRemoveView = () => {
     return useGTMutation(({ id }: TRemoveViewData) => removeView(id), {
         tag: 'overview',
         invalidateTagsOnSettled: ['overview', 'overview-supported-views'],
+        errorMessage: 'remove list',
         onMutate: async ({ id }) => {
             setIsUsingSmartPrioritization(false)
             const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
@@ -277,7 +281,7 @@ const removeView = async (viewId: string) => {
     try {
         await apiClient.delete(`/overview/views/${viewId}/`)
     } catch {
-        throw new Error('removeView failed')
+        throw 'removeView failed'
     }
 }
 
@@ -291,7 +295,7 @@ const getSmartPrioritizationSuggestionsRemaining = async ({ signal }: QueryFunct
         const res = await apiClient.get('/overview/views/suggestions_remaining/', { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getOverviewSuggestionsRemaining failed')
+        throw 'getOverviewSuggestionsRemaining failed'
     }
 }
 
@@ -306,7 +310,7 @@ export const getOverviewSmartSuggestion = async () => {
             return status < 500 // Resolve only if the status code is less than 500
         },
     })
-    if (res.data.error) throw new Error(res.data.error)
-    if (res.status !== 200) throw new Error('getOverviewSmartSuggestion failed')
+    if (res.data.error) throw res.data.error
+    if (res.status !== 200) throw 'getOverviewSmartSuggestion failed'
     return res.data
 }

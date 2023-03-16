@@ -13,7 +13,7 @@ const getUserInfo = async ({ signal }: QueryFunctionContext) => {
         Sentry.setUser({ email: res.data.email })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getUserInfo failed')
+        throw 'getUserInfo failed'
     }
 }
 
@@ -27,6 +27,6 @@ export const mutateUserInfo = async (userInfo: TUserInfoUpdateParams) => {
         const res = await apiClient.patch('/user_info/', JSON.stringify(userInfo))
         return castImmutable(res.data)
     } catch {
-        throw new Error('mutateUserInfo failed')
+        throw 'mutateUserInfo failed'
     }
 }
