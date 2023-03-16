@@ -1,12 +1,23 @@
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
-import { EVENT_UNDO_TIMEOUT, NO_TITLE, SINGLE_SECOND_INTERVAL } from '../../constants'
-import { useGlobalKeyboardShortcuts, useInterval, useKeyboardShortcut, usePageFocus, useToast } from '../../hooks'
+import { v4 as uuidv4 } from 'uuid'
+import { EVENT_UNDO_TIMEOUT, NOTE_SYNC_TIMEOUT, NO_TITLE, SINGLE_SECOND_INTERVAL } from '../../constants'
+import {
+    useDebouncedEdit,
+    useGlobalKeyboardShortcuts,
+    useInterval,
+    useKeyboardShortcut,
+    usePageFocus,
+    usePreviewMode,
+    useToast,
+} from '../../hooks'
 import { useDeleteEvent, useEvents } from '../../services/api/events.hooks'
 import Log from '../../services/api/log'
+import { useCreateNote, useGetNotes, useModifyNote } from '../../services/api/notes.hooks'
+import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { focusModeBackground, icons, logos } from '../../styles/images'
 import { getMonthsAroundDate, isDateToday } from '../../utils/time'
@@ -14,6 +25,7 @@ import { TEvent } from '../../utils/types'
 import GTHeader from '../atoms/GTHeader'
 import GTShadowContainer from '../atoms/GTShadowContainer'
 import GTStaticCheckbox from '../atoms/GTStaticCheckbox'
+import GTTextField from '../atoms/GTTextField'
 import GTTitle from '../atoms/GTTitle'
 import { Icon } from '../atoms/Icon'
 import TimeRange from '../atoms/TimeRange'
@@ -189,11 +201,22 @@ const FocusModeScreen = () => {
     const blocks = getMonthsAroundDate(DateTime.now(), 1)
     const monthBlocks = blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
     const { data: events } = useEvents(monthBlocks[1], 'calendar')
+    const { data: userInfo } = useGetUserInfo()
+    const { data: notes } = useGetNotes()
+    const { mutate: createNote } = useCreateNote()
+    const { mutate: onSave, isError, isLoading } = useModifyNote()
+    const { onEdit } = useDebouncedEdit({ onSave, isError, isLoading }, NOTE_SYNC_TIMEOUT)
     const currentEvents = getEventsCurrentlyHappening(events ?? [])
     const [chosenEvent, setChosenEvent] = useState<TEvent | null>(null)
+    const { isPreviewMode } = usePreviewMode()
     const [time, setTime] = useState(DateTime.local())
     const [shouldAutoAdvanceEvent, setShouldAutoAdvanceEvent] = useState(true)
     usePageFocus(true)
+
+    const linkedNote = useMemo(() => {
+        if (chosenEvent == null) return
+        return notes?.find((note) => note.linked_event_id === chosenEvent.id && !note.is_deleted)
+    }, [chosenEvent, notes])
 
     const nextEvent = events?.find((event) => {
         const eventStart = DateTime.fromISO(event.datetime_start)
@@ -363,6 +386,37 @@ const FocusModeScreen = () => {
                                             </>
                                         )}
                                     </div>
+                                    {isPreviewMode && (
+                                        <div>
+                                            <BodyHeader>MEETING NOTES</BodyHeader>
+                                            {linkedNote ? (
+                                                <GTTextField
+                                                    key={linkedNote.id}
+                                                    type="markdown"
+                                                    value={linkedNote.body}
+                                                    placeholder="Add details"
+                                                    onChange={(val) => onEdit({ id: linkedNote.id, body: val })}
+                                                    fontSize="small"
+                                                />
+                                            ) : (
+                                                <GTButton
+                                                    styleType="secondary"
+                                                    value="Add meeting notes"
+                                                    icon={icons.penToSquare}
+                                                    onClick={() => {
+                                                        createNote({
+                                                            title: chosenEvent.title || NO_TITLE,
+                                                            author: userInfo?.name || 'Anonymous',
+                                                            linked_event_id: chosenEvent.id,
+                                                            linked_event_start: chosenEvent.datetime_start,
+                                                            linked_event_end: chosenEvent.datetime_end,
+                                                            optimisticId: uuidv4(),
+                                                        })
+                                                    }}
+                                                />
+                                            )}
+                                        </div>
+                                    )}
                                 </>
                             )}
                             {!chosenEvent && currentEvents.length === 0 && <FlexTime nextEvent={nextEvent} />}
