@@ -92,7 +92,13 @@ const Editor = ({
     const isMarkdown = type === 'markdown'
 
     return (
-        <EditorContainer onKeyDown={handleKeyDown} isMarkdown={isMarkdown}>
+        <EditorContainer
+            onKeyDown={handleKeyDown}
+            isMarkdown={isMarkdown}
+            data-gramm="false"
+            data-gramm_editor="false"
+            data-enable-grammarly="false"
+        >
             <AtlaskitEditor
                 defaultValue={value}
                 placeholder={placeholder}
