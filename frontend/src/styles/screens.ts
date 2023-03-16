@@ -1,6 +1,6 @@
 import { Colors } from '.'
 
 export const container = {
-    backgroundColor: Colors.background.light,
+    backgroundColor: Colors.background.base,
     height: '100%',
 }

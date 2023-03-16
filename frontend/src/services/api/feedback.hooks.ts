@@ -14,6 +14,6 @@ const postFeedback = async (data: TPostFeedbackData) => {
         const res = await apiClient.post('/feedback/', data)
         return castImmutable(res.data)
     } catch {
-        throw new Error('postFeedback failed')
+        throw 'postFeedback failed'
     }
 }

@@ -1,8 +1,33 @@
+import styled from 'styled-components'
+import { Spacing } from '../../styles'
+import Flex from '../atoms/Flex'
+import DateSelector from './DateSelector'
+import Metric from './Metric'
+import SubjectSelector from './SubjectSelector'
+import { useSuperDashboardContext } from './SuperDashboardContext'
+
+const Metrics = styled.div`
+    display: flex;
+    gap: ${Spacing._24};
+    flex-wrap: wrap;
+    width: 100%;
+`
+
 const SuperDashboard = () => {
+    const { selectedSubject } = useSuperDashboardContext()
+
     return (
-        <div>
-            <p style={{ fontSize: 400, lineHeight: 0 }}>📈📈</p>
-        </div>
+        <Flex column gap={Spacing._24}>
+            <Flex justifyContent="space-between" alignItems="center">
+                <DateSelector />
+                <SubjectSelector />
+            </Flex>
+            <Metrics>
+                {selectedSubject.graph_ids.map((graphId) => (
+                    <Metric key={graphId} graphId={graphId} />
+                ))}
+            </Metrics>
+        </Flex>
     )
 }
 

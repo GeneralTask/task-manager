@@ -3,7 +3,7 @@ import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import styled from 'styled-components'
 import { useModifyTask } from '../../services/api/tasks.hooks'
-import { Spacing, Typography } from '../../styles'
+import { Spacing } from '../../styles'
 import { DropType, TTaskV4 } from '../../utils/types'
 import Domino from '../atoms/Domino'
 import SelectableContainer, { EdgeHighlight } from '../atoms/SelectableContainer'
@@ -14,14 +14,6 @@ import PriorityDropdown from '../radix/PriorityDropdown'
 
 const Container = styled(TaskTemplate)`
     height: fit-content;
-`
-const SlackSelectableContainer = styled(SelectableContainer)`
-    display: flex;
-    align-items: center;
-    gap: ${Spacing._8};
-    padding: ${Spacing._8} ${Spacing._8} ${Spacing._8} ${Spacing._16};
-    margin-bottom: ${Spacing._4};
-    ${Typography.deprecated_bodySmall};
 `
 const Title = styled.span`
     overflow: hidden;
@@ -58,7 +50,7 @@ const SlackTask = ({ task, isSelected, onClick }: SlackTaskProps) => {
 
     return (
         <Container key={task.id}>
-            <SlackSelectableContainer
+            <SelectableContainer
                 ref={drag}
                 isSelected={isSelected}
                 onClick={() => onClick(task.id)}
@@ -86,7 +78,7 @@ const SlackTask = ({ task, isSelected, onClick }: SlackTaskProps) => {
                     )}
                     <ExternalLinkButton link={task.deeplink} />
                 </RightContainer>
-            </SlackSelectableContainer>
+            </SelectableContainer>
         </Container>
     )
 }

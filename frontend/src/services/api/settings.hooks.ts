@@ -67,7 +67,7 @@ const getSettings = async ({ signal }: QueryFunctionContext) => {
             },
         ]) as TSetting[]
     } catch {
-        throw new Error('getSettings failed')
+        throw 'getSettings failed'
     }
 }
 
@@ -97,7 +97,7 @@ const updateSettings = async (data: TUpdateSettingsData) => {
     try {
         await apiClient.patch('/settings/', { [data.key]: data.value })
     } catch {
-        throw new Error('updateSettings failed')
+        throw 'updateSettings failed'
     }
 }
 
@@ -109,7 +109,7 @@ const getLinkedAccounts = async ({ signal }: QueryFunctionContext) => {
         const res = await apiClient.get('/linked_accounts/', { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getLinkedAccounts failed')
+        throw 'getLinkedAccounts failed'
     }
 }
 
@@ -121,7 +121,7 @@ const getSupportedTypes = async ({ signal }: QueryFunctionContext) => {
         const res = await apiClient.get('/linked_accounts/supported_types/', { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getSupportedTypes failed')
+        throw 'getSupportedTypes failed'
     }
 }
 
@@ -137,6 +137,7 @@ export const useDeleteLinkedAccount = () => {
     return useGTMutation(deleteLinkedAccount, {
         tag: 'linked_accounts',
         invalidateTagsOnSettled: ['linked_accounts', 'calendars', 'events', 'settings'],
+        errorMessage: 'delete account',
         onMutate: ({ id }: { id: string }) => {
             const linkedAccounts = queryClient.getQueryData<TLinkedAccount[]>('linked_accounts')
             const calendars = queryClient.getQueryData<TCalendarAccount[]>('calendars')
@@ -181,6 +182,6 @@ const deleteLinkedAccount = async (data: { id: string }) => {
         const res = await apiClient.delete(`/linked_accounts/${data.id}/`)
         return castImmutable(res.data)
     } catch {
-        throw new Error('deleteLinkedAccount failed')
+        throw 'deleteLinkedAccount failed'
     }
 }

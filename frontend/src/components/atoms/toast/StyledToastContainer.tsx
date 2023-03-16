@@ -35,7 +35,7 @@ const StyledToastContainer = styled(ToastContainer).attrs({
 })`
     --toastify-toast-width: 400px;
     --toastify-color-light: ${Colors.background.white};
-    --toastify-color-dark: ${Colors.background.black};
+    --toastify-color-dark: ${Colors.legacyColors.black};
     --toastify-text-color-light: ${Colors.text.black};
     --toastify-text-color-dark: ${Colors.text.white};
     .toast {

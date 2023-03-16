@@ -10,7 +10,7 @@ const getMeetingPreparationTasks = async ({ signal }: QueryFunctionContext) => {
         const res = await apiClient.get('/meeting_preparation_tasks/', { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getMeetingPreparationTasks failed')
+        throw 'getMeetingPreparationTasks failed'
     }
 }
 export const useGetMeetingPreparationTasks = (isEnabled = true) => {

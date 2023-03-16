@@ -1,16 +1,15 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
 import Log from '../../services/api/log'
 import { useGetNotes } from '../../services/api/notes.hooks'
-import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
 import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
 import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
 import { TNote } from '../../utils/types'
 import { EMPTY_ARRAY } from '../../utils/utils'
+import ActionsContainer from '../atoms/ActionsContainer'
 import Flex from '../atoms/Flex'
 import Spinner from '../atoms/Spinner'
 import { useCalendarContext } from '../calendar/CalendarContext'
@@ -21,17 +20,6 @@ import NoteCreateButton from '../notes/NoteCreateButton'
 import NoteDetails from '../notes/NoteDetails'
 import { NOTE_SORT_AND_FILTER_CONFIG } from '../notes/note.config'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
-
-const ActionsContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-`
-const CreateButtonContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    margin-bottom: ${Spacing._16};
-    margin-left: auto;
-`
 
 const NoteListView = () => {
     const { data: notes } = useGetNotes()
@@ -77,12 +65,10 @@ const NoteListView = () => {
             <Flex>
                 <ScrollableListTemplate>
                     <Header folderName="Notes" />
-                    <ActionsContainer>
-                        <SortAndFilterSelectors settings={sortAndFilterSettings} />
-                        <CreateButtonContainer>
-                            <NoteCreateButton type="button" disableShortcut />
-                        </CreateButtonContainer>
-                    </ActionsContainer>
+                    <ActionsContainer
+                        leftActions={<SortAndFilterSelectors settings={sortAndFilterSettings} />}
+                        rightActions={<NoteCreateButton type="button" disableShortcut />}
+                    />
                     {!notes ? (
                         <Spinner />
                     ) : (

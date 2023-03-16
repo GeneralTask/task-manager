@@ -1,15 +1,14 @@
-import { ReactNode, useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { DEFAULT_FOLDER_ID } from '../../constants'
 import { useKeyboardShortcut } from '../../hooks'
 import { useGetFolders } from '../../services/api/folders.hooks'
 import { icons } from '../../styles/images'
-import { TTaskFolder } from '../../utils/types'
+import GTButton from '../atoms/buttons/GTButton'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 
 interface FolderSelectorProps {
     value: string
     onChange: (value: string) => void
-    renderTrigger: (isOpen: boolean, setIsOpen: (isOpen: boolean) => void, selectedFolder?: TTaskFolder) => ReactNode
     useTriggerWidth?: boolean
     fontStyle?: 'deprecated_body' | 'deprecated_bodySmall' | 'deprecated_label'
     enableKeyboardShortcut?: boolean
@@ -17,15 +16,12 @@ interface FolderSelectorProps {
 const FolderSelector = ({
     value,
     onChange,
-    renderTrigger,
     enableKeyboardShortcut,
     useTriggerWidth,
     fontStyle,
 }: FolderSelectorProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const { data: folders } = useGetFolders(false)
-
-    const selectedFolder = useMemo(() => folders?.find((folder) => folder.id === value), [folders, value])
 
     useKeyboardShortcut(
         'moveTaskToFolder',
@@ -42,7 +38,6 @@ const FolderSelector = ({
             menuInModal
             fontStyle={fontStyle}
             useTriggerWidth={useTriggerWidth}
-            unstyledTrigger
             items={
                 folders
                     ? folders
@@ -55,7 +50,7 @@ const FolderSelector = ({
                           }))
                     : []
             }
-            trigger={renderTrigger(isOpen, setIsOpen, selectedFolder)}
+            trigger={<GTButton icon={icons.folder} shortcutName="moveTaskToFolder" styleType="icon" />}
         />
     )
 }

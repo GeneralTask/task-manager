@@ -4,12 +4,13 @@ import { NOTE_SYNC_TIMEOUT, SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
 import { useDebouncedEdit } from '../../hooks'
 import { useModifyNote } from '../../services/api/notes.hooks'
 import { Spacing } from '../../styles'
-import { icons } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import { TNote } from '../../utils/types'
+import { getFormattedEventTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
-import { DeprecatedLabel } from '../atoms/typography/Typography'
+import { DeprecatedLabel, LabelSmall } from '../atoms/typography/Typography'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import NoteActionsDropdown from './NoteActionsDropdown'
 import NoteSharingDropdown from './NoteSharingDropdown'
@@ -38,6 +39,14 @@ const DetailItem = styled.div`
     margin-left: ${Spacing._8};
     max-width: ${NOTE_TITLE_MAX_WIDTH}px;
 `
+const MeetingInfoContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: ${Spacing._8};
+    margin-bottom: ${Spacing._8};
+    padding: 0 ${Spacing._12};
+`
 interface NoteDetailsProps {
     note: TNote
     link: string
@@ -54,12 +63,13 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                   day: 'numeric',
               })}`
     const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
+    const isMeetingNote = note.linked_event_id != null
 
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
                 <DetailItem>
-                    <Icon icon={icons.note} />
+                    <Icon icon={isMeetingNote ? logos.gcal : icons.note} />
                 </DetailItem>
                 <DetailItem>
                     <DeprecatedLabel color="light">{syncIndicatorText}</DeprecatedLabel>
@@ -84,8 +94,21 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
                     enterBehavior="blur"
+                    disabled={isMeetingNote}
                 />
             </div>
+            {isMeetingNote && note.linked_event_start && note.linked_event_end && (
+                <MeetingInfoContainer>
+                    <Icon color="gray" icon={icons.calendar_blank} />
+                    <LabelSmall color="light">
+                        {getFormattedEventTime(
+                            DateTime.fromISO(note.linked_event_start),
+                            DateTime.fromISO(note.linked_event_end),
+                            'long'
+                        )}
+                    </LabelSmall>
+                </MeetingInfoContainer>
+            )}
             <GTTextField
                 key={note.id}
                 type="markdown"

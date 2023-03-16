@@ -22,6 +22,7 @@ import (
 func (api *API) Logout(c *gin.Context) {
 	token, err := getToken(c)
 	if err != nil {
+		c.AbortWithStatusJSON(401, gin.H{"detail": "incorrect auth token format"})
 		return
 	}
 

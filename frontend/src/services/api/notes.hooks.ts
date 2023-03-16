@@ -3,8 +3,7 @@ import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
-import { SharedAccess } from '../../utils/enums'
-import { TNote } from '../../utils/types'
+import { TNote, TNoteSharedAccess } from '../../utils/types'
 import { getBackgroundQueryOptions, useGTMutation, useGTQueryClient } from '../queryUtils'
 
 export interface TCreateNoteData {
@@ -12,8 +11,10 @@ export interface TCreateNoteData {
     body?: string
     author: string
     shared_until?: string
-    shared_access?: SharedAccess
+    shared_access?: TNoteSharedAccess
     linked_event_id?: string
+    linked_event_start?: string
+    linked_event_end?: string
     optimisticId: string
 }
 
@@ -30,6 +31,7 @@ export interface TModifyNoteData {
     title?: string
     body?: string
     shared_until?: string
+    shared_access?: TNoteSharedAccess
     is_deleted?: boolean
 }
 
@@ -41,7 +43,7 @@ const getNote = async ({ id }: TGetNoteParams, { signal }: QueryFunctionContext)
         const res = await apiClient.get(`/notes/detail/${id}/`, { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getNote failed')
+        throw 'getNote failed'
     }
 }
 
@@ -53,7 +55,7 @@ const getNotes = async ({ signal }: QueryFunctionContext) => {
         const res = await apiClient.get('/notes/', { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getNotes failed')
+        throw 'getNotes failed'
     }
 }
 
@@ -63,6 +65,7 @@ export const useCreateNote = () => {
     return useGTMutation((data: TCreateNoteData) => createNote(data), {
         tag: 'notes',
         invalidateTagsOnSettled: ['notes'],
+        errorMessage: 'create note',
         onMutate: async (data: TCreateNoteData) => {
             await queryClient.cancelQueries('notes')
             const notes = queryClient.getImmutableQueryData<TNote[]>('notes')
@@ -93,15 +96,10 @@ export const useCreateNote = () => {
 }
 export const createNote = async (data: TCreateNoteData) => {
     try {
-        const res = await apiClient.post('/notes/create/', {
-            title: data.title,
-            body: data.body,
-            author: data.author,
-            shared_until: data.shared_until,
-        })
+        const res = await apiClient.post('/notes/create/', data)
         return castImmutable(res.data)
     } catch {
-        throw new Error('createNote failed')
+        throw 'createNote failed'
     }
 }
 
@@ -111,6 +109,7 @@ export const useModifyNote = () => {
     return useGTMutation((data: TModifyNoteData) => modifyNote(data), {
         tag: 'notes',
         invalidateTagsOnSettled: ['notes'],
+        errorMessage: 'modify note',
         onMutate: async (data: TModifyNoteData) => {
             await queryClient.cancelQueries('notes')
 
@@ -123,6 +122,7 @@ export const useModifyNote = () => {
                 note.title = data.title || note.title
                 note.body = data.body ?? note.body
                 note.shared_until = data.shared_until ?? note.shared_until
+                note.shared_access = data.shared_access ?? note.shared_access
                 note.updated_at = DateTime.utc().toISO()
                 note.is_deleted = data.is_deleted ?? note.is_deleted
             })
@@ -135,7 +135,7 @@ const modifyNote = async (data: TModifyNoteData) => {
         const res = await apiClient.patch(`/notes/modify/${data.id}/`, data)
         return castImmutable(res.data)
     } catch {
-        throw new Error('modifyNote failed')
+        throw 'modifyNote failed'
     }
 }
 
@@ -154,5 +154,7 @@ export const createNewNoteHelper = (
         shared_until: data.shared_until,
         shared_access: data.shared_access,
         linked_event_id: data.linked_event_id,
+        linked_event_start: data.linked_event_start,
+        linked_event_end: data.linked_event_end,
     }
 }

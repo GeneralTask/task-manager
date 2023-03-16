@@ -1,11 +1,9 @@
-import { useState } from 'react'
 import { useModifyTask } from '../../services/api/tasks.hooks'
-import { externalStatusIcons } from '../../styles/images'
+import { externalStatusIcons, icons } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
 import { GTButtonHack } from '../molecules/Task'
 import GTDropdownMenu from './GTDropdownMenu'
-import Tip from './Tip'
 
 interface StatusDropdownProps {
     task: TTaskV4
@@ -14,7 +12,6 @@ interface StatusDropdownProps {
 }
 
 const StatusDropdown = ({ task, disabled, condensedTrigger }: StatusDropdownProps) => {
-    const [isOpen, setIsOpen] = useState(false)
     const { mutate: modifyTask } = useModifyTask()
 
     const externalStatus = task.external_status ? task.external_status : null
@@ -37,33 +34,21 @@ const StatusDropdown = ({ task, disabled, condensedTrigger }: StatusDropdownProp
 
     return (
         <GTDropdownMenu
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
             items={dropdownItems}
-            unstyledTrigger
+            disabled={disabled}
             trigger={
                 condensedTrigger ? (
-                    <Tip content={externalStatus.state}>
-                        <GTButtonHack
-                            value={status}
-                            icon={externalStatusIcons[externalStatus.type]}
-                            size="small"
-                            styleType="simple"
-                            active={isOpen}
-                            disabled={disabled}
-                            asDiv
-                        />
-                    </Tip>
+                    <GTButtonHack
+                        icon={externalStatusIcons[externalStatus.type]}
+                        styleType="control"
+                        tooltipText={externalStatus.state}
+                    />
                 ) : (
                     <GTButton
                         value={externalStatus.state}
+                        styleType="control"
                         icon={externalStatusIcons[externalStatus.type]}
-                        size="small"
-                        styleType="simple"
-                        isDropdown
-                        active={isOpen}
-                        disabled={disabled}
-                        asDiv
+                        rightIcon={icons.caret_down_solid}
                     />
                 )
             }
