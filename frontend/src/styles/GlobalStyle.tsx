@@ -1,12 +1,11 @@
 import { createGlobalStyle } from 'styled-components'
 import { Colors } from '.'
-import { usePreviewMode } from '../hooks'
 
 const GlobalStyle = () => {
-    const { isPreviewMode } = usePreviewMode()
     const Styles = createGlobalStyle`
     :root {
        --animate-duration: 250ms !important;
+       --animate-border-easing: 150ms ease-out !important;
     }
     html,
     body {
@@ -22,15 +21,6 @@ const GlobalStyle = () => {
         font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu, Cantarell,
             Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     }
-    ${
-        isPreviewMode &&
-        `
-        * {
-            transition: border 150ms ease-out; 
-        }
-    `
-    }
-    
     a {
         color: ${Colors.text.purple};
     }
