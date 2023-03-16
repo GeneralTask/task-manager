@@ -1,25 +1,15 @@
-import { useCallback, useState } from 'react'
 import { authSignOut } from '../../utils/auth'
-import GTModal from '../atoms/GTModal'
 import GTButton from '../atoms/buttons/GTButton'
+import GTDialog from '../radix/GTDialog'
 
 const SignOutButton = () => {
-    const [modalIsOpen, setModalIsOpen] = useState(false)
-
-    const handleClose = useCallback(() => setModalIsOpen(false), []) // callback so that modal components do not re-render
-    const handleConfirm = useCallback(() => authSignOut(), [])
     return (
-        <>
-            <GTButton styleType="primary" onClick={() => setModalIsOpen(true)} value="Sign Out" />
-            <GTModal
-                isOpen={modalIsOpen}
-                title="Sign out?"
-                onClose={handleClose}
-                leftButtons={<GTButton value="Go Back" styleType="secondary" onClick={handleClose} />}
-                rightButtons={<GTButton value="Sign Out" styleType="primary" onClick={handleConfirm} />}
-                type="dialog"
-            />
-        </>
+        <GTDialog
+            title="Sign out?"
+            description="hey, are you sure you want to sign out?"
+            actions={<GTButton value="Sign Out" styleType="primary" onClick={() => authSignOut()} />}
+            trigger={<GTButton styleType="primary" value="Sign Out" />}
+        />
     )
 }
 

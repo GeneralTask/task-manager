@@ -1,7 +1,8 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import styled from 'styled-components'
-import { Colors, Spacing, Typography } from '../../styles'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import Flex from '../atoms/Flex'
+import GTButton from '../atoms/buttons/GTButton'
 import { MenuContentShared } from './RadixUIConstants'
 
 const DialogOverlay = styled(Dialog.Overlay)`
@@ -12,18 +13,20 @@ const DialogOverlay = styled(Dialog.Overlay)`
     left: 0;
     background: rgba(255, 255, 255, 0.55);
     backdrop-filter: blur(3px);
-    z-index: 99;
+    z-index: 1001;
 `
 
 const DialogContent = styled(Dialog.Content)`
     ${MenuContentShared};
-    width: 289px;
+    border-radius: ${Border.radius.medium};
+    max-width: 289px;
     background-color: #fff;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     padding: ${Spacing._24};
+    z-index: 1002;
 `
 const DialogTitle = styled(Dialog.Title)`
     all: unset;
@@ -56,9 +59,14 @@ const GTDialog = ({ trigger, isOpen, setIsOpen, disabled, title, description, ac
                 <DialogOverlay />
                 <DialogContent>
                     <Flex gap={Spacing._16} column>
-                        <DialogTitle>{title}</DialogTitle>
-                        <DialogDescription>{description}</DialogDescription>
-                        <Flex gap={Spacing._8}>{actions}</Flex>
+                        {title && <DialogTitle>{title}</DialogTitle>}
+                        {description && <DialogDescription>{description}</DialogDescription>}
+                        <Flex gap={Spacing._8}>
+                            {actions}
+                            <Dialog.Close asChild>
+                                <GTButton styleType="secondary" value="Cancel" />
+                            </Dialog.Close>
+                        </Flex>
                     </Flex>
                 </DialogContent>
             </Dialog.Portal>
