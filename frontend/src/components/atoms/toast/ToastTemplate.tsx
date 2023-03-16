@@ -82,7 +82,6 @@ const ToastTemplate = ({ title, message, leftAction, rightAction }: ToastTemplat
                         icon={rightAction.icon}
                         iconColor="black"
                         styleType="secondary"
-                        size="small"
                         onClick={stopPropogationWrapper(rightAction.onClick)}
                         value={rightAction.label}
                     />

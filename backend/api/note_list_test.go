@@ -57,16 +57,18 @@ func TestNotesList(t *testing.T) {
 	)
 	assert.NoError(t, err)
 	isDeleted := true
+	domain := database.SharedAccessDomain
 	task3, err := database.GetOrCreateNote(
 		db,
 		userID,
 		"123abcdogecoin",
 		"foobar_source",
 		&database.Note{
-			UserID:      userID,
-			Title:       &title3,
-			SharedUntil: *testutils.CreateDateTime("9999-01-01"),
-			IsDeleted:   &isDeleted,
+			UserID:       userID,
+			Title:        &title3,
+			SharedUntil:  *testutils.CreateDateTime("9999-01-01"),
+			IsDeleted:    &isDeleted,
+			SharedAccess: &domain,
 		},
 	)
 	assert.NoError(t, err)
@@ -98,12 +100,13 @@ func TestNotesList(t *testing.T) {
 				UpdatedAt:   "1970-01-01T00:00:00Z",
 			},
 			{
-				ID:          task3.ID,
-				Title:       "deleted note",
-				SharedUntil: "9999-01-01T00:00:00Z",
-				CreatedAt:   "1970-01-01T00:00:00Z",
-				UpdatedAt:   "1970-01-01T00:00:00Z",
-				IsDeleted:   true,
+				ID:           task3.ID,
+				Title:        "deleted note",
+				SharedUntil:  "9999-01-01T00:00:00Z",
+				CreatedAt:    "1970-01-01T00:00:00Z",
+				UpdatedAt:    "1970-01-01T00:00:00Z",
+				IsDeleted:    true,
+				SharedAccess: "domain",
 			},
 		}, result)
 	})

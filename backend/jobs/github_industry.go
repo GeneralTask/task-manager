@@ -3,7 +3,7 @@ package jobs
 import (
 	"context"
 	"errors"
-	"fmt"
+	"strconv"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -19,12 +19,13 @@ const CODECOV_BOT = "codecov[bot]"
 const DEFAULT_LOOKBACK_DAYS = 21
 
 func githubIndustryJob() {
-	err := EnsureJobOnlyRunsOnceToday("helloworld")
+	err := EnsureJobOnlyRunsOnceToday("github_industry")
 	if err != nil {
 		return
 	}
 	err = updateGithubIndustryData(time.Now(), DEFAULT_LOOKBACK_DAYS)
 	if err != nil {
+		logging.GetSentryLogger().Error().Err(err).Msg("failed to run github industry data job")
 		return
 	}
 }
@@ -36,6 +37,10 @@ func updateGithubIndustryData(endCutoff time.Time, lookbackDays int) error {
 		return err
 	}
 	defer cleanup()
+	err = database.InsertLogEvent(db, primitive.NilObjectID, "github_industry_job_start"+strconv.Itoa(lookbackDays)+" "+endCutoff.Format("2006-1-2 15:4:5"))
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to log event")
+	}
 
 	repositoryCollection := database.GetRepositoryCollection(db)
 	findOptions := options.Find()
@@ -56,11 +61,14 @@ func updateGithubIndustryData(endCutoff time.Time, lookbackDays int) error {
 		logger.Error().Err(err).Msg("failed to iterate through github PRs")
 		return err
 	}
+	err = database.InsertLogEvent(db, primitive.NilObjectID, "github_industry_job_fetched_prs"+strconv.Itoa(len(pullRequests)))
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to log event")
+	}
 	pullRequestIDToValue := make(map[string]database.PullRequest)
 	for _, pullRequest := range pullRequests {
 		pullRequestIDToValue[pullRequest.IDExternal] = pullRequest
 	}
-	fmt.Println(pullRequestIDToValue)
 	dateToTotalResponseTime := make(map[primitive.DateTime]int)
 	dateToPRCount := make(map[primitive.DateTime]int)
 	for _, pullRequest := range pullRequestIDToValue {
@@ -80,6 +88,10 @@ func updateGithubIndustryData(endCutoff time.Time, lookbackDays int) error {
 		pullRequestDate := primitive.NewDateTimeFromTime(time.Date(createdAt.Year(), createdAt.Month(), createdAt.Day(), constants.UTC_OFFSET, 0, 0, 0, time.UTC))
 		dateToTotalResponseTime[pullRequestDate] += responseTime
 		dateToPRCount[pullRequestDate] += 1
+	}
+	err = database.InsertLogEvent(db, primitive.NilObjectID, "github_industry_job_calc_response_time"+strconv.Itoa(len(dateToTotalResponseTime)))
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to log event")
 	}
 	dataPointCollection := database.GetDashboardDataPointCollection(db)
 	for dateTime, totalResponseTime := range dateToTotalResponseTime {
@@ -111,6 +123,10 @@ func updateGithubIndustryData(endCutoff time.Time, lookbackDays int) error {
 			logger.Error().Err(err).Msg("failed to update data point")
 			return err
 		}
+	}
+	err = database.InsertLogEvent(db, primitive.NilObjectID, "github_industry_job_completed")
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to log event")
 	}
 	return nil
 }

@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { TASK_PRIORITIES } from '../../constants'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTDropdownMenu from './GTDropdownMenu'
+import PriorityDropdownTrigger from './PriorityDropdownTrigger'
 
 interface PriorityDropdownProps {
     value: number
     onChange: (priority: number) => void
     disabled?: boolean
     condensedTrigger?: boolean
+    overrideDisabledStyle?: boolean
 }
 const PriorityDropdown = ({ value, onChange, disabled, condensedTrigger }: PriorityDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
@@ -27,27 +28,23 @@ const PriorityDropdown = ({ value, onChange, disabled, condensedTrigger }: Prior
                 iconColor: TASK_PRIORITIES[index].color,
                 selected: index === value,
             }))}
-            unstyledTrigger
             trigger={
                 condensedTrigger ? (
-                    <GTIconButton
+                    <GTButton
+                        styleType="icon"
                         icon={TASK_PRIORITIES[value].icon}
                         iconColor={TASK_PRIORITIES[value].color}
                         tooltipText={TASK_PRIORITIES[value].label}
-                        forceShowHoverEffect={isOpen}
-                        asDiv
-                    />
-                ) : (
-                    <GTButton
-                        value={TASK_PRIORITIES[value].label}
-                        icon={TASK_PRIORITIES[value].icon}
-                        size="small"
-                        styleType="simple"
-                        iconColor={TASK_PRIORITIES[value].color}
                         onClick={() => setIsOpen(!isOpen)}
                         active={isOpen}
                         disabled={disabled}
-                        asDiv
+                    />
+                ) : (
+                    <PriorityDropdownTrigger
+                        value={value}
+                        onClick={() => setIsOpen(!isOpen)}
+                        disabled={disabled}
+                        isOpen={isOpen}
                     />
                 )
             }

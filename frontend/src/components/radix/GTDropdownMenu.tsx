@@ -14,15 +14,11 @@ import {
     MenuContentShared,
     MenuItemLabel,
     MenuItemShared,
-    MenuTriggerShared,
 } from './RadixUIConstants'
 import Tip from './Tip'
 
 const DROPDOWN_MENU_ITEM_MAX_WIDTH = '240px'
 const DROPDOWN_MENU_ITEM_MAX_HEIGHT = '75vh'
-const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
-    ${MenuTriggerShared};
-`
 const DropdownMenuContent = styled(DropdownMenu.Content)<{
     $menuInModal?: boolean
     $width?: number
@@ -73,7 +69,6 @@ interface GTDropdownMenuProps {
     hideCheckmark?: boolean
     menuInModal?: boolean
     useTriggerWidth?: boolean
-    unstyledTrigger?: boolean
     keepOpenOnSelect?: boolean
     fontStyle?: 'deprecated_body' | 'deprecated_bodySmall' | 'deprecated_label'
     description?: string
@@ -90,7 +85,6 @@ const GTDropdownMenu = ({
     hideCheckmark = false,
     menuInModal = false,
     useTriggerWidth = false,
-    unstyledTrigger = false,
     keepOpenOnSelect = false,
     fontStyle = 'deprecated_body',
     description,
@@ -113,9 +107,9 @@ const GTDropdownMenu = ({
     return (
         <div onClick={(e) => e.stopPropagation()}>
             <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen}>
-                <DropdownMenuTrigger ref={triggerRef} disabled={disabled} $unstyled={unstyledTrigger}>
+                <DropdownMenu.Trigger ref={triggerRef} disabled={disabled} asChild>
                     {trigger}
-                </DropdownMenuTrigger>
+                </DropdownMenu.Trigger>
                 <DropdownMenu.Portal>
                     <DropdownMenuContent
                         onKeyDown={(e) => stopKeydownPropogation(e, ['Escape'], true)}
@@ -250,13 +244,13 @@ const GTDropdownMenu = ({
                                             )}
                                         </Fragment>
                                     ))}
-                                    {groupIndex !== groups.length - 1 && <Divider color={Colors.background.medium} />}
+                                    {groupIndex !== groups.length - 1 && <Divider color={Colors.background.sub} />}
                                 </DropdownMenu.Group>
                             </Fragment>
                         ))}
                         {description && (
                             <>
-                                <Divider color={Colors.background.medium} />
+                                <Divider color={Colors.background.sub} />
                                 <Description color="light">{description}</Description>
                             </>
                         )}

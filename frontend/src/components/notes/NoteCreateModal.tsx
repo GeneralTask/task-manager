@@ -180,7 +180,6 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                 <GTButton
                                     value="Share note"
                                     styleType="secondary"
-                                    size="small"
                                     icon={icons.share}
                                     disabled={!optimisticId.current || !getIdFromOptimisticId(optimisticId.current)}
                                     onClick={() => {
@@ -201,7 +200,6 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                 <GTButton
                                     value="Save note"
                                     styleType="secondary"
-                                    size="small"
                                     icon={icons.save}
                                     disabled={!(noteBody || noteTitle)}
                                     onClick={() => {

@@ -134,7 +134,6 @@ export const AddListsModalContent = () => {
                                 <GTButton
                                     value="Connect"
                                     icon={icons.external_link}
-                                    size="small"
                                     styleType="secondary"
                                     onClick={() => openAuthWindow({ url: supportedView.authorization_url })}
                                 />

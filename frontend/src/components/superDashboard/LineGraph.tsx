@@ -1,12 +1,20 @@
-import { useMemo } from 'react'
-import produce from 'immer'
+import { Fragment, useMemo } from 'react'
 import { DateTime } from 'luxon'
-import { CartesianGrid, Legend, ResponsiveContainer, Scatter, ScatterChart, XAxis, YAxis } from 'recharts'
+import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, XAxis, YAxis } from 'recharts'
 import styled from 'styled-components'
 import { Colors, Typography } from '../../styles'
 import { BodyMedium } from '../atoms/typography/Typography'
-import { DAYS_PER_WEEK, GRAPH_HEIGHT, GRAPH_RIGHT_MARGIN, GRAPH_TOP_MARGIN } from './constants'
-import { TMetric } from './types'
+import { useSuperDashboardContext } from './SuperDashboardContext'
+import {
+    DAYS_PER_WEEK,
+    GRAPH_HEIGHT,
+    GRAPH_RIGHT_MARGIN,
+    GRAPH_TOP_MARGIN,
+    LINE_ANIMATION_DURATION,
+    LINE_STROKE_WIDTH,
+    STROKE_DASH_ARRAY,
+} from './constants'
+import { getLineColor } from './utils'
 
 const StyledResponsiveContainer = styled(ResponsiveContainer)`
     /* tick labels */
@@ -17,6 +25,7 @@ const StyledResponsiveContainer = styled(ResponsiveContainer)`
     .recharts-cartesian-axis > line {
         stroke: ${Colors.background.sub};
     }
+    /* legend spacing */
     .recharts-default-legend {
         display: flex;
         justify-content: space-between;
@@ -24,22 +33,13 @@ const StyledResponsiveContainer = styled(ResponsiveContainer)`
 `
 
 interface LineGraphProps {
-    data: TMetric
-    startDate: DateTime
+    graphId: string
 }
 
-const LineGraph = ({ data, startDate }: LineGraphProps) => {
-    const endDate = startDate.plus({ days: DAYS_PER_WEEK - 1 })
-
-    const slicedData = useMemo(() => {
-        return produce(data.lines, (draft) => {
-            draft.forEach((line) => {
-                line.points = line.points.filter(
-                    (point) => point.x >= startDate.toUnixInteger() && point.x <= endDate.toUnixInteger()
-                )
-            })
-        })
-    }, [data, startDate])
+const LineGraph = ({ graphId }: LineGraphProps) => {
+    const { dashboard, selectedInterval } = useSuperDashboardContext()
+    const startDate = DateTime.fromFormat(selectedInterval.date_start, 'yyyy-MM-dd')
+    const endDate = DateTime.fromFormat(selectedInterval.date_end, 'yyyy-MM-dd')
 
     const ticks = useMemo(() => {
         return Array.from({ length: DAYS_PER_WEEK }).map((_, i) => startDate.plus({ days: i }).toUnixInteger())
@@ -47,7 +47,7 @@ const LineGraph = ({ data, startDate }: LineGraphProps) => {
 
     return (
         <StyledResponsiveContainer height={GRAPH_HEIGHT}>
-            <ScatterChart margin={{ top: GRAPH_TOP_MARGIN, right: GRAPH_RIGHT_MARGIN }}>
+            <LineChart margin={{ top: GRAPH_TOP_MARGIN, right: GRAPH_RIGHT_MARGIN }}>
                 <CartesianGrid stroke={Colors.background.sub} />
                 <XAxis
                     dataKey="x"
@@ -68,19 +68,30 @@ const LineGraph = ({ data, startDate }: LineGraphProps) => {
                     tickLine={false}
                     stroke={Colors.text.muted}
                 />
-                <Legend formatter={(value) => <BodyMedium color="muted">{value}</BodyMedium>} />
-                {slicedData.map((line) => (
-                    <Scatter
-                        key={line.name}
-                        name={line.name}
-                        data={line.points}
-                        fill={line.color}
-                        line
-                        lineType="joint"
-                        lineJointType="monotoneX"
-                    />
+                <Legend iconType="circle" formatter={(value) => <BodyMedium color="muted">{value}</BodyMedium>} />
+                {dashboard.graphs[graphId].lines.map((line) => (
+                    <Fragment key={line.data_id}>
+                        <Line
+                            name={line.name}
+                            dataKey="y"
+                            fill={getLineColor(line.color)}
+                            type="monotoneX"
+                            data={dashboard.data[selectedInterval.id]?.[line.data_id]?.points ?? []}
+                            stroke={getLineColor(line.color)}
+                            strokeWidth={LINE_STROKE_WIDTH}
+                            animationDuration={LINE_ANIMATION_DURATION}
+                        />
+                        {dashboard.data[selectedInterval.id]?.[line.data_id]?.aggregated_value !== undefined && (
+                            <ReferenceLine
+                                y={dashboard.data[selectedInterval.id][line.data_id].aggregated_value}
+                                stroke={getLineColor(line.color)}
+                                strokeDasharray={STROKE_DASH_ARRAY}
+                                strokeWidth={LINE_STROKE_WIDTH}
+                            />
+                        )}
+                    </Fragment>
                 ))}
-            </ScatterChart>
+            </LineChart>
         </StyledResponsiveContainer>
     )
 }

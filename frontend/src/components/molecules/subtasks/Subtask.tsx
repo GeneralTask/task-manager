@@ -39,15 +39,15 @@ export const SubtaskContainer = styled.div<{ forceHoverStyle?: boolean; isDone?:
     ${Typography.deprecated_body};
     cursor: pointer;
     :hover {
-        background-color: ${Colors.background.medium};
+        background-color: ${Colors.background.sub};
     }
-    ${({ forceHoverStyle }) => forceHoverStyle && `background-color: ${Colors.background.medium};`}
+    ${({ forceHoverStyle }) => forceHoverStyle && `background-color: ${Colors.background.sub};`}
     user-select: none;
     width: 100%;
     box-sizing: border-box;
-    ${({ isDone }) => isDone && `background-color: ${Colors.background.light};`}
+    ${({ isDone }) => isDone && `background-color: ${Colors.background.base};`}
 `
-const TitleSpan = styled.span<{ isDone: boolean; shouldAnimate: boolean }>`
+export const TitleSpan = styled.span<{ isDone: boolean; shouldAnimate: boolean }>`
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;

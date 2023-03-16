@@ -3,7 +3,7 @@ import styled, { css, keyframes } from 'styled-components'
 import { Colors, Shadows, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { DropType } from '../../utils/types'
-import GTIconButton from '../atoms/buttons/GTIconButton'
+import GTButton from '../atoms/buttons/GTButton'
 import { useCalendarContext } from './CalendarContext'
 
 const flicker = keyframes`
@@ -11,7 +11,7 @@ const flicker = keyframes`
 `
 const Sidebar = styled.div<{ showFlicker: boolean }>`
     padding: ${Spacing._16} ${Spacing._4} 0;
-    background-color: ${Colors.background.medium};
+    background-color: ${Colors.background.sub};
     cursor: pointer;
     z-index: 1;
     position: relative;
@@ -51,7 +51,7 @@ const CollapsedCalendarSidebar = ({ onClick }: CalendarHeaderProps) => {
     )
     return (
         <Sidebar onClick={onClick} showFlicker={isTaskDraggingOverDetailsView} ref={drop}>
-            <GTIconButton tooltipText="Open calendar" icon={icons.calendar_blank} />
+            <GTButton tooltipText="Open calendar" icon={icons.calendar_blank} styleType="icon" />
         </Sidebar>
     )
 }

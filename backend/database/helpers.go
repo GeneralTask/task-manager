@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"golang.org/x/exp/slices"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
-	"github.com/GeneralTask/task-manager/backend/logging"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -792,6 +792,10 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, 
 	return &tasks, nil
 }
 
+func GetSubtasksFromTask(db *mongo.Database, task *Task) (*[]Task, error) {
+	return GetTasks(db, task.UserID, &[]bson.M{{"parent_task_id": task.ID}}, nil)
+}
+
 func GetDeletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
 	findOptions := options.Find()
 	findOptions.SetSort(bson.D{{Key: "deleted_at", Value: -1}, {Key: "_id", Value: -1}})
@@ -806,10 +810,13 @@ func GetDeletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, er
 	return tasks, nil
 }
 
-func GetAllMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
+func GetAllMeetingPreparationTasksUntilEndOfDay(db *mongo.Database, userID primitive.ObjectID, currentTime time.Time) (*[]Task, error) {
+	timeEndOfDay := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 23, 59, 59, 0, currentTime.Location())
 	return GetTasks(db, userID,
 		&[]bson.M{
 			{"is_meeting_preparation_task": true},
+			{"meeting_preparation_params.datetime_start": bson.M{"$gte": currentTime}},
+			{"meeting_preparation_params.datetime_start": bson.M{"$lte": timeEndOfDay}},
 		},
 		nil,
 	)
@@ -824,6 +831,69 @@ func GetMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (
 		},
 		nil,
 	)
+}
+
+func GetEarlierCompletedMeetingPrepTasks(db *mongo.Database, userID primitive.ObjectID, currentTime time.Time) (*[]Task, error) {
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{Key: "completed_at", Value: -1}, {Key: "_id", Value: -1}})
+	findOptions.SetLimit(int64(constants.MAX_COMPLETED_TASKS))
+
+	cursor, err := GetTaskCollection(db).Find(
+		context.Background(),
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"is_meeting_preparation_task": true},
+				{"meeting_preparation_params.datetime_end": bson.M{"$lte": currentTime}},
+				{"is_completed": true},
+				{"is_deleted": bson.M{"$ne": true}},
+			},
+		},
+		findOptions,
+	)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
+		return nil, err
+	}
+	var tasks []Task
+	err = cursor.All(context.Background(), &tasks)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
+		return nil, err
+	}
+	return &tasks, nil
+}
+
+func GetEarlierDeletedMeetingPrepTasks(db *mongo.Database, userID primitive.ObjectID, currentTime time.Time) (*[]Task, error) {
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{Key: "deleted_at", Value: -1}, {Key: "_id", Value: -1}})
+	findOptions.SetLimit(int64(constants.MAX_DELETED_TASKS))
+
+	cursor, err := GetTaskCollection(db).Find(
+		context.Background(),
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"is_meeting_preparation_task": true},
+				{"meeting_preparation_params.datetime_end": bson.M{"$lte": currentTime}},
+				{"is_deleted": true},
+			},
+		},
+		findOptions,
+	)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
+		return nil, err
+	}
+	var tasks []Task
+	err = cursor.All(context.Background(), &tasks)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
+		return nil, err
+	}
+	return &tasks, nil
 }
 
 func GetTaskSectionName(db *mongo.Database, taskSectionID primitive.ObjectID, userID primitive.ObjectID) (string, error) {
@@ -853,6 +923,7 @@ func GetEventsUntilEndOfDay(db *mongo.Database, userID primitive.ObjectID, curre
 		{"datetime_start": bson.M{"$lte": timeEndOfDay}},
 		{"linked_task_id": bson.M{"$exists": false}},
 		{"linked_view_id": bson.M{"$exists": false}},
+		{"linked_pull_request_id": bson.M{"$exists": false}},
 	})
 }
 
@@ -1175,28 +1246,43 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 
 func GetOrCreateDashboardTeam(db *mongo.Database, userID primitive.ObjectID) (*DashboardTeam, error) {
 	teamCollection := GetDashboardTeamCollection(db)
-	_, err := teamCollection.UpdateOne(
+	// _, err := teamCollection.UpdateOne(
+	// 	context.Background(),
+	// 	bson.M{"user_id": userID},
+	// 	bson.M{"$setOnInsert": DashboardTeam{
+	// 		UserID:    userID,
+	// 		CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
+	// 	}},
+	// 	options.Update().SetUpsert(true),
+	// )
+
+	// mongoResult := teamCollection.FindOneAndUpdate(
+	// 	context.Background(),
+	// 	bson.M{"user_id": userID},
+	// 	bson.M{"$setOnInsert": DashboardTeam{
+	// 		UserID:    userID,
+	// 		CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
+	// 	}},
+	// 	options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
+	// ).Decode(&dashboardTeam)
+	// logger := logging.GetSentryLogger()
+	// if err != nil {
+	// 	logger.Error().Err(err).Msg("failed to get or create dashboard team")
+	// 	return nil, err
+	// }
+
+	var dashboardTeam DashboardTeam
+	err := teamCollection.FindOneAndUpdate(
 		context.Background(),
 		bson.M{"user_id": userID},
 		bson.M{"$setOnInsert": DashboardTeam{
 			UserID:    userID,
 			CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
 		}},
-		options.Update().SetUpsert(true),
-	)
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to get or create dashboard team")
-		return nil, err
-	}
-
-	var dashboardTeam DashboardTeam
-	err = teamCollection.FindOne(
-		context.Background(),
-		bson.M{"user_id": userID},
+		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
 	).Decode(&dashboardTeam)
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to load dashboard team")
+		logging.GetSentryLogger().Error().Err(err).Msg("failed to find and update dashboard team")
 		return nil, err
 	}
 	return &dashboardTeam, nil
@@ -1230,8 +1316,8 @@ func GetDashboardDataPoints(db *mongo.Database, teamID primitive.ObjectID, now t
 		context.Background(),
 		bson.M{"$and": []bson.M{
 			// this timestamp is approximate for now, will refine as needed
-			bson.M{"date": bson.M{"$gte": now.Add(-time.Hour * 24 * time.Duration(lookbackDays))}},
-			bson.M{"$or": []bson.M{
+			{"date": bson.M{"$gte": now.Add(-time.Hour * 24 * time.Duration(lookbackDays))}},
+			{"$or": []bson.M{
 				{"subject": constants.DashboardSubjectGlobal},
 				{"team_id": teamID},
 			}}}},
