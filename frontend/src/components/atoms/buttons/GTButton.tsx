@@ -16,19 +16,14 @@ const PrimaryButtonStyles = css<GTButtonProps>`
     color: ${Colors.control.primary.label};
     background-color: ${Colors.control.primary.bg};
     &:active:enabled,
-    &:focus:enabled {
+    &:focus:enabled,
+    &[data-state='open'] {
         background-color: ${Colors.control.primary.highlight};
         box-shadow: inset 0px 0px 0px ${Border.stroke.large} ${Colors.control.primary.hover};
     }
     &:hover:enabled {
         background-color: ${Colors.control.primary.hover};
     }
-    ${({ active }) =>
-        active &&
-        css`
-            background-color: ${Colors.control.primary.highlight};
-            box-shadow: inset 0px 0px 0px ${Border.stroke.large} ${Colors.control.primary.hover};
-        `}
 `
 const SecondaryButtonStyles = css<GTButtonProps>`
     ${Typography.title.small};
@@ -37,7 +32,8 @@ const SecondaryButtonStyles = css<GTButtonProps>`
     background-color: ${Colors.control.secondary.bg};
     box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.secondary.stroke};
     &:active:enabled,
-    &:focus:enabled {
+    &:focus:enabled,
+    &[data-state='open'] {
         background-color: ${Colors.control.secondary.bg};
         box-shadow: inset 0px 0px 0px ${Border.stroke.large} ${Colors.control.secondary.highlight};
     }
@@ -45,12 +41,6 @@ const SecondaryButtonStyles = css<GTButtonProps>`
         background-color: ${Colors.control.secondary.hover};
         box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.secondary.stroke};
     }
-    ${({ active }) =>
-        active &&
-        css`
-            background-color: ${Colors.control.secondary.bg};
-            box-shadow: inset 0px 0px 0px ${Border.stroke.large} ${Colors.control.secondary.highlight};
-        `}
 `
 const DestructiveButtonStyles = css<GTButtonProps>`
     ${Typography.title.small};
@@ -58,26 +48,22 @@ const DestructiveButtonStyles = css<GTButtonProps>`
     color: ${Colors.control.destructive.label};
     background-color: ${Colors.control.destructive.bg};
     &:active:enabled,
-    &:focus:enabled {
+    &:focus:enabled,
+    &[data-state='open'] {
         background-color: ${Colors.control.destructive.highlight};
         box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.destructive.hover};
     }
     &:hover:enabled {
         background-color: ${Colors.control.destructive.hover};
     }
-    ${({ active }) =>
-        active &&
-        css`
-            background-color: ${Colors.control.destructive.highlight};
-            box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.control.destructive.hover};
-        `}
 `
 const ControlButtonStyles = css<GTButtonProps>`
     ${Typography.label.small};
     padding: ${Spacing._4} ${Spacing._8};
     color: ${Colors.text.muted};
     &:active:enabled,
-    &:focus:enabled {
+    &:focus:enabled,
+    &[data-state='open'] {
         color: ${Colors.text.base};
         box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.background.hover};
     }
@@ -85,19 +71,14 @@ const ControlButtonStyles = css<GTButtonProps>`
         color: ${Colors.text.base};
         background-color: ${Colors.background.border};
     }
-    ${({ active }) =>
-        active &&
-        css`
-            color: ${Colors.text.base};
-            box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.background.hover};
-        `}
 `
 const IconButtonStyles = css<GTButtonProps>`
     ${Typography.label.small};
     padding: ${Spacing._4};
     color: ${Colors.text.muted};
     &:active:enabled,
-    &:focus:enabled {
+    &:focus:enabled,
+    &[data-state='open'] {
         color: ${Colors.text.base};
         box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.background.hover};
     }
@@ -105,12 +86,6 @@ const IconButtonStyles = css<GTButtonProps>`
         color: ${Colors.text.base};
         background-color: ${Colors.background.border};
     }
-    ${({ active }) =>
-        active &&
-        css`
-            color: ${Colors.text.base};
-            box-shadow: inset 0px 0px 0px ${Border.stroke.medium} ${Colors.background.hover};
-        `}
 `
 
 const Button = styled(NoStyleButton)<GTButtonProps>`
