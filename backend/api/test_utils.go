@@ -242,6 +242,19 @@ func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder
 	return recorder
 }
 
+func runBusinessEndpoint(attemptedHeader string) *httptest.ResponseRecorder {
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+	router := GetRouter(api)
+
+	request, _ := http.NewRequest("GET", "/ping_business/", nil)
+	request.Header.Add("Authorization", attemptedHeader)
+
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	return recorder
+}
+
 func createRandomGTEmail() string {
 	return fmt.Sprintf("%s@generaltask.com", uuid.New().String())
 }
