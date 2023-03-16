@@ -48,7 +48,6 @@ const MarkTaskDoneButton = ({
             animated
             shortcutName="markAsDone"
             shortcutDisabled={!isSelected || isDisabled}
-            disabled={isDisabled}
         />
     )
 }
