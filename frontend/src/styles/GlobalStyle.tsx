@@ -1,9 +1,11 @@
 import { createGlobalStyle } from 'styled-components'
 import { Colors } from '.'
 
-const GlobalStyle = createGlobalStyle`
+const GlobalStyle = () => {
+    const Styles = createGlobalStyle`
     :root {
        --animate-duration: 250ms !important;
+       --animate-border-easing: 150ms ease-out !important;
     }
     html,
     body {
@@ -33,6 +35,7 @@ const GlobalStyle = createGlobalStyle`
     }
 
 `
+    return <Styles />
+}
 
-// have to override the type until @types/styled-components is updated
-export default GlobalStyle as unknown as React.FC
+export default GlobalStyle
