@@ -170,7 +170,7 @@ func TestDashboardTeamMemberList(t *testing.T) {
 		}
 		differentTeamMember := database.DashboardTeamMember{
 			TeamID: primitive.NewObjectID(),
-			Name:   "hans",
+			Name:   "snah",
 		}
 		insertResult, err := teamMemberCollection.InsertMany(context.Background(), []interface{}{
 			teamMember1,
