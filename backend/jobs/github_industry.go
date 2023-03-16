@@ -37,7 +37,7 @@ func updateGithubIndustryData(endCutoff time.Time, lookbackDays int) error {
 		return err
 	}
 	defer cleanup()
-	err = database.InsertLogEvent(db, primitive.NilObjectID, "github_industry_job_start")
+	err = database.InsertLogEvent(db, primitive.NilObjectID, "github_industry_job_start"+strconv.Itoa(lookbackDays)+" "+endCutoff.Format("2006-1-2 15:4:5"))
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to log event")
 	}
