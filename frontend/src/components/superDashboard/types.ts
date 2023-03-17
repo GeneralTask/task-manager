@@ -7,10 +7,10 @@ export interface TDashboard {
         [key: string]: TGraph // graph ID
     }
     data: {
+        // subject ID
         [key: string]: {
-            // subject ID
+            // interval ID
             [key: string]: {
-                // interval ID
                 [key: string]: TData // data ID
             }
         }
