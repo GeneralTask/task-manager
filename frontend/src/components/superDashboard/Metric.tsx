@@ -31,7 +31,7 @@ interface MetricProps {
 }
 
 const Metric = ({ graphId }: MetricProps) => {
-    const { dashboard, selectedInterval } = useSuperDashboardContext()
+    const { dashboard, selectedInterval, selectedSubject } = useSuperDashboardContext()
     const graph = dashboard.graphs[graphId]
     return (
         <Container>
@@ -48,10 +48,16 @@ const Metric = ({ graphId }: MetricProps) => {
                         </Flex>
                         {/* convert to minutes and round to one decimal */}
                         <HeadlineLarge>
-                            {dashboard.data[selectedInterval.id]?.[line.data_id]?.aggregated_value !== undefined
+                            {dashboard.data[line.subject_id_override || selectedSubject.id]?.[selectedInterval.id]?.[
+                                line.data_id
+                            ]?.aggregated_value !== undefined
                                 ? `${
                                       Math.round(
-                                          (dashboard.data[selectedInterval.id][line.data_id].aggregated_value / 60) * 10
+                                          (dashboard.data[line.subject_id_override || selectedSubject.id][
+                                              selectedInterval.id
+                                          ][line.data_id].aggregated_value /
+                                              60) *
+                                              10
                                       ) / 10
                                   } hours`
                                 : 'N/A'}
