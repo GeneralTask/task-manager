@@ -44,7 +44,7 @@ func updateGithubIndustryData(logID primitive.ObjectID, endCutoff time.Time, loo
 		logger.Error().Err(err).Msg("failed to log event")
 	}
 
-	pullRequestIDToValue, err := getPullRequests(db, []bson.M{}, GetPullRequestCutoffTime(endCutoff, lookbackDays))
+	pullRequestIDToValue, err := getPullRequests(db, []bson.M{}, getPullRequestCutoffTime(endCutoff, lookbackDays))
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch github PRs")
 		return err
@@ -54,60 +54,9 @@ func updateGithubIndustryData(logID primitive.ObjectID, endCutoff time.Time, loo
 		logger.Error().Err(err).Msg("failed to log event")
 	}
 
-	dateToTotalResponseTime := make(map[primitive.DateTime]int)
-	dateToPRCount := make(map[primitive.DateTime]int)
-	for _, pullRequest := range pullRequestIDToValue {
-		firstCommentTime := endCutoff
-		for _, comment := range pullRequest.Comments {
-			if comment.Author != CODECOV_BOT && comment.Author != pullRequest.Author {
-				firstCommentTime = comment.CreatedAt.Time()
-				break
-			}
-		}
-		if firstCommentTime == endCutoff {
-			// skip pull requests with no comments
-			continue
-		}
-		responseTime := int(firstCommentTime.Sub(pullRequest.CreatedAtExternal.Time()).Minutes())
-		createdAt := pullRequest.CreatedAtExternal.Time()
-		pullRequestDate := primitive.NewDateTimeFromTime(time.Date(createdAt.Year(), createdAt.Month(), createdAt.Day(), constants.UTC_OFFSET, 0, 0, 0, time.UTC))
-		dateToTotalResponseTime[pullRequestDate] += responseTime
-		dateToPRCount[pullRequestDate] += 1
-	}
-	err = database.InsertLogEvent(db, logID, "github_industry_job_calc_response_time"+strconv.Itoa(len(dateToTotalResponseTime)))
+	err = saveDataPointsForPullRequests(db, pullRequestIDToValue, primitive.NilObjectID, primitive.NilObjectID)
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to log event")
-	}
-	dataPointCollection := database.GetDashboardDataPointCollection(db)
-	for dateTime, totalResponseTime := range dateToTotalResponseTime {
-		pullRequestCount := dateToPRCount[dateTime]
-		if pullRequestCount == 0 {
-			logger.Error().Msg("pull request count is zero")
-			return errors.New("pull request count is zero")
-		}
-		averageResponseTime := totalResponseTime / pullRequestCount
-		dashboardDataPoint := database.DashboardDataPoint{
-			Subject:   constants.DashboardSubjectGlobal,
-			GraphType: constants.DashboardGraphTypePRResponseTime,
-			Value:     averageResponseTime,
-			Date:      dateTime,
-			CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
-		}
-		result := dataPointCollection.FindOneAndUpdate(
-			context.Background(),
-			bson.M{"$and": []bson.M{
-				{"subject": constants.DashboardSubjectGlobal},
-				{"date": dateTime},
-				{"graph_type": constants.DashboardGraphTypePRResponseTime},
-			}},
-			bson.M{"$set": dashboardDataPoint},
-			options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
-		)
-		if result.Err() != nil {
-			err := result.Err()
-			logger.Error().Err(err).Msg("failed to update data point")
-			return err
-		}
+		return err
 	}
 	err = database.InsertLogEvent(db, logID, "github_industry_job_completed")
 	if err != nil {
@@ -123,7 +72,7 @@ func UpdateGithubTeamData(userID primitive.ObjectID, endCutoff time.Time, lookba
 		return err
 	}
 	defer cleanup()
-	pullRequestIDToValue, err := getPullRequests(db, []bson.M{{"user_id": userID}}, GetPullRequestCutoffTime(endCutoff, lookbackDays))
+	pullRequestIDToValue, err := getPullRequests(db, []bson.M{{"user_id": userID}}, getPullRequestCutoffTime(endCutoff, lookbackDays))
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch github PRs")
 		return err
@@ -135,12 +84,44 @@ func UpdateGithubTeamData(userID primitive.ObjectID, endCutoff time.Time, lookba
 		return err
 	}
 	teamMembers, err := database.GetDashboardTeamMembers(db, team.ID)
-	if err != nil {
+	if err != nil || teamMembers == nil {
 		logger.Error().Err(err).Msg("failed to get dashboard team members")
 		return err
 	}
 	fmt.Println(teamMembers)
-	// pullRequestsMatchingTeam := make()
+	// pullRequestsMatchingTeam := make(map[string]database.PullRequest)
+	// teamMemberToPullRequests := make(map[primitive.ObjectID]map[string]database.PullRequest)
+	authorToPullRequests := make(map[string]map[string]database.PullRequest)
+	for _, pullRequest := range pullRequestIDToValue {
+		for _, comment := range pullRequest.Comments {
+			if comment.Author != CODECOV_BOT && comment.Author != pullRequest.Author {
+				_, exists := authorToPullRequests[comment.Author]
+				if !exists {
+					authorToPullRequests[comment.Author] = make(map[string]database.PullRequest)
+				}
+				authorToPullRequests[comment.Author][pullRequest.IDExternal] = pullRequest
+			}
+		}
+	}
+	teamPullRequests := make(map[string]database.PullRequest)
+	for _, teamMember := range *teamMembers {
+		if teamMember.GithubID == "" {
+			continue
+		}
+		idToPullRequest, exists := authorToPullRequests[teamMember.GithubID]
+		if !exists {
+			continue
+		}
+		err = saveDataPointsForPullRequests(db, idToPullRequest, team.ID, teamMember.ID)
+		if err != nil {
+			logger.Error().Err(err).Msgf("failed to save team %s member %s data points", team.ID, teamMember.ID)
+			return err
+		}
+		for externalID, pullRequest := range idToPullRequest {
+			teamPullRequests[externalID] = pullRequest
+		}
+	}
+	saveDataPointsForPullRequests(db, teamPullRequests, team.ID, primitive.NilObjectID)
 	return nil
 }
 
@@ -170,6 +151,70 @@ func getPullRequests(db *mongo.Database, filters []bson.M, cutoffTime time.Time)
 	return pullRequestIDToValue, nil
 }
 
-func GetPullRequestCutoffTime(endCutoff time.Time, lookbackDays int) time.Time {
+func saveDataPointsForPullRequests(db *mongo.Database, pullRequestIDToValue map[string]database.PullRequest, teamID primitive.ObjectID, individualID primitive.ObjectID) error {
+	logger := logging.GetSentryLogger()
+	dateToTotalResponseTime := make(map[primitive.DateTime]int)
+	dateToPRCount := make(map[primitive.DateTime]int)
+	for _, pullRequest := range pullRequestIDToValue {
+		firstCommentTime := time.Time{}
+		for _, comment := range pullRequest.Comments {
+			if comment.Author != CODECOV_BOT && comment.Author != pullRequest.Author {
+				firstCommentTime = comment.CreatedAt.Time()
+				break
+			}
+		}
+		if firstCommentTime.IsZero() {
+			// skip pull requests with no comments
+			continue
+		}
+		responseTime := int(firstCommentTime.Sub(pullRequest.CreatedAtExternal.Time()).Minutes())
+		createdAt := pullRequest.CreatedAtExternal.Time()
+		pullRequestDate := primitive.NewDateTimeFromTime(time.Date(createdAt.Year(), createdAt.Month(), createdAt.Day(), constants.UTC_OFFSET, 0, 0, 0, time.UTC))
+		dateToTotalResponseTime[pullRequestDate] += responseTime
+		dateToPRCount[pullRequestDate] += 1
+	}
+	dataPointCollection := database.GetDashboardDataPointCollection(db)
+	for dateTime, totalResponseTime := range dateToTotalResponseTime {
+		pullRequestCount := dateToPRCount[dateTime]
+		if pullRequestCount == 0 {
+			logger.Error().Msg("pull request count is zero")
+			return errors.New("pull request count is zero")
+		}
+		averageResponseTime := totalResponseTime / pullRequestCount
+		dashboardDataPoint := database.DashboardDataPoint{
+			GraphType: constants.DashboardGraphTypePRResponseTime,
+			Value:     averageResponseTime,
+			Date:      dateTime,
+			CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
+		}
+		if teamID != primitive.NilObjectID {
+			dashboardDataPoint.TeamID = teamID
+		}
+		if individualID != primitive.NilObjectID {
+			dashboardDataPoint.IndividualID = individualID
+		}
+		if teamID == primitive.NilObjectID && individualID == primitive.NilObjectID {
+			dashboardDataPoint.Subject = constants.DashboardSubjectGlobal
+		}
+		result := dataPointCollection.FindOneAndUpdate(
+			context.Background(),
+			bson.M{"$and": []bson.M{
+				{"subject": constants.DashboardSubjectGlobal},
+				{"date": dateTime},
+				{"graph_type": constants.DashboardGraphTypePRResponseTime},
+			}},
+			bson.M{"$set": dashboardDataPoint},
+			options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
+		)
+		if result.Err() != nil {
+			err := result.Err()
+			logger.Error().Err(err).Msg("failed to update data point")
+			return err
+		}
+	}
+	return nil
+}
+
+func getPullRequestCutoffTime(endCutoff time.Time, lookbackDays int) time.Time {
 	return endCutoff.Add(-time.Hour * 24 * time.Duration(lookbackDays))
 }
