@@ -67,7 +67,7 @@ const dummyData: TDashboard = {
                 {
                     data_id: 'data_idfocus2',
                     name: 'Daily average (your team)',
-                    color: 'gray',
+                    color: 'grey',
                     aggregated_name: 'Weekly average (industry)',
                 },
             ],
@@ -85,7 +85,7 @@ const dummyData: TDashboard = {
                 {
                     data_id: 'data_idcode2',
                     name: 'Daily average (your team)',
-                    color: 'gray',
+                    color: 'grey',
                     aggregated_name: 'Weekly average (industry)',
                     subject_id_override: 'team_subject_id',
                 },
