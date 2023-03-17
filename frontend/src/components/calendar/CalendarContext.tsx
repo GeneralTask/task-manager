@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import { useGTLocalStorage } from '../../hooks'
 import { TEvent } from '../../utils/types'
@@ -77,6 +78,7 @@ export const CalendarContextProvider = (props: CalendarContextProviderProps) => 
     const [isTasksDueViewCollapsed, setIsTasksDueViewCollapsed] = useGTLocalStorage('dueTodayCollapsed', false)
     const [isTasksOverdueViewCollapsed, setIsTasksOverdueViewCollapsed] = useGTLocalStorage('overdueCollapsed', false)
     const [showTaskToCalSidebar, setShowTaskToCalSidebar] = useGTLocalStorage('taskToCalendarSidebar', false)
+    const location = useLocation()
     const collapseAndSetType = useCallback(
         (isCollapsed: boolean) => {
             setIsCollapsed(isCollapsed)
@@ -101,7 +103,7 @@ export const CalendarContextProvider = (props: CalendarContextProviderProps) => 
         isTasksDueViewCollapsed,
         disableSelectEvent: false,
         isTasksOverdueViewCollapsed,
-        showTaskToCalSidebar,
+        showTaskToCalSidebar: showTaskToCalSidebar && location.pathname !== '/super-dashboard',
         setDate,
         setDayViewDate,
         setCalendarType,
