@@ -3,7 +3,7 @@ const ENV = {
         REACT_APP_API_BASE_URL: 'http://localhost:8080',
         REACT_APP_FRONTEND_BASE_URL: 'http://localhost:3000',
         REACT_APP_NOTES_BASE_URL: 'http://localhost:3000',
-        REACT_APP_TASK_BASE_URL: 'http://localhost:3000',
+        REACT_APP_TASK_BASE_URL: 'http://localhost:8080',
         REACT_APP_TRY_BASE_URL: 'http://localhost:3000',
         REACT_APP_TRY_SIGN_UP_URL: 'http://localhost:3000',
         COOKIE_DOMAIN: '.localhost',
