@@ -24,7 +24,7 @@ const NotAvailableMessage = ({ sharedType }: NotAvailableMessageProps) => {
     const isLoggedIn = !!Cookies.get(AUTHORIZATION_COOKE)
 
     return (
-        <Flex column>
+        <Flex column gap={Spacing._16}>
             <TitleLarge>{type === 'task' ? 'This task is not available' : 'Sign in to view this note'}</TitleLarge>
             <BodyLarge>
                 {type === 'task'
