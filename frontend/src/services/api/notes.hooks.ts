@@ -43,7 +43,7 @@ const getNote = async ({ id }: TGetNoteParams, { signal }: QueryFunctionContext)
         const res = await apiClient.get(`/notes/detail/${id}/`, { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getNote failed')
+        throw 'getNote failed'
     }
 }
 
@@ -55,7 +55,7 @@ const getNotes = async ({ signal }: QueryFunctionContext) => {
         const res = await apiClient.get('/notes/', { signal })
         return castImmutable(res.data)
     } catch {
-        throw new Error('getNotes failed')
+        throw 'getNotes failed'
     }
 }
 
@@ -65,6 +65,7 @@ export const useCreateNote = () => {
     return useGTMutation((data: TCreateNoteData) => createNote(data), {
         tag: 'notes',
         invalidateTagsOnSettled: ['notes'],
+        errorMessage: 'create note',
         onMutate: async (data: TCreateNoteData) => {
             await queryClient.cancelQueries('notes')
             const notes = queryClient.getImmutableQueryData<TNote[]>('notes')
@@ -98,7 +99,7 @@ export const createNote = async (data: TCreateNoteData) => {
         const res = await apiClient.post('/notes/create/', data)
         return castImmutable(res.data)
     } catch {
-        throw new Error('createNote failed')
+        throw 'createNote failed'
     }
 }
 
@@ -108,6 +109,7 @@ export const useModifyNote = () => {
     return useGTMutation((data: TModifyNoteData) => modifyNote(data), {
         tag: 'notes',
         invalidateTagsOnSettled: ['notes'],
+        errorMessage: 'modify note',
         onMutate: async (data: TModifyNoteData) => {
             await queryClient.cancelQueries('notes')
 
@@ -133,7 +135,7 @@ const modifyNote = async (data: TModifyNoteData) => {
         const res = await apiClient.patch(`/notes/modify/${data.id}/`, data)
         return castImmutable(res.data)
     } catch {
-        throw new Error('modifyNote failed')
+        throw 'modifyNote failed'
     }
 }
 

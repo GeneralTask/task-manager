@@ -119,7 +119,6 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                             {isCalendarExpanded && !showTaskToCalSidebar && (
                                 <GTButton
                                     icon={icons.hamburger}
-                                    iconColor="black"
                                     value="Open task list"
                                     styleType="secondary"
                                     onClick={() => {

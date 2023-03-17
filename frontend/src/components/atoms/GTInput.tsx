@@ -16,6 +16,7 @@ const Container = styled.div`
     :focus-within {
         border: ${Border.stroke.medium} solid ${Colors.legacyColors.purple};
     }
+    transition: border var(--animate-border-easing);
 `
 const StyledInput = styled.input<{ fontSize: 'small' | 'medium' | 'large' }>`
     all: unset;

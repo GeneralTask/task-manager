@@ -49,7 +49,7 @@ apiClient.interceptors.response.use(
             Cookie.remove(AUTHORIZATION_COOKE) // used for cypress tests
             window.location.replace(REACT_APP_FRONTEND_BASE_URL)
         }
-        return error
+        return Promise.reject(error)
     }
 )
 

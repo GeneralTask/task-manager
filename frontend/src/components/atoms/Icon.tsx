@@ -38,7 +38,7 @@ interface IconProps {
 export const Icon = ({ icon, size = 'default', color, colorHex, className, hidden }: IconProps) => {
     const dimension = Dimensions.iconSize[size]
     // priority is color -> colorHex -> black
-    const iconColor = color ? Colors.icon[color] : colorHex ?? Colors.icon.black
+    const iconColor = color ? Colors.icon[color] : colorHex
 
     if (typeof icon === 'string')
         return (

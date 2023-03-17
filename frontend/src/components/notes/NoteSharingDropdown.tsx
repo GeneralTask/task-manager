@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
 import { usePreviewMode, useToast } from '../../hooks'
@@ -16,7 +15,6 @@ interface NoteSharingDropdownProps {
     note: TNote
 }
 const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
-    const [isOpen, setIsOpen] = useState(false)
     const { mutate: modifyNote } = useModifyNote()
     const { isPreviewMode } = usePreviewMode()
     const toast = useToast()
@@ -187,12 +185,8 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
 
     return (
         <GTDropdownMenu
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
             items={isPreviewMode ? previewDropdownItems : dropdownItems}
-            trigger={
-                <GTButton styleType="secondary" icon={icons.share} value="Share" onClick={() => setIsOpen(!isOpen)} />
-            }
+            trigger={<GTButton styleType="secondary" icon={icons.share} value="Share" />}
         />
     )
 }

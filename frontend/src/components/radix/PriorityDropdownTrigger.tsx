@@ -1,28 +1,20 @@
-import { forwardRef } from 'react'
 import { TASK_PRIORITIES } from '../../constants'
 import GTButton from '../atoms/buttons/GTButton'
 
 interface PriorityDropdownTriggerProps {
     value: number
-    onClick?: () => void
-    isOpen: boolean
-    disabled?: boolean
-    overrideDisabledStyle?: boolean
 }
-const PriorityDropdownTrigger = forwardRef<HTMLButtonElement, PriorityDropdownTriggerProps>((props, ref) => {
+const PriorityDropdownTrigger = ({ value }: PriorityDropdownTriggerProps) => {
     return (
         <GTButton
-            ref={ref}
-            value={TASK_PRIORITIES[props.value].label}
-            icon={TASK_PRIORITIES[props.value].icon}
+            value={TASK_PRIORITIES[value].label}
+            icon={TASK_PRIORITIES[value].icon}
+            iconColor={TASK_PRIORITIES[value].color}
             styleType="control"
-            iconColor={TASK_PRIORITIES[props.value].color}
-            onClick={props.onClick}
-            active={props.isOpen}
-            disabled={props.disabled}
-            overrideDisabledStyle={props.overrideDisabledStyle}
+            disabled
+            overrideDisabledStyle
         />
     )
-})
+}
 
 export default PriorityDropdownTrigger

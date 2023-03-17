@@ -24,6 +24,7 @@ export const CreateNewItemInputContainer = styled.div`
         border: ${Border.stroke.medium} solid ${Colors.legacyColors.purple};
     }
     margin-bottom: ${Spacing._16};
+    transition: border var(--animate-border-easing);
 `
 export const TaskInput = styled.input`
     border: none;

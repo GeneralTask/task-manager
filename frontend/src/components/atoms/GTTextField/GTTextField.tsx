@@ -23,6 +23,7 @@ const PlainTextContainer = styled.div<{ hideUnfocusedOutline?: boolean; disabled
     :focus-within {
         border-color: ${Colors.legacyColors.purple};
     }
+    transition: border 150ms ease-out;
 `
 
 const Container = styled.div<{
@@ -48,6 +49,7 @@ const Container = styled.div<{
     :focus-within {
         border-color: ${Colors.legacyColors.purple};
     }
+    transition: border var(--animate-border-easing);
     ${({ isFullHeight }) => (isFullHeight ? `height: 100%;` : '')}
     ${({ minHeight }) => (minHeight ? `min-height: ${minHeight}px;` : '')}
 `

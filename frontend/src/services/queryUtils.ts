@@ -4,6 +4,7 @@ import { Immutable } from 'immer'
 import { DateTime } from 'luxon'
 import { DEFAULT_BACKGROUND_QUERY_STALE_TIME, QUEUED_MUTATION_DEBOUNCE, TASK_REFETCH_INTERVAL } from '../constants'
 import useQueryContext from '../context/QueryContext'
+import { useToast } from '../hooks'
 import { getMonthsAroundDate } from '../utils/time'
 import { TEvent } from '../utils/types'
 import { emptyFunction, sleep } from '../utils/utils'
@@ -57,6 +58,7 @@ export const useGTQueryClient = (): GTQueryClient => {
 interface MutationOptions<TData, TError, TVariables, TContext>
     extends Omit<UseMutationOptions<TData, TError, TVariables, TContext>, 'mutationFn'> {
     tag: QueryKey
+    errorMessage: string
     invalidateTagsOnSettled?: QueryKey[]
 }
 
@@ -66,6 +68,7 @@ export const useGTMutation = <TData = unknown, TError = unknown, TVariables = vo
     useQueueing = true
 ) => {
     const queryClient = useGTQueryClient()
+    const toast = useToast()
     const { getQueryQueue, getLastSentQuery, setLastSentQuery, getIdFromOptimisticId } = useQueryContext()
 
     const { mutate, ...rest } = useMutation(mutationFn, {
@@ -91,6 +94,20 @@ export const useGTMutation = <TData = unknown, TError = unknown, TVariables = vo
                 if (getLastSentQuery(mutationOptions.tag) != thisRequest) return
                 mutationOptions.invalidateTagsOnSettled?.forEach((tag) => queryClient.invalidateQueries(tag))
             }
+        },
+        onError: (error, variables, context) => {
+            mutationOptions.onError?.(error, variables, context)
+            toast.show(
+                {
+                    title: `Failed to ${mutationOptions.errorMessage}:`,
+                    message: 'Request failed.',
+                },
+                {
+                    autoClose: 4000,
+                    pauseOnFocusLoss: false,
+                    theme: 'light',
+                }
+            )
         },
     })
     const newMutate = (variables: TVariables, optimisticId?: string) => {
