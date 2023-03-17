@@ -17,7 +17,7 @@ export interface TDashboard {
     }
 }
 
-export type TLineColor = 'pink' | 'gray' | 'blue'
+export type TLineColor = 'pink' | 'grey' | 'blue'
 
 export interface TInterval {
     id: string
