@@ -16,28 +16,16 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 func TestDashboardData(t *testing.T) {
 	authToken := login("test_dashboard_data@generaltask.com", "")
-	UnauthorizedTest(t, "GET", "/dashboard/data/", nil)
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	testTime := time.Date(2023, time.January, 4, 20, 0, 0, 0, time.UTC)
 	api.OverrideTime = &testTime
 	router := GetRouter(api)
-	t.Run("NoBusinessAccess", func(t *testing.T) {
-		request, _ := http.NewRequest("GET", "/dashboard/data/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusForbidden, recorder.Code)
-	})
 	userID := getUserIDFromAuthToken(t, api.DB, authToken)
-	_, err := database.GetUserCollection(api.DB).UpdateOne(context.Background(), bson.M{"_id": userID}, bson.M{"$set": bson.M{"business_mode_enabled": true}})
-	assert.NoError(t, err)
-
 	team, err := database.GetOrCreateDashboardTeam(api.DB, userID)
 	assert.NoError(t, err)
 
@@ -160,6 +148,9 @@ func TestDashboardData(t *testing.T) {
 		Date:      primitive.NewDateTimeFromTime(time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)),
 	})
 	assert.NoError(t, err)
+	UnauthorizedTest(t, "GET", "/dashboard/data/", nil)
+	NoBusinessAccessTest(t, "GET", "/dashboard/data/", api, authToken)
+	EnableBusinessAccess(t, api, userID)
 	t.Run("Success", func(t *testing.T) {
 		request, _ := http.NewRequest("GET", "/dashboard/data/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
