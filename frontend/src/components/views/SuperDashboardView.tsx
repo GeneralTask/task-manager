@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react'
 import { Navigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { usePreviewMode } from '../../hooks'
+import { useGetDashboardData } from '../../services/api/super-dashboard.hooks'
 import { Colors, Spacing } from '../../styles'
 import Spinner from '../atoms/Spinner'
 import { Header } from '../molecules/Header'
@@ -17,17 +18,18 @@ const FullWidthScroller = styled.div`
 `
 
 const SuperDashboardView = () => {
-    const { isPreviewMode, isLoading } = usePreviewMode()
+    const { isPreviewMode, isLoading: isPreviewModeLoading } = usePreviewMode()
+    const { data: dashboard, isLoading: isDashboardLoading } = useGetDashboardData()
 
-    if (!isPreviewMode && !isLoading) {
+    if (!isPreviewMode && !isPreviewModeLoading) {
         return <Navigate to="/" replace />
     }
-    if (isLoading) {
+    if (isPreviewModeLoading || isDashboardLoading || !dashboard) {
         return <Spinner />
     }
 
     return (
-        <SuperDashboardContextProvider>
+        <SuperDashboardContextProvider dashboard={dashboard}>
             <FullWidthScroller>
                 <Header folderName="Super Dashboard" />
                 <Suspense fallback={<Spinner />}>
