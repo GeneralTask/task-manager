@@ -37,7 +37,7 @@ interface LineGraphProps {
 }
 
 const LineGraph = ({ graphId }: LineGraphProps) => {
-    const { dashboard, selectedInterval } = useSuperDashboardContext()
+    const { dashboard, selectedInterval, selectedSubject } = useSuperDashboardContext()
     const startDate = DateTime.fromFormat(selectedInterval.date_start, 'yyyy-MM-dd')
     const endDate = DateTime.fromFormat(selectedInterval.date_end, 'yyyy-MM-dd')
 
@@ -76,14 +76,21 @@ const LineGraph = ({ graphId }: LineGraphProps) => {
                             dataKey="y"
                             fill={getLineColor(line.color)}
                             type="monotoneX"
-                            data={dashboard.data[selectedInterval.id]?.[line.data_id]?.points ?? []}
+                            data={
+                                dashboard.data?.[selectedSubject.id]?.[selectedInterval.id]?.[line.data_id]?.points ??
+                                []
+                            }
                             stroke={getLineColor(line.color)}
                             strokeWidth={LINE_STROKE_WIDTH}
                             animationDuration={LINE_ANIMATION_DURATION}
                         />
-                        {dashboard.data[selectedInterval.id]?.[line.data_id]?.aggregated_value !== undefined && (
+                        {dashboard.data?.[selectedSubject.id]?.[selectedInterval.id]?.[line.data_id]
+                            ?.aggregated_value !== undefined && (
                             <ReferenceLine
-                                y={dashboard.data[selectedInterval.id][line.data_id].aggregated_value}
+                                y={
+                                    dashboard.data[selectedSubject.id][selectedInterval.id][line.data_id]
+                                        .aggregated_value
+                                }
                                 stroke={getLineColor(line.color)}
                                 strokeDasharray={STROKE_DASH_ARRAY}
                                 strokeWidth={LINE_STROKE_WIDTH}

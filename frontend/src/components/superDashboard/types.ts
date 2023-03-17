@@ -7,9 +7,12 @@ export interface TDashboard {
         [key: string]: TGraph // key is prefixed with "graph_id"
     }
     data: {
-        // key is prefixed with "interval_id"
+        // key is prefixed with "subject_id"
         [key: string]: {
-            [key: string]: TData // key is prefixed with "data_id" from Line
+            // key is prefixed with "interval_id"
+            [key: string]: {
+                [key: string]: TData // key is prefixed with "data_id" from Line
+            }
         }
     }
 }

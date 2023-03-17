@@ -27,7 +27,7 @@ const dummyData: TDashboard = {
     ],
     subjects: [
         {
-            id: '1234',
+            id: 'subject_id1234',
             name: 'Your team',
             icon: 'users',
             is_default: true,
@@ -43,7 +43,7 @@ const dummyData: TDashboard = {
             id: 'john',
             name: 'John',
             icon: 'user',
-            graph_ids: [],
+            graph_ids: ['graph_idyou', 'graph_idindustry'],
         },
         {
             id: 'jiyoon',
@@ -60,13 +60,13 @@ const dummyData: TDashboard = {
             lines: [
                 {
                     data_id: 'data_idfocus1',
-                    name: 'Daily average',
+                    name: 'Daily average (your team)',
                     color: 'pink',
                     aggregated_name: 'Weekly average (your team)',
                 },
                 {
                     data_id: 'data_idfocus2',
-                    name: 'Daily average',
+                    name: 'Daily average (your team)',
                     color: 'gray',
                     aggregated_name: 'Weekly average (industry)',
                 },
@@ -78,13 +78,13 @@ const dummyData: TDashboard = {
             lines: [
                 {
                     data_id: 'data_idcode1',
-                    name: 'Daily average',
+                    name: 'Daily average (your team)',
                     color: 'blue',
                     aggregated_name: 'Weekly average (your team)',
                 },
                 {
                     data_id: 'data_idcode2',
-                    name: 'Daily average',
+                    name: 'Daily average (your team)',
                     color: 'gray',
                     aggregated_name: 'Weekly average (industry)',
                 },
@@ -93,36 +93,70 @@ const dummyData: TDashboard = {
     },
     // there will not necessarily be data available for all intervals and all lines
     data: {
-        interval_id123: {
-            data_idfocus1: {
-                aggregated_value: 1000,
-                points: getRandomPoints(START_DATE),
+        subject_id1234: {
+            interval_id123: {
+                data_idfocus1: {
+                    aggregated_value: 1000,
+                    points: getRandomPoints(START_DATE),
+                },
+                data_idfocus2: {
+                    aggregated_value: 2000,
+                    points: getRandomPoints(START_DATE),
+                },
+                data_idcode1: {
+                    aggregated_value: 2400,
+                    points: getRandomPoints(START_DATE),
+                },
+                data_idcode2: {
+                    aggregated_value: 600,
+                    points: getRandomPoints(START_DATE),
+                },
             },
-            data_idfocus2: {
-                aggregated_value: 2000,
-                points: getRandomPoints(START_DATE),
-            },
-            data_idcode1: {
-                aggregated_value: 2400,
-                points: getRandomPoints(START_DATE),
-            },
-            data_idcode2: {
-                aggregated_value: 600,
-                points: getRandomPoints(START_DATE),
+            interval_idincomplete: {
+                data_idfocus1: {
+                    aggregated_value: 1400,
+                    points: getRandomPoints(START_DATE.plus({ week: 1 })),
+                },
+                data_idcode1: {
+                    aggregated_value: 1800,
+                    points: getRandomPoints(START_DATE.plus({ week: 1 })),
+                },
+                data_idcode2: {
+                    aggregated_value: 1600,
+                    points: getRandomPoints(START_DATE.plus({ week: 1 })),
+                },
             },
         },
-        interval_idincomplete: {
-            data_idfocus1: {
-                aggregated_value: 1400,
-                points: getRandomPoints(START_DATE.plus({ week: 1 })),
+        scott: {
+            interval_id123: {
+                data_idfocus1: {
+                    aggregated_value: 1000,
+                    points: getRandomPoints(START_DATE),
+                },
+                data_idfocus2: {
+                    aggregated_value: 2000,
+                    points: getRandomPoints(START_DATE),
+                },
+                data_idcode1: {
+                    aggregated_value: 2400,
+                    points: getRandomPoints(START_DATE),
+                },
+                data_idcode2: {
+                    aggregated_value: 600,
+                    points: getRandomPoints(START_DATE),
+                },
             },
-            data_idcode1: {
-                aggregated_value: 1800,
-                points: getRandomPoints(START_DATE.plus({ week: 1 })),
-            },
-            data_idcode2: {
-                aggregated_value: 1600,
-                points: getRandomPoints(START_DATE.plus({ week: 1 })),
+        },
+        john: {
+            interval_id123: {
+                data_idfocus1: {
+                    aggregated_value: 1000,
+                    points: getRandomPoints(START_DATE),
+                },
+                data_idcode1: {
+                    aggregated_value: 2400,
+                    points: getRandomPoints(START_DATE),
+                },
             },
         },
     },
