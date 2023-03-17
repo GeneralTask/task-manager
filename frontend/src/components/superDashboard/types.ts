@@ -4,14 +4,14 @@ export interface TDashboard {
     intervals: TInterval[]
     subjects: TSubject[]
     graphs: {
-        [key: string]: TGraph // key is prefixed with "graph_id"
+        [key: string]: TGraph // graph ID
     }
     data: {
-        // key is prefixed with "subject_id"
         [key: string]: {
-            // key is prefixed with "interval_id"
+            // subject ID
             [key: string]: {
-                [key: string]: TData // key is prefixed with "data_id" from Line
+                // interval ID
+                [key: string]: TData // data ID
             }
         }
     }
