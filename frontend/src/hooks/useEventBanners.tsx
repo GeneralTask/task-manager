@@ -4,12 +4,14 @@ import { toast } from 'react-toastify'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { useInterval, useKeyboardShortcut, usePreviewMode } from '.'
+import Flex from '../components/atoms/Flex'
 import GTButton from '../components/atoms/buttons/GTButton'
 import ToastTemplate, { ToastTemplateProps } from '../components/atoms/toast/ToastTemplate'
 import { NO_TITLE, SINGLE_SECOND_INTERVAL } from '../constants'
 import { useEvents } from '../services/api/events.hooks'
 import { useCreateNote, useGetNotes } from '../services/api/notes.hooks'
 import { useGetUserInfo } from '../services/api/user-info.hooks'
+import { Spacing } from '../styles'
 import { icons } from '../styles/images'
 import { TEvent } from '../utils/types'
 
@@ -78,7 +80,7 @@ export default function useEventBanners(date: DateTime) {
                     ...(event.conference_call?.url
                         ? {
                               actions: (
-                                  <>
+                                  <Flex gap={Spacing._8}>
                                       <GTButton
                                           styleType="secondary"
                                           icon={event.conference_call?.logo}
@@ -98,12 +100,12 @@ export default function useEventBanners(date: DateTime) {
                                               }}
                                           />
                                       )}
-                                  </>
+                                  </Flex>
                               ),
                           }
                         : event.deeplink && {
                               actions: (
-                                  <>
+                                  <Flex gap={Spacing._8}>
                                       <GTButton
                                           styleType="secondary"
                                           icon={icons.external_link}
@@ -123,7 +125,7 @@ export default function useEventBanners(date: DateTime) {
                                               }}
                                           />
                                       )}
-                                  </>
+                                  </Flex>
                               ),
                           }),
                 }
