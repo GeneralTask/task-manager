@@ -100,7 +100,7 @@ func TestUpdateGithubIndustryData(t *testing.T) {
 	assert.NoError(t, createTestPullRequest(db, prNoComments))
 
 	t.Run("Success", func(t *testing.T) {
-		assert.NoError(t, updateGithubIndustryData(nowTime, 21))
+		assert.NoError(t, updateGithubIndustryData(primitive.NewObjectID(), nowTime, 21))
 
 		dashboardDataPointCollection := database.GetDashboardDataPointCollection(db)
 		cursor, err := dashboardDataPointCollection.Find(
@@ -121,7 +121,7 @@ func TestUpdateGithubIndustryData(t *testing.T) {
 }
 
 func createTestPullRequest(db *mongo.Database, pullRequest database.PullRequest) error {
-	repositoryCollection := database.GetRepositoryCollection(db)
-	_, err := repositoryCollection.InsertOne(context.Background(), pullRequest)
+	pullRequestCollection := database.GetPullRequestCollection(db)
+	_, err := pullRequestCollection.InsertOne(context.Background(), pullRequest)
 	return err
 }

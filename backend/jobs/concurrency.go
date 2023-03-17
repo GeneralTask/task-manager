@@ -9,20 +9,21 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func EnsureJobOnlyRunsOnceToday(jobName string) error {
+func EnsureJobOnlyRunsOnceToday(jobName string) (primitive.ObjectID, error) {
 	db, cleanup, err := database.GetDBConnection()
 	if err != nil {
-		return err
+		return primitive.NilObjectID, err
 	}
 	defer cleanup()
 
 	lockClient := lock.NewClient(database.GetJobLocksCollection(db))
 	err = lockClient.CreateIndexes(context.Background())
 	if err != nil {
-		return err
+		return primitive.NilObjectID, err
 	}
 
 	resourceName := jobName + "_" + time.Now().Format("01-02-2006 15")
 	// leave resource locked forever so all future job attempts on this day will fail (err returned if can't instantly get lock)
-	return lockClient.XLock(context.Background(), resourceName, primitive.NewObjectID().Hex(), lock.LockDetails{})
+	lockID := primitive.NewObjectID()
+	return lockID, lockClient.XLock(context.Background(), resourceName, lockID.Hex(), lock.LockDetails{})
 }
