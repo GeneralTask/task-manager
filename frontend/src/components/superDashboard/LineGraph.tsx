@@ -77,19 +77,22 @@ const LineGraph = ({ graphId }: LineGraphProps) => {
                             fill={getLineColor(line.color)}
                             type="monotoneX"
                             data={
-                                dashboard.data?.[selectedSubject.id]?.[selectedInterval.id]?.[line.data_id]?.points ??
-                                []
+                                dashboard.data?.[line.subject_id_override || selectedSubject.id]?.[
+                                    selectedInterval.id
+                                ]?.[line.data_id]?.points ?? []
                             }
                             stroke={getLineColor(line.color)}
                             strokeWidth={LINE_STROKE_WIDTH}
                             animationDuration={LINE_ANIMATION_DURATION}
                         />
-                        {dashboard.data?.[selectedSubject.id]?.[selectedInterval.id]?.[line.data_id]
-                            ?.aggregated_value !== undefined && (
+                        {dashboard.data?.[line.subject_id_override || selectedSubject.id]?.[selectedInterval.id]?.[
+                            line.data_id
+                        ]?.aggregated_value !== undefined && (
                             <ReferenceLine
                                 y={
-                                    dashboard.data[selectedSubject.id][selectedInterval.id][line.data_id]
-                                        .aggregated_value
+                                    dashboard.data[line.subject_id_override || selectedSubject.id][selectedInterval.id][
+                                        line.data_id
+                                    ].aggregated_value
                                 }
                                 stroke={getLineColor(line.color)}
                                 strokeDasharray={STROKE_DASH_ARRAY}

@@ -27,7 +27,7 @@ const dummyData: TDashboard = {
     ],
     subjects: [
         {
-            id: 'subject_id1234',
+            id: 'team_subject_id',
             name: 'Your team',
             icon: 'users',
             is_default: true,
@@ -49,7 +49,7 @@ const dummyData: TDashboard = {
             id: 'jiyoon',
             name: 'Ji Yoon',
             icon: 'user',
-            graph_ids: [],
+            graph_ids: ['graph_idyou', 'graph_idindustry'],
         },
     ],
     // you can assume graph definitions will exist for graph ids provided above
@@ -87,13 +87,14 @@ const dummyData: TDashboard = {
                     name: 'Daily average (your team)',
                     color: 'gray',
                     aggregated_name: 'Weekly average (industry)',
+                    subject_id_override: 'team_subject_id',
                 },
             ],
         },
     },
     // there will not necessarily be data available for all intervals and all lines
     data: {
-        subject_id1234: {
+        team_subject_id: {
             interval_id123: {
                 data_idfocus1: {
                     aggregated_value: 1000,
