@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sort"
 	"time"
 
@@ -108,19 +109,21 @@ func (api *API) EventsList(c *gin.Context) {
 			log.Error().Err(calendarResult.Error).Send()
 			continue
 		}
+		calendarEventsForChannel := []EventResult{}
 		for _, event := range calendarResult.CalendarEvents {
 			result, err := api.calendarEventToResult(event, userID)
 			if err != nil {
 				continue
 			}
-			calendarEvents = append(calendarEvents, result)
+			calendarEventsForChannel = append(calendarEventsForChannel, result)
 		}
-		err := api.adjustForCompletedEvents(userID, &calendarEvents, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd)
+		err := api.adjustForCompletedEvents(userID, &calendarEventsForChannel, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("failed to adjust for completed events")
 			Handle500(c)
 			return
 		}
+		calendarEvents = append(calendarEvents, calendarEventsForChannel...)
 	}
 
 	sort.SliceStable(calendarEvents, func(i, j int) bool {
@@ -234,6 +237,11 @@ func (api *API) adjustForCompletedEvents(userID primitive.ObjectID, calendarEven
 		{"datetime_end": bson.M{"$gte": datetimeStart}},
 		{"datetime_start": bson.M{"$lte": datetimeEnd}},
 	})
+	fmt.Println("WOW", []bson.M{
+		{"source_account_id": sourceAccountID},
+		{"datetime_end": bson.M{"$gte": datetimeStart}},
+		{"datetime_start": bson.M{"$lte": datetimeEnd}},
+	})
 	if err != nil {
 		return err
 	}
@@ -244,6 +252,10 @@ func (api *API) adjustForCompletedEvents(userID primitive.ObjectID, calendarEven
 	}
 
 	for _, existingCalendarEvent := range *existingCalendarEvents {
+		id, _ := primitive.ObjectIDFromHex("63f19b633b1bcd36a2fc1284")
+		if existingCalendarEvent.ID == id {
+			fmt.Println("event", existingCalendarEvent)
+		}
 		if !fetchedCalendarIDs[existingCalendarEvent.ID] {
 			_, err := database.GetCalendarEventCollection(api.DB).DeleteOne(context.Background(), bson.M{"_id": existingCalendarEvent.ID})
 			if err != nil {
