@@ -56,7 +56,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
         toast.show(
             {
                 message: 'This calendar event has been deleted',
-                rightAction: {
+                undoableButton: {
                     label: 'Undo',
                     onClick: () => {
                         toast.dismiss()

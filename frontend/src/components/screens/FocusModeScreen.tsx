@@ -291,7 +291,7 @@ const FocusModeScreen = () => {
         gtToast.show(
             {
                 message: 'This calendar event has been deleted',
-                rightAction: {
+                undoableButton: {
                     label: 'Undo',
                     onClick: () => {
                         gtToast.dismiss()
