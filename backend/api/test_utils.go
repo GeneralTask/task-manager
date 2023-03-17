@@ -289,3 +289,14 @@ func UnauthorizedTest(t *testing.T, method string, url string, body io.Reader) b
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
 	})
 }
+
+func NoBusinessAccessTest(t *testing.T, method string, url string, api *API, authToken string) {
+	t.Run("NoBusinessAccess", func(t *testing.T) {
+		ServeRequest(t, authToken, "POST", "/dashboard/team_members/", nil, http.StatusForbidden, api)
+	})
+}
+
+func EnableBusinessAccess(t *testing.T, api *API, userID primitive.ObjectID) {
+	_, err := database.GetUserCollection(api.DB).UpdateOne(context.Background(), bson.M{"_id": userID}, bson.M{"$set": bson.M{"business_mode_enabled": true}})
+	assert.NoError(t, err)
+}
