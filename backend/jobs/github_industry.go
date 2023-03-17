@@ -123,12 +123,24 @@ func UpdateGithubTeamData(userID primitive.ObjectID, endCutoff time.Time, lookba
 		return err
 	}
 	defer cleanup()
-	pullRequestIDToValue, err := getPullRequests(db, []bson.M{}, GetPullRequestCutoffTime(endCutoff, lookbackDays))
+	pullRequestIDToValue, err := getPullRequests(db, []bson.M{{"user_id": userID}}, GetPullRequestCutoffTime(endCutoff, lookbackDays))
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch github PRs")
 		return err
 	}
 	fmt.Println(pullRequestIDToValue)
+	team, err := database.GetOrCreateDashboardTeam(db, userID)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to get dashboard team")
+		return err
+	}
+	teamMembers, err := database.GetDashboardTeamMembers(db, team.ID)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to get dashboard team members")
+		return err
+	}
+	fmt.Println(teamMembers)
+	// pullRequestsMatchingTeam := make()
 	return nil
 }
 
