@@ -131,6 +131,10 @@ func updateGithubIndustryData(logID primitive.ObjectID, endCutoff time.Time, loo
 	return nil
 }
 
+func UpdateGithubTeamData(userID primitive.ObjectID, endCutoff time.Time, lookbackDays int) error {
+	return nil
+}
+
 func GetPullRequestCutoffTime(endCutoff time.Time, lookbackDays int) time.Time {
 	return endCutoff.Add(-time.Hour * 24 * time.Duration(lookbackDays))
 }

@@ -1,8 +1,6 @@
 package api
 
 import (
-	"fmt"
-
 	"github.com/GeneralTask/task-manager/backend/jobs"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -21,10 +19,10 @@ func (api *API) DashboardFetch(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	cutoff := jobs.GetPullRequestCutoffTime(api.GetCurrentTime(), jobs.DEFAULT_LOOKBACK_DAYS)
-	fmt.Println("CUTOFF:", cutoff)
-	// run github data fetch for user
-	// run updateGithubIndustryData but with specific team / team members
-	// consider putting core logic in jobs package and calling from here
+	err = jobs.UpdateGithubTeamData(userID, api.GetCurrentTime(), jobs.DEFAULT_LOOKBACK_DAYS)
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	c.JSON(200, bson.M{})
 }
