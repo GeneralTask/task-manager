@@ -25,5 +25,6 @@ func (api *API) DashboardFetch(c *gin.Context) {
 	fmt.Println("CUTOFF:", cutoff)
 	// run github data fetch for user
 	// run updateGithubIndustryData but with specific team / team members
+	// consider putting core logic in jobs package and calling from here
 	c.JSON(200, bson.M{})
 }
