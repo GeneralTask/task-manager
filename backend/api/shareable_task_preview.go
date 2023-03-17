@@ -41,24 +41,24 @@ func (api *API) ShareableTaskPreview(c *gin.Context) {
 		previewTitle = html.EscapeString(*task.Title)
 	}
 	body := []byte(`
-	<!DOCTYPE html>
-	<html>
-	<head>
-		<title>` + previewTitle + `</title>
-		<meta http-equiv="Refresh" content="0; url='` + taskURL + `'" />
-	
-		<meta property="og:title" content="` + previewTitle + `" />
-		<meta name="twitter:title" content="` + previewTitle + `">
-	
-		<meta content="Task shared by ` + taskOwner.Name + ` via General Task." property="og:description">
-		<meta content="Task shared by ` + taskOwner.Name + ` via General Task." property="twitter:description">
-	
-		<meta property="og:type" content="website" />
-		<meta property="og:url" content="` + config.GetConfigValue("SERVER_URL") + "task/" + task.ID.Hex() + `/" />
-	</head>
-	<body>
-	</body>
-	</html>`)
+<!DOCTYPE html>
+<html>
+<head>
+	<title>` + previewTitle + `</title>
+	<meta http-equiv="Refresh" content="0; url='` + taskURL + `'" />
+
+	<meta property="og:title" content="` + previewTitle + `" />
+	<meta name="twitter:title" content="` + previewTitle + `">
+
+	<meta content="Task shared by ` + taskOwner.Name + ` via General Task." property="og:description">
+	<meta content="Task shared by ` + taskOwner.Name + ` via General Task." property="twitter:description">
+
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="` + config.GetConfigValue("SERVER_URL") + "task/" + task.ID.Hex() + `/" />
+</head>
+<body>
+</body>
+</html>`)
 	c.Data(200, "text/html; charset=utf-8", body)
 }
 
