@@ -1,4 +1,5 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
+import { AxiosError } from 'axios'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import useQueryContext from '../../context/QueryContext'
@@ -36,17 +37,24 @@ export interface TModifyNoteData {
 }
 
 export const useGetNote = (params: TGetNoteParams) => {
-    return useQuery<TNote>(['note', params.id], (context) => getNote(params, context), {
-        retry: 0,
+    return useQuery<TNote, AxiosError>(['note', params.id], (context) => getNote(params, context), {
         ...getBackgroundQueryOptions(),
+        retry: (failureCount, error) => {
+            // We don't want to retry the request if the task doesn't exist or if the user is not authorized to access it
+            if (error.response?.status === 404) {
+                return false
+            }
+            // 3 is the default retry count
+            return failureCount < 3
+        },
     })
 }
 const getNote = async ({ id }: TGetNoteParams, { signal }: QueryFunctionContext) => {
     try {
         const res = await apiClient.get(`/notes/detail/${id}/`, { signal })
         return castImmutable(res.data)
-    } catch {
-        throw 'getNote failed'
+    } catch (error) {
+        throw error as AxiosError
     }
 }
 
