@@ -324,7 +324,7 @@ func GetSharedNoteWithAuth(db *mongo.Database, itemID primitive.ObjectID, userID
 	}
 
 	// Check if the note is shared
-	if note.SharedAccess != nil && *note.SharedAccess != SharedAccessPublic {
+	if note.SharedAccess != nil && *note.SharedAccess != SharedAccessPublic && note.UserID != userID {
 		if !CheckNoteSharingAccessValid(note.SharedAccess) {
 			return nil, errors.New("invalid shared access value")
 		}
