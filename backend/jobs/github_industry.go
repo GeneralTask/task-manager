@@ -121,7 +121,11 @@ func UpdateGithubTeamData(userID primitive.ObjectID, endCutoff time.Time, lookba
 			teamPullRequests[externalID] = pullRequest
 		}
 	}
-	saveDataPointsForPullRequests(db, teamPullRequests, team.ID, primitive.NilObjectID)
+	err = saveDataPointsForPullRequests(db, teamPullRequests, team.ID, primitive.NilObjectID)
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to save team %s data points", team.ID)
+		return err
+	}
 	return nil
 }
 
