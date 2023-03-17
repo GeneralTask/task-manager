@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sort"
 	"time"
 
@@ -237,11 +236,6 @@ func (api *API) adjustForCompletedEvents(userID primitive.ObjectID, calendarEven
 		{"datetime_end": bson.M{"$gte": datetimeStart}},
 		{"datetime_start": bson.M{"$lte": datetimeEnd}},
 	})
-	fmt.Println("WOW", []bson.M{
-		{"source_account_id": sourceAccountID},
-		{"datetime_end": bson.M{"$gte": datetimeStart}},
-		{"datetime_start": bson.M{"$lte": datetimeEnd}},
-	})
 	if err != nil {
 		return err
 	}
@@ -252,10 +246,6 @@ func (api *API) adjustForCompletedEvents(userID primitive.ObjectID, calendarEven
 	}
 
 	for _, existingCalendarEvent := range *existingCalendarEvents {
-		id, _ := primitive.ObjectIDFromHex("63f19b633b1bcd36a2fc1284")
-		if existingCalendarEvent.ID == id {
-			fmt.Println("event", existingCalendarEvent)
-		}
 		if !fetchedCalendarIDs[existingCalendarEvent.ID] {
 			_, err := database.GetCalendarEventCollection(api.DB).DeleteOne(context.Background(), bson.M{"_id": existingCalendarEvent.ID})
 			if err != nil {
