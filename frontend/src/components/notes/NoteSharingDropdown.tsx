@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
 import { usePreviewMode, useToast } from '../../hooks'
 import { useModifyNote } from '../../services/api/notes.hooks'
+import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { icons } from '../../styles/images'
 import { TNote, TNoteSharedAccess } from '../../utils/types'
 import { getFormattedDuration } from '../../utils/utils'
@@ -17,6 +18,7 @@ interface NoteSharingDropdownProps {
 const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
     const { mutate: modifyNote } = useModifyNote()
     const { isPreviewMode } = usePreviewMode()
+    const { data: userInfo } = useGetUserInfo()
     const toast = useToast()
 
     const shareNote = (sharedUntil?: string, sharedAccess?: TNoteSharedAccess) => {
@@ -130,16 +132,20 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
                 copyNoteLink()
             },
         },
-        {
-            icon: icons.users,
-            label: 'Share with company',
-            hideCheckmark: !isShared,
-            selected: note.shared_access === 'domain',
-            onClick: () => {
-                shareNote(SHARED_ITEM_INDEFINITE_DATE, 'domain')
-                copyNoteLink()
-            },
-        },
+        ...(userInfo?.is_company_email
+            ? [
+                  {
+                      icon: icons.users,
+                      label: 'Share with company',
+                      hideCheckmark: !isShared,
+                      selected: note.shared_access === 'domain',
+                      onClick: () => {
+                          shareNote(SHARED_ITEM_INDEFINITE_DATE, 'domain')
+                          copyNoteLink()
+                      },
+                  },
+              ]
+            : []),
         {
             icon: icons.globe,
             label: 'Share with everyone',
