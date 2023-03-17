@@ -14,12 +14,16 @@ import (
 
 func TestShareableTaskPreview(t *testing.T) {
 	authToken := login("test_shareable_task_preview@generaltask.com", "")
-	title1 := "shared"
+	title1 := "domain shared"
 	title2 := "not shared"
+	title3 := "public shared"
 
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
+
+	sharedAccessDomain := database.SharedAccessDomain
+	sharedAccessPublic := database.SharedAccessPublic
 	userID := getUserIDFromAuthToken(t, db, authToken)
 	task1, err := database.GetOrCreateTask(
 		db,
@@ -29,6 +33,7 @@ func TestShareableTaskPreview(t *testing.T) {
 		&database.Task{
 			UserID: 	userID,
 			Title: 		&title1,
+			SharedAccess: &sharedAccessDomain,
 			SharedUntil: *testutils.CreateDateTime("9999-01-01"),
 		},
 	)
@@ -41,7 +46,21 @@ func TestShareableTaskPreview(t *testing.T) {
 		&database.Task{
 			UserID: 	userID,
 			Title: 		&title2,
+			SharedAccess: &sharedAccessPublic,
 			SharedUntil: *testutils.CreateDateTime("1999-01-01"),
+		},
+	)
+	assert.NoError(t, err)
+	task3, err := database.GetOrCreateTask(
+		db,
+		userID,
+		"123abcdefg",
+		"foobar_source",
+		&database.Task{
+			UserID: 	userID,
+			Title: 		&title3,
+			SharedAccess: &sharedAccessPublic,
+			SharedUntil: *testutils.CreateDateTime("9999-01-01"),
 		},
 	)
 	assert.NoError(t, err)
@@ -66,7 +85,7 @@ func TestShareableTaskPreview(t *testing.T) {
 </body>
 </html>`, string(response))
 	})
-	t.Run("TaskIsNotShared", func(t *testing.T) {
+	t.Run("DomainTaskIsNotShared", func(t *testing.T) {
 		response := ServeRequest(t, authToken, "GET", fmt.Sprintf("/shareable_tasks/%s/", task2.ID.Hex()), nil, http.StatusOK, api)
 		assert.Equal(t, `
 <!DOCTYPE html>
@@ -78,13 +97,35 @@ func TestShareableTaskPreview(t *testing.T) {
 </body>
 </html>`, string(response))
 	})
-	t.Run("TaskIsShared", func(t *testing.T) {
-		response := ServeRequest(t,authToken, "GET", fmt.Sprintf("/shareable_tasks/%s/", task1.ID.Hex()), nil, http.StatusOK, api)
+	t.Run("PublicTaskIsShared", func(t *testing.T) {
+		response := ServeRequest(t,"", "GET", fmt.Sprintf("/shareable_tasks/%s/", task1.ID.Hex()), nil, http.StatusOK, api)
 		assert.Equal(t, `
 <!DOCTYPE html>
 <html>
 <head>
 	<meta http-equiv="Refresh" content="0; url='http://localhost:3000/task/`+task1.ID.Hex()+`'" />
+</head>
+<body>
+</body>
+</html>`, string(response))
+	})
+	t.Run("TaskIsShared", func(t *testing.T) {
+		response := ServeRequest(t,authToken, "GET", fmt.Sprintf("/shareable_tasks/%s/", task3.ID.Hex()), nil, http.StatusOK, api)
+		assert.Equal(t, `
+<!DOCTYPE html>
+<html>
+<head>
+	<title>`+title3+`</title>
+	<meta http-equiv="Refresh" content="0; url='http://localhost:3000/task/`+task3.ID.Hex()+`'" />
+
+	<meta property="og:title" content="public shared" />
+	<meta name="twitter:title" content="public shared">
+
+	<meta content="Task shared by  via General Task." property="og:description">
+	<meta content="Task shared by  via General Task." property="twitter:description">
+
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="http://localhost:8080/task/`+task3.ID.Hex()+`/" />
 </head>
 <body>
 </body>

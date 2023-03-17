@@ -8,8 +8,11 @@ import (
 
 func TestGetSettingsOptions(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		assert.NoError(t, EnsureJobOnlyRunsOnceToday("foobar"))
-		assert.Error(t, EnsureJobOnlyRunsOnceToday("foobar"))
-		assert.NoError(t, EnsureJobOnlyRunsOnceToday("foobar2"))
+		_, err := EnsureJobOnlyRunsOnceToday("foobar")
+		assert.NoError(t, err)
+		_, err = EnsureJobOnlyRunsOnceToday("foobar")
+		assert.Error(t, err)
+		_, err = EnsureJobOnlyRunsOnceToday("foobar2")
+		assert.NoError(t, err)
 	})
 }

@@ -19,34 +19,34 @@ const CODECOV_BOT = "codecov[bot]"
 const DEFAULT_LOOKBACK_DAYS = 21
 
 func githubIndustryJob() {
-	err := EnsureJobOnlyRunsOnceToday("github_industry")
+	logID, err := EnsureJobOnlyRunsOnceToday("github_industry")
 	if err != nil {
 		return
 	}
-	err = updateGithubIndustryData(time.Now(), DEFAULT_LOOKBACK_DAYS)
+	err = updateGithubIndustryData(logID, time.Now(), DEFAULT_LOOKBACK_DAYS)
 	if err != nil {
 		logging.GetSentryLogger().Error().Err(err).Msg("failed to run github industry data job")
 		return
 	}
 }
 
-func updateGithubIndustryData(endCutoff time.Time, lookbackDays int) error {
+func updateGithubIndustryData(logID primitive.ObjectID, endCutoff time.Time, lookbackDays int) error {
 	logger := logging.GetSentryLogger()
 	db, cleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
 	}
 	defer cleanup()
-	err = database.InsertLogEvent(db, primitive.NilObjectID, "github_industry_job_start"+strconv.Itoa(lookbackDays)+" "+endCutoff.Format("2006-1-2 15:4:5"))
+	err = database.InsertLogEvent(db, logID, "github_industry_job_start"+strconv.Itoa(lookbackDays)+" "+endCutoff.Format("2006-1-2 15:4:5"))
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to log event")
 	}
 
-	repositoryCollection := database.GetRepositoryCollection(db)
+	pullRequestCollection := database.GetPullRequestCollection(db)
 	findOptions := options.Find()
 	// sort by increasing last_fetched, so the more recently updated PRs override the more stale PRs when looping through
 	findOptions.SetSort(bson.D{{Key: "last_fetched", Value: 1}})
-	cursor, err := repositoryCollection.Find(
+	cursor, err := pullRequestCollection.Find(
 		context.Background(),
 		bson.M{"created_at_external": bson.M{"$gte": endCutoff.Add(-time.Hour * 24 * time.Duration(lookbackDays))}},
 		findOptions,
@@ -61,7 +61,7 @@ func updateGithubIndustryData(endCutoff time.Time, lookbackDays int) error {
 		logger.Error().Err(err).Msg("failed to iterate through github PRs")
 		return err
 	}
-	err = database.InsertLogEvent(db, primitive.NilObjectID, "github_industry_job_fetched_prs"+strconv.Itoa(len(pullRequests)))
+	err = database.InsertLogEvent(db, logID, "github_industry_job_fetched_prs"+strconv.Itoa(len(pullRequests)))
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to log event")
 	}
@@ -89,7 +89,7 @@ func updateGithubIndustryData(endCutoff time.Time, lookbackDays int) error {
 		dateToTotalResponseTime[pullRequestDate] += responseTime
 		dateToPRCount[pullRequestDate] += 1
 	}
-	err = database.InsertLogEvent(db, primitive.NilObjectID, "github_industry_job_calc_response_time"+strconv.Itoa(len(dateToTotalResponseTime)))
+	err = database.InsertLogEvent(db, logID, "github_industry_job_calc_response_time"+strconv.Itoa(len(dateToTotalResponseTime)))
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to log event")
 	}
@@ -124,7 +124,7 @@ func updateGithubIndustryData(endCutoff time.Time, lookbackDays int) error {
 			return err
 		}
 	}
-	err = database.InsertLogEvent(db, primitive.NilObjectID, "github_industry_job_completed")
+	err = database.InsertLogEvent(db, logID, "github_industry_job_completed")
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to log event")
 	}

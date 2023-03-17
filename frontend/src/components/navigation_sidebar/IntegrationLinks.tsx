@@ -39,7 +39,7 @@ interface IntegrationLinksProps {
     isCollapsed?: boolean
 }
 const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
-    const { isPreviewMode } = usePreviewMode()
+    const { isPreviewMode, isLoading: isPreviewModeLoading } = usePreviewMode()
     const { data: pullRequestRepositories } = useGetPullRequests()
     const { isLoading: isSettingsLoading } = useGetSettings()
 
@@ -90,51 +90,57 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     return (
         <>
             <Flex gap={isCollapsed ? Spacing._8 : undefined} column>
-                <Tip shortcutName="goToOverviewPage" side="right">
-                    <NavigationLink
-                        link="/overview"
-                        title="Daily Overview"
-                        icon={icons.houseDay}
-                        isCurrentPage={pathname.split('/')[1] === 'overview'}
-                        isCollapsed={isCollapsed}
-                    />
-                </Tip>
-                {isPreviewMode && (
-                    <NavigationLink
-                        link="/super-dashboard"
-                        title="Super Dashboard"
-                        icon={icons.chartLineUp}
-                        isCurrentPage={pathname.split('/')[1] === 'super-dashboard'}
-                        isCollapsed={isCollapsed}
-                    />
+                {isPreviewModeLoading ? (
+                    <Skeleton count={4} />
+                ) : (
+                    <>
+                        <Tip shortcutName="goToOverviewPage" side="right">
+                            <NavigationLink
+                                link="/overview"
+                                title="Daily Overview"
+                                icon={icons.houseDay}
+                                isCurrentPage={pathname.split('/')[1] === 'overview'}
+                                isCollapsed={isCollapsed}
+                            />
+                        </Tip>
+                        {isPreviewMode && (
+                            <NavigationLink
+                                link="/super-dashboard"
+                                title="Super Dashboard"
+                                icon={icons.chartLineUp}
+                                isCurrentPage={pathname.split('/')[1] === 'super-dashboard'}
+                                isCollapsed={isCollapsed}
+                            />
+                        )}
+                        <Tip shortcutName="goToRecurringTasksPage" side="right">
+                            <NavigationLink
+                                link="/recurring-tasks"
+                                title="Recurring tasks"
+                                icon={icons.arrows_repeat}
+                                isCurrentPage={pathname.split('/')[1] === 'recurring-tasks'}
+                                isCollapsed={isCollapsed}
+                            />
+                        </Tip>
+                        <Tip shortcutName="goToNotesPage" side="right">
+                            <NavigationLink
+                                link="/notes"
+                                title="Notes"
+                                icon={icons.note}
+                                isCurrentPage={pathname.split('/')[1] === 'notes'}
+                                isCollapsed={isCollapsed}
+                            />
+                        </Tip>
+                        <Tip shortcutName="enterFocusMode" side="right">
+                            <NavigationLink
+                                link="/focus-mode"
+                                title="Enter Focus Mode"
+                                icon={icons.headphones}
+                                isCurrentPage={pathname.split('/')[1] === 'focus-mode'}
+                                isCollapsed={isCollapsed}
+                            />
+                        </Tip>
+                    </>
                 )}
-                <Tip shortcutName="goToRecurringTasksPage" side="right">
-                    <NavigationLink
-                        link="/recurring-tasks"
-                        title="Recurring tasks"
-                        icon={icons.arrows_repeat}
-                        isCurrentPage={pathname.split('/')[1] === 'recurring-tasks'}
-                        isCollapsed={isCollapsed}
-                    />
-                </Tip>
-                <Tip shortcutName="goToNotesPage" side="right">
-                    <NavigationLink
-                        link="/notes"
-                        title="Notes"
-                        icon={icons.note}
-                        isCurrentPage={pathname.split('/')[1] === 'notes'}
-                        isCollapsed={isCollapsed}
-                    />
-                </Tip>
-                <Tip shortcutName="enterFocusMode" side="right">
-                    <NavigationLink
-                        link="/focus-mode"
-                        title="Enter Focus Mode"
-                        icon={icons.headphones}
-                        isCurrentPage={pathname.split('/')[1] === 'focus-mode'}
-                        isCollapsed={isCollapsed}
-                    />
-                </Tip>
             </Flex>
             {!isCollapsed && <NavigationHeader title="Services" rightContent={<ServiceVisibilityDropdown />} />}
             <ServicesContainer isCollapsed={!!isCollapsed}>
