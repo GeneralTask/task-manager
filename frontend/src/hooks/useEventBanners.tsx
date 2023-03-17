@@ -92,10 +92,15 @@ export default function useEventBanners(date: DateTime) {
                                               styleType="icon"
                                               icon={icons.note}
                                               onClick={() => {
+                                                  if (event.linked_note_id) {
+                                                      navigate(`/notes/${event.linked_note_id}`)
+                                                      return
+                                                  }
                                                   const note = notes?.find(
                                                       (n) => n.linked_event_id === event.id && !n.is_deleted
                                                   )
                                                   const id = note ? note.id : createMeetingNote(event)
+                                                  event.linked_note_id = id
                                                   navigate(`/notes/${id}`)
                                               }}
                                           />
@@ -117,6 +122,10 @@ export default function useEventBanners(date: DateTime) {
                                               styleType="icon"
                                               icon={icons.note}
                                               onClick={() => {
+                                                  if (event.linked_note_id) {
+                                                      navigate(`/notes/${event.linked_note_id}`)
+                                                      return
+                                                  }
                                                   const note = notes?.find(
                                                       (n) => n.linked_event_id === event.id && !n.is_deleted
                                                   )
