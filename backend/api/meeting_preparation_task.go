@@ -46,9 +46,18 @@ func (api *API) GetMeetingPreparationTasksResult(userID primitive.ObjectID, time
 	// get or create tasks from the events from now until end of day
 	// update task timing if needed
 	// note: can include completed, deleted tasks
-	tasks, err := api.GetAndUpdateMeetingPreparationTasksFromEvents(userID, eventsUntilEndOfDay)
+	isMeetingPreparationAdded, err := api.IsMeetingPreparationAdded(userID)
 	if err != nil {
 		return nil, err
+	}
+	var tasks *[]database.Task
+	if isMeetingPreparationAdded {
+		tasks, err = api.GetAndUpdateMeetingPreparationTasksFromEvents(userID, eventsUntilEndOfDay)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		tasks = &[]database.Task{}
 	}
 
 	// get previous tasks that are not completed, mark as auto-completed
@@ -79,6 +88,35 @@ func (api *API) GetMeetingPreparationTasksResult(userID primitive.ObjectID, time
 
 	meetingTaskResult := api.taskListToTaskResultListV4(&allTasks)
 	return meetingTaskResult, nil
+}
+
+func (api *API) IsMeetingPreparationAdded(userID primitive.ObjectID) (bool, error) {
+	cursor, err := database.GetViewCollection(api.DB).Find(
+		context.Background(),
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"type": string(constants.ViewMeetingPreparation)},
+		}},
+	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to find views")
+		return false, err
+	}
+
+	var views []database.View
+	err = cursor.All(context.Background(), &views)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to find views")
+		return false, err
+	}
+
+	for _, view := range views {
+		if view.Type == string(constants.ViewMeetingPreparation) {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
 
 func (api *API) GetAndUpdateMeetingPreparationTasksFromEvents(userID primitive.ObjectID, events *[]database.CalendarEvent) (*[]database.Task, error) {
