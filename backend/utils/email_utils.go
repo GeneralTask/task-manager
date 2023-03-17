@@ -2,6 +2,8 @@ package utils
 
 import (
 	"regexp"
+
+	"github.com/GeneralTask/task-manager/backend/constants"
 )
 
 func ExtractSenderName(sendLine string) (string, string) {
@@ -22,6 +24,10 @@ func ExtractEmailDomain(email string) string {
 	} else {
 		return email
 	}
+}
+
+func IsOpenEmailAddress(domain string) bool {
+	return constants.OPEN_EMAIL_PROVIDERS[domain]
 }
 
 // Email validation taken from https://golangcode.com/validate-an-email-address/

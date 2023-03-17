@@ -35,6 +35,11 @@ func TestExtractSenders(t *testing.T) {
 	assert.Equal(t, "jasonscharff@gmail.com", email)
 }
 
+func TestIsOpenEmailAddress(t *testing.T) {
+	assert.False(t, IsOpenEmailAddress("generaltask.com"))
+	assert.True(t, IsOpenEmailAddress("gmail.com"))
+}
+
 func TestIsEmailValid(t *testing.T) {
 	assert.False(t, IsEmailValid("a"))
 	assert.False(t, IsEmailValid("julian"))
