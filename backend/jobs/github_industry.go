@@ -48,7 +48,7 @@ func updateGithubIndustryData(logID primitive.ObjectID, endCutoff time.Time, loo
 	findOptions.SetSort(bson.D{{Key: "last_fetched", Value: 1}})
 	cursor, err := pullRequestCollection.Find(
 		context.Background(),
-		bson.M{"created_at_external": bson.M{"$gte": endCutoff.Add(-time.Hour * 24 * time.Duration(lookbackDays))}},
+		bson.M{"created_at_external": bson.M{"$gte": GetPullRequestCutoffTime(endCutoff, lookbackDays)}},
 		findOptions,
 	)
 	if err != nil {
@@ -129,4 +129,8 @@ func updateGithubIndustryData(logID primitive.ObjectID, endCutoff time.Time, loo
 		logger.Error().Err(err).Msg("failed to log event")
 	}
 	return nil
+}
+
+func GetPullRequestCutoffTime(endCutoff time.Time, lookbackDays int) time.Time {
+	return endCutoff.Add(-time.Hour * 24 * time.Duration(lookbackDays))
 }

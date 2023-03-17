@@ -12,27 +12,14 @@ import (
 )
 
 func (api *API) PullRequestsFetch(c *gin.Context) {
-	userID, _ := c.Get("user")
-
-	var tokens []database.ExternalAPIToken
-	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
-	cursor, err := externalAPITokenCollection.Find(
-		context.Background(),
-		bson.M{"user_id": userID},
-	)
+	userID := getUserIDFromContext(c)
+	tokens, err := api.getExternalTokens(userID)
 	if err != nil {
-		api.Logger.Error().Err(err).Msg("failed to fetch api tokens")
-		Handle500(c)
-		return
-	}
-	err = cursor.All(context.Background(), &tokens)
-	if err != nil {
-		api.Logger.Error().Err(err).Msg("failed to iterate through api tokens")
 		Handle500(c)
 		return
 	}
 
-	currentPRs, err := database.GetActivePRs(api.DB, userID.(primitive.ObjectID))
+	currentPRs, err := database.GetActivePRs(api.DB, userID)
 	if err != nil {
 		Handle500(c)
 		return
@@ -52,6 +39,25 @@ func (api *API) PullRequestsFetch(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{})
+}
+
+func (api *API) getExternalTokens(userID primitive.ObjectID) ([]database.ExternalAPIToken, error) {
+	var tokens []database.ExternalAPIToken
+	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
+	cursor, err := externalAPITokenCollection.Find(
+		context.Background(),
+		bson.M{"user_id": userID},
+	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to fetch api tokens")
+		return []database.ExternalAPIToken{}, err
+	}
+	err = cursor.All(context.Background(), &tokens)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to iterate through api tokens")
+		return []database.ExternalAPIToken{}, err
+	}
+	return tokens, nil
 }
 
 func (api *API) fetchPRs(userID interface{}, tokens []database.ExternalAPIToken) ([]*database.PullRequest, map[string]bool, error) {
