@@ -48,12 +48,14 @@ const Metric = ({ graphId }: MetricProps) => {
                         </Flex>
                         {/* convert to minutes and round to one decimal */}
                         <HeadlineLarge>
-                            {dashboard.data[selectedSubject.id]?.[selectedInterval.id]?.[line.data_id]
-                                ?.aggregated_value !== undefined
+                            {dashboard.data[line.subject_id_override || selectedSubject.id]?.[selectedInterval.id]?.[
+                                line.data_id
+                            ]?.aggregated_value !== undefined
                                 ? `${
                                       Math.round(
-                                          (dashboard.data[selectedSubject.id][selectedInterval.id][line.data_id]
-                                              .aggregated_value /
+                                          (dashboard.data[line.subject_id_override || selectedSubject.id][
+                                              selectedInterval.id
+                                          ][line.data_id].aggregated_value /
                                               60) *
                                               10
                                       ) / 10

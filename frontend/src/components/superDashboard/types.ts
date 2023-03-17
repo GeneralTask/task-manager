@@ -45,6 +45,7 @@ export interface TLine {
     name: string
     color: TLineColor
     aggregated_name: string
+    subject_id_override?: string
 }
 
 export interface TData {
