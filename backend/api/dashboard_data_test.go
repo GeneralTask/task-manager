@@ -306,12 +306,12 @@ func TestDashboardData(t *testing.T) {
 					"aggregated_value": 24,
 					"points": [
 						{
-							"x": 1672185600,
-							"y": 16
-						},
-						{
 							"x": 1672099200,
 							"y": 32
+						},
+						{
+							"x": 1672185600,
+							"y": 16
 						}
 					]
 				}
@@ -338,12 +338,12 @@ func TestDashboardData(t *testing.T) {
 					"aggregated_value": 102,
 					"points": [
 						{
-							"x": 1672185600,
-							"y": 100
-						},
-						{
 							"x": 1672099200,
 							"y": 105
+						},
+						{
+							"x": 1672185600,
+							"y": 100
 						}
 					]
 				}

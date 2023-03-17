@@ -1,6 +1,7 @@
 package api
 
 import (
+	"sort"
 	"strconv"
 	"time"
 
@@ -193,6 +194,9 @@ func (api *API) DashboardData(c *gin.Context) {
 		dashboardData.Points = append(dashboardData.Points, DashboardPoint{
 			X: int(dataPoint.Date.Time().Unix()),
 			Y: dataPoint.Value,
+		})
+		sort.Slice(dashboardData.Points, func(i, j int) bool {
+			return dashboardData.Points[i].X < dashboardData.Points[j].X
 		})
 		data[subjectID][intervalID][dataID] = dashboardData
 	}
