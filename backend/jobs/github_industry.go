@@ -3,10 +3,12 @@ package jobs
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -42,33 +44,16 @@ func updateGithubIndustryData(logID primitive.ObjectID, endCutoff time.Time, loo
 		logger.Error().Err(err).Msg("failed to log event")
 	}
 
-	pullRequestCollection := database.GetPullRequestCollection(db)
-	findOptions := options.Find()
-	// sort by increasing last_fetched, so the more recently updated PRs override the more stale PRs when looping through
-	findOptions.SetSort(bson.D{{Key: "last_fetched", Value: 1}})
-	cursor, err := pullRequestCollection.Find(
-		context.Background(),
-		bson.M{"created_at_external": bson.M{"$gte": GetPullRequestCutoffTime(endCutoff, lookbackDays)}},
-		findOptions,
-	)
+	pullRequestIDToValue, err := getPullRequests(db, []bson.M{}, GetPullRequestCutoffTime(endCutoff, lookbackDays))
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch github PRs")
 		return err
 	}
-	var pullRequests []database.PullRequest
-	err = cursor.All(context.Background(), &pullRequests)
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to iterate through github PRs")
-		return err
-	}
-	err = database.InsertLogEvent(db, logID, "github_industry_job_fetched_prs"+strconv.Itoa(len(pullRequests)))
+	err = database.InsertLogEvent(db, logID, "github_industry_job_fetched_prs"+strconv.Itoa(len(pullRequestIDToValue)))
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to log event")
 	}
-	pullRequestIDToValue := make(map[string]database.PullRequest)
-	for _, pullRequest := range pullRequests {
-		pullRequestIDToValue[pullRequest.IDExternal] = pullRequest
-	}
+
 	dateToTotalResponseTime := make(map[primitive.DateTime]int)
 	dateToPRCount := make(map[primitive.DateTime]int)
 	for _, pullRequest := range pullRequestIDToValue {
@@ -132,10 +117,45 @@ func updateGithubIndustryData(logID primitive.ObjectID, endCutoff time.Time, loo
 }
 
 func UpdateGithubTeamData(userID primitive.ObjectID, endCutoff time.Time, lookbackDays int) error {
+	logger := logging.GetSentryLogger()
+	db, cleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
+	defer cleanup()
+	pullRequestIDToValue, err := getPullRequests(db, []bson.M{}, GetPullRequestCutoffTime(endCutoff, lookbackDays))
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch github PRs")
+		return err
+	}
+	fmt.Println(pullRequestIDToValue)
 	return nil
 }
 
-func getPullRequests(filters bson.M{}, cutoffTime time.Time) {
+func getPullRequests(db *mongo.Database, filters []bson.M, cutoffTime time.Time) (map[string]database.PullRequest, error) {
+	pullRequestCollection := database.GetPullRequestCollection(db)
+	findOptions := options.Find()
+	// sort by increasing last_fetched, so the more recently updated PRs override the more stale PRs when looping through
+	findOptions.SetSort(bson.D{{Key: "last_fetched", Value: 1}})
+	filters = append(filters, bson.M{"created_at_external": bson.M{"$gte": cutoffTime}})
+	cursor, err := pullRequestCollection.Find(
+		context.Background(),
+		bson.M{"$and": filters},
+		findOptions,
+	)
+	if err != nil {
+		return nil, err
+	}
+	var pullRequests []database.PullRequest
+	err = cursor.All(context.Background(), &pullRequests)
+	if err != nil {
+		return nil, err
+	}
+	pullRequestIDToValue := make(map[string]database.PullRequest)
+	for _, pullRequest := range pullRequests {
+		pullRequestIDToValue[pullRequest.IDExternal] = pullRequest
+	}
+	return pullRequestIDToValue, nil
 }
 
 func GetPullRequestCutoffTime(endCutoff time.Time, lookbackDays int) time.Time {
