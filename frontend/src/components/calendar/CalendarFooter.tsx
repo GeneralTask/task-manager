@@ -44,7 +44,6 @@ const CalendarFooter = () => {
                             icon={icons.square}
                             iconColorHex={calendar?.color_background || ''}
                             rightIcon={icons.caret_down_solid}
-                            rightIconColor="gray"
                             styleType="secondary"
                             fitContent={false}
                             tooltipText="Choose the default calendar to create new events in"

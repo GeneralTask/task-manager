@@ -30,13 +30,9 @@ func (api *API) DashboardTeamMemberCreate(c *gin.Context) {
 
 	userID := getUserIDFromContext(c)
 	dashboardTeam, err := database.GetOrCreateDashboardTeam(api.DB, userID)
-	if err != nil {
+	if err != nil || dashboardTeam == nil {
 		api.Logger.Error().Err(err).Msg("failed to get dashboard team")
 		c.JSON(500, gin.H{"detail": "failed to get dashboard team"})
-		return
-	}
-	if err != nil || dashboardTeam == nil {
-		Handle500(c)
 		return
 	}
 

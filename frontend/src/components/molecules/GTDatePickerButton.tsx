@@ -6,33 +6,18 @@ import GTButton from '../atoms/buttons/GTButton'
 
 interface GTDatePickerButtonProps {
     currentDate: DateTime | null
-    showIcon?: boolean
-    onClick: React.MouseEventHandler<HTMLButtonElement>
-    isOpen: boolean
-    disabled: boolean
-    overrideDisabledStyle?: boolean
 }
-const GTDatePickerButton = ({
-    currentDate,
-    showIcon,
-    onClick,
-    isOpen,
-    disabled,
-    overrideDisabledStyle,
-}: GTDatePickerButtonProps) => {
+const GTDatePickerButton = ({ currentDate }: GTDatePickerButtonProps) => {
     const formattedDate = useMemo(() => getFormattedDate(currentDate), [currentDate])
 
     return (
         <GTButton
-            icon={showIcon ? icons.clock : undefined}
+            styleType="control"
+            icon={icons.clock}
             value={formattedDate.dateString}
             textColor={formattedDate.textColor}
-            iconColor={formattedDate.iconColor}
-            onClick={onClick}
-            active={isOpen}
-            disabled={disabled}
-            styleType="control"
-            overrideDisabledStyle={overrideDisabledStyle}
+            disabled
+            overrideDisabledStyle
         />
     )
 }

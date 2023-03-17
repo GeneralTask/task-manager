@@ -1246,30 +1246,6 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 
 func GetOrCreateDashboardTeam(db *mongo.Database, userID primitive.ObjectID) (*DashboardTeam, error) {
 	teamCollection := GetDashboardTeamCollection(db)
-	// _, err := teamCollection.UpdateOne(
-	// 	context.Background(),
-	// 	bson.M{"user_id": userID},
-	// 	bson.M{"$setOnInsert": DashboardTeam{
-	// 		UserID:    userID,
-	// 		CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
-	// 	}},
-	// 	options.Update().SetUpsert(true),
-	// )
-
-	// mongoResult := teamCollection.FindOneAndUpdate(
-	// 	context.Background(),
-	// 	bson.M{"user_id": userID},
-	// 	bson.M{"$setOnInsert": DashboardTeam{
-	// 		UserID:    userID,
-	// 		CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
-	// 	}},
-	// 	options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
-	// ).Decode(&dashboardTeam)
-	// logger := logging.GetSentryLogger()
-	// if err != nil {
-	// 	logger.Error().Err(err).Msg("failed to get or create dashboard team")
-	// 	return nil, err
-	// }
 
 	var dashboardTeam DashboardTeam
 	err := teamCollection.FindOneAndUpdate(

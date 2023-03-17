@@ -66,7 +66,6 @@ const DailyOverviewView = () => {
                                     setIsEditListsModalOpen(true)
                                 }}
                                 icon={icons.bolt}
-                                iconColor="gray"
                                 value={
                                     <span>
                                         Smart Prioritize<sup>AI</sup>
@@ -80,14 +79,12 @@ const DailyOverviewView = () => {
                                     styleType="control"
                                     onClick={collapseAll}
                                     icon={icons.squareMinus}
-                                    iconColor="gray"
                                     value="Collapse all"
                                 />
                                 <GTButton
                                     styleType="control"
                                     onClick={expandAll}
                                     icon={icons.squarePlus}
-                                    iconColor="gray"
                                     value="Expand all"
                                 />
                                 <GTButton
@@ -97,7 +94,6 @@ const DailyOverviewView = () => {
                                         setIsEditListsModalOpen(true)
                                     }}
                                     icon={icons.gear}
-                                    iconColor="gray"
                                     value="Edit lists"
                                 />
                             </>

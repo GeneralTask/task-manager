@@ -152,7 +152,6 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
                 <ReturnToCurrentMonthButton
                     styleType="icon"
                     icon={icons.calendar_star}
-                    iconColor="gray"
                     tooltipText="Return to current month"
                     visible={calendarDate.month !== today.getMonth() + 1 || calendarDate.year !== today.getFullYear()}
                     onClick={() => setCalendarDate(DateTime.local())}
@@ -162,14 +161,12 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
                     <GTButton
                         styleType="icon"
                         icon={icons.arrow_left}
-                        iconColor="gray"
                         tooltipText="Previous month"
                         onClick={() => setCalendarDate(calendarDate.minus({ month: 1 }))}
                     />
                     <GTButton
                         styleType="icon"
                         icon={icons.arrow_right}
-                        iconColor="gray"
                         tooltipText="Next month"
                         onClick={() => setCalendarDate(calendarDate.plus({ month: 1 }))}
                     />

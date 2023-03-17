@@ -284,15 +284,6 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                                                 task.optimisticId
                                             )
                                         }
-                                        renderTrigger={(isOpen, setIsOpen) => (
-                                            <GTButton
-                                                icon={icons.folder}
-                                                shortcutName="moveTaskToFolder"
-                                                onClick={() => setIsOpen(!isOpen)}
-                                                active={isOpen}
-                                                styleType="icon"
-                                            />
-                                        )}
                                         enableKeyboardShortcut
                                     />
                                 )}
