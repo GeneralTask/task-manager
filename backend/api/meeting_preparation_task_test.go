@@ -45,6 +45,15 @@ func TestMeetingPreparationTask(t *testing.T) {
 		}, nil)
 	assert.NoError(t, err)
 
+	viewType := string(constants.ViewMeetingPreparation)
+	viewCollection := database.GetViewCollection(api.DB)
+	view := database.View{
+		UserID: userID,
+		Type:   viewType,
+	}
+	_, err = viewCollection.InsertOne(context.Background(), view)
+	assert.NoError(t, err)
+
 	calendarEventCollection := database.GetCalendarEventCollection(db)
 	timeOneHourLater := api.GetCurrentTime().Add(1 * time.Hour)
 	timeOneDayLater := api.GetCurrentTime().Add(24 * time.Hour)
@@ -71,6 +80,41 @@ func TestMeetingPreparationTask(t *testing.T) {
 		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "[]", string(body))
+	})
+	t.Run("MeetingPrepViewNotAdded", func(t *testing.T) {
+		authtoken2 := login("test_meeting_prep_endpoint_not_added@generaltask.com", "")
+		userID2 := getUserIDFromAuthToken(t, db, authtoken2)
+
+		_, err = database.UpdateOrCreateCalendarAccount(db, userID2, "123abc", "foobar_source",
+			&database.CalendarAccount{
+				UserID:     userID2,
+				IDExternal: "acctid",
+				Calendars: []database.Calendar{
+					{
+						AccessRole: constants.AccessControlOwner,
+						CalendarID: "calid",
+					},
+					{
+						AccessRole: constants.AccessControlReader,
+						CalendarID: "other_calid",
+					},
+				},
+			}, nil)
+		assert.NoError(t, err)
+
+		_, err = createTestEvent(calendarEventCollection, userID2, "Event1", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
+		assert.NoError(t, err)
+		request, _ := http.NewRequest("GET", "/meeting_preparation_tasks/", nil)
+		request.Header.Set("Authorization", "Bearer "+authtoken2)
+		request.Header.Set("Timezone-Offset", "0")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := io.ReadAll(recorder.Body)
+
+		assert.Equal(t, `[]`, string(body))
+		assert.NoError(t, err)
 	})
 	t.Run("Success", func(t *testing.T) {
 		_, err = createTestEvent(calendarEventCollection, userID, "Event1", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NilObjectID, "acctid", "calid")
@@ -116,6 +160,15 @@ func TestGetMeetingPreparationTasksResult(t *testing.T) {
 				},
 			},
 		}, nil)
+	assert.NoError(t, err)
+
+	viewType := string(constants.ViewMeetingPreparation)
+	viewCollection := database.GetViewCollection(api.DB)
+	view := database.View{
+		UserID: userID,
+		Type:   viewType,
+	}
+	_, err = viewCollection.InsertOne(context.Background(), view)
 	assert.NoError(t, err)
 
 	calendarEventCollection := database.GetCalendarEventCollection(db)
