@@ -36,7 +36,10 @@ export interface TModifyNoteData {
 }
 
 export const useGetNote = (params: TGetNoteParams) => {
-    return useQuery<TNote>(['note', params.id], (context) => getNote(params, context), getBackgroundQueryOptions())
+    return useQuery<TNote>(['note', params.id], (context) => getNote(params, context), {
+        retry: 0,
+        ...getBackgroundQueryOptions(),
+    })
 }
 const getNote = async ({ id }: TGetNoteParams, { signal }: QueryFunctionContext) => {
     try {
