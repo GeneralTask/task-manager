@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/utils"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -16,6 +17,7 @@ type UserInfo struct {
 	Name                string `json:"name"`
 	IsEmployee          bool   `json:"is_employee"`
 	Email               string `json:"email"`
+	IsCompanyEmail      bool   `json:"is_company_email"`
 	LinearName          string `json:"linear_name,omitempty"`
 	LinearDisplayName   string `json:"linear_display_name,omitempty"`
 }
@@ -43,9 +45,19 @@ func (api *API) UserInfoGet(c *gin.Context) {
 		Name:                userObject.Name,
 		IsEmployee:          strings.HasSuffix(strings.ToLower(userObject.Email), "@generaltask.com"),
 		Email:               userObject.Email,
+		IsCompanyEmail:      isCompanyEmail(userObject.Email),
 		LinearName:          userObject.LinearName,
 		LinearDisplayName:   userObject.LinearDisplayName,
 	})
+}
+
+func isCompanyEmail(email string) bool {
+	domain, err := database.GetEmailDomain(email)
+	if err != nil {
+		// error state is false (i.e. we assume the email address is open)
+		return false
+	}
+	return !utils.IsOpenEmailAddress(domain)
 }
 
 func (api *API) UserInfoUpdate(c *gin.Context) {
