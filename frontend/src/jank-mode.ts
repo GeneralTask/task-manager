@@ -17,6 +17,11 @@ const suppressConsoleErrors = () => {
 
     const backupConsoleError = console.error.bind(console)
     console.error = (message?: any, ...optionalParams: any[]) => {
+        // check if message has 'includes' function
+        if (typeof message?.includes !== 'function') {
+            backupConsoleError(message, ...optionalParams)
+            return
+        }
         if (message && messagesToSuppress.some((msg) => message.includes(msg))) {
             return
         } else {
