@@ -101,29 +101,31 @@ export default function useEventBanners(date: DateTime) {
                                   </>
                               ),
                           }
-                        : event.deeplink && (
-                              <>
-                                  <GTButton
-                                      styleType="secondary"
-                                      icon={icons.external_link}
-                                      value="Open"
-                                      onClick={() => window.open(event.deeplink, '_blank')}
-                                  />
-                                  {isPreviewMode && (
+                        : event.deeplink && {
+                              actions: (
+                                  <>
                                       <GTButton
-                                          styleType="icon"
-                                          icon={icons.note}
-                                          onClick={() => {
-                                              const note = notes?.find(
-                                                  (n) => n.linked_event_id === event.id && !n.is_deleted
-                                              )
-                                              const id = note ? note.id : createMeetingNote(event)
-                                              navigate(`/notes/${id}`)
-                                          }}
+                                          styleType="secondary"
+                                          icon={icons.external_link}
+                                          value="Open"
+                                          onClick={() => window.open(event.deeplink, '_blank')}
                                       />
-                                  )}
-                              </>
-                          )),
+                                      {isPreviewMode && (
+                                          <GTButton
+                                              styleType="icon"
+                                              icon={icons.note}
+                                              onClick={() => {
+                                                  const note = notes?.find(
+                                                      (n) => n.linked_event_id === event.id && !n.is_deleted
+                                                  )
+                                                  const id = note ? note.id : createMeetingNote(event)
+                                                  navigate(`/notes/${id}`)
+                                              }}
+                                          />
+                                      )}
+                                  </>
+                              ),
+                          }),
                 }
                 if (toast.isActive(event.id)) {
                     toast.update(event.id, { render: <ToastTemplate {...toastProps} /> })
