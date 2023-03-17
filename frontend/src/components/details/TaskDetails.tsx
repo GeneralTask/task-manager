@@ -11,7 +11,7 @@ import {
     SLACK_SOURCE_NAME,
     SYNC_MESSAGES,
 } from '../../constants'
-import { useInterval, useKeyboardShortcut, useNavigateToTask, usePreviewMode } from '../../hooks'
+import { useInterval, useKeyboardShortcut, useNavigateToTask } from '../../hooks'
 import { useModifyRecurringTask } from '../../services/api/recurring-tasks.hooks'
 import {
     TModifyTaskData,
@@ -110,7 +110,6 @@ interface TaskDetailsProps {
 const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
-    const { isPreviewMode } = usePreviewMode()
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const { mutate: reorderTask } = useReorderTask()
@@ -256,16 +255,15 @@ const TaskDetails = ({ task, isRecurringTaskTemplate }: TaskDetailsProps) => {
                                     styleType="secondary"
                                 />
                             )}
-                            {isPreviewMode && (
-                                <Flex gap={Spacing._8}>
-                                    {taskv4.shared_access && isTaskBeingShared(taskv4) && !isSubtask && (
-                                        <SharedItemMessage shareAccess={taskv4.shared_access} />
-                                    )}
-                                    {taskv4.source?.name === 'General Task' && isTaskActive(taskv4) && !isSubtask && (
-                                        <TaskSharingDropdown task={taskv4} />
-                                    )}
-                                </Flex>
-                            )}
+
+                            <Flex gap={Spacing._8}>
+                                {taskv4.shared_access && isTaskBeingShared(taskv4) && !isSubtask && (
+                                    <SharedItemMessage shareAccess={taskv4.shared_access} />
+                                )}
+                                {taskv4.source?.name === 'General Task' && isTaskActive(taskv4) && !isSubtask && (
+                                    <TaskSharingDropdown task={taskv4} />
+                                )}
+                            </Flex>
                             {!isMeetingPreparationTask &&
                                 !isRecurringTaskTemplate &&
                                 task.id_folder &&
