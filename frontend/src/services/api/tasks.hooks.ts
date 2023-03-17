@@ -1,5 +1,6 @@
 import { QueryFunctionContext, QueryKey, useQuery } from 'react-query'
 import { useNavigate } from 'react-router-dom'
+import { AxiosError } from 'axios'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { DONE_FOLDER_ID, TASK_MARK_AS_DONE_TIMEOUT, TRASH_FOLDER_ID } from '../../constants'
@@ -102,17 +103,23 @@ const getSharedTask = async ({ id }: TGetSharedTaskParams, { signal }: QueryFunc
     try {
         const res = await apiClient.get(`/shareable_tasks/detail/${id}/`, { signal })
         return castImmutable(res.data)
-    } catch {
-        throw new Error('getSharedTask failed')
+    } catch (error) {
+        throw error as AxiosError
     }
 }
 
 export const useGetSharedTask = (params: TGetSharedTaskParams) => {
-    return useQuery<TSharedTaskResponse, void>(
-        'sharedTask',
-        (context) => getSharedTask(params, context),
-        getBackgroundQueryOptions()
-    )
+    return useQuery<TSharedTaskResponse, AxiosError>('sharedTask', (context) => getSharedTask(params, context), {
+        ...getBackgroundQueryOptions(),
+        retry: (failureCount, error) => {
+            // We don't want to retry the request if the task doesn't exist or if the user is not authorized to access it
+            if (error.response?.status === 404) {
+                return false
+            }
+            // 3 is the default retry count
+            return failureCount < 3
+        },
+    })
 }
 export const useGetTasksV4 = (isEnabled = true) => {
     return useQuery<TTaskV4[], void>('tasks_v4', getTasksV4, { enabled: isEnabled, refetchOnMount: false })
