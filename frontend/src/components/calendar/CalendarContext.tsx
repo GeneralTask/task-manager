@@ -103,7 +103,7 @@ export const CalendarContextProvider = (props: CalendarContextProviderProps) => 
         isTasksDueViewCollapsed,
         disableSelectEvent: false,
         isTasksOverdueViewCollapsed,
-        showTaskToCalSidebar: showTaskToCalSidebar && location.pathname.startsWith('/super-dashboard'),
+        showTaskToCalSidebar: showTaskToCalSidebar && !location.pathname.startsWith('/super-dashboard'),
         setDate,
         setDayViewDate,
         setCalendarType,
