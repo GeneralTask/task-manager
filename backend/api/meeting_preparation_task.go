@@ -93,7 +93,10 @@ func (api *API) GetMeetingPreparationTasksResult(userID primitive.ObjectID, time
 func (api *API) IsMeetingPreparationAdded(userID primitive.ObjectID) (bool, error) {
 	cursor, err := database.GetViewCollection(api.DB).Find(
 		context.Background(),
-		bson.M{"user_id": userID},
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"type": string(constants.ViewMeetingPreparation)},
+		}},
 	)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find views")
