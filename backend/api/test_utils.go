@@ -292,7 +292,7 @@ func UnauthorizedTest(t *testing.T, method string, url string, body io.Reader) b
 
 func NoBusinessAccessTest(t *testing.T, method string, url string, api *API, authToken string) {
 	t.Run("NoBusinessAccess", func(t *testing.T) {
-		ServeRequest(t, authToken, "POST", "/dashboard/team_members/", nil, http.StatusForbidden, api)
+		ServeRequest(t, authToken, method, url, nil, http.StatusForbidden, api)
 	})
 }
 
