@@ -135,6 +135,9 @@ func UpdateGithubTeamData(userID primitive.ObjectID, endCutoff time.Time, lookba
 	return nil
 }
 
+func getPullRequests(filters bson.M{}, cutoffTime time.Time) {
+}
+
 func GetPullRequestCutoffTime(endCutoff time.Time, lookbackDays int) time.Time {
 	return endCutoff.Add(-time.Hour * 24 * time.Duration(lookbackDays))
 }
