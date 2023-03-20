@@ -46,12 +46,12 @@ func (api *API) NotePreview(c *gin.Context) {
 	}
 
 	previewTitle := "General Task Shared Note"
-	if note.Title != nil && *note.SharedAccess == database.SharedAccessPublic {
+	if note.Title != nil && (note.SharedAccess == nil || *note.SharedAccess == database.SharedAccessPublic) {
 		previewTitle = html.EscapeString(*note.Title)
 	}
 
 	previewAuthor := "Anonymous"
-	if *note.SharedAccess == database.SharedAccessPublic {
+	if note.SharedAccess == nil || *note.SharedAccess == database.SharedAccessPublic {
 		previewAuthor = html.EscapeString(note.Author)
 	}
 
