@@ -55,22 +55,24 @@ const SharedNoteView = () => {
                     <SharedItemBodyContainer
                         content={
                             note && note.shared_until ? (
-                                <Flex gap={Spacing._8}>
-                                    <FlexPadding8Horizontal alignItems="flex-start" justifyContent="space-between">
-                                        <TitleLarge>{note.title}</TitleLarge>
-                                        <NoteActionsDropdown note={note} isOwner={isUserNoteOwner} />
-                                    </FlexPadding8Horizontal>
-                                    {note.linked_event_id && note.linked_event_start && note.linked_event_end && (
-                                        <FlexPadding8Horizontal>
-                                            <LabelSmall color="light">
-                                                {getFormattedEventTime(
-                                                    DateTime.fromISO(note.linked_event_start),
-                                                    DateTime.fromISO(note.linked_event_end),
-                                                    'long'
-                                                )}
-                                            </LabelSmall>
+                                <>
+                                    <Flex column gap={Spacing._8}>
+                                        <FlexPadding8Horizontal alignItems="flex-start" justifyContent="space-between">
+                                            <TitleLarge>{note.title}</TitleLarge>
+                                            <NoteActionsDropdown note={note} isOwner={isUserNoteOwner} />
                                         </FlexPadding8Horizontal>
-                                    )}
+                                        {note.linked_event_id && note.linked_event_start && note.linked_event_end && (
+                                            <FlexPadding8Horizontal>
+                                                <LabelSmall color="light">
+                                                    {getFormattedEventTime(
+                                                        DateTime.fromISO(note.linked_event_start),
+                                                        DateTime.fromISO(note.linked_event_end),
+                                                        'long'
+                                                    )}
+                                                </LabelSmall>
+                                            </FlexPadding8Horizontal>
+                                        )}
+                                    </Flex>
                                     <GTTextField
                                         key={note.id}
                                         type="markdown"
@@ -80,7 +82,7 @@ const SharedNoteView = () => {
                                         disabled
                                         readOnly
                                     />
-                                </Flex>
+                                </>
                             ) : (
                                 <NotAvailableMessage sharedType="Notes" />
                             )
