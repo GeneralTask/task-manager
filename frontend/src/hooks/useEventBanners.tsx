@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { useInterval, useKeyboardShortcut, usePreviewMode } from '.'
+import { useInterval, useKeyboardShortcut } from '.'
 import Flex from '../components/atoms/Flex'
 import GTButton from '../components/atoms/buttons/GTButton'
 import ToastTemplate, { ToastTemplateProps } from '../components/atoms/toast/ToastTemplate'
@@ -28,7 +28,6 @@ export default function useEventBanners(date: DateTime) {
     const { mutate: createNote } = useCreateNote()
     const { data: userInfo } = useGetUserInfo()
     const navigate = useNavigate()
-    const { isPreviewMode } = usePreviewMode()
     const { data: events } = useEvents(
         {
             startISO: date.startOf('day').toISO(),
@@ -87,24 +86,22 @@ export default function useEventBanners(date: DateTime) {
                                           value="Join"
                                           onClick={() => window.open(event.conference_call?.url, '_blank')}
                                       />
-                                      {isPreviewMode && (
-                                          <GTButton
-                                              styleType="icon"
-                                              icon={icons.note}
-                                              onClick={() => {
-                                                  if (event.linked_note_id) {
-                                                      navigate(`/notes/${event.linked_note_id}`)
-                                                      return
-                                                  }
-                                                  const note = notes?.find(
-                                                      (n) => n.linked_event_id === event.id && !n.is_deleted
-                                                  )
-                                                  const id = note ? note.id : createMeetingNote(event)
-                                                  event.linked_note_id = id
-                                                  navigate(`/notes/${id}`)
-                                              }}
-                                          />
-                                      )}
+                                      <GTButton
+                                          styleType="icon"
+                                          icon={icons.note}
+                                          onClick={() => {
+                                              if (event.linked_note_id) {
+                                                  navigate(`/notes/${event.linked_note_id}`)
+                                                  return
+                                              }
+                                              const note = notes?.find(
+                                                  (n) => n.linked_event_id === event.id && !n.is_deleted
+                                              )
+                                              const id = note ? note.id : createMeetingNote(event)
+                                              event.linked_note_id = id
+                                              navigate(`/notes/${id}`)
+                                          }}
+                                      />
                                   </Flex>
                               ),
                           }
@@ -117,23 +114,21 @@ export default function useEventBanners(date: DateTime) {
                                           value="Open"
                                           onClick={() => window.open(event.deeplink, '_blank')}
                                       />
-                                      {isPreviewMode && (
-                                          <GTButton
-                                              styleType="icon"
-                                              icon={icons.note}
-                                              onClick={() => {
-                                                  if (event.linked_note_id) {
-                                                      navigate(`/notes/${event.linked_note_id}`)
-                                                      return
-                                                  }
-                                                  const note = notes?.find(
-                                                      (n) => n.linked_event_id === event.id && !n.is_deleted
-                                                  )
-                                                  const id = note ? note.id : createMeetingNote(event)
-                                                  navigate(`/notes/${id}`)
-                                              }}
-                                          />
-                                      )}
+                                      <GTButton
+                                          styleType="icon"
+                                          icon={icons.note}
+                                          onClick={() => {
+                                              if (event.linked_note_id) {
+                                                  navigate(`/notes/${event.linked_note_id}`)
+                                                  return
+                                              }
+                                              const note = notes?.find(
+                                                  (n) => n.linked_event_id === event.id && !n.is_deleted
+                                              )
+                                              const id = note ? note.id : createMeetingNote(event)
+                                              navigate(`/notes/${id}`)
+                                          }}
+                                      />
                                   </Flex>
                               ),
                           }),
