@@ -77,7 +77,7 @@ func UpdateGithubTeamData(userID primitive.ObjectID, endCutoff time.Time, lookba
 		logger.Error().Err(err).Msg("failed to fetch github PRs")
 		return err
 	}
-	fmt.Println(pullRequestIDToValue)
+	fmt.Println("pr to val:", pullRequestIDToValue)
 	team, err := database.GetOrCreateDashboardTeam(db, userID)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get dashboard team")
@@ -88,7 +88,7 @@ func UpdateGithubTeamData(userID primitive.ObjectID, endCutoff time.Time, lookba
 		logger.Error().Err(err).Msg("failed to get dashboard team members")
 		return err
 	}
-	fmt.Println(teamMembers)
+	fmt.Println("team members:", teamMembers)
 	// pullRequestsMatchingTeam := make(map[string]database.PullRequest)
 	// teamMemberToPullRequests := make(map[primitive.ObjectID]map[string]database.PullRequest)
 	authorToPullRequests := make(map[string]map[string]database.PullRequest)
@@ -103,13 +103,16 @@ func UpdateGithubTeamData(userID primitive.ObjectID, endCutoff time.Time, lookba
 			}
 		}
 	}
+	fmt.Println("autho to PR:", authorToPullRequests)
 	teamPullRequests := make(map[string]database.PullRequest)
 	for _, teamMember := range *teamMembers {
+		fmt.Println("team member:", teamMember)
 		if teamMember.GithubID == "" {
 			continue
 		}
 		idToPullRequest, exists := authorToPullRequests[teamMember.GithubID]
 		if !exists {
+			fmt.Println("not exists!", authorToPullRequests)
 			continue
 		}
 		err = saveDataPointsForPullRequests(db, idToPullRequest, team.ID, teamMember.ID)
@@ -156,6 +159,7 @@ func getPullRequests(db *mongo.Database, filters []bson.M, cutoffTime time.Time)
 }
 
 func saveDataPointsForPullRequests(db *mongo.Database, pullRequestIDToValue map[string]database.PullRequest, teamID primitive.ObjectID, individualID primitive.ObjectID) error {
+	fmt.Println("save data points", teamID, individualID, pullRequestIDToValue)
 	logger := logging.GetSentryLogger()
 	dateToTotalResponseTime := make(map[primitive.DateTime]int)
 	dateToPRCount := make(map[primitive.DateTime]int)
@@ -174,6 +178,7 @@ func saveDataPointsForPullRequests(db *mongo.Database, pullRequestIDToValue map[
 		responseTime := int(firstCommentTime.Sub(pullRequest.CreatedAtExternal.Time()).Minutes())
 		createdAt := pullRequest.CreatedAtExternal.Time()
 		pullRequestDate := primitive.NewDateTimeFromTime(time.Date(createdAt.Year(), createdAt.Month(), createdAt.Day(), constants.UTC_OFFSET, 0, 0, 0, time.UTC))
+		fmt.Println("pull request date:", pullRequestDate)
 		dateToTotalResponseTime[pullRequestDate] += responseTime
 		dateToPRCount[pullRequestDate] += 1
 	}
@@ -202,7 +207,7 @@ func saveDataPointsForPullRequests(db *mongo.Database, pullRequestIDToValue map[
 		}
 		result := dataPointCollection.FindOneAndUpdate(
 			context.Background(),
-			bson.M{"$and": []bson.M{
+			bson.M{"$and": []bson.M{ // TODO filter on indviidual ID and team ID also
 				{"subject": constants.DashboardSubjectGlobal},
 				{"date": dateTime},
 				{"graph_type": constants.DashboardGraphTypePRResponseTime},
