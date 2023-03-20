@@ -222,7 +222,7 @@ func TestDashboardData(t *testing.T) {
 				},
 				{
 					"name": "Daily average (Industry)",
-					"color": "grey",
+					"color": "gray",
 					"aggregated_name": "Weekly average (Industry)",
 					"data_id": "000000000000000000000005",
 					"subject_id_override": null
@@ -242,7 +242,7 @@ func TestDashboardData(t *testing.T) {
 				},
 				{
 					"name": "Daily average (Your team)",
-					"color": "grey",
+					"color": "gray",
 					"aggregated_name": "Weekly average (Your team)",
 					"data_id": "000000000000000000000006",
 					"subject_id_override": "000000000000000000000101"
@@ -262,7 +262,7 @@ func TestDashboardData(t *testing.T) {
 				},
 				{
 					"name": "Daily average (Industry)",
-					"color": "grey",
+					"color": "gray",
 					"aggregated_name": "Weekly average (Industry)",
 					"data_id": "000000000000000000000008",
 					"subject_id_override": null
@@ -282,7 +282,7 @@ func TestDashboardData(t *testing.T) {
 				},
 				{
 					"name": "Daily average (Your team)",
-					"color": "grey",
+					"color": "gray",
 					"aggregated_name": "Weekly average (Your team)",
 					"data_id": "000000000000000000000009",
 					"subject_id_override": "000000000000000000000101"
