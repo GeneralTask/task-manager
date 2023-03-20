@@ -297,8 +297,10 @@ export interface TUserInfo {
     name: string
     is_employee: boolean
     email: string
+    is_company_email: boolean
     linear_name?: string
     linear_display_name?: string
+    business_mode_enabled?: boolean
 }
 
 // React-DND Item Types

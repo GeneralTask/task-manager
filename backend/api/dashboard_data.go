@@ -1,6 +1,7 @@
 package api
 
 import (
+	"sort"
 	"strconv"
 	"time"
 
@@ -73,7 +74,7 @@ const ICON_GCAL = "gcal"
 
 const COLOR_PINK = "pink"
 const COLOR_BLUE = "blue"
-const COLOR_GREY = "grey"
+const COLOR_GRAY = "gray"
 
 const TEAM_DAILY_AVERAGE = "Daily average (Your team)"
 const TEAM_WEEKLY_AVERAGE = "Weekly average (Your team)"
@@ -194,6 +195,9 @@ func (api *API) DashboardData(c *gin.Context) {
 			X: int(dataPoint.Date.Time().Unix()),
 			Y: dataPoint.Value,
 		})
+		sort.Slice(dashboardData.Points, func(i, j int) bool {
+			return dashboardData.Points[i].X < dashboardData.Points[j].X
+		})
 		data[subjectID][intervalID][dataID] = dashboardData
 	}
 
@@ -263,7 +267,7 @@ func getGraphs() map[primitive.ObjectID]DashboardGraph {
 			},
 			{
 				Name:           INDUSTRY_DAILY_AVERAGE,
-				Color:          COLOR_GREY,
+				Color:          COLOR_GRAY,
 				AggregatedName: INDUSTRY_WEEKLY_AVERAGE,
 				DataID:         DataIDPRChartIndustryAverage,
 			},
@@ -281,7 +285,7 @@ func getGraphs() map[primitive.ObjectID]DashboardGraph {
 			},
 			{
 				Name:           INDUSTRY_DAILY_AVERAGE,
-				Color:          COLOR_GREY,
+				Color:          COLOR_GRAY,
 				AggregatedName: INDUSTRY_WEEKLY_AVERAGE,
 				DataID:         DataIDFocusTimeIndustryAverage,
 			},
@@ -299,7 +303,7 @@ func getGraphs() map[primitive.ObjectID]DashboardGraph {
 			},
 			{
 				Name:           TEAM_DAILY_AVERAGE,
-				Color:          COLOR_GREY,
+				Color:          COLOR_GRAY,
 				AggregatedName: TEAM_WEEKLY_AVERAGE,
 				DataID:         DataIDPRChartTeamAverage,
 				SubjectID:      &SubjectIDTeam,
@@ -318,7 +322,7 @@ func getGraphs() map[primitive.ObjectID]DashboardGraph {
 			},
 			{
 				Name:           TEAM_DAILY_AVERAGE,
-				Color:          COLOR_GREY,
+				Color:          COLOR_GRAY,
 				AggregatedName: TEAM_WEEKLY_AVERAGE,
 				DataID:         DataIDFocusTimeTeamAverage,
 				SubjectID:      &SubjectIDTeam,

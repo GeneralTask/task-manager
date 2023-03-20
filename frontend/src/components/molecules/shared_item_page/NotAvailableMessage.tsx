@@ -14,6 +14,14 @@ const FlexMargin8Top = styled(Flex)`
     margin-top: ${Spacing._8};
 `
 
+const getTitleAndBody = (type: 'note' | 'task', isLoggedIn: boolean) => {
+    const title = isLoggedIn ? `This ${type} is not available` : `Sign in to view this ${type}`
+    const body = isLoggedIn
+        ? `If you need access to this ${type}, please reach out to the person who sent it.`
+        : `To view this ${type}, you need to sign in or sign up for an account. Please make sure that the email address you use to log in matches the one that the ${type} was shared with.`
+    return { title, body }
+}
+
 interface NotAvailableMessageProps {
     sharedType: 'Notes' | 'Tasks'
 }
@@ -22,15 +30,12 @@ const NotAvailableMessage = ({ sharedType }: NotAvailableMessageProps) => {
     const navigate = useNavigate()
     const type = sharedType === 'Notes' ? 'note' : 'task'
     const isLoggedIn = !!Cookies.get(AUTHORIZATION_COOKE)
+    const { title, body } = getTitleAndBody(type, isLoggedIn)
 
     return (
-        <Flex column>
-            <TitleLarge>{type === 'task' ? 'This task is not available' : 'Sign in to view this note'}</TitleLarge>
-            <BodyLarge>
-                {type === 'task'
-                    ? 'If you need access to this task, please reach out to the person who sent it.'
-                    : 'To view this note, you need to sign in or sign up for an account. Please make sure that the email address you use to log in matches the one that the note was shared with.'}
-            </BodyLarge>
+        <Flex column gap={Spacing._16}>
+            <TitleLarge>{title}</TitleLarge>
+            <BodyLarge>{body}</BodyLarge>
             <FlexMargin8Top gap={Spacing._8}>
                 {isLoggedIn ? (
                     <GTButton

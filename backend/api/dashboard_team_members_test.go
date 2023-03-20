@@ -19,15 +19,13 @@ type DashboardTeamMemberCreateResponse struct {
 
 func TestDashboardTeamMemberCreate(t *testing.T) {
 	authToken := login("test_dashboard_team_members_create@generaltask.com", "")
-	UnauthorizedTest(t, "POST", "/dashboard/team_members/", nil)
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	userID := getUserIDFromAuthToken(t, api.DB, authToken)
-	t.Run("NoBusinessAccess", func(t *testing.T) {
-		ServeRequest(t, authToken, "POST", "/dashboard/team_members/", nil, http.StatusForbidden, api)
-	})
-	_, err := database.GetUserCollection(api.DB).UpdateOne(context.Background(), bson.M{"_id": userID}, bson.M{"$set": bson.M{"business_mode_enabled": true}})
-	assert.NoError(t, err)
+
+	UnauthorizedTest(t, "POST", "/dashboard/team_members/", nil)
+	NoBusinessAccessTest(t, "POST", "/dashboard/team_members/", api, authToken)
+	EnableBusinessAccess(t, api, userID)
 	t.Run("MissingName", func(t *testing.T) {
 		database.GetDashboardTeamMemberCollection(api.DB).DeleteMany(context.Background(), bson.M{})
 		bodyParams, err := json.Marshal(DashboardTeamMemberCreateParams{
@@ -125,22 +123,19 @@ func TestDashboardTeamMemberCreate(t *testing.T) {
 
 func TestDashboardTeamMemberList(t *testing.T) {
 	authToken := login("test_dashboard_team_members_list@generaltask.com", "")
-	UnauthorizedTest(t, "GET", "/dashboard/team_members/", nil)
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	userID := getUserIDFromAuthToken(t, api.DB, authToken)
 	teamMemberCollection := database.GetDashboardTeamMemberCollection(api.DB)
 
-	t.Run("NoBusinessAccess", func(t *testing.T) {
-		ServeRequest(t, authToken, "GET", "/dashboard/team_members/", nil, http.StatusForbidden, api)
-	})
-	_, err := database.GetUserCollection(api.DB).UpdateOne(context.Background(), bson.M{"_id": userID}, bson.M{"$set": bson.M{"business_mode_enabled": true}})
-	assert.NoError(t, err)
+	UnauthorizedTest(t, "GET", "/dashboard/team_members/", nil)
+	NoBusinessAccessTest(t, "GET", "/dashboard/team_members/", api, authToken)
+	EnableBusinessAccess(t, api, userID)
 	t.Run("SuccessNoResults", func(t *testing.T) {
 		teamMemberCollection.DeleteMany(context.Background(), bson.M{})
 		response := ServeRequest(t, authToken, "GET", "/dashboard/team_members/", nil, http.StatusOK, api)
 		var result []DashboardTeamMemberResult
-		err = json.Unmarshal(response, &result)
+		err := json.Unmarshal(response, &result)
 		assert.NoError(t, err)
 		assert.Equal(t, 0, len(result))
 	})

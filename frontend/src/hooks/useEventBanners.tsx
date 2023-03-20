@@ -1,10 +1,17 @@
 import { useCallback, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { DateTime } from 'luxon'
+import { v4 as uuidv4 } from 'uuid'
 import { useInterval, useKeyboardShortcut } from '.'
-import ToastTemplate from '../components/atoms/toast/ToastTemplate'
+import Flex from '../components/atoms/Flex'
+import GTButton from '../components/atoms/buttons/GTButton'
+import ToastTemplate, { ToastTemplateProps } from '../components/atoms/toast/ToastTemplate'
 import { NO_TITLE, SINGLE_SECOND_INTERVAL } from '../constants'
 import { useEvents } from '../services/api/events.hooks'
+import { useCreateNote, useGetNotes } from '../services/api/notes.hooks'
+import { useGetUserInfo } from '../services/api/user-info.hooks'
+import { Spacing } from '../styles'
 import { icons } from '../styles/images'
 import { TEvent } from '../utils/types'
 
@@ -17,6 +24,10 @@ const isEventWithinTenMinutes = (event: TEvent) => {
 export default function useEventBanners(date: DateTime) {
     const eventBannerLastShownAt = useRef<Map<string, number>>(new Map<string, number>())
     const eventsWithinTenMinutes = useRef<TEvent[]>([])
+    const { data: notes } = useGetNotes()
+    const { mutate: createNote } = useCreateNote()
+    const { data: userInfo } = useGetUserInfo()
+    const navigate = useNavigate()
     const { data: events } = useEvents(
         {
             startISO: date.startOf('day').toISO(),
@@ -24,6 +35,20 @@ export default function useEventBanners(date: DateTime) {
         },
         'banner'
     )
+
+    const createMeetingNote = (event: TEvent) => {
+        const optimisticId = uuidv4()
+        createNote({
+            title: event.title || NO_TITLE,
+            author: userInfo?.name || 'Anonymous',
+            linked_event_id: event.id,
+            linked_event_start: event.datetime_start,
+            linked_event_end: event.datetime_end,
+            optimisticId,
+        })
+        navigate(`/notes/${optimisticId}`)
+        return optimisticId
+    }
 
     useInterval(
         () => {
@@ -48,23 +73,64 @@ export default function useEventBanners(date: DateTime) {
                         : 'is now.'
                 const eventTitle = event.title.length > 0 ? event.title : NO_TITLE
                 const lastShownAt = eventBannerLastShownAt.current.get(event.id)
-                const toastProps = {
+                const toastProps: ToastTemplateProps = {
                     title: eventTitle,
                     message: timeUntilEventMessage,
                     ...(event.conference_call?.url
                         ? {
-                              leftAction: {
-                                  icon: event.conference_call?.logo,
-                                  label: 'Join',
-                                  onClick: () => window.open(event.conference_call?.url, '_blank'),
-                              },
+                              actions: (
+                                  <Flex gap={Spacing._8}>
+                                      <GTButton
+                                          styleType="secondary"
+                                          icon={event.conference_call?.logo}
+                                          value="Join"
+                                          onClick={() => window.open(event.conference_call?.url, '_blank')}
+                                      />
+                                      <GTButton
+                                          styleType="icon"
+                                          icon={icons.note}
+                                          onClick={() => {
+                                              if (event.linked_note_id) {
+                                                  navigate(`/notes/${event.linked_note_id}`)
+                                                  return
+                                              }
+                                              const note = notes?.find(
+                                                  (n) => n.linked_event_id === event.id && !n.is_deleted
+                                              )
+                                              const id = note ? note.id : createMeetingNote(event)
+                                              event.linked_note_id = id
+                                              navigate(`/notes/${id}`)
+                                          }}
+                                      />
+                                  </Flex>
+                              ),
                           }
                         : event.deeplink && {
-                              leftAction: {
-                                  icon: icons.external_link,
-                                  label: 'Open',
-                                  onClick: () => window.open(event.deeplink, '_blank'),
-                              },
+                              actions: (
+                                  <Flex gap={Spacing._8}>
+                                      <GTButton
+                                          styleType="secondary"
+                                          icon={icons.external_link}
+                                          value="Open"
+                                          onClick={() => window.open(event.deeplink, '_blank')}
+                                      />
+                                      <GTButton
+                                          styleType="icon"
+                                          icon={icons.note}
+                                          onClick={() => {
+                                              if (event.linked_note_id) {
+                                                  navigate(`/notes/${event.linked_note_id}`)
+                                                  return
+                                              }
+                                              const note = notes?.find(
+                                                  (n) => n.linked_event_id === event.id && !n.is_deleted
+                                              )
+                                              const id = note ? note.id : createMeetingNote(event)
+                                              navigate(`/notes/${id}`)
+                                          }}
+                                      />
+                                  </Flex>
+                              ),
                           }),
                 }
                 if (toast.isActive(event.id)) {

@@ -793,6 +793,26 @@ func TestGetSharedNoteWithAuth(t *testing.T) {
 		assert.Equal(t, "user not found in list of attendees", err.Error())
 		assert.Nil(t, note)
 	})
+	t.Run("NotAttendeeButOwner", func(t *testing.T) {
+		eventCollection := GetCalendarEventCollection(db)
+		event, err := eventCollection.InsertOne(context.Background(), &CalendarEvent{
+			UserID: noteOwnerID,
+		})
+		assert.NoError(t, err)
+
+		result, err := noteCollection.InsertOne(context.Background(), &Note{
+			UserID:        noteOwnerID,
+			SharedUntil:   primitive.NewDateTimeFromTime(timeTomorrow),
+			SharedAccess:  &attendee,
+			LinkedEventID: event.InsertedID.(primitive.ObjectID),
+		})
+		assert.NoError(t, err)
+		noteID := result.InsertedID.(primitive.ObjectID)
+
+		note, err := GetSharedNoteWithAuth(db, noteID, noteOwnerID)
+		assert.NoError(t, err)
+		assert.Equal(t, noteID, note.ID)
+	})
 }
 
 func TestGetPullRequests(t *testing.T) {

@@ -39,8 +39,7 @@ func (api *API) TaskCreate(c *gin.Context) {
 		return
 	}
 
-	userIDRaw, _ := c.Get("user")
-	userID := userIDRaw.(primitive.ObjectID)
+	userID := getUserIDFromContext(c)
 
 	IDTaskSection := constants.IDTaskSectionDefault
 	if taskCreateParams.IDTaskSection != nil {
