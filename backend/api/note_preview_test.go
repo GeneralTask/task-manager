@@ -17,6 +17,9 @@ func TestNotePreview(t *testing.T) {
 	authToken := login("test_notes_preview@generaltask.com", "")
 	title1 := "title1"
 	title2 := "title2"
+	title3 := "title3"
+
+	sharedAccessMeetingAttendees := database.SharedAccessMeetingAttendees
 
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
@@ -47,10 +50,24 @@ func TestNotePreview(t *testing.T) {
 		},
 	)
 	assert.NoError(t, err)
+	note3, err := database.GetOrCreateNote(
+		db,
+		userID,
+		"123abcdefghijk",
+		"foobar_source",
+		&database.Note{
+			UserID:      userID,
+			Title:       &title3,
+			SharedUntil: *testutils.CreateDateTime("1999-01-01"),
+			SharedAccess: &sharedAccessMeetingAttendees,
+		},
+	)
+	assert.NoError(t, err)
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	_ = note1
 	_ = note2
+	_ = note3
 	router := GetRouter(api)
 
 	t.Run("InvalidNoteID", func(t *testing.T) {
@@ -121,6 +138,39 @@ func TestNotePreview(t *testing.T) {
 
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="http://localhost:8080/note/`+note1.ID.Hex()+`/" />
+</head>
+<body>
+</body>
+</html>`,
+			string(body))
+	})
+	t.Run("SuccessNotPublic", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"GET",
+			fmt.Sprintf("/note/%s/", note3.ID.Hex()),
+			nil)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := io.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+
+		assert.Equal(t,
+			`
+<!DOCTYPE html>
+<html>
+<head>
+	<title>General Task Shared Note</title>
+	<meta http-equiv="Refresh" content="0; url='http://localhost:3000/note/`+note3.ID.Hex()+`'" />
+
+	<meta property="og:title" content="General Task Shared Note" />
+	<meta name="twitter:title" content="General Task Shared Note">
+
+	<meta content="Note shared by Anonymous via General Task." property="og:description">
+	<meta content="Note shared by Anonymous via General Task." property="twitter:description">
+
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="http://localhost:8080/note/`+note3.ID.Hex()+`/" />
 </head>
 <body>
 </body>
