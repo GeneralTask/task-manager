@@ -34,7 +34,7 @@ const FocusModeContextMenuWrapper = ({ event, children }: FocusModeContextMenuPr
         toast.show(
             {
                 message: 'This calendar event has been deleted',
-                rightAction: {
+                undoableButton: {
                     label: 'Undo',
                     onClick: () => {
                         toast.dismiss()

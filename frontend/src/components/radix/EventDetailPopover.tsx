@@ -56,7 +56,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
         toast.show(
             {
                 message: 'This calendar event has been deleted',
-                rightAction: {
+                undoableButton: {
                     label: 'Undo',
                     onClick: () => {
                         toast.dismiss()
@@ -180,6 +180,10 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                         fitContent={false}
                         onClick={() => {
                             setIsOpen(false)
+                            if (event.linked_note_id) {
+                                navigate(`/notes/${event.linked_note_id}`)
+                                return
+                            }
                             const note = notes?.find((n) => n.linked_event_id === event.id && !n.is_deleted)
                             const id = note ? note.id : createMeetingNote()
                             navigate(`/notes/${id}`)

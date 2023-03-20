@@ -57,10 +57,10 @@ interface UndoableToastAction extends ToastAction {
 export interface ToastTemplateProps {
     title?: string
     message: string
-    leftAction?: ToastAction
-    rightAction?: UndoableToastAction
+    actions?: React.ReactNode
+    undoableButton?: UndoableToastAction
 }
-const ToastTemplate = ({ title, message, leftAction, rightAction }: ToastTemplateProps) => {
+const ToastTemplate = ({ title, message, actions, undoableButton }: ToastTemplateProps) => {
     return (
         <ToastContainer>
             <MessageContainer>
@@ -68,20 +68,13 @@ const ToastTemplate = ({ title, message, leftAction, rightAction }: ToastTemplat
                 <MessageText>{message}</MessageText>
             </MessageContainer>
             <ButtonsContainer>
-                {leftAction && (
+                {actions}
+                {undoableButton && (
                     <GTButton
-                        icon={leftAction.icon}
+                        icon={undoableButton.icon}
                         styleType="secondary"
-                        onClick={stopPropogationWrapper(leftAction.onClick)}
-                        value={leftAction.label}
-                    />
-                )}
-                {rightAction && (
-                    <GTButton
-                        icon={rightAction.icon}
-                        styleType="secondary"
-                        onClick={stopPropogationWrapper(rightAction.onClick)}
-                        value={rightAction.label}
+                        onClick={stopPropogationWrapper(undoableButton.onClick)}
+                        value={undoableButton.label}
                     />
                 )}
             </ButtonsContainer>
