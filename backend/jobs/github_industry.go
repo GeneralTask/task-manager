@@ -3,7 +3,6 @@ package jobs
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -77,7 +76,6 @@ func UpdateGithubTeamData(userID primitive.ObjectID, endCutoff time.Time, lookba
 		logger.Error().Err(err).Msg("failed to fetch github PRs")
 		return err
 	}
-	fmt.Println("pr to val:", pullRequestIDToValue)
 	team, err := database.GetOrCreateDashboardTeam(db, userID)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get dashboard team")
@@ -88,7 +86,6 @@ func UpdateGithubTeamData(userID primitive.ObjectID, endCutoff time.Time, lookba
 		logger.Error().Err(err).Msg("failed to get dashboard team members")
 		return err
 	}
-	fmt.Println("team members:", teamMembers)
 	// pullRequestsMatchingTeam := make(map[string]database.PullRequest)
 	// teamMemberToPullRequests := make(map[primitive.ObjectID]map[string]database.PullRequest)
 	authorToPullRequests := make(map[string]map[string]database.PullRequest)
@@ -103,16 +100,13 @@ func UpdateGithubTeamData(userID primitive.ObjectID, endCutoff time.Time, lookba
 			}
 		}
 	}
-	fmt.Println("autho to PR:", authorToPullRequests)
 	teamPullRequests := make(map[string]database.PullRequest)
 	for _, teamMember := range *teamMembers {
-		fmt.Println("team member:", teamMember)
 		if teamMember.GithubID == "" {
 			continue
 		}
 		idToPullRequest, exists := authorToPullRequests[teamMember.GithubID]
 		if !exists {
-			fmt.Println("not exists!", authorToPullRequests)
 			continue
 		}
 		err = saveDataPointsForPullRequests(db, idToPullRequest, team.ID, teamMember.ID)
@@ -137,7 +131,7 @@ func getPullRequests(db *mongo.Database, filters []bson.M, cutoffTime time.Time)
 	findOptions := options.Find()
 	// sort by increasing last_fetched, so the more recently updated PRs override the more stale PRs when looping through
 	findOptions.SetSort(bson.D{{Key: "last_fetched", Value: 1}})
-	filters = append(filters, bson.M{"created_at_external": bson.M{"$gte": cutoffTime}})
+	filters = append(filters, bson.M{"created_at_external": bson.M{"$gte": primitive.NewDateTimeFromTime(cutoffTime)}})
 	cursor, err := pullRequestCollection.Find(
 		context.Background(),
 		bson.M{"$and": filters},
@@ -159,7 +153,6 @@ func getPullRequests(db *mongo.Database, filters []bson.M, cutoffTime time.Time)
 }
 
 func saveDataPointsForPullRequests(db *mongo.Database, pullRequestIDToValue map[string]database.PullRequest, teamID primitive.ObjectID, individualID primitive.ObjectID) error {
-	fmt.Println("save data points", teamID, individualID, pullRequestIDToValue)
 	logger := logging.GetSentryLogger()
 	dateToTotalResponseTime := make(map[primitive.DateTime]int)
 	dateToPRCount := make(map[primitive.DateTime]int)
@@ -178,7 +171,6 @@ func saveDataPointsForPullRequests(db *mongo.Database, pullRequestIDToValue map[
 		responseTime := int(firstCommentTime.Sub(pullRequest.CreatedAtExternal.Time()).Minutes())
 		createdAt := pullRequest.CreatedAtExternal.Time()
 		pullRequestDate := primitive.NewDateTimeFromTime(time.Date(createdAt.Year(), createdAt.Month(), createdAt.Day(), constants.UTC_OFFSET, 0, 0, 0, time.UTC))
-		fmt.Println("pull request date:", pullRequestDate)
 		dateToTotalResponseTime[pullRequestDate] += responseTime
 		dateToPRCount[pullRequestDate] += 1
 	}
@@ -196,22 +188,30 @@ func saveDataPointsForPullRequests(db *mongo.Database, pullRequestIDToValue map[
 			Date:      dateTime,
 			CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
 		}
+		filters := []bson.M{
+			{"subject": constants.DashboardSubjectGlobal},
+			{"date": dateTime},
+			{"graph_type": constants.DashboardGraphTypePRResponseTime},
+		}
 		if teamID != primitive.NilObjectID {
 			dashboardDataPoint.TeamID = teamID
+			filters = append(filters, bson.M{"team_id": teamID})
+		} else {
+			filters = append(filters, bson.M{"team_id": bson.M{"$exists": false}})
 		}
 		if individualID != primitive.NilObjectID {
 			dashboardDataPoint.IndividualID = individualID
+			filters = append(filters, bson.M{"individual_id": teamID})
+		} else {
+			filters = append(filters, bson.M{"individual_id": bson.M{"$exists": false}})
 		}
 		if teamID == primitive.NilObjectID && individualID == primitive.NilObjectID {
 			dashboardDataPoint.Subject = constants.DashboardSubjectGlobal
+			filters = append(filters, bson.M{"subject": constants.DashboardSubjectGlobal})
 		}
 		result := dataPointCollection.FindOneAndUpdate(
 			context.Background(),
-			bson.M{"$and": []bson.M{ // TODO filter on indviidual ID and team ID also
-				{"subject": constants.DashboardSubjectGlobal},
-				{"date": dateTime},
-				{"graph_type": constants.DashboardGraphTypePRResponseTime},
-			}},
+			bson.M{"$and": filters},
 			bson.M{"$set": dashboardDataPoint},
 			options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
 		)
