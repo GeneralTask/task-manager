@@ -189,7 +189,6 @@ func saveDataPointsForPullRequests(db *mongo.Database, pullRequestIDToValue map[
 			CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
 		}
 		filters := []bson.M{
-			{"subject": constants.DashboardSubjectGlobal},
 			{"date": dateTime},
 			{"graph_type": constants.DashboardGraphTypePRResponseTime},
 		}
