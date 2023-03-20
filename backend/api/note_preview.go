@@ -45,10 +45,16 @@ func (api *API) NotePreview(c *gin.Context) {
 		return
 	}
 
-	previewTitle := ""
-	if note.Title != nil {
+	previewTitle := "General Task Shared Note"
+	if note.Title != nil && *note.SharedAccess == database.SharedAccessPublic {
 		previewTitle = html.EscapeString(*note.Title)
 	}
+
+	previewAuthor := "Anonymous"
+	if *note.SharedAccess == database.SharedAccessPublic {
+		previewAuthor = html.EscapeString(note.Author)
+	}
+
 	noteURL := getNoteURL(note.ID.Hex())
 	body := []byte(`
 <!DOCTYPE html>
@@ -60,8 +66,8 @@ func (api *API) NotePreview(c *gin.Context) {
 	<meta property="og:title" content="` + previewTitle + `" />
 	<meta name="twitter:title" content="` + previewTitle + `">
 
-	<meta content="Note shared by ` + note.Author + ` via General Task." property="og:description">
-	<meta content="Note shared by ` + note.Author + ` via General Task." property="twitter:description">
+	<meta content="Note shared by ` + previewAuthor + ` via General Task." property="og:description">
+	<meta content="Note shared by ` + previewAuthor + ` via General Task." property="twitter:description">
 
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="` + config.GetConfigValue("SERVER_URL") + "note/" + note.ID.Hex() + `/" />
