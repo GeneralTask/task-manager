@@ -23,14 +23,22 @@ const NotAvailableMessage = ({ sharedType }: NotAvailableMessageProps) => {
     const type = sharedType === 'Notes' ? 'note' : 'task'
     const isLoggedIn = !!Cookies.get(AUTHORIZATION_COOKE)
 
+    const getTitle = () => {
+        if (isLoggedIn) {
+            return `This ${type} is not available`
+        }
+        return `Sign in to view this ${type}`
+    }
+    const getBody = () => {
+        if (isLoggedIn) {
+            return `If you need access to this ${type}, please reach out to the person who sent it.`
+        }
+        return `To view this ${type}, you need to sign in or sign up for an account. Please make sure that the email address you use to log in matches the one that the ${type} was shared with.`
+    }
     return (
         <Flex column gap={Spacing._16}>
-            <TitleLarge>{type === 'task' ? 'This task is not available' : 'Sign in to view this note'}</TitleLarge>
-            <BodyLarge>
-                {type === 'task'
-                    ? 'If you need access to this task, please reach out to the person who sent it.'
-                    : 'To view this note, you need to sign in or sign up for an account. Please make sure that the email address you use to log in matches the one that the note was shared with.'}
-            </BodyLarge>
+            <TitleLarge>{getTitle()}</TitleLarge>
+            <BodyLarge>{getBody()}</BodyLarge>
             <FlexMargin8Top gap={Spacing._8}>
                 {isLoggedIn ? (
                     <GTButton
