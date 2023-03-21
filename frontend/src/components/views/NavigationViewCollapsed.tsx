@@ -16,6 +16,7 @@ import Log from '../../services/api/log'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
+import { scrollShadow } from '../../styles/shadows'
 import { Icon } from '../atoms/Icon'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import CommandPalette from '../molecules/CommandPalette'
@@ -57,8 +58,9 @@ const UpperContainer = styled.div`
     align-items: center;
 `
 const MiddleContainer = styled.div`
-    overflow-y: overlay;
+    overflow-y: auto;
     flex: 1;
+    ${scrollShadow};
 `
 const LowerContainer = styled.div`
     margin-top: auto;
