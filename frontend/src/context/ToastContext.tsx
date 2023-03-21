@@ -27,7 +27,7 @@ import { emptyFunction } from '../utils/utils'
 
 interface TToastContext {
     toasts: TToast[]
-    showToast: (toastProps: ToastProps) => ToastId
+    showToast: (toastProps: Omit<ToastProps, 'id'>) => ToastId
     hideToast: (toastId: string) => void
     updateToast: (toastId: string, toastProps: ToastProps) => void
     isToastActive: (toastId: string) => boolean
@@ -49,7 +49,7 @@ export const ToastContextProvider = ({ children }: ToastContextProps) => {
     const [toasts, setToasts] = useState<TToast[]>([])
     const { createToast } = useRadixToast()
 
-    const showToast = (toastProps: ToastProps) => {
+    const showToast = (toastProps: Omit<ToastProps, 'id'>) => {
         const newToast = createToast(toastProps)
         console.log('created toast')
         setToasts([...toasts, newToast])

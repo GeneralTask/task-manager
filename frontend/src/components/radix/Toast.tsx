@@ -29,6 +29,7 @@ export interface TToast {
 }
 
 export interface ToastProps {
+    id: ToastId
     title: string
     description: string
     actionText: string
@@ -39,7 +40,7 @@ export interface ToastProps {
 }
 const Toast = (props: ToastProps) => {
     return (
-        <ToastPrimitive.Root>
+        <ToastPrimitive.Root key={props.id}>
             <ToastPrimitive.Title>{props.title}</ToastPrimitive.Title>
             <ToastPrimitive.Description>{props.description}</ToastPrimitive.Description>
             <ToastPrimitive.Action altText={props.actionText} asChild>
