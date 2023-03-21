@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { REACT_APP_TASK_BASE_URL, SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
 import { useToast } from '../../hooks'
 import { useModifyTask } from '../../services/api/tasks.hooks'
+import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { icons } from '../../styles/images'
 import { TTaskSharedAccess, TTaskV4 } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
@@ -14,6 +15,7 @@ interface TaskharingDropdownProps {
 
 const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
     const { mutate: modifyTask } = useModifyTask()
+    const { data: userInfo } = useGetUserInfo()
     const toast = useToast()
 
     const copyTaskLink = () => {
@@ -59,12 +61,16 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
             label: 'Share task with',
             hideCheckmark: true,
             subItems: [
-                {
-                    icon: icons.users,
-                    label: 'Share with company',
-                    hideCheckmark: true,
-                    onClick: () => shareAndCopy('domain'),
-                },
+                ...(userInfo?.is_company_email
+                    ? [
+                          {
+                              icon: icons.users,
+                              label: 'Share with company',
+                              hideCheckmark: true,
+                              onClick: () => shareAndCopy('domain'),
+                          },
+                      ]
+                    : []),
                 {
                     icon: icons.globe,
                     label: 'Share with everyone',
@@ -83,12 +89,16 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
         },
     ]
     const notSharedDropdownItems: GTMenuItem[] = [
-        {
-            icon: icons.users,
-            label: 'Share with company',
-            hideCheckmark: true,
-            onClick: () => shareAndCopy('domain'),
-        },
+        ...(userInfo?.is_company_email
+            ? [
+                  {
+                      icon: icons.users,
+                      label: 'Share with company',
+                      hideCheckmark: true,
+                      onClick: () => shareAndCopy('domain'),
+                  },
+              ]
+            : []),
         {
             icon: icons.globe,
             label: 'Share with everyone',
