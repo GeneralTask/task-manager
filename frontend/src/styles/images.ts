@@ -92,6 +92,7 @@ import {
     faCircleUp,
     faHeadphones,
     faMinus,
+    faPlay,
     faQuoteRight,
     faSquare as faSquareSolid,
 } from '@fortawesome/pro-solid-svg-icons'
@@ -189,6 +190,7 @@ export const icons = Object.freeze({
     note: faNoteSticky,
     penToSquare: faPenToSquare,
     pencil: faPencil,
+    play: faPlay,
     plus: faPlus,
     priority_high: faCircleChevronUp,
     priority_low: faCircleChevronDown,

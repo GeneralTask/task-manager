@@ -20,6 +20,7 @@ import SharedItemBodyContainer from '../molecules/shared_item_page/SharedItemBod
 import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
 import SubtaskBody from '../molecules/subtasks/SubtaskBody'
 import PriorityDropdownTrigger from '../radix/PriorityDropdownTrigger'
+import StatusBadge from '../shared_task/StatusBadge'
 
 const PARENT_TASK_TITLE_MAX_WIDTH = '200px'
 const getSharedWithMessage = (domain: string | undefined, sharedAccess: string | undefined) => {
@@ -48,6 +49,8 @@ const SharedWithText = styled.div`
 `
 const TitleContainer = styled.div`
     margin-bottom: ${Spacing._12};
+    display: flex;
+    justify-content: space-between;
 `
 const TaskFieldContainer = styled.div`
     display: flex;
@@ -78,6 +81,7 @@ const SharedTask = () => {
     const [selectedSubtaskId, setSelectedSubtaskId] = useState<string | null>(null)
     const selectedSubtask = subtasks.find((subtask) => subtask.id === selectedSubtaskId)
     const displayedTask = selectedSubtask ?? task
+    const taskStatus = task?.is_done ? 'complete' : 'in-progress'
 
     const returnToParentTask = () => {
         setSelectedSubtaskId(null)
@@ -112,6 +116,7 @@ const SharedTask = () => {
                                         disabled
                                         readOnly
                                     />
+                                    <StatusBadge status={taskStatus} />
                                 </TitleContainer>
                                 <TaskFieldContainer>
                                     <PriorityDropdownTrigger value={displayedTask?.priority_normalized ?? 0} />
