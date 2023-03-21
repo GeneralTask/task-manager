@@ -52,6 +52,7 @@ type ExternalAPIToken struct {
 	ExternalID          string             `bson:"external_id"`
 	LastFullRefreshTime primitive.DateTime `bson:"last_full_refresh_time"`
 	Scopes              []string           `bson:"scopes"`
+	Timezone            string             `bson:"timezone"`
 }
 
 type AtlassianSiteConfiguration struct {
