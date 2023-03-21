@@ -77,6 +77,12 @@ go run .
 curl localhost:8080/ping
 ```
 
+If you encounter a failure with your go run, ensure you do not have an existing local Mongo instance running on your machine and listening on the same port:
+
+```
+netstat -na |grep '27017.*LISTEN'
+```
+
 ### Live-reloading / auto-recompile [highly recommended for devx]
 
 We can setup the server to rebuild/rerun upon local file changes using [air](https://github.com/cosmtrek/air) so you don't have to constantly kill the server and rerun it yourself.

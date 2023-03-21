@@ -73,8 +73,7 @@ func (api *API) TaskModify(c *gin.Context) {
 		}
 	}
 
-	userIDRaw, _ := c.Get("user")
-	userID := userIDRaw.(primitive.ObjectID)
+	userID := getUserIDFromContext(c)
 
 	task, err := database.GetTask(api.DB, taskID, userID)
 	if err != nil {

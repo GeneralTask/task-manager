@@ -108,19 +108,21 @@ func (api *API) EventsList(c *gin.Context) {
 			log.Error().Err(calendarResult.Error).Send()
 			continue
 		}
+		calendarEventsForChannel := []EventResult{}
 		for _, event := range calendarResult.CalendarEvents {
 			result, err := api.calendarEventToResult(event, userID)
 			if err != nil {
 				continue
 			}
-			calendarEvents = append(calendarEvents, result)
+			calendarEventsForChannel = append(calendarEventsForChannel, result)
 		}
-		err := api.adjustForCompletedEvents(userID, &calendarEvents, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd)
+		err := api.adjustForCompletedEvents(userID, &calendarEventsForChannel, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("failed to adjust for completed events")
 			Handle500(c)
 			return
 		}
+		calendarEvents = append(calendarEvents, calendarEventsForChannel...)
 	}
 
 	sort.SliceStable(calendarEvents, func(i, j int) bool {

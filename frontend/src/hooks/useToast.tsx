@@ -35,12 +35,12 @@ const useToast = () => {
     }
 
     const show = (toastTemplateProps: ToastArgs, options: ToastOptions = {}) => {
-        if (toastTemplateProps.rightAction?.undoableAction) {
+        if (toastTemplateProps.undoableButton?.undoableAction) {
             const initialOnClose = options.onClose
             options.onClose = () => {
                 if (!hasBeenDismissed.current) {
                     dismiss()
-                    toastTemplateProps.rightAction?.undoableAction?.()
+                    toastTemplateProps.undoableButton?.undoableAction?.()
                 }
                 initialOnClose?.(null) // if an onClose was already provided, call it
             }

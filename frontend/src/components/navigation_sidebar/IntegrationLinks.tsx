@@ -1,10 +1,11 @@
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import styled from 'styled-components'
-import { usePreviewMode, useSetting } from '../../hooks'
+import { useSetting } from '../../hooks'
 import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts, useGetSettings } from '../../services/api/settings.hooks'
+import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { PR_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/pull-requests.config'
@@ -39,7 +40,7 @@ interface IntegrationLinksProps {
     isCollapsed?: boolean
 }
 const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
-    const { isPreviewMode, isLoading: isPreviewModeLoading } = usePreviewMode()
+    const { data: userInfo, isLoading: isUserInfoLoading } = useGetUserInfo()
     const { data: pullRequestRepositories } = useGetPullRequests()
     const { isLoading: isSettingsLoading } = useGetSettings()
 
@@ -90,7 +91,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     return (
         <>
             <Flex gap={isCollapsed ? Spacing._8 : undefined} column>
-                {isPreviewModeLoading ? (
+                {isUserInfoLoading ? (
                     <Skeleton count={4} />
                 ) : (
                     <>
@@ -103,7 +104,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                                 isCollapsed={isCollapsed}
                             />
                         </Tip>
-                        {isPreviewMode && (
+                        {userInfo?.business_mode_enabled && (
                             <NavigationLink
                                 link="/super-dashboard"
                                 title="Super Dashboard"

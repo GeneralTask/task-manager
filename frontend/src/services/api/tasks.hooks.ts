@@ -300,7 +300,7 @@ export const useModifyTask = (useQueueing = true) => {
         {
             tag: 'tasks_v4',
             invalidateTagsOnSettled: ['tasks_v4', 'overview', 'folders', 'meeting_preparation_tasks'],
-            errorMessage: 'modfiy task',
+            errorMessage: 'modify task',
             onMutate: async (data: TModifyTaskData) => {
                 await Promise.all([
                     queryClient.cancelQueries('overview'),

@@ -1,6 +1,5 @@
 import { createContext, useContext, useState } from 'react'
 import { emptyFunction } from '../../utils/utils'
-import dummyData from './dummyData'
 import { TDashboard, TInterval, TSubject } from './types'
 
 export interface ContextValues {
@@ -40,12 +39,11 @@ const SuperDashboardContext = createContext<ContextValues>({
 })
 
 interface SuperDashboardContextProviderProps {
+    dashboard: TDashboard
     children: React.ReactNode
 }
 
-export const SuperDashboardContextProvider = ({ children }: SuperDashboardContextProviderProps) => {
-    const dashboard = dummyData // will make this an API request
-
+export const SuperDashboardContextProvider = ({ dashboard, children }: SuperDashboardContextProviderProps) => {
     const [selectedInterval, setSelectedInterval] = useState<TInterval>(
         () => dashboard.intervals.find((i) => i.is_default) ?? dashboard.intervals[0]
     )
