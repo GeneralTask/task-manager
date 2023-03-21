@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Flex } from '@mantine/core'
 import styled from 'styled-components'
-import useToasts from '../../context/ToastContext'
+import useToastContext from '../../context/ToastContext'
 import { useItemSelectionController } from '../../hooks'
 import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import Log from '../../services/api/log'
@@ -18,7 +18,6 @@ import TaskDetails from '../details/TaskDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
 import { Header } from '../molecules/Header'
 import Task from '../molecules/Task'
-import Toast from '../radix/Toast'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const BodyHeader = styled.div`
@@ -59,7 +58,7 @@ const JiraView = () => {
     const isJiraIntegrationLinked = isJiraLinked(linkedAccounts || [])
     const doesNeedRelinking = doesAccountNeedRelinking(linkedAccounts || [], 'Jira')
 
-    const { show } = useToasts()
+    const { showToast } = useToastContext()
 
     return (
         <>
@@ -87,22 +86,23 @@ const JiraView = () => {
                                 value="Show toast"
                                 onClick={() => {
                                     console.log('show toast??')
-                                    show({
-                                        title: 'Title',
+                                    const id = showToast({
+                                        title: 'Title1',
                                         description: 'Description',
                                         actionText: 'Action',
                                         onActionClick: () => console.log('action clicked'),
                                         onClose: () => console.log('toast closed'),
                                     })
+                                    console.log('id', id)
                                 }}
                             />
-                            <Toast
+                            {/* <Toast
                                 title="Title"
                                 description="Description"
                                 actionText="Action"
                                 onActionClick={() => console.log('action clicked')}
                                 onClose={() => console.log('toast closed')}
-                            />
+                            /> */}
                         </>
                     )}
                 </ScrollableListTemplate>

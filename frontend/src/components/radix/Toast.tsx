@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import * as ToastPrimitive from '@radix-ui/react-toast'
 import styled from 'styled-components'
 import { icons } from '../../styles/images'
@@ -21,27 +20,26 @@ export const ToastViewport = styled(ToastPrimitive.Viewport)`
     outline: none;
 `
 
+export type ToastId = string
 export interface TToast {
-    id: string
-    isOpen: boolean
-    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+    id: ToastId
+    // isOpen: boolean
+    // setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
     render: React.ReactNode
 }
 
 export interface ToastProps {
-    id: string
     title: string
     description: string
     actionText: string
     onActionClick: () => void
     onClose: () => void
+    // isOpen: boolean
+    // setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
-const Toast = (props: ToastProps): TToast => {
-    const { id } = props
-    const [isOpen, setIsOpen] = useState(true)
-
-    const render = (
-        <ToastPrimitive.Root open={isOpen} onOpenChange={setIsOpen}>
+const Toast = (props: ToastProps) => {
+    return (
+        <ToastPrimitive.Root>
             <ToastPrimitive.Title>{props.title}</ToastPrimitive.Title>
             <ToastPrimitive.Description>{props.description}</ToastPrimitive.Description>
             <ToastPrimitive.Action altText={props.actionText} asChild>
@@ -52,7 +50,6 @@ const Toast = (props: ToastProps): TToast => {
             </ToastPrimitive.Close>
         </ToastPrimitive.Root>
     )
-    return { id, isOpen, setIsOpen, render }
 }
 
 export default Toast

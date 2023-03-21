@@ -1,8 +1,9 @@
-import { Dispatch, ReactNode, SetStateAction, createContext, useContext, useEffect, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
-import Toast, { TToast, ToastProps } from '../components/radix/Toast'
-import { TShortcut } from '../utils/types'
-import { emptyFunction, getKeyCode } from '../utils/utils'
+import { ReactNode, createContext, useContext, useState } from 'react'
+import { Provider as ToastProvider } from '@radix-ui/react-toast'
+import { TToast, ToastId, ToastProps, ToastViewport } from '../components/radix/Toast'
+import { TOAST_DEFAULT_DURATION } from '../constants'
+import { useRadixToast } from '../hooks'
+import { emptyFunction } from '../utils/utils'
 
 // const useToasts = () => {
 //     const [toasts, setToasts] = useState<TToast[]>([])
@@ -26,7 +27,7 @@ import { emptyFunction, getKeyCode } from '../utils/utils'
 
 interface TToastContext {
     toasts: TToast[]
-    showToast: (toastProps: ToastProps) => void
+    showToast: (toastProps: ToastProps) => ToastId
     hideToast: (toastId: string) => void
     updateToast: (toastId: string, toastProps: ToastProps) => void
     isToastActive: (toastId: string) => boolean
@@ -34,7 +35,7 @@ interface TToastContext {
 
 const ToastContext = createContext<TToastContext>({
     toasts: [],
-    showToast: emptyFunction,
+    showToast: () => '',
     hideToast: emptyFunction,
     updateToast: emptyFunction,
     isToastActive: () => false,
@@ -46,40 +47,48 @@ interface ToastContextProps {
 
 export const ToastContextProvider = ({ children }: ToastContextProps) => {
     const [toasts, setToasts] = useState<TToast[]>([])
+    const { createToast } = useRadixToast()
 
     const showToast = (toastProps: ToastProps) => {
-        const toastId = uuidv4()
-        setToasts([...toasts])
+        const newToast = createToast(toastProps)
+        console.log('created toast')
+        setToasts([...toasts, newToast])
+        return newToast.id
     }
 
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            const key = getKeyCode(e)
-            const shortcut = activeKeyboardShortcuts.get(key)
-            if (shortcut) {
-                setShowCommandPalette(false)
-                shortcut.action()
-                if (key !== 'Escape') {
-                    e.preventDefault()
-                }
-            }
-        }
-        document.addEventListener('keydown', handleKeyDown)
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown)
-        }
-    }, [activeKeyboardShortcuts])
+    // useEffect(() => {
+    //     const handleKeyDown = (e: KeyboardEvent) => {
+    //         const key = getKeyCode(e)
+    //         const shortcut = activeKeyboardShortcuts.get(key)
+    //         if (shortcut) {
+    //             setShowCommandPalette(false)
+    //             shortcut.action()
+    //             if (key !== 'Escape') {
+    //                 e.preventDefault()
+    //             }
+    //         }
+    //     }
+    //     document.addEventListener('keydown', handleKeyDown)
+    //     return () => {
+    //         document.removeEventListener('keydown', handleKeyDown)
+    //     }
+    // }, [activeKeyboardShortcuts])
+
+    const value = {
+        toasts,
+        showToast,
+        hideToast: emptyFunction,
+        updateToast: emptyFunction,
+        isToastActive: () => false,
+    }
 
     return (
-        <ToastContext.Provider
-            value={{
-                showCommandPalette,
-                activeKeyboardShortcuts,
-                setShowCommandPalette,
-                setActiveKeyboardShortcuts,
-            }}
-        >
-            {children}
+        <ToastContext.Provider value={value}>
+            <ToastProvider duration={TOAST_DEFAULT_DURATION}>
+                {children}
+                {toasts.map((toast) => toast.render)}
+                <ToastViewport />
+            </ToastProvider>
         </ToastContext.Provider>
     )
 }

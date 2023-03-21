@@ -12,6 +12,7 @@ import useNavigateToPullRequest from './useNavigateToPullRequest'
 import useNavigateToTask from './useNavigateToTask'
 import usePageFocus from './usePageFocus'
 import usePreviewMode from './usePreviewMode'
+import useRadixToast from './useRadixToast'
 import useSetting from './useSetting'
 import useTimeout from './useTimeout'
 import useToast from './useToast'
@@ -36,4 +37,5 @@ export {
     usePageFocus,
     useWindowSize,
     useDebouncedEdit,
+    useRadixToast,
 }

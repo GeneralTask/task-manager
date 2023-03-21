@@ -2,31 +2,29 @@ import { lazy, useEffect } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Outlet, Route, Routes } from 'react-router-dom'
-import * as Toast from '@radix-ui/react-toast'
 import { enableMapSet } from 'immer'
 import StyledToastContainer from './components/atoms/toast/StyledToastContainer'
 import { CalendarContextProvider } from './components/calendar/CalendarContext'
-import { ToastViewport } from './components/radix/Toast'
 import FocusModeScreen from './components/screens/FocusModeScreen'
 import MainScreen from './components/screens/MainScreen'
-import { FOCUS_MODE_ROUTE, TOAST_DEFAULT_DURATION } from './constants'
+import { FOCUS_MODE_ROUTE } from './constants'
 import AppContextProvider from './context/AppContextProvider'
-import useToasts from './context/ToastContext'
+import useToastContext, { ToastContextProvider } from './context/ToastContext'
 
 const TermsOfServiceSummaryScreen = lazy(() => import('./components/screens/TermsOfServiceSummaryScreen'))
 enableMapSet() // this allows immer to produce immutable maps and sets
 
 const AuthenticatedRoutes = () => {
-    const { renderedToasts } = useToasts()
+    const { toasts } = useToastContext()
 
     useEffect(() => {
-        console.log(renderedToasts, 'hey')
-    }, [renderedToasts])
+        console.log(toasts, 'hey')
+    }, [toasts])
     return (
         <>
             {/* {isDevelopmentMode && <ReactQueryDevtools initialIsOpen={false} position="top-left" />} */}
             <DndProvider backend={HTML5Backend}>
-                <Toast.Provider duration={TOAST_DEFAULT_DURATION}>
+                <ToastContextProvider>
                     <AppContextProvider>
                         <Routes>
                             <Route path="tos-summary" element={<Outlet />}>
@@ -88,9 +86,7 @@ const AuthenticatedRoutes = () => {
                         </Routes>
                     </AppContextProvider>
                     <StyledToastContainer />
-                    {renderedToasts}
-                    <ToastViewport />
-                </Toast.Provider>
+                </ToastContextProvider>
             </DndProvider>
         </>
     )
