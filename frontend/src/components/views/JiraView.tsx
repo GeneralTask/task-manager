@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Flex } from '@mantine/core'
 import styled from 'styled-components'
+import useToasts from '../../context/ToastContext'
 import { useItemSelectionController } from '../../hooks'
 import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import Log from '../../services/api/log'
@@ -10,12 +11,14 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
 import { doesAccountNeedRelinking, isJiraLinked } from '../../utils/utils'
+import GTButton from '../atoms/buttons/GTButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
 import { Header } from '../molecules/Header'
 import Task from '../molecules/Task'
+import Toast from '../radix/Toast'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const BodyHeader = styled.div`
@@ -56,6 +59,8 @@ const JiraView = () => {
     const isJiraIntegrationLinked = isJiraLinked(linkedAccounts || [])
     const doesNeedRelinking = doesAccountNeedRelinking(linkedAccounts || [], 'Jira')
 
+    const { show } = useToasts()
+
     return (
         <>
             <Flex>
@@ -75,7 +80,30 @@ const JiraView = () => {
                             ))}
                         </>
                     ) : (
-                        <ConnectIntegration type="jira" />
+                        <>
+                            <ConnectIntegration type="jira" />
+                            <GTButton
+                                styleType="secondary"
+                                value="Show toast"
+                                onClick={() => {
+                                    console.log('show toast??')
+                                    show({
+                                        title: 'Title',
+                                        description: 'Description',
+                                        actionText: 'Action',
+                                        onActionClick: () => console.log('action clicked'),
+                                        onClose: () => console.log('toast closed'),
+                                    })
+                                }}
+                            />
+                            <Toast
+                                title="Title"
+                                description="Description"
+                                actionText="Action"
+                                onActionClick={() => console.log('action clicked')}
+                                onClose={() => console.log('toast closed')}
+                            />
+                        </>
                     )}
                 </ScrollableListTemplate>
             </Flex>

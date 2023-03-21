@@ -96,3 +96,5 @@ export const SYNC_MESSAGES = {
 }
 
 export const SHARED_ITEM_INDEFINITE_DATE = '9999-10-31T00:00:00Z'
+
+export const TOAST_DEFAULT_DURATION = 5000
