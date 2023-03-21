@@ -57,8 +57,11 @@ const UpperContainer = styled.div`
     align-items: center;
 `
 const MiddleContainer = styled.div`
-    overflow-y: overlay;
+    overflow-y: auto;
     flex: 1;
+    @supports (overflow-y: overlay) {
+        overflow-y: overlay;
+    }
 `
 const LowerContainer = styled.div`
     margin-top: auto;
