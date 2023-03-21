@@ -3,9 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
-	"io"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -56,66 +54,27 @@ func TestTaskDetail(t *testing.T) {
 
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
-	router := GetRouter(api)
 
 	UnauthorizedTest(t, "GET", fmt.Sprintf("/tasks/detail/%s/", linearTaskIDHex), nil)
 	t.Run("InvalidTaskID", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"GET",
-			fmt.Sprintf("/tasks/detail/%s/", primitive.NewObjectID().Hex()),
-			nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusNotFound, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "GET", fmt.Sprintf("/tasks/detail/%s/", primitive.NewObjectID().Hex()), nil, http.StatusNotFound, api)
+		assert.Equal(t, "{\"detail\":\"not found\"}", string(responseBody))
 	})
 	t.Run("TaskDoesNotBelongToUser", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"GET",
-			fmt.Sprintf("/tasks/detail/%s/", nonUserTaskIDHex),
-			nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusNotFound, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "GET", fmt.Sprintf("/tasks/detail/%s/", nonUserTaskIDHex), nil, http.StatusNotFound, api)
+		assert.Equal(t, "{\"detail\":\"not found\"}", string(responseBody))
 	})
 	t.Run("Success", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"GET",
-			fmt.Sprintf("/tasks/detail/%s/", linearTaskIDHex),
-			nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-
+		responseBody := ServeRequest(t, authToken, "GET", fmt.Sprintf("/tasks/detail/%s/", linearTaskIDHex), nil, http.StatusOK, api)
 		assert.Equal(t,
 			fmt.Sprintf(`{"id":"%s","id_ordering":0,"id_folder":"000000000000000000000000","source":{"name":"Linear","logo":"linear"},"deeplink":"","title":"","body":"","due_date":"","priority_normalized":0,"is_done":true,"is_deleted":false,"recurring_task_template_id":"000000000000000000000000","created_at":"2019-04-20T00:00:00Z","updated_at":"2019-04-29T00:00:00Z","completed_at":"1970-01-01T00:00:00Z","deleted_at":"1970-01-01T00:00:00Z","shared_until":"1970-01-01T00:00:00Z"}`, linearTaskIDHex),
-			string(body))
+			string(responseBody))
 	})
 	t.Run("SuccessLinear", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"GET",
-			fmt.Sprintf("/tasks/detail/%s/", linearTaskIDHex2),
-			nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-
+		responseBody := ServeRequest(t, authToken, "GET", fmt.Sprintf("/tasks/detail/%s/", linearTaskIDHex2), nil, http.StatusOK, api)
 		assert.Equal(t,
 			fmt.Sprintf(`{"id":"%s","id_ordering":0,"id_folder":"000000000000000000000000","source":{"name":"Linear","logo":"linear"},"deeplink":"","title":"","body":"","due_date":"","priority_normalized":0,"is_done":true,"is_deleted":false,"recurring_task_template_id":"000000000000000000000000","external_status":{"state":"Done","type":"completed"},"created_at":"1970-01-01T00:00:00Z","updated_at":"1970-01-01T00:00:00Z","completed_at":"1970-01-01T00:00:00Z","deleted_at":"1970-01-01T00:00:00Z","shared_until":"1970-01-01T00:00:00Z"}`, linearTaskIDHex2),
-			string(body))
+			string(responseBody))
 	})
 }
 

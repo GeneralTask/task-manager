@@ -91,15 +91,8 @@ func TestOverview(t *testing.T) {
 		assert.Equal(t, "[]", string(body))
 	})
 	t.Run("MissingTimezoneOffsetHeader", func(t *testing.T) {
-		request, _ := http.NewRequest("GET", "/overview/views/", nil)
-		request.Header.Set("Authorization", "Bearer "+authtoken)
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, `{"error":"Timezone-Offset header is required"}`, string(body))
+		responseBody := ServeRequest(t, authtoken, "GET", "/overview/views/", nil, http.StatusBadRequest, api)
+		assert.Equal(t, `{"error":"Timezone-Offset header is required"}`, string(responseBody))
 	})
 
 }

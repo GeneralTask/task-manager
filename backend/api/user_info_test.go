@@ -3,9 +3,7 @@ package api
 import (
 	"bytes"
 	"context"
-	"io"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -35,113 +33,39 @@ func TestUserInfo(t *testing.T) {
 			bson.M{"$set": user},
 			options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
 		)
-
-		router := GetRouter(api)
-		request, _ := http.NewRequest("GET", "/user_info/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, `{"agreed_to_terms":false,"opted_into_marketing":false,"business_mode_enabled":false,"name":"name","is_employee":true,"email":"userinfo@generaltask.com","is_company_email":true,"linear_name":"linearName","linear_display_name":"linearDisplayName"}`, string(body))
+		responseBody := ServeRequest(t, authToken, "GET", "/user_info/", nil, http.StatusOK, api)
+		assert.Equal(t, `{"agreed_to_terms":false,"opted_into_marketing":false,"business_mode_enabled":false,"name":"name","is_employee":true,"email":"userinfo@generaltask.com","is_company_email":true,"linear_name":"linearName","linear_display_name":"linearDisplayName"}`, string(responseBody))
 	})
 	authToken = login("userinfo2@generaltask.com", "")
 	t.Run("SuccessNonEmployee", func(t *testing.T) {
 		nonEmployeeAuthToken := login("userinfo@gmail.com", "")
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest("GET", "/user_info/", nil)
-		request.Header.Add("Authorization", "Bearer "+nonEmployeeAuthToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"agreed_to_terms\":false,\"opted_into_marketing\":false,\"business_mode_enabled\":false,\"name\":\"\",\"is_employee\":false,\"email\":\"userinfo@gmail.com\",\"is_company_email\":false}", string(body))
+		responseBody := ServeRequest(t, nonEmployeeAuthToken, "GET", "/user_info/", nil, http.StatusOK, nil)
+		assert.Equal(t, "{\"agreed_to_terms\":false,\"opted_into_marketing\":false,\"business_mode_enabled\":false,\"name\":\"\",\"is_employee\":false,\"email\":\"userinfo@gmail.com\",\"is_company_email\":false}", string(responseBody))
 	})
 	UnauthorizedTest(t, "PATCH", "/user_info/", nil)
 	t.Run("EmptyPayload", func(t *testing.T) {
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest("PATCH", "/user_info/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"invalid or missing parameters.\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/user_info/", nil, http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"invalid or missing parameters.\"}", string(responseBody))
 	})
 	t.Run("BadPayload", func(t *testing.T) {
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/user_info/",
-			bytes.NewBuffer([]byte(`{"agreed_to_terms": "absolutely not"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"invalid or missing parameters.\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/user_info/", bytes.NewBuffer([]byte(`{"agreed_to_terms": "absolutely not"}`)), http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"invalid or missing parameters.\"}", string(responseBody))
 	})
 	t.Run("SuccessUpdate", func(t *testing.T) {
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/user_info/",
-			bytes.NewBuffer([]byte(`{"agreed_to_terms":true,"opted_into_marketing":true,"business_mode_enabled":true}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/user_info/", bytes.NewBuffer([]byte(`{"agreed_to_terms":true,"opted_into_marketing":true,"business_mode_enabled":true}`)), http.StatusOK, nil)
+		assert.Equal(t, "{}", string(responseBody))
 
 		// fetch API again to verify values changed
-		request, _ = http.NewRequest("GET", "/user_info/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder = httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err = io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":true,\"business_mode_enabled\":false,\"name\":\"\",\"is_employee\":true,\"email\":\"userinfo2@generaltask.com\",\"is_company_email\":true}", string(body))
+		responseBody = ServeRequest(t, authToken, "GET", "/user_info/", nil, http.StatusOK, nil)
+		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":true,\"business_mode_enabled\":false,\"name\":\"\",\"is_employee\":true,\"email\":\"userinfo2@generaltask.com\",\"is_company_email\":true}", string(responseBody))
 	})
 	t.Run("SuccessPartialUpdate", func(t *testing.T) {
 		// assuming the fields are still true as above
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/user_info/",
-			bytes.NewBuffer([]byte(`{"agreed_to_terms":true,"opted_into_marketing":false}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/user_info/", bytes.NewBuffer([]byte(`{"agreed_to_terms":true,"opted_into_marketing":false}`)), http.StatusOK, nil)
+		assert.Equal(t, "{}", string(responseBody))
 
 		// fetch API again to verify values changed
-		request, _ = http.NewRequest("GET", "/user_info/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder = httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err = io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":false,\"business_mode_enabled\":false,\"name\":\"\",\"is_employee\":true,\"email\":\"userinfo2@generaltask.com\",\"is_company_email\":true}", string(body))
+		responseBody = ServeRequest(t, authToken, "GET", "/user_info/", nil, http.StatusOK, nil)
+		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":false,\"business_mode_enabled\":false,\"name\":\"\",\"is_employee\":true,\"email\":\"userinfo2@generaltask.com\",\"is_company_email\":true}", string(responseBody))
 	})
 }

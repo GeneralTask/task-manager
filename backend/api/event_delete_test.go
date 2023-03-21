@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/testutils"
@@ -51,7 +50,6 @@ func TestEventDelete(t *testing.T) {
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	api.ExternalConfig.GoogleOverrideURLs.CalendarDeleteURL = &calendarDeleteServer.URL
-	router := GetRouter(api)
 
 	UnauthorizedTest(t, "DELETE", "/events/delete/"+calendarTaskIDHex+"/", nil)
 	t.Run("InvalidHex", func(t *testing.T) {
@@ -68,14 +66,7 @@ func TestEventDelete(t *testing.T) {
 		err = eventCollection.FindOne(context.Background(), bson.M{"_id": calendarTaskID}).Decode(&event)
 		assert.Equal(t, "sample_calendar_id", event.IDExternal)
 
-		request, _ := http.NewRequest(
-			"DELETE",
-			"/events/delete/"+calendarTaskIDHex+"/",
-			bytes.NewBuffer([]byte(`{}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
+		ServeRequest(t, authToken, "DELETE", "/events/delete/"+calendarTaskIDHex+"/", bytes.NewBuffer([]byte(`{}`)), http.StatusOK, api)
 
 		count, _ := eventCollection.CountDocuments(context.Background(), bson.M{"_id": calendarTaskID})
 		assert.Equal(t, int64(0), count)
@@ -86,14 +77,7 @@ func TestEventDelete(t *testing.T) {
 		err = eventCollection.FindOne(context.Background(), bson.M{"_id": calendarTaskID2}).Decode(&event)
 		assert.Equal(t, "sample_calendar_id", event.IDExternal)
 
-		request, _ := http.NewRequest(
-			"DELETE",
-			"/events/delete/"+calendarTaskIDHex2+"/",
-			bytes.NewBuffer([]byte(`{}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
+		ServeRequest(t, authToken, "DELETE", "/events/delete/"+calendarTaskIDHex2+"/", bytes.NewBuffer([]byte(`{}`)), http.StatusOK, api)
 
 		count, _ := eventCollection.CountDocuments(context.Background(), bson.M{"_id": calendarTaskID2})
 		assert.Equal(t, int64(0), count)

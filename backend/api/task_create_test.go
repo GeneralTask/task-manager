@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -24,95 +22,37 @@ func TestCreateTask(t *testing.T) {
 	authToken := login("approved@generaltask.com", "")
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
-	router := GetRouter(api)
 
 	t.Run("BadSourceID", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"POST",
-			"/tasks/create/dogecoin/",
-			nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusNotFound, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "POST", "/tasks/create/dogecoin/", nil, http.StatusNotFound, api)
+		assert.Equal(t, "{\"detail\":\"not found\"}", string(responseBody))
 	})
 	t.Run("UnsupportedSourceID", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"POST",
-			"/tasks/create/gmail/",
-			nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusNotFound, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "POST", "/tasks/create/gmail/", nil, http.StatusNotFound, api)
+		assert.Equal(t, "{\"detail\":\"not found\"}", string(responseBody))
 	})
 	t.Run("MissingTitle", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"POST",
-			"/tasks/create/gt_task/",
-			nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"invalid or missing parameter\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "POST", "/tasks/create/gt_task/", nil, http.StatusBadRequest, api)
+		assert.Equal(t, "{\"detail\":\"invalid or missing parameter\"}", string(responseBody))
 	})
 	t.Run("WrongAccountID", func(t *testing.T) {
 		// this currently isn't possible because only GT tasks are supported, but we should add this when it's possible
 	})
 	t.Run("BadTaskSection", func(t *testing.T) {
 		authToken = login("create_task_bad_task_section@generaltask.com", "")
-
-		request, _ := http.NewRequest(
-			"POST",
-			"/tasks/create/gt_task/",
-			bytes.NewBuffer([]byte(`{"title": "foobar", "id_task_section": "`+primitive.NewObjectID().Hex()+`"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"'id_task_section' is not a valid ID\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "POST", "/tasks/create/gt_task/", bytes.NewBuffer([]byte(`{"title": "foobar", "id_task_section": "`+primitive.NewObjectID().Hex()+`"}`)), http.StatusBadRequest, api)
+		assert.Equal(t, "{\"detail\":\"'id_task_section' is not a valid ID\"}", string(responseBody))
 	})
 	t.Run("BadParentTaskID", func(t *testing.T) {
 		authToken = login("create_task_bad_task_id@generaltask.com", "")
-
-		request, _ := http.NewRequest(
-			"POST",
-			"/tasks/create/gt_task/",
-			bytes.NewBuffer([]byte(`{"title": "foobar", "parent_task_id": "bad value"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"'parent_task_id' is not a valid ID\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "POST", "/tasks/create/gt_task/", bytes.NewBuffer([]byte(`{"title": "foobar", "parent_task_id": "bad value"}`)), http.StatusBadRequest, api)
+		assert.Equal(t, "{\"detail\":\"'parent_task_id' is not a valid ID\"}", string(responseBody))
 	})
 	t.Run("NoParentTaskInDB", func(t *testing.T) {
 		authToken = login("no_parent_task_in_db@generaltask.com", "")
 		parentTaskID := primitive.NewObjectID()
-
-		request, _ := http.NewRequest(
-			"POST",
-			"/tasks/create/gt_task/",
-			bytes.NewBuffer([]byte(`{"title": "foobar", "parent_task_id": "`+parentTaskID.Hex()+`"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"'parent_task_id' is not a valid ID\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "POST", "/tasks/create/gt_task/", bytes.NewBuffer([]byte(`{"title": "foobar", "parent_task_id": "`+parentTaskID.Hex()+`"}`)), http.StatusBadRequest, api)
+		assert.Equal(t, "{\"detail\":\"'parent_task_id' is not a valid ID\"}", string(responseBody))
 	})
 	t.Run("WrongUserIDForParent", func(t *testing.T) {
 		authToken = login("wrong_user_id_for_parent@generaltask.com", "")
@@ -122,18 +62,8 @@ func TestCreateTask(t *testing.T) {
 		res, err := taskCollection.InsertOne(context.Background(), &database.Task{UserID: primitive.NewObjectID(), Title: &title, IsCompleted: &completed})
 		assert.NoError(t, err)
 		parentTaskID := res.InsertedID.(primitive.ObjectID)
-
-		request, _ := http.NewRequest(
-			"POST",
-			"/tasks/create/gt_task/",
-			bytes.NewBuffer([]byte(`{"title": "buy more dogecoin", "body": "seriously!", "due_date": "2020-12-09T16:09:53+00:00", "time_duration": 300, "parent_task_id": "`+parentTaskID.Hex()+`"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"'parent_task_id' is not a valid ID\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "POST", "/tasks/create/gt_task/", bytes.NewBuffer([]byte(`{"title": "buy more dogecoin", "body": "seriously!", "due_date": "2020-12-09T16:09:53+00:00", "time_duration": 300, "parent_task_id": "`+parentTaskID.Hex()+`"}`)), http.StatusBadRequest, api)
+		assert.Equal(t, "{\"detail\":\"'parent_task_id' is not a valid ID\"}", string(responseBody))
 	})
 	t.Run("SuccessTitleOnly", func(t *testing.T) {
 		authToken = login("create_task_success_title_only@generaltask.com", "")

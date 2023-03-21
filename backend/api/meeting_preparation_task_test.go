@@ -59,15 +59,8 @@ func TestMeetingPreparationTask(t *testing.T) {
 	timeOneDayLater := api.GetCurrentTime().Add(24 * time.Hour)
 
 	t.Run("MissingTimezoneOffsetHeader", func(t *testing.T) {
-		request, _ := http.NewRequest("GET", "/meeting_preparation_tasks/", nil)
-		request.Header.Set("Authorization", "Bearer "+authtoken)
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, `{"error":"Timezone-Offset header is required"}`, string(body))
+		responseBody := ServeRequest(t, authtoken, "GET", "/meeting_preparation_tasks/", nil, http.StatusBadRequest, api)
+		assert.Equal(t, `{"error":"Timezone-Offset header is required"}`, string(responseBody))
 	})
 	t.Run("NoEvents", func(t *testing.T) {
 		request, _ := http.NewRequest("GET", "/meeting_preparation_tasks/", nil)

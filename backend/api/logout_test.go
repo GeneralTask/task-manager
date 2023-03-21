@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -24,16 +23,7 @@ func TestLogout(t *testing.T) {
 		count, _ := tokenCollection.CountDocuments(context.Background(), bson.M{"token": authToken})
 		assert.Equal(t, int64(1), count)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-
-		request, _ := http.NewRequest("POST", "/logout/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
+		ServeRequest(t, authToken, "POST", "/logout/", nil, http.StatusOK, nil)
 
 		count, _ = tokenCollection.CountDocuments(context.Background(), bson.M{"token": authToken})
 		assert.Equal(t, int64(0), count)

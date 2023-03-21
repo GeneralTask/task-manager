@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/external"
@@ -70,7 +69,6 @@ func TestEventModify(t *testing.T) {
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	api.ExternalConfig.GoogleOverrideURLs.CalendarModifyURL = &calendarModifyServer.URL
-	router := GetRouter(api)
 
 	UnauthorizedTest(t, "PATCH", validUrl, bytes.NewBuffer([]byte(`{"account_id": "duck@duck.com", "summary": "duck"}`)))
 	t.Run("UpdateStartTimeSuccess", func(t *testing.T) {
@@ -78,14 +76,7 @@ func TestEventModify(t *testing.T) {
 			"account_id": "duck@duck.com",
 			"datetime_start": "2021-01-01T00:00:00Z"
 		}`))
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/events/modify/"+eventID+"/",
-			body)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
+		ServeRequest(t, authToken, "PATCH", "/events/modify/"+eventID+"/", body, http.StatusOK, api)
 
 		event, err := database.GetCalendarEvent(api.DB, eventObjectID, userID)
 		assert.NoError(t, err)
@@ -102,14 +93,7 @@ func TestEventModify(t *testing.T) {
 			"datetime_start": "2020-01-01T00:00:00Z",
 			"datetime_end": "2020-02-01T00:00:00Z"
 		}`))
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/events/modify/"+eventID+"/",
-			body)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
+		ServeRequest(t, authToken, "PATCH", "/events/modify/"+eventID+"/", body, http.StatusOK, api)
 
 		event, err := database.GetCalendarEvent(api.DB, eventObjectID, userID)
 		assert.NoError(t, err)
@@ -126,14 +110,7 @@ func TestEventModify(t *testing.T) {
 			"datetime_start": "2020-01-01T00:00:00Z",
 			"datetime_end": "2020-02-01T00:00:00Z"
 		}`))
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/events/modify/"+eventWithCalendarID.InsertedID.(primitive.ObjectID).Hex()+"/",
-			body)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
+		ServeRequest(t, authToken, "PATCH", "/events/modify/"+eventWithCalendarID.InsertedID.(primitive.ObjectID).Hex()+"/", body, http.StatusOK, api)
 
 		event, err := database.GetCalendarEvent(api.DB, eventObjectID, userID)
 		assert.NoError(t, err)
@@ -147,14 +124,7 @@ func TestEventModify(t *testing.T) {
 			"summary": "new summary 2",
 			"description": "new description 2"
 		}`))
-		request, _ = http.NewRequest(
-			"PATCH",
-			"/events/modify/"+eventWithSameExternalID.InsertedID.(primitive.ObjectID).Hex()+"/",
-			body)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder = httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
+		ServeRequest(t, authToken, "PATCH", "/events/modify/"+eventWithSameExternalID.InsertedID.(primitive.ObjectID).Hex()+"/", body, http.StatusOK, api)
 
 		event, err = database.GetCalendarEvent(api.DB, eventWithSameExternalID.InsertedID.(primitive.ObjectID), userID)
 		assert.NoError(t, err)

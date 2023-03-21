@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -102,20 +101,9 @@ func TestRecurringTaskTemplateListV2(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
 	})
 	t.Run("Success", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"GET",
-			"/recurring_task_templates/v2/",
-			nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-
+		responseBody := ServeRequest(t, authToken, "GET", "/recurring_task_templates/v2/", nil, http.StatusOK, api)
 		assert.Equal(t,
 			fmt.Sprintf(`[{"id":"%s","user_id":"%s","title":"recurring task!","id_task_section":"000000000000000000000000","priority_normalized":3,"is_enabled":true,"is_deleted":false,"recurrence_rate":0,"last_backfill_datetime":"%s","created_at":"%s","updated_at":"%s"},{"id":"%s","user_id":"%s","title":"recurring task!","id_task_section":"000000000000000000000000","priority_normalized":3,"is_enabled":false,"is_deleted":false,"recurrence_rate":0,"last_backfill_datetime":"%s","created_at":"%s","updated_at":"%s"},{"id":"%s","user_id":"%s","title":"recurring task!","id_task_section":"000000000000000000000000","priority_normalized":3,"is_enabled":true,"is_deleted":true,"recurrence_rate":0,"last_backfill_datetime":"%s","created_at":"%s","updated_at":"%s"}]`, template1Result.InsertedID.(primitive.ObjectID).Hex(), userID.Hex(), triggerTime.Format("2006-01-02T15:04:05.999Z07:00"), createdAt2.Format("2006-01-02T15:04:05.999Z07:00"), createdAt2.Format("2006-01-02T15:04:05.999Z07:00"), template2Result.InsertedID.(primitive.ObjectID).Hex(), userID.Hex(), triggerTime.Format("2006-01-02T15:04:05.999Z07:00"), createdAt.Format("2006-01-02T15:04:05.999Z07:00"), createdAt.Format("2006-01-02T15:04:05.999Z07:00"), template3Result.InsertedID.(primitive.ObjectID).Hex(), userID.Hex(), triggerTime.Format("2006-01-02T15:04:05.999Z07:00"), createdAt3.Format("2006-01-02T15:04:05.999Z07:00"), createdAt3.Format("2006-01-02T15:04:05.999Z07:00")),
-			string(body))
+			string(responseBody))
 	})
 }

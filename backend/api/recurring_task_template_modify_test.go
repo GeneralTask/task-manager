@@ -52,47 +52,16 @@ func TestRecurringTaskTemplateModify(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
 	})
 	t.Run("WrongTask", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/recurring_task_templates/modify/"+primitive.NewObjectID().Hex()+"/",
-			bytes.NewBuffer([]byte(`{"title": "new title!"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusNotFound, recorder.Code)
+		ServeRequest(t, authToken, "PATCH", "/recurring_task_templates/modify/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"title": "new title!"}`)), http.StatusNotFound, api)
 	})
 	t.Run("TaskSectionInvalid", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/recurring_task_templates/modify/"+templateID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"id_task_section": "invalid!"}`)),
-		)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		ServeRequest(t, authToken, "PATCH", "/recurring_task_templates/modify/"+templateID.Hex()+"/", bytes.NewBuffer([]byte(`{"id_task_section": "invalid!"}`)), http.StatusBadRequest, api)
 	})
 	t.Run("MalformattedParam", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/recurring_task_templates/modify/"+templateID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"is_enabled": "malformatted!"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		ServeRequest(t, authToken, "PATCH", "/recurring_task_templates/modify/"+templateID.Hex()+"/", bytes.NewBuffer([]byte(`{"is_enabled": "malformatted!"}`)), http.StatusBadRequest, api)
 	})
 	t.Run("Success", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/recurring_task_templates/modify/"+templateID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"title": "new title!", "replace_existing": true}`)),
-		)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-
+		ServeRequest(t, authToken, "PATCH", "/recurring_task_templates/modify/"+templateID.Hex()+"/", bytes.NewBuffer([]byte(`{"title": "new title!", "replace_existing": true}`)), http.StatusOK, api)
 		var templates []database.RecurringTaskTemplate
 		err = database.FindWithCollection(database.GetRecurringTaskTemplateCollection(api.DB), userID, &[]bson.M{{"is_deleted": false}}, &templates, nil)
 		assert.NoError(t, err)
@@ -126,18 +95,8 @@ func TestRecurringTaskTemplateModify(t *testing.T) {
 		task2ID := createRecurringTask(templateID)
 		task3ID := createRecurringTask(template2ID)
 		task4ID := createRecurringTask(template2ID)
-
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/recurring_task_templates/modify/"+template2ID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"is_deleted": true, "replace_existing": true}`)),
-		)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-
 		// check that template is deleted
+		ServeRequest(t, authToken, "PATCH", "/recurring_task_templates/modify/"+template2ID.Hex()+"/", bytes.NewBuffer([]byte(`{"is_deleted": true, "replace_existing": true}`)), http.StatusOK, api)
 		var template database.RecurringTaskTemplate
 		templateCollection.FindOne(context.Background(), bson.M{"_id": template2ID}).Decode(&template)
 		assert.True(t, *template.IsDeleted)

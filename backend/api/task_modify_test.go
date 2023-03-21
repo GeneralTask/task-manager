@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -86,17 +84,9 @@ func TestMarkAsDeleted(t *testing.T) {
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	api.ExternalConfig.Linear.ConfigValues.TaskUpdateURL = &taskUpdateServer.URL
-	router := GetRouter(api)
 
 	t.Run("MissingDeletionFlag", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+linearTaskIDHex+"/",
-			nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+linearTaskIDHex+"/", nil, http.StatusBadRequest, api)
 	})
 
 	t.Run("DeletionFlagFalse", func(t *testing.T) {
@@ -254,83 +244,39 @@ func TestMarkAsComplete(t *testing.T) {
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	api.ExternalConfig.Linear.ConfigValues.TaskUpdateURL = &taskUpdateServer.URL
-	router := GetRouter(api)
 
 	t.Run("MissingCompletionFlag", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+linearTaskIDHex+"/",
-			nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+linearTaskIDHex+"/", nil, http.StatusBadRequest, api)
 	})
 
 	t.Run("InvalidStatusUpdate", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+linearTaskIDHex+"/",
-			bytes.NewBuffer([]byte(`{"task": {"status": {"external_id": "invalid-status-id"}}}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+linearTaskIDHex+"/", bytes.NewBuffer([]byte(`{"task": {"status": {"external_id": "invalid-status-id"}}}`)), http.StatusBadRequest, api)
 	})
 
 	t.Run("CompletionFlagFalse", func(t *testing.T) {
 		err := database.MarkCompleteWithCollection(database.GetTaskCollection(db), linearTaskID)
 		assert.NoError(t, err)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+linearTaskIDHex+"/",
-			bytes.NewBuffer([]byte(`{"is_completed": false}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
+		ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+linearTaskIDHex+"/", bytes.NewBuffer([]byte(`{"is_completed": false}`)), http.StatusOK, api)
 		tasks, err := database.GetCompletedTasks(db, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 0, len(*tasks))
 	})
 
 	t.Run("InvalidHex", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+linearTaskIDHex+"1/",
-			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusNotFound, recorder.Code)
+		ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+linearTaskIDHex+"1/", bytes.NewBuffer([]byte(`{"is_completed": true}`)), http.StatusNotFound, api)
 	})
 
 	t.Run("InvalidUser", func(t *testing.T) {
 		secondAuthToken := login("tester@generaltask.com", "")
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+linearTaskIDHex+"/",
-			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
-		request.Header.Add("Authorization", "Bearer "+secondAuthToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusNotFound, recorder.Code)
+		ServeRequest(t, secondAuthToken, "PATCH", "/tasks/modify/"+linearTaskIDHex+"/", bytes.NewBuffer([]byte(`{"is_completed": true}`)), http.StatusNotFound, api)
 	})
 
 	t.Run("MarkAsDoneSuccess", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+linearTaskIDHex+"/",
-			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 		var task database.Task
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": linearTaskID}).Decode(&task)
 		assert.Equal(t, false, *task.IsCompleted)
 
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-
+		ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+linearTaskIDHex+"/", bytes.NewBuffer([]byte(`{"is_completed": true}`)), http.StatusOK, api)
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": linearTaskID}).Decode(&task)
 		assert.Equal(t, true, *task.IsCompleted)
 		assert.NotEqual(t, primitive.DateTime(0), task.CompletedAt)
@@ -340,19 +286,11 @@ func TestMarkAsComplete(t *testing.T) {
 		_, err = taskCollection.UpdateOne(context.Background(), bson.M{"_id": linearTaskID}, bson.M{"$set": bson.M{"is_completed": false}})
 		assert.NoError(t, err)
 
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+linearTaskIDHex+"/",
-			bytes.NewBuffer([]byte(`{"task": {"status": {"external_id": "new-status-id"}}}`)))
 		var task database.Task
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": linearTaskID}).Decode(&task)
 		assert.Equal(t, false, *task.IsCompleted)
 
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-
+		ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+linearTaskIDHex+"/", bytes.NewBuffer([]byte(`{"task": {"status": {"external_id": "new-status-id"}}}`)), http.StatusOK, api)
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": linearTaskID}).Decode(&task)
 		assert.Equal(t, true, *task.IsCompleted)
 		assert.NotEqual(t, primitive.DateTime(0), task.CompletedAt)
@@ -360,20 +298,12 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("CalendarSuccess", func(t *testing.T) {
-		// tasks with source gcal are meeting prep tasks that can be completed
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+calendarTaskIDHex+"/",
-			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 		var task database.Task
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": calendarTaskID}).Decode(&task)
 		assert.Equal(t, false, *task.IsCompleted)
 
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-
+		// tasks with source gcal are meeting prep tasks that can be completed
+		ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+calendarTaskIDHex+"/", bytes.NewBuffer([]byte(`{"is_completed": true}`)), http.StatusOK, api)
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": calendarTaskID}).Decode(&task)
 		assert.Equal(t, true, *task.IsCompleted)
 	})
@@ -381,26 +311,20 @@ func TestMarkAsComplete(t *testing.T) {
 	t.Run("Mark complete and edit fields success", func(t *testing.T) {
 		dueDate, err := time.Parse(time.RFC3339, "2021-12-06T07:39:00-15:13")
 		assert.NoError(t, err)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+linearTaskIDHex+"/",
-			bytes.NewBuffer([]byte(`{
-				"time_duration": 20,
-				"due_date": "`+dueDate.Format(time.RFC3339)+`",
-				"title": "New Title",
-				"body": "New Body",
-				"is_completed": true
-				}`)))
+
 		var task database.Task
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": linearTaskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, true, *task.IsCompleted)
 
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-
+		requestBody := bytes.NewBuffer([]byte(`{
+			"time_duration": 20,
+			"due_date": "` + dueDate.Format(time.RFC3339) + `",
+			"title": "New Title",
+			"body": "New Body",
+			"is_completed": true
+		}`))
+		ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+linearTaskIDHex+"/", requestBody, http.StatusOK, api)
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": linearTaskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, true, *task.IsCompleted)
@@ -408,20 +332,13 @@ func TestMarkAsComplete(t *testing.T) {
 	t.Run("MarkDeletedTaskAsDoneSuccess", func(t *testing.T) {
 		_, err = taskCollection.UpdateOne(context.Background(), bson.M{"_id": deletedTaskID}, bson.M{"$set": bson.M{"is_completed": false, "is_deleted": true}})
 		assert.NoError(t, err)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+deletedTaskIDHex+"/",
-			bytes.NewBuffer([]byte(`{"is_completed": true, "is_deleted": false}`)))
+
 		var task database.Task
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": deletedTaskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, false, *task.IsCompleted)
 
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-
+		ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+deletedTaskIDHex+"/", bytes.NewBuffer([]byte(`{"is_completed": true, "is_deleted": false}`)), http.StatusOK, api)
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": deletedTaskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, true, *task.IsCompleted)
@@ -431,20 +348,14 @@ func TestMarkAsComplete(t *testing.T) {
 	t.Run("MarkDeletedTaskAsDoneMissingField", func(t *testing.T) {
 		_, err = taskCollection.UpdateOne(context.Background(), bson.M{"_id": deletedTaskID}, bson.M{"$set": bson.M{"is_completed": false, "is_deleted": true}})
 		assert.NoError(t, err)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+deletedTaskIDHex+"/",
-			bytes.NewBuffer([]byte(`{"is_completed": true}`))) // missing is_deleted: false field
+
 		var task database.Task
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": deletedTaskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, false, *task.IsCompleted)
 
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-
+		// missing is_deleted: false field
+		ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+deletedTaskIDHex+"/", bytes.NewBuffer([]byte(`{"is_completed": true}`)), http.StatusBadRequest, api)
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": deletedTaskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, false, *task.IsCompleted)
@@ -529,19 +440,8 @@ func TestTaskReorder(t *testing.T) {
 		taskID := insertResult.InsertedID.(primitive.ObjectID)
 		taskIDHex := taskID.Hex()
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 3, "id_task_section": "`+originalTaskSectionID.Hex()+`"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		request.Header.Add("Content-Type", "application/json")
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 3, "id_task_section": "`+originalTaskSectionID.Hex()+`"}`)), http.StatusOK, nil)
+		assert.Equal(t, "{}", string(responseBody))
 
 		var task database.Task
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": taskID}).Decode(&task)
@@ -634,19 +534,8 @@ func TestTaskReorder(t *testing.T) {
 		taskID := insertResult.InsertedID.(primitive.ObjectID)
 		taskIDHex := taskID.Hex()
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
-		request.Header.Add("Authorization", "Bearer "+newAuthToken)
-		request.Header.Add("Content-Type", "application/json")
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
+		responseBody := ServeRequest(t, newAuthToken, "PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)), http.StatusOK, nil)
+		assert.Equal(t, "{}", string(responseBody))
 
 		var task database.Task
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": taskID}).Decode(&task)
@@ -678,84 +567,33 @@ func TestTaskReorder(t *testing.T) {
 		taskIDHex := taskID.Hex()
 
 		authToken := login("approved@generaltask.com", "")
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		request.Header.Add("Content-Type", "application/json")
 
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusNotFound, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"task not found.\",\"taskId\":\""+taskIDHex+"\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)), http.StatusNotFound, nil)
+		assert.Equal(t, "{\"detail\":\"task not found.\",\"taskId\":\""+taskIDHex+"\"}", string(responseBody))
 	})
 	t.Run("MissingOrderingID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+primitive.NewObjectID().Hex()+"/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		request.Header.Add("Content-Type", "application/json")
 
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"parameter missing or malformatted\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+primitive.NewObjectID().Hex()+"/", nil, http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"parameter missing or malformatted\"}", string(responseBody))
 	})
 	t.Run("BadTaskID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
 		taskIDHex := primitive.NewObjectID().Hex()
-		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		request.Header.Add("Content-Type", "application/json")
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusNotFound, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"task not found.\",\"taskId\":\""+taskIDHex+"\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)), http.StatusNotFound, nil)
+		assert.Equal(t, "{\"detail\":\"task not found.\",\"taskId\":\""+taskIDHex+"\"}", string(responseBody))
 	})
 	t.Run("WrongFormatTaskID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest("PATCH", "/tasks/modify/123/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		request.Header.Add("Content-Type", "application/json")
 
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusNotFound, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/123/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)), http.StatusNotFound, nil)
+		assert.Equal(t, "{\"detail\":\"not found\"}", string(responseBody))
 	})
 	t.Run("BadTaskSectionIDFormat", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "poop"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		request.Header.Add("Content-Type", "application/json")
 
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"'id_task_section' is not a valid ID\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "poop"}`)), http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"'id_task_section' is not a valid ID\"}", string(responseBody))
 	})
 	t.Run("OnlyReorderTaskSections", func(t *testing.T) {
 
@@ -771,19 +609,8 @@ func TestTaskReorder(t *testing.T) {
 		taskID := insertResult.InsertedID.(primitive.ObjectID)
 		taskIDHex := taskID.Hex()
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_task_section": "`+constants.IDTaskSectionDefault.Hex()+`"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		request.Header.Add("Content-Type", "application/json")
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_task_section": "`+constants.IDTaskSectionDefault.Hex()+`"}`)), http.StatusOK, nil)
+		assert.Equal(t, "{}", string(responseBody))
 
 		var task database.Task
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": taskID}).Decode(&task)
@@ -806,19 +633,8 @@ func TestTaskReorder(t *testing.T) {
 		taskID := insertResult.InsertedID.(primitive.ObjectID)
 		taskIDHex := taskID.Hex()
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		request.Header.Add("Content-Type", "application/json")
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)), http.StatusOK, nil)
+		assert.Equal(t, "{}", string(responseBody))
 
 		var task database.Task
 
@@ -877,20 +693,8 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+insertedTaskID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"title": "New title"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+insertedTaskID.Hex()+"/", bytes.NewBuffer([]byte(`{"title": "New title"}`)), http.StatusOK, nil)
+		assert.Equal(t, "{}", string(responseBody))
 
 		var task database.Task
 
@@ -911,21 +715,8 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+insertedTaskID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"title": ""}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"title cannot be empty\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+insertedTaskID.Hex()+"/", bytes.NewBuffer([]byte(`{"title": ""}`)), http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"title cannot be empty\"}", string(responseBody))
 	})
 
 	t.Run("Edit Body Success", func(t *testing.T) {
@@ -938,20 +729,8 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+insertedTaskID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"body": "New Body"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+insertedTaskID.Hex()+"/", bytes.NewBuffer([]byte(`{"body": "New Body"}`)), http.StatusOK, nil)
+		assert.Equal(t, "{}", string(responseBody))
 
 		var task database.Task
 
@@ -974,20 +753,8 @@ func TestEditFields(t *testing.T) {
 		dueDate, err := time.Parse(time.RFC3339, "2021-12-06T07:39:00-15:13")
 		assert.NoError(t, err)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+insertedTaskID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"due_date": "`+dueDate.Format(time.RFC3339)+`"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+insertedTaskID.Hex()+"/", bytes.NewBuffer([]byte(`{"due_date": "`+dueDate.Format(time.RFC3339)+`"}`)), http.StatusOK, nil)
+		assert.Equal(t, "{}", string(responseBody))
 
 		var task database.Task
 
@@ -1010,20 +777,9 @@ func TestEditFields(t *testing.T) {
 
 		dueDate, err := time.Parse("2006-01-02", "2021-12-06")
 		assert.NoError(t, err)
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+insertedTaskID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"due_date": "`+dueDate.Format("2006-01-02")+`"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
+
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+insertedTaskID.Hex()+"/", bytes.NewBuffer([]byte(`{"due_date": "`+dueDate.Format("2006-01-02")+`"}`)), http.StatusOK, nil)
+		assert.Equal(t, "{}", string(responseBody))
 
 		var task database.Task
 
@@ -1045,21 +801,8 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+insertedTaskID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"due_date": ""}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"due_date is not a valid date\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+insertedTaskID.Hex()+"/", bytes.NewBuffer([]byte(`{"due_date": ""}`)), http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"due_date is not a valid date\"}", string(responseBody))
 	})
 	t.Run("Modifying other fields does not change due date", func(t *testing.T) {
 		expectedTask := sampleTask
@@ -1071,32 +814,19 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+insertedTaskID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{
-				"title": "New title",
-				"body": "New body",
-				"time_duration": 20,
-				"is_complete": true,
-				"is_deleted": true
-			}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
+		requestBody := bytes.NewBuffer([]byte(`{
+			"title": "New title",
+			"body": "New body",
+			"time_duration": 20,
+			"is_complete": true,
+			"is_deleted": true
+		}`))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+insertedTaskID.Hex()+"/", requestBody, http.StatusOK, nil)
+		assert.Equal(t, "{}", string(responseBody))
 
 		var task database.Task
-
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertedTaskID}).Decode(&task)
 		assert.NoError(t, err)
-
 		assert.Equal(t, expectedTask.DueDate, task.DueDate)
 	})
 	t.Run("Edit Time Duration Success", func(t *testing.T) {
@@ -1109,20 +839,8 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+insertedTaskID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"time_duration": 20}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+insertedTaskID.Hex()+"/", bytes.NewBuffer([]byte(`{"time_duration": 20}`)), http.StatusOK, nil)
+		assert.Equal(t, "{}", string(responseBody))
 
 		var task database.Task
 
@@ -1143,21 +861,8 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+insertedTaskID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"time_duration": -20}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"time duration cannot be negative\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+insertedTaskID.Hex()+"/", bytes.NewBuffer([]byte(`{"time_duration": -20}`)), http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"time duration cannot be negative\"}", string(responseBody))
 	})
 	t.Run("Edit priority not in all priorities", func(t *testing.T) {
 		expectedTask := sampleTask
@@ -1167,22 +872,10 @@ func TestEditFields(t *testing.T) {
 			expectedTask,
 		)
 		assert.NoError(t, err)
-		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+insertedTaskID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"task": {"external_priority": {"external_id":"1"}}}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"priority value not valid for task\"}", string(body))
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+insertedTaskID.Hex()+"/", bytes.NewBuffer([]byte(`{"task": {"external_priority": {"external_id":"1"}}}`)), http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"priority value not valid for task\"}", string(responseBody))
 	})
 	t.Run("Edit multiple fields success", func(t *testing.T) {
 		expectedTask := sampleTask
@@ -1220,29 +913,17 @@ func TestEditFields(t *testing.T) {
 		dueDate, err := time.Parse(time.RFC3339, "2021-12-06T07:39:00-15:13")
 		assert.NoError(t, err)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+insertedTaskID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{
-				"time_duration": 20,
-				"due_date": "`+dueDate.Format(time.RFC3339)+`",
-				"title": "New Title",
-				"body": "New Body",
-				"task": {"external_priority": {"external_id":"1"}}
-				}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
+		requestBody := bytes.NewBuffer([]byte(`{
+			"time_duration": 20,
+			"due_date": "` + dueDate.Format(time.RFC3339) + `",
+			"title": "New Title",
+			"body": "New Body",
+			"task": {"external_priority": {"external_id":"1"}}
+		}`))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+insertedTaskID.Hex()+"/", requestBody, http.StatusOK, nil)
+		assert.Equal(t, "{}", string(responseBody))
 
 		var task database.Task
-
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertedTaskID}).Decode(&task)
 		assert.NoError(t, err)
 
@@ -1275,26 +956,14 @@ func TestEditFields(t *testing.T) {
 		dueDate, err := time.Parse(time.RFC3339, "2021-12-06T07:39:00-15:13")
 		assert.NoError(t, err)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+insertedTaskID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{
-				"time_duration": 20,
-				"due_date": "`+dueDate.Format(time.RFC3339)+`",
-				"title": "",
-				"body": "New Body"
-				}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"title cannot be empty\"}", string(body))
+		requestBody := bytes.NewBuffer([]byte(`{
+			"time_duration": 20,
+			"due_date": "` + dueDate.Format(time.RFC3339) + `",
+			"title": "",
+			"body": "New Body"
+		}`))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+insertedTaskID.Hex()+"/", requestBody, http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"title cannot be empty\"}", string(responseBody))
 	})
 
 	t.Run("Edit zero fields", func(t *testing.T) {
@@ -1307,21 +976,8 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+insertedTaskID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"task changes missing\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+insertedTaskID.Hex()+"/", bytes.NewBuffer([]byte(`{}`)), http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"task changes missing\"}", string(responseBody))
 	})
 	t.Run("Assign to other General Task user", func(t *testing.T) {
 		api, dbCleanup := GetAPIWithDBCleanup()
@@ -1341,18 +997,9 @@ func TestEditFields(t *testing.T) {
 			expectedTask,
 		)
 		assert.NoError(t, err)
+
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
-
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+insertedTaskID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"title":"<to john>Hello!"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-
+		ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+insertedTaskID.Hex()+"/", bytes.NewBuffer([]byte(`{"title":"<to john>Hello!"}`)), http.StatusOK, api)
 		var task database.Task
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertedTaskID}).Decode(&task)
 		assert.NoError(t, err)

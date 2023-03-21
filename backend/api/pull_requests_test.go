@@ -3,9 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"io"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -90,18 +88,9 @@ func TestPullRequestList(t *testing.T) {
 
 	UnauthorizedTest(t, "GET", "/pull_requests/", nil)
 	t.Run("Success", func(t *testing.T) {
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest("GET", "/pull_requests/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
+		responseBody := ServeRequest(t, authToken, "GET", "/pull_requests/", nil, http.StatusOK, nil)
 		var result []RepositoryResult
-		err = json.Unmarshal(body, &result)
+		err = json.Unmarshal(responseBody, &result)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(result))
 		assert.Equal(t, []RepositoryResult{

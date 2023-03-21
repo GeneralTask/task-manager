@@ -3,9 +3,7 @@ package api
 import (
 	"bytes"
 	"context"
-	"io"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -17,49 +15,18 @@ func TestLogEventAdd(t *testing.T) {
 	authToken := login("approved@generaltask.com", "")
 	UnauthorizedTest(t, "POST", "/log_events/", nil)
 	t.Run("EmptyPayload", func(t *testing.T) {
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest("POST", "/log_events/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"invalid or missing 'event_type' parameter.\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "POST", "/log_events/", nil, http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"invalid or missing 'event_type' parameter.\"}", string(responseBody))
 	})
 	t.Run("MissingEventType", func(t *testing.T) {
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"POST",
-			"/log_events/",
-			bytes.NewBuffer([]byte(`{"foo": "bar"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"invalid or missing 'event_type' parameter.\"}", string(body))
+		requestBody := bytes.NewBuffer([]byte(`{"foo": "bar"}`))
+		responseBody := ServeRequest(t, authToken, "POST", "/log_events/", requestBody, http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"invalid or missing 'event_type' parameter.\"}", string(responseBody))
 	})
 	t.Run("BadEventType", func(t *testing.T) {
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"POST",
-			"/log_events/",
-			bytes.NewBuffer([]byte(`{"event_type": 1}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"invalid or missing 'event_type' parameter.\"}", string(body))
+		requestBody := bytes.NewBuffer([]byte(`{"event_type": 1}`))
+		responseBody := ServeRequest(t, authToken, "POST", "/log_events/", requestBody, http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"invalid or missing 'event_type' parameter.\"}", string(responseBody))
 	})
 	t.Run("Success", func(t *testing.T) {
 		addLogEvent(t, authToken)
@@ -78,18 +45,7 @@ func TestLogEventAdd(t *testing.T) {
 }
 
 func addLogEvent(t *testing.T, authToken string) {
-	api, dbCleanup := GetAPIWithDBCleanup()
-	defer dbCleanup()
-	router := GetRouter(api)
-	request, _ := http.NewRequest(
-		"POST",
-		"/log_events/",
-		bytes.NewBuffer([]byte(`{"event_type": "to_the_moon"}`)))
-	request.Header.Add("Authorization", "Bearer "+authToken)
-	recorder := httptest.NewRecorder()
-	router.ServeHTTP(recorder, request)
-	assert.Equal(t, 201, recorder.Code)
-	body, err := io.ReadAll(recorder.Body)
-	assert.NoError(t, err)
-	assert.Equal(t, "{}", string(body))
+	requestBody := bytes.NewBuffer([]byte(`{"event_type": "to_the_moon"}`))
+	responseBody := ServeRequest(t, authToken, "POST", "/log_events/", requestBody, http.StatusCreated, nil)
+	assert.Equal(t, "{}", string(responseBody))
 }

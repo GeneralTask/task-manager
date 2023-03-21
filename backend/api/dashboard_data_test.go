@@ -4,9 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -24,7 +22,6 @@ func TestDashboardData(t *testing.T) {
 	defer dbCleanup()
 	testTime := time.Date(2023, time.January, 4, 20, 0, 0, 0, time.UTC)
 	api.OverrideTime = &testTime
-	router := GetRouter(api)
 	userID := getUserIDFromAuthToken(t, api.DB, authToken)
 	team, err := database.GetOrCreateDashboardTeam(api.DB, userID)
 	assert.NoError(t, err)
@@ -152,15 +149,9 @@ func TestDashboardData(t *testing.T) {
 	NoBusinessAccessTest(t, "GET", "/dashboard/data/", api, authToken)
 	EnableBusinessAccess(t, api, userID)
 	t.Run("Success", func(t *testing.T) {
-		request, _ := http.NewRequest("GET", "/dashboard/data/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
+		responseBody := ServeRequest(t, authToken, "GET", "/dashboard/data/", nil, http.StatusOK, api)
 		var dashboardResult DashboardResult
-		err = json.Unmarshal(body, &dashboardResult)
+		err = json.Unmarshal(responseBody, &dashboardResult)
 		assert.NoError(t, err)
 		fmt.Println(prettyRender(dashboardResult, t))
 		assert.Equal(

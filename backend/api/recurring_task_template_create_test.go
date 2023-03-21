@@ -37,48 +37,16 @@ func TestRecurringTaskTemplateCreate(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
 	})
 	t.Run("TaskSectionInvalid", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"POST",
-			"/recurring_task_templates/create/",
-			bytes.NewBuffer([]byte(`{"id_task_section": "invalid!"}`)),
-		)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		ServeRequest(t, authToken, "POST", "/recurring_task_templates/create/", bytes.NewBuffer([]byte(`{"id_task_section": "invalid!"}`)), http.StatusBadRequest, api)
 	})
 	t.Run("MalformattedParam", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"POST",
-			"/recurring_task_templates/create/",
-			bytes.NewBuffer([]byte(`{"recurrence_rate": "malformatted!"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		ServeRequest(t, authToken, "POST", "/recurring_task_templates/create/", bytes.NewBuffer([]byte(`{"recurrence_rate": "malformatted!"}`)), http.StatusBadRequest, api)
 	})
 	t.Run("NotAllFields", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"POST",
-			"/recurring_task_templates/create/",
-			bytes.NewBuffer([]byte(`{"title": "hello!"}`)),
-		)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		ServeRequest(t, authToken, "POST", "/recurring_task_templates/create/", bytes.NewBuffer([]byte(`{"title": "hello!"}`)), http.StatusBadRequest, api)
 	})
 	t.Run("Success", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"POST",
-			"/recurring_task_templates/create/",
-			bytes.NewBuffer([]byte(`{"title": "hello!", "recurrence_rate": 0, "time_of_day_seconds_to_create_task": 0}`)),
-		)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-
+		ServeRequest(t, authToken, "POST", "/recurring_task_templates/create/", bytes.NewBuffer([]byte(`{"title": "hello!", "recurrence_rate": 0, "time_of_day_seconds_to_create_task": 0}`)), http.StatusOK, api)
 		var templates []database.RecurringTaskTemplate
 		err = database.FindWithCollection(database.GetRecurringTaskTemplateCollection(api.DB), userID, &[]bson.M{{"is_deleted": false}}, &templates, nil)
 		assert.NoError(t, err)

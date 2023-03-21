@@ -3,9 +3,7 @@ package api
 import (
 	"bytes"
 	"context"
-	"io"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -59,31 +57,16 @@ func TestTaskAddComment(t *testing.T) {
 		}}}`
 	taskUpdateServer := testutils.GetMockAPIServer(t, 200, response)
 	api.ExternalConfig.Linear.ConfigValues.TaskUpdateURL = &taskUpdateServer.URL
-	router := GetRouter(api)
 
 	t.Run("AddCommentNotFound", func(t *testing.T) {
 		authToken := login("not_supported@generaltask.com", "")
 		invalidTaskID := primitive.NewObjectID()
-		request, _ := http.NewRequest(
-			"POST",
-			"/tasks/"+invalidTaskID.Hex()+"/comments/add/",
-			bytes.NewBuffer([]byte(`{"body": "Hello there!"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusNotFound, recorder.Code)
+		ServeRequest(t, authToken, "POST", "/tasks/"+invalidTaskID.Hex()+"/comments/add/", bytes.NewBuffer([]byte(`{"body": "Hello there!"}`)), http.StatusNotFound, api)
 	})
 	t.Run("AddCommentMalformedID", func(t *testing.T) {
 		authToken := login("not_supported@generaltask.com", "")
 		invalidTaskID := "HELLO!"
-		request, _ := http.NewRequest(
-			"POST",
-			"/tasks/"+invalidTaskID+"/comments/add/",
-			bytes.NewBuffer([]byte(`{"body": "Hello there!"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusNotFound, recorder.Code)
+		ServeRequest(t, authToken, "POST", "/tasks/"+invalidTaskID+"/comments/add/", bytes.NewBuffer([]byte(`{"body": "Hello there!"}`)), http.StatusNotFound, api)
 	})
 	t.Run("AddCommentNotSupported", func(t *testing.T) {
 		authToken := login("not_supported@generaltask.com", "")
@@ -98,15 +81,7 @@ func TestTaskAddComment(t *testing.T) {
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
-
-		request, _ := http.NewRequest(
-			"POST",
-			"/tasks/"+insertedTaskID.Hex()+"/comments/add/",
-			bytes.NewBuffer([]byte(`{"body": "Hello there!"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+		ServeRequest(t, authToken, "POST", "/tasks/"+insertedTaskID.Hex()+"/comments/add/", bytes.NewBuffer([]byte(`{"body": "Hello there!"}`)), http.StatusInternalServerError, api)
 	})
 	t.Run("AddCommentTaskSourceNotFound", func(t *testing.T) {
 		authToken := login("task_source_invalid@generaltask.com", "")
@@ -121,15 +96,7 @@ func TestTaskAddComment(t *testing.T) {
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
-
-		request, _ := http.NewRequest(
-			"POST",
-			"/tasks/"+insertedTaskID.Hex()+"/comments/add/",
-			bytes.NewBuffer([]byte(`{"body": "Hello there!"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+		ServeRequest(t, authToken, "POST", "/tasks/"+insertedTaskID.Hex()+"/comments/add/", bytes.NewBuffer([]byte(`{"body": "Hello there!"}`)), http.StatusInternalServerError, api)
 	})
 	t.Run("AddCommentEmpty", func(t *testing.T) {
 		authToken := login("comment_empty@generaltask.com", "")
@@ -144,15 +111,7 @@ func TestTaskAddComment(t *testing.T) {
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
-
-		request, _ := http.NewRequest(
-			"POST",
-			"/tasks/"+insertedTaskID.Hex()+"/comments/add/",
-			bytes.NewBuffer([]byte(`{}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		ServeRequest(t, authToken, "POST", "/tasks/"+insertedTaskID.Hex()+"/comments/add/", bytes.NewBuffer([]byte(`{}`)), http.StatusBadRequest, api)
 	})
 	t.Run("AddCommentMalformedParams", func(t *testing.T) {
 		authToken := login("comment_empty@generaltask.com", "")
@@ -167,15 +126,7 @@ func TestTaskAddComment(t *testing.T) {
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
-
-		request, _ := http.NewRequest(
-			"POST",
-			"/tasks/"+insertedTaskID.Hex()+"/comments/add/",
-			bytes.NewBuffer([]byte(`{"body":3.0}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		ServeRequest(t, authToken, "POST", "/tasks/"+insertedTaskID.Hex()+"/comments/add/", bytes.NewBuffer([]byte(`{"body":3.0}`)), http.StatusBadRequest, api)
 	})
 	t.Run("AddCommentSuccess", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
@@ -189,18 +140,8 @@ func TestTaskAddComment(t *testing.T) {
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
-
-		request, _ := http.NewRequest(
-			"POST",
-			"/tasks/"+insertedTaskID.Hex()+"/comments/add/",
-			bytes.NewBuffer([]byte(`{"body": "Hello there!"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
+		responseBody := ServeRequest(t, authToken, "POST", "/tasks/"+insertedTaskID.Hex()+"/comments/add/", bytes.NewBuffer([]byte(`{"body": "Hello there!"}`)), http.StatusOK, api)
+		assert.Equal(t, "{}", string(responseBody))
 
 		var task database.Task
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertedTaskID}).Decode(&task)
@@ -225,18 +166,8 @@ func TestTaskAddComment(t *testing.T) {
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
-
-		request, _ := http.NewRequest(
-			"POST",
-			"/tasks/"+insertedTaskID.Hex()+"/comments/add/",
-			bytes.NewBuffer([]byte(`{"body": "Hello there!"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
+		responseBody := ServeRequest(t, authToken, "POST", "/tasks/"+insertedTaskID.Hex()+"/comments/add/", bytes.NewBuffer([]byte(`{"body": "Hello there!"}`)), http.StatusOK, api)
+		assert.Equal(t, "{}", string(responseBody))
 
 		var task database.Task
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertedTaskID}).Decode(&task)

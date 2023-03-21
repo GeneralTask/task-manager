@@ -3,11 +3,11 @@ package api
 import (
 	"bytes"
 	"context"
-	"github.com/GeneralTask/task-manager/backend/constants"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/GeneralTask/task-manager/backend/constants"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/settings"
@@ -31,17 +31,9 @@ func TestSettingsGet(t *testing.T) {
 		assert.NoError(t, err)
 
 		authToken := login("approved@generaltask.com", "")
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest("GET", "/settings/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Contains(t, string(body), "{\"field_key\":\"github_filtering_preference\",\"field_name\":\"\",\"choices\":[{\"choice_key\":\"actionable_only\",\"choice_name\":\"\"},{\"choice_key\":\"all_prs\",\"choice_name\":\"\"}],\"field_value\":\"actionable_only\"}")
+
+		responseBody := ServeRequest(t, authToken, "GET", "/settings/", nil, http.StatusOK, api)
+		assert.Contains(t, string(responseBody), "{\"field_key\":\"github_filtering_preference\",\"field_name\":\"\",\"choices\":[{\"choice_key\":\"actionable_only\",\"choice_name\":\"\"},{\"choice_key\":\"all_prs\",\"choice_name\":\"\"}],\"field_value\":\"actionable_only\"}")
 	})
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
@@ -54,17 +46,8 @@ func TestSettingsGet(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest("GET", "/settings/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Contains(t, string(body), "{\"field_key\":\"github_filtering_preference\",\"field_name\":\"\",\"choices\":[{\"choice_key\":\"actionable_only\",\"choice_name\":\"\"},{\"choice_key\":\"all_prs\",\"choice_name\":\"\"}],\"field_value\":\"actionable_only\"}")
+		responseBody := ServeRequest(t, authToken, "GET", "/settings/", nil, http.StatusOK, api)
+		assert.Contains(t, string(responseBody), "{\"field_key\":\"github_filtering_preference\",\"field_name\":\"\",\"choices\":[{\"choice_key\":\"actionable_only\",\"choice_name\":\"\"},{\"choice_key\":\"all_prs\",\"choice_name\":\"\"}],\"field_value\":\"actionable_only\"}")
 	})
 	UnauthorizedTest(t, "GET", "/settings/", nil)
 	t.Run("Unauthorized", func(t *testing.T) {
@@ -80,130 +63,40 @@ func TestSettingsModify(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
+	authToken := login("approved@generaltask.com", "")
 
 	t.Run("EmptyPayload", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest("PATCH", "/settings/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"parameters missing or malformatted.\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/settings/", nil, http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"parameters missing or malformatted.\"}", string(responseBody))
 	})
 	t.Run("InvalidPayload", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/settings/",
-			bytes.NewBuffer([]byte(`["not", "a", "map"]`)),
-		)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"parameters missing or malformatted.\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/settings/", bytes.NewBuffer([]byte(`["not", "a", "map"]`)), http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"parameters missing or malformatted.\"}", string(responseBody))
 	})
 	t.Run("BadKey", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/settings/",
-			bytes.NewBuffer([]byte(`{"dogecoin": "tothemoon"}`)),
-		)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"failed to update settings: invalid setting: dogecoin\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/settings/", bytes.NewBuffer([]byte(`{"dogecoin": "tothemoon"}`)), http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"failed to update settings: invalid setting: dogecoin\"}", string(responseBody))
 	})
 	t.Run("BadValue", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/settings/",
-			bytes.NewBuffer([]byte(`{"github_filtering_preference": "tothemoon"}`)),
-		)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"failed to update settings: invalid value: tothemoon\"}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/settings/", bytes.NewBuffer([]byte(`{"github_filtering_preference": "tothemoon"}`)), http.StatusBadRequest, nil)
+		assert.Equal(t, "{\"detail\":\"failed to update settings: invalid value: tothemoon\"}", string(responseBody))
 	})
 	t.Run("Success", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/settings/",
-			bytes.NewBuffer([]byte(`{"github_filtering_preference": "all_prs"}`)),
-		)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/settings/", bytes.NewBuffer([]byte(`{"github_filtering_preference": "all_prs"}`)), http.StatusOK, nil)
+		assert.Equal(t, "{}", string(responseBody))
 
-		request, _ = http.NewRequest("GET", "/settings/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder = httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err = io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Contains(t, string(body), "{\"field_key\":\"github_filtering_preference\",\"field_name\":\"\",\"choices\":[{\"choice_key\":\"actionable_only\",\"choice_name\":\"\"},{\"choice_key\":\"all_prs\",\"choice_name\":\"\"}],\"field_value\":\"all_prs\"}")
+		responseBody = ServeRequest(t, authToken, "GET", "/settings/", nil, http.StatusOK, nil)
+		assert.Contains(t, string(responseBody), "{\"field_key\":\"github_filtering_preference\",\"field_name\":\"\",\"choices\":[{\"choice_key\":\"actionable_only\",\"choice_name\":\"\"},{\"choice_key\":\"all_prs\",\"choice_name\":\"\"}],\"field_value\":\"all_prs\"}")
 	})
 	t.Run("SuccessAlreadyExists", func(t *testing.T) {
 		authToken := login("approved2@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 		settings.UpdateUserSetting(db, userID, constants.SettingFieldGithubFilteringPreference, constants.ChoiceKeyActionableOnly)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/settings/",
-			bytes.NewBuffer([]byte(`{"github_filtering_preference": "all_prs"}`)),
-		)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
+		responseBody := ServeRequest(t, authToken, "PATCH", "/settings/", bytes.NewBuffer([]byte(`{"github_filtering_preference": "all_prs"}`)), http.StatusOK, nil)
+		assert.Equal(t, "{}", string(responseBody))
 
-		request, _ = http.NewRequest("GET", "/settings/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder = httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err = io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Contains(t, string(body), "{\"field_key\":\"github_filtering_preference\",\"field_name\":\"\",\"choices\":[{\"choice_key\":\"actionable_only\",\"choice_name\":\"\"},{\"choice_key\":\"all_prs\",\"choice_name\":\"\"}],\"field_value\":\"all_prs\"}")
+		responseBody = ServeRequest(t, authToken, "GET", "/settings/", nil, http.StatusOK, nil)
+		assert.Contains(t, string(responseBody), "{\"field_key\":\"github_filtering_preference\",\"field_name\":\"\",\"choices\":[{\"choice_key\":\"actionable_only\",\"choice_name\":\"\"},{\"choice_key\":\"all_prs\",\"choice_name\":\"\"}],\"field_value\":\"all_prs\"}")
 	})
 }

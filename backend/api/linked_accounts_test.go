@@ -2,9 +2,7 @@ package api
 
 import (
 	"context"
-	"io"
 	"net/http"
-	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -19,19 +17,10 @@ import (
 func TestSupportedAccountTypesList(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest("GET", "/linked_accounts/supported_types/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.True(t, strings.Contains(string(body), "{\"name\":\"Google Calendar\",\"logo\":\"/images/gcal.png\",\"logo_v2\":\"gcal\",\"authorization_url\":\"http://localhost:8080/link/google/\"}"))
-		assert.Equal(t, 1, strings.Count(string(body), "{\"name\":\"Slack\",\"logo\":\"/images/slack.svg\",\"logo_v2\":\"slack\",\"authorization_url\":\"http://localhost:8080/link/slack/\"}"))
-		assert.Equal(t, 1, strings.Count(string(body), "{\"name\":\"Jira\",\"logo\":\"/images/jira.svg\",\"logo_v2\":\"jira\",\"authorization_url\":\"http://localhost:8080/link/atlassian/\"}"))
+		responseBody := ServeRequest(t, authToken, "GET", "/linked_accounts/supported_types/", nil, http.StatusOK, nil)
+		assert.True(t, strings.Contains(string(responseBody), "{\"name\":\"Google Calendar\",\"logo\":\"/images/gcal.png\",\"logo_v2\":\"gcal\",\"authorization_url\":\"http://localhost:8080/link/google/\"}"))
+		assert.Equal(t, 1, strings.Count(string(responseBody), "{\"name\":\"Slack\",\"logo\":\"/images/slack.svg\",\"logo_v2\":\"slack\",\"authorization_url\":\"http://localhost:8080/link/slack/\"}"))
+		assert.Equal(t, 1, strings.Count(string(responseBody), "{\"name\":\"Jira\",\"logo\":\"/images/jira.svg\",\"logo_v2\":\"jira\",\"authorization_url\":\"http://localhost:8080/link/atlassian/\"}"))
 	})
 	UnauthorizedTest(t, "GET", "/linked_accounts/supported_types/", nil)
 }
@@ -41,50 +30,23 @@ func TestLinkedAccountsList(t *testing.T) {
 	defer dbCleanup()
 	t.Run("SuccessOnlyGoogle", func(t *testing.T) {
 		authToken := login("linkedaccounts@generaltask.com", "")
-		router := GetRouter(api)
-		request, _ := http.NewRequest("GET", "/linked_accounts/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
+		responseBody := ServeRequest(t, authToken, "GET", "/linked_accounts/", nil, http.StatusOK, api)
 		googleTokenID := getGoogleTokenFromAuthToken(t, api.DB, authToken).ID.Hex()
-		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts@generaltask.com\",\"name\":\"Google Calendar\",\"logo\":\"/images/gcal.png\",\"logo_v2\":\"gcal\",\"is_unlinkable\":false,\"has_bad_token\":false}]", string(body))
+		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts@generaltask.com\",\"name\":\"Google Calendar\",\"logo\":\"/images/gcal.png\",\"logo_v2\":\"gcal\",\"is_unlinkable\":false,\"has_bad_token\":false}]", string(responseBody))
 	})
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("linkedaccounts2@generaltask.com", "")
 		linearTokenID := insertLinearToken(t, api.DB, authToken, false).Hex()
-		router := GetRouter(api)
-		request, _ := http.NewRequest("GET", "/linked_accounts/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
+		responseBody := ServeRequest(t, authToken, "GET", "/linked_accounts/", nil, http.StatusOK, api)
 		googleTokenID := getGoogleTokenFromAuthToken(t, api.DB, authToken).ID.Hex()
-		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts2@generaltask.com\",\"name\":\"Google Calendar\",\"logo\":\"/images/gcal.png\",\"logo_v2\":\"gcal\",\"is_unlinkable\":false,\"has_bad_token\":false},{\"id\":\""+linearTokenID+"\",\"display_id\":\"Linear\",\"name\":\"Linear\",\"logo\":\"/images/linear.png\",\"logo_v2\":\"linear\",\"is_unlinkable\":true,\"has_bad_token\":false}]", string(body))
-
+		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts2@generaltask.com\",\"name\":\"Google Calendar\",\"logo\":\"/images/gcal.png\",\"logo_v2\":\"gcal\",\"is_unlinkable\":false,\"has_bad_token\":false},{\"id\":\""+linearTokenID+"\",\"display_id\":\"Linear\",\"name\":\"Linear\",\"logo\":\"/images/linear.png\",\"logo_v2\":\"linear\",\"is_unlinkable\":true,\"has_bad_token\":false}]", string(responseBody))
 	})
-
 	t.Run("SuccessWithBadToken", func(t *testing.T) {
 		authToken := login("linkedaccounts3@generaltask.com", "")
 		linearTokenID := insertLinearToken(t, api.DB, authToken, true).Hex()
-
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest("GET", "/linked_accounts/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
+		responseBody := ServeRequest(t, authToken, "GET", "/linked_accounts/", nil, http.StatusOK, api)
 		googleTokenID := getGoogleTokenFromAuthToken(t, api.DB, authToken).ID.Hex()
-		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts3@generaltask.com\",\"name\":\"Google Calendar\",\"logo\":\"/images/gcal.png\",\"logo_v2\":\"gcal\",\"is_unlinkable\":false,\"has_bad_token\":false},{\"id\":\""+linearTokenID+"\",\"display_id\":\"Linear\",\"name\":\"Linear\",\"logo\":\"/images/linear.png\",\"logo_v2\":\"linear\",\"is_unlinkable\":true,\"has_bad_token\":true}]", string(body))
+		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts3@generaltask.com\",\"name\":\"Google Calendar\",\"logo\":\"/images/gcal.png\",\"logo_v2\":\"gcal\",\"is_unlinkable\":false,\"has_bad_token\":false},{\"id\":\""+linearTokenID+"\",\"display_id\":\"Linear\",\"name\":\"Linear\",\"logo\":\"/images/linear.png\",\"logo_v2\":\"linear\",\"is_unlinkable\":true,\"has_bad_token\":true}]", string(responseBody))
 	})
 	UnauthorizedTest(t, "GET", "/linked_accounts/", nil)
 }
