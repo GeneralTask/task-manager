@@ -47,6 +47,10 @@ func (api *API) GetCurrentLocalizedTime(timezoneOffset time.Duration) time.Time 
 	return api.GetCurrentTime().In(localZone)
 }
 
+func (api *API) GetCurrentLocalizedDate(timezoneOffset time.Duration) time.Time {
+	return api.GetCurrentLocalizedTime(timezoneOffset).Truncate(24 * time.Hour).In(time.UTC)
+}
+
 func (api *API) GetCurrentTime() time.Time {
 	if api.OverrideTime != nil {
 		return *api.OverrideTime

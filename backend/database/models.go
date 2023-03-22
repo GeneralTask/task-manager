@@ -138,6 +138,7 @@ type Task struct {
 	MeetingPreparationParams *MeetingPreparationParams `bson:"meeting_preparation_params,omitempty"`
 	IsMeetingPreparationTask bool                      `bson:"is_meeting_preparation_task,omitempty"`
 	LinearCycle              LinearCycle               `bson:"linear_cycle,omitempty"`
+	HasBeenCompleted         bool                      `bson:"has_been_completed,omitempty"`
 }
 
 type RecurringTaskTemplate struct {
@@ -466,4 +467,11 @@ type DashboardTeamMember struct {
 	GithubID  string             `bson:"github_id,omitempty"`
 	Name      string             `bson:"name,omitempty"`
 	CreatedAt primitive.DateTime `bson:"created_at,omitempty"`
+}
+
+type DailyTaskCompletion struct {
+	ID                  primitive.ObjectID `bson:"_id,omitempty"`
+	UserID              primitive.ObjectID `bson:"user_id"`
+	Date                primitive.DateTime `bson:"date"`
+	CompletedTasksCount int                `bson:"completed_tasks_count"`
 }

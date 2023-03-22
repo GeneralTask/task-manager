@@ -1374,6 +1374,10 @@ func GetUserCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("users")
 }
 
+func GetDailyTaskCompletionCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("daily_task_completions")
+}
+
 func GetExternalTokenCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("external_api_tokens")
 }

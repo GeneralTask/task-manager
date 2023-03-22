@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -79,6 +80,21 @@ func (api *API) TaskModify(c *gin.Context) {
 	if err != nil {
 		c.JSON(404, gin.H{"detail": "task not found.", "taskId": taskID})
 		return
+	}
+
+	if modifyParams.IsCompleted != nil && *modifyParams.IsCompleted && !task.HasBeenCompleted {
+		timezoneOffset, err := GetTimezoneOffsetFromHeader(c)
+		if err != nil {
+			c.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+
+		err = api.IncrementDailyTaskCompletion(api.DB, userID, timezoneOffset)
+		if err != nil {
+			api.Logger.Error().Err(err).Msg("failed to increment daily task completion")
+			Handle500(c)
+			return
+		}
 	}
 
 	// check if all fields are empty
@@ -181,6 +197,9 @@ func (api *API) TaskModify(c *gin.Context) {
 				updateTask.IDTaskSection = constants.IDTaskSectionDefault
 				updateTask.Title = &tempTitle
 			}
+		}
+		if modifyParams.IsCompleted != nil && *modifyParams.IsCompleted {
+			updateTask.HasBeenCompleted = true
 		}
 		api.UpdateTaskInDB(c, task, userID, &updateTask)
 	}
@@ -410,4 +429,23 @@ func (api *API) UpdateTaskInDBWithError(task *database.Task, userID primitive.Ob
 	}
 
 	return nil
+}
+
+func (api *API) IncrementDailyTaskCompletion(db *mongo.Database, userID primitive.ObjectID, timezoneOffset time.Duration) error {
+	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
+	dateWithoutTime := time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 0, 0, 0, 0, time.UTC)
+	dateWithoutTimePrimitive := primitive.NewDateTimeFromTime(dateWithoutTime)
+
+	dailyTaskCompletionCollection := database.GetDailyTaskCompletionCollection(db)
+	options := options.Update().SetUpsert(true)
+	_, err := dailyTaskCompletionCollection.UpdateOne(
+		context.Background(),
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"date": dateWithoutTimePrimitive},
+		}},
+		bson.M{"$inc": bson.M{"count": 1}},
+		options,
+	)
+	return err
 }
