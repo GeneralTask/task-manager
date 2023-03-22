@@ -43,7 +43,7 @@ func updateGithubIndustryData(logID primitive.ObjectID, endCutoff time.Time, loo
 		logger.Error().Err(err).Msg("failed to log event")
 	}
 
-	pullRequestIDToValue, err := getPullRequests(db, []bson.M{}, getPullRequestCutoffTime(endCutoff, lookbackDays))
+	pullRequestIDToValue, err := getPullRequestsMapAfterCutoff(db, []bson.M{}, getPullRequestCutoffTime(endCutoff, lookbackDays))
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch github PRs")
 		return err
@@ -71,7 +71,7 @@ func UpdateGithubTeamData(userID primitive.ObjectID, endCutoff time.Time, lookba
 		return err
 	}
 	defer cleanup()
-	pullRequestIDToValue, err := getPullRequests(db, []bson.M{{"user_id": userID}}, getPullRequestCutoffTime(endCutoff, lookbackDays))
+	pullRequestIDToValue, err := getPullRequestsMapAfterCutoff(db, []bson.M{{"user_id": userID}}, getPullRequestCutoffTime(endCutoff, lookbackDays))
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch github PRs")
 		return err
@@ -86,8 +86,6 @@ func UpdateGithubTeamData(userID primitive.ObjectID, endCutoff time.Time, lookba
 		logger.Error().Err(err).Msg("failed to get dashboard team members")
 		return err
 	}
-	// pullRequestsMatchingTeam := make(map[string]database.PullRequest)
-	// teamMemberToPullRequests := make(map[primitive.ObjectID]map[string]database.PullRequest)
 	authorToPullRequests := make(map[string]map[string]database.PullRequest)
 	for _, pullRequest := range pullRequestIDToValue {
 		for _, comment := range pullRequest.Comments {
@@ -126,7 +124,7 @@ func UpdateGithubTeamData(userID primitive.ObjectID, endCutoff time.Time, lookba
 	return nil
 }
 
-func getPullRequests(db *mongo.Database, filters []bson.M, cutoffTime time.Time) (map[string]database.PullRequest, error) {
+func getPullRequestsMapAfterCutoff(db *mongo.Database, filters []bson.M, cutoffTime time.Time) (map[string]database.PullRequest, error) {
 	pullRequestCollection := database.GetPullRequestCollection(db)
 	findOptions := options.Find()
 	// sort by increasing last_fetched, so the more recently updated PRs override the more stale PRs when looping through

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/jobs"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -8,7 +9,7 @@ import (
 
 func (api *API) DashboardFetch(c *gin.Context) {
 	userID := getUserIDFromContext(c)
-	tokens, err := api.getExternalTokens(userID)
+	tokens, err := database.GetAllExternalTokens(api.DB, userID)
 	if err != nil {
 		Handle500(c)
 		return
