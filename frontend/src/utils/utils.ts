@@ -167,6 +167,18 @@ export const getFormattedDate = (
         }
         return { dateString: 'Tomorrow', textColor: 'orange' }
     }
+    if (date.hasSame(DateTime.local().plus({ days: 2 }), 'day')) {
+        if (isDoneOrDeleted) {
+            return { dateString: 'In 2 days' }
+        }
+        return { dateString: 'In 2 days', textColor: 'orange' }
+    }
+    if (date.hasSame(DateTime.local().plus({ days: 3 }), 'day')) {
+        if (isDoneOrDeleted) {
+            return { dateString: 'In 3 days' }
+        }
+        return { dateString: 'In 3 days', textColor: 'orange' }
+    }
     if (date < DateTime.local()) {
         if (isDoneOrDeleted) {
             return {
