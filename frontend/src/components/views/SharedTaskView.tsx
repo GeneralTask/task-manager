@@ -20,6 +20,7 @@ import SharedItemBodyContainer from '../molecules/shared_item_page/SharedItemBod
 import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
 import SubtaskBody from '../molecules/subtasks/SubtaskBody'
 import PriorityDropdownTrigger from '../radix/PriorityDropdownTrigger'
+import EmptyBody from '../shared_task/EmptyBody'
 import StatusBadge from '../shared_task/StatusBadge'
 
 const PARENT_TASK_TITLE_MAX_WIDTH = '200px'
@@ -122,15 +123,19 @@ const SharedTask = () => {
                                     <PriorityDropdownTrigger value={displayedTask?.priority_normalized ?? 0} />
                                     <GTDatePickerButton currentDate={DateTime.fromISO(displayedTask?.due_date ?? '')} />
                                 </TaskFieldContainer>
-                                <GTTextField
-                                    key={displayedTask.id}
-                                    type="markdown"
-                                    value={displayedTask?.body}
-                                    onChange={emptyFunction}
-                                    fontSize="small"
-                                    disabled
-                                    readOnly
-                                />
+                                {displayedTask?.body.trim() ? (
+                                    <GTTextField
+                                        key={displayedTask.id}
+                                        type="markdown"
+                                        value={displayedTask?.body}
+                                        onChange={emptyFunction}
+                                        fontSize="small"
+                                        disabled
+                                        readOnly
+                                    />
+                                ) : (
+                                    <EmptyBody />
+                                )}
                                 {selectedSubtaskId == null && subtasks.length > 0 && (
                                     <SubtaskContainer>
                                         Subtasks
