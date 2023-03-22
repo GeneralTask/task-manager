@@ -148,7 +148,8 @@ func (api *API) DashboardData(c *gin.Context) {
 		}
 		intervalID := primitive.NilObjectID
 		for _, interval := range intervals {
-			if dataPoint.Date.Time().After(interval.DatetimeStart) && dataPoint.Date.Time().Before(interval.DatetimeEnd) {
+			// add a minute before to catch things right at midnight
+			if (dataPoint.Date.Time().Equal(interval.DatetimeStart) || dataPoint.Date.Time().After(interval.DatetimeStart)) && dataPoint.Date.Time().Before(interval.DatetimeEnd) {
 				intervalID = interval.ID
 			}
 		}
