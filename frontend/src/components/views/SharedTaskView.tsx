@@ -9,6 +9,7 @@ import { TSubtask } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
+import MarkdownRenderer from '../atoms/MarkdownRenderer'
 import Spinner from '../atoms/Spinner'
 import { Truncated } from '../atoms/typography/Typography'
 import GTDatePickerButton from '../molecules/GTDatePickerButton'
@@ -19,6 +20,8 @@ import SharedItemBodyContainer from '../molecules/shared_item_page/SharedItemBod
 import SharedItemHeader from '../molecules/shared_item_page/SharedItemHeader'
 import SubtaskBody from '../molecules/subtasks/SubtaskBody'
 import PriorityDropdownTrigger from '../radix/PriorityDropdownTrigger'
+import EmptyBody from '../shared_task/EmptyBody'
+import StatusBadge from '../shared_task/StatusBadge'
 
 const PARENT_TASK_TITLE_MAX_WIDTH = '200px'
 const getSharedWithMessage = (domain: string | undefined, sharedAccess: string | undefined) => {
@@ -47,10 +50,15 @@ const SharedWithText = styled.div`
 `
 const TitleContainer = styled.div`
     margin-bottom: ${Spacing._12};
+    display: flex;
+    justify-content: space-between;
 `
 const TaskFieldContainer = styled.div`
     display: flex;
     margin-bottom: ${Spacing._12};
+`
+const MarkdownContainer = styled.div`
+    padding: 0 ${Spacing._8};
 `
 const SubtaskContainer = styled.div`
     margin-top: ${Spacing._24};
@@ -76,6 +84,7 @@ const SharedTask = () => {
     const [selectedSubtaskId, setSelectedSubtaskId] = useState<string | null>(null)
     const selectedSubtask = subtasks.find((subtask) => subtask.id === selectedSubtaskId)
     const displayedTask = selectedSubtask ?? task
+    const taskStatus = task?.is_done ? 'complete' : 'in-progress'
 
     const returnToParentTask = () => {
         setSelectedSubtaskId(null)
@@ -107,20 +116,19 @@ const SharedTask = () => {
                                         disabled
                                         readOnly
                                     />
+                                    <StatusBadge status={taskStatus} />
                                 </TitleContainer>
                                 <TaskFieldContainer>
                                     <PriorityDropdownTrigger value={displayedTask?.priority_normalized ?? 0} />
                                     <GTDatePickerButton currentDate={DateTime.fromISO(displayedTask?.due_date ?? '')} />
                                 </TaskFieldContainer>
-                                <GTTextField
-                                    key={displayedTask.id}
-                                    type="markdown"
-                                    value={displayedTask?.body}
-                                    onChange={emptyFunction}
-                                    fontSize="small"
-                                    disabled
-                                    readOnly
-                                />
+                                {displayedTask?.body.trim() ? (
+                                    <MarkdownContainer>
+                                        <MarkdownRenderer>{displayedTask?.body}</MarkdownRenderer>
+                                    </MarkdownContainer>
+                                ) : (
+                                    <EmptyBody />
+                                )}
                                 {selectedSubtaskId == null && subtasks.length > 0 && (
                                     <SubtaskContainer>
                                         Subtasks
