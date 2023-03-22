@@ -14,7 +14,7 @@ import {
     LINE_STROKE_WIDTH,
     STROKE_DASH_ARRAY,
 } from './constants'
-import { getLineColor } from './utils'
+import { getLineColor, roundToNDecimalPlaces } from './utils'
 
 const StyledResponsiveContainer = styled(ResponsiveContainer)`
     /* tick labels */
@@ -64,7 +64,7 @@ const LineGraph = ({ graphId }: LineGraphProps) => {
                     type="number"
                     name="minutes"
                     domain={['auto', 'auto']}
-                    tickFormatter={(minutes: number) => `${Math.round(minutes / 60)}`}
+                    tickFormatter={(minutes: number) => roundToNDecimalPlaces(minutes / 60, 0)}
                     tickLine={false}
                     stroke={Colors.text.muted}
                 />
