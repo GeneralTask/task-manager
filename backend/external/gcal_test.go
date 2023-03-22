@@ -25,6 +25,14 @@ func TestGetEvents(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 	t.Run("Success", func(t *testing.T) {
+		accountID := "exampleAccountID"
+		userID := primitive.NewObjectID()
+		externalTokenCollection := database.GetExternalTokenCollection(db)
+		externalTokenCollection.InsertOne(context.Background(), database.ExternalAPIToken{
+			UserID:    userID,
+			AccountID: accountID,
+			ServiceID: TASK_SERVICE_ID_GOOGLE,
+		})
 		standardEvent := calendar.Event{
 			Created:         "2021-02-25T17:53:01.000Z",
 			Summary:         "Standard Event",
@@ -42,10 +50,9 @@ func TestGetEvents(t *testing.T) {
 		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
 		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
 
-		userID := primitive.NewObjectID()
 		standardDBEvent := database.CalendarEvent{
 			IDExternal:    "standard_event",
-			CalendarID:    "exampleAccountID",
+			CalendarID:    accountID,
 			Deeplink:      "generaltask.com&authuser=exampleAccountID",
 			Title:         "Standard Event",
 			Location:      "Event Location",
@@ -87,7 +94,7 @@ func TestGetEvents(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
 			},
 		}
-		go googleCalendar.GetEvents(db, userID, "exampleAccountID", time.Now(), time.Now(), nil, calendarResult)
+		go googleCalendar.GetEvents(db, userID, accountID, time.Now(), time.Now(), nil, calendarResult)
 		result := <-calendarResult
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 2, len(result.CalendarEvents))
@@ -107,7 +114,7 @@ func TestGetEvents(t *testing.T) {
 		).Decode(&calendarEventFromDB)
 		assert.NoError(t, err)
 		assertCalendarEventsEqual(t, &standardDBEvent, &calendarEventFromDB)
-		assert.Equal(t, "exampleAccountID", calendarEventFromDB.SourceAccountID)
+		assert.Equal(t, accountID, calendarEventFromDB.SourceAccountID)
 
 		var calendarAccount database.CalendarAccount
 		err = database.GetCalendarAccountCollection(db).FindOne(
@@ -116,11 +123,15 @@ func TestGetEvents(t *testing.T) {
 				{"user_id": userID},
 			}},
 		).Decode(&calendarAccount)
-		assert.Equal(t, "exampleAccountID", calendarAccount.Calendars[0].CalendarID)
+		assert.Equal(t, accountID, calendarAccount.Calendars[0].CalendarID)
 		assert.Equal(t, "", calendarAccount.Calendars[0].Title)
 		assert.Equal(t, "owner", calendarAccount.Calendars[0].AccessRole)
 		assert.Equal(t, "", calendarAccount.Calendars[0].ColorBackground)
 		assert.NoError(t, err)
+
+		token, err := getExternalToken(db, userID, accountID, TASK_SERVICE_ID_GOOGLE)
+		assert.NoError(t, err)
+		assert.Equal(t, "America/Compton", token.Timezone)
 	})
 	t.Run("ExistingEvent", func(t *testing.T) {
 		standardEvent := calendar.Event{
