@@ -57,3 +57,11 @@ export interface TPoint {
     x: number
     y: number
 }
+
+export interface TDashboardTeamMember {
+    id: string
+    optimisticId?: string
+    name: string
+    email?: string
+    github_id?: string
+}
