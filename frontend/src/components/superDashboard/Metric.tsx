@@ -6,7 +6,7 @@ import { Icon } from '../atoms/Icon'
 import { BodyMedium, HeadlineLarge, TitleMedium } from '../atoms/typography/Typography'
 import LineGraph from './LineGraph'
 import { useSuperDashboardContext } from './SuperDashboardContext'
-import { getLineColor, roundToNDecimalPlaces } from './utils'
+import { getLineColor } from './utils'
 
 const Container = styled.div`
     display: flex;
@@ -51,12 +51,11 @@ const Metric = ({ graphId }: MetricProps) => {
                             {dashboard.data[line.subject_id_override || selectedSubject.id]?.[selectedInterval.id]?.[
                                 line.data_id
                             ]?.aggregated_value !== undefined
-                                ? `${roundToNDecimalPlaces(
+                                ? `${(
                                       dashboard.data[line.subject_id_override || selectedSubject.id][
                                           selectedInterval.id
-                                      ][line.data_id].aggregated_value / 60,
-                                      1
-                                  )} hours`
+                                      ][line.data_id].aggregated_value / 60
+                                  ).toFixed(1)} hours`
                                 : 'N/A'}
                         </HeadlineLarge>
                     </Flex>

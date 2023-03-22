@@ -11,8 +11,3 @@ export const getLineColor = (colorKey: TLineColor) => {
             return Colors.semantic.blue.base
     }
 }
-
-export const roundToNDecimalPlaces = (number: number, n: number) => {
-    const factor = 10 ** n
-    return Math.round(number * factor) / factor
-}
