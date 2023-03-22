@@ -7,7 +7,7 @@ import (
 
 func dripCampaignJob() {
 	// want this to run hourly to ensure that we can send emails to users close to 9am in their timezone
-	_, err := EnsureJobOnlyRunsPerHour("drip_campaign")
+	_, err := EnsureJobOnlyRunsOncePerHour("drip_campaign")
 	if err != nil {
 		return
 	}

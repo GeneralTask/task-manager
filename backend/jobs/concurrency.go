@@ -29,7 +29,7 @@ func EnsureJobOnlyRunsOnceToday(jobName string) (primitive.ObjectID, error) {
 	return lockID, lockClient.XLock(context.Background(), resourceName, lockID.Hex(), lock.LockDetails{})
 }
 
-func EnsureJobOnlyRunsPerHour(jobName string) (primitive.ObjectID, error) {
+func EnsureJobOnlyRunsOncePerHour(jobName string) (primitive.ObjectID, error) {
 	db, cleanup, err := database.GetDBConnection()
 	if err != nil {
 		return primitive.NilObjectID, err
