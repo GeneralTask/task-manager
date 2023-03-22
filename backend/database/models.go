@@ -447,7 +447,6 @@ type DashboardDataPoint struct {
 	ID           primitive.ObjectID `bson:"_id,omitempty"`
 	TeamID       primitive.ObjectID `bson:"team_id,omitempty"`
 	IndividualID primitive.ObjectID `bson:"individual_id,omitempty"`
-	Subject      string             `bson:"subject,omitempty"`
 	GraphType    string             `bson:"graph_type,omitempty"`
 	Value        int                `bson:"value,omitempty"`
 	Date         primitive.DateTime `bson:"date,omitempty"`

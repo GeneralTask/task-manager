@@ -112,7 +112,6 @@ func TestUpdateGithubIndustryData(t *testing.T) {
 		err = cursor.All(context.Background(), &dashboardDataPoints)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(dashboardDataPoints))
-		assert.Equal(t, constants.DashboardSubjectGlobal, dashboardDataPoints[0].Subject)
 		assert.Equal(t, constants.DashboardGraphTypePRResponseTime, dashboardDataPoints[0].GraphType)
 		assert.Equal(t, 90, dashboardDataPoints[0].Value)
 		expectedDateTime, _ := time.Parse(time.RFC3339, "2023-04-15T08:00:00Z")

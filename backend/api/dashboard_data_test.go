@@ -45,14 +45,12 @@ func TestDashboardData(t *testing.T) {
 
 	dashboardDataPointCollection := database.GetDashboardDataPointCollection(api.DB)
 	_, err = dashboardDataPointCollection.InsertOne(context.Background(), database.DashboardDataPoint{
-		Subject:   constants.DashboardSubjectGlobal,
 		GraphType: constants.DashboardGraphTypePRResponseTime,
 		Value:     13,
 		Date:      primitive.NewDateTimeFromTime(time.Date(2023, time.January, 3, 0, 0, 0, 0, time.UTC)),
 	})
 	assert.NoError(t, err)
 	_, err = dashboardDataPointCollection.InsertOne(context.Background(), database.DashboardDataPoint{
-		Subject:   constants.DashboardSubjectGlobal,
 		GraphType: constants.DashboardGraphTypePRResponseTime,
 		Value:     20,
 		Date:      primitive.NewDateTimeFromTime(time.Date(2023, time.January, 4, 0, 0, 0, 0, time.UTC)),
@@ -71,13 +69,6 @@ func TestDashboardData(t *testing.T) {
 		TeamID:    team.ID,
 		GraphType: constants.DashboardGraphTypePRResponseTime,
 		Value:     32,
-		Date:      primitive.NewDateTimeFromTime(time.Date(2022, time.December, 27, 0, 0, 0, 0, time.UTC)),
-	})
-	assert.NoError(t, err)
-	// missing team ID
-	_, err = dashboardDataPointCollection.InsertOne(context.Background(), database.DashboardDataPoint{
-		GraphType: constants.DashboardGraphTypePRResponseTime,
-		Value:     2,
 		Date:      primitive.NewDateTimeFromTime(time.Date(2022, time.December, 27, 0, 0, 0, 0, time.UTC)),
 	})
 	assert.NoError(t, err)
@@ -107,16 +98,9 @@ func TestDashboardData(t *testing.T) {
 		Date:         primitive.NewDateTimeFromTime(time.Date(2022, time.December, 27, 0, 0, 0, 0, time.UTC)),
 	})
 	assert.NoError(t, err)
-	// missing team ID
-	_, err = dashboardDataPointCollection.InsertOne(context.Background(), database.DashboardDataPoint{
-		IndividualID: teamMember1ID,
-		GraphType:    constants.DashboardGraphTypePRResponseTime,
-		Value:        205,
-		Date:         primitive.NewDateTimeFromTime(time.Date(2022, time.December, 27, 0, 0, 0, 0, time.UTC)),
-	})
-	assert.NoError(t, err)
 	// missing individual ID
 	_, err = dashboardDataPointCollection.InsertOne(context.Background(), database.DashboardDataPoint{
+		TeamID:    team2.ID,
 		GraphType: constants.DashboardGraphTypePRResponseTime,
 		Value:     2,
 		Date:      primitive.NewDateTimeFromTime(time.Date(2022, time.December, 27, 0, 0, 0, 0, time.UTC)),
@@ -124,6 +108,7 @@ func TestDashboardData(t *testing.T) {
 	assert.NoError(t, err)
 	// wrong team ID
 	_, err = dashboardDataPointCollection.InsertOne(context.Background(), database.DashboardDataPoint{
+		TeamID:       team2.ID,
 		IndividualID: teamMember2ID,
 		GraphType:    constants.DashboardGraphTypePRResponseTime,
 		Value:        2,
@@ -134,7 +119,6 @@ func TestDashboardData(t *testing.T) {
 	// wrong timestamps
 	// over a weekend
 	_, err = dashboardDataPointCollection.InsertOne(context.Background(), database.DashboardDataPoint{
-		Subject:   "global",
 		GraphType: constants.DashboardGraphTypePRResponseTime,
 		Value:     15,
 		Date:      primitive.NewDateTimeFromTime(time.Date(2023, time.January, 1, 0, 0, 0, 0, time.UTC)),
@@ -142,7 +126,6 @@ func TestDashboardData(t *testing.T) {
 	assert.NoError(t, err)
 	// out of range
 	_, err = dashboardDataPointCollection.InsertOne(context.Background(), database.DashboardDataPoint{
-		Subject:   "global",
 		GraphType: constants.DashboardGraphTypePRResponseTime,
 		Value:     20,
 		Date:      primitive.NewDateTimeFromTime(time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)),

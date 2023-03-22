@@ -202,10 +202,6 @@ func saveDataPointsForPullRequests(db *mongo.Database, pullRequestIDToValue map[
 		} else {
 			filters = append(filters, bson.M{"individual_id": bson.M{"$exists": false}})
 		}
-		if teamID == primitive.NilObjectID && individualID == primitive.NilObjectID {
-			dashboardDataPoint.Subject = constants.DashboardSubjectGlobal
-			filters = append(filters, bson.M{"subject": constants.DashboardSubjectGlobal})
-		}
 		result := dataPointCollection.FindOneAndUpdate(
 			context.Background(),
 			bson.M{"$and": filters},
