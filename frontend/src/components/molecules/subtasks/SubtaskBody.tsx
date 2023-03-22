@@ -1,10 +1,9 @@
 import { DateTime } from 'luxon'
 import { TASK_PRIORITIES } from '../../../constants'
 import { TSubtask } from '../../../utils/types'
-import { emptyFunction } from '../../../utils/utils'
 import DueDate from '../../atoms/DueDate'
 import { Icon } from '../../atoms/Icon'
-import MarkTaskDoneButton from '../../atoms/buttons/MarkTaskDoneButton'
+import Checkbox from '../../shared_task/Checkbox'
 import { RightContainer, SubtaskContainer, TitleSpan } from './Subtask'
 
 interface SubtaskBodyInterface {
@@ -15,13 +14,7 @@ const SubtaskBody = ({ subtask, onClick }: SubtaskBodyInterface) => {
     const dueDate = DateTime.fromISO(subtask.due_date)
     return (
         <SubtaskContainer onClick={onClick}>
-            <MarkTaskDoneButton
-                isDone={subtask.is_done}
-                taskId={subtask.id}
-                isSelected={false}
-                onMarkComplete={emptyFunction}
-                isDisabled
-            />
+            <Checkbox status={subtask.is_done ? 'complete' : 'in-progress'} />
             <TitleSpan isDone={subtask.is_done} shouldAnimate={false}>
                 {subtask.title}
             </TitleSpan>
