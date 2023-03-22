@@ -55,7 +55,7 @@ const Metric = ({ graphId }: MetricProps) => {
                                       dashboard.data[line.subject_id_override || selectedSubject.id][
                                           selectedInterval.id
                                       ][line.data_id].aggregated_value / 60,
-                                      2
+                                      1
                                   )} hours`
                                 : 'N/A'}
                         </HeadlineLarge>
