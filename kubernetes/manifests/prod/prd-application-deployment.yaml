@@ -114,6 +114,13 @@ spec:
                   key: LINEAR_OAUTH_CLIENT_SECRET
                   optional: false
 
+            - name: MANDRILL_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: core-secrets
+                  key: MANDRILL_CLIENT_SECRET
+                  optional: false
+
             - name: MONGO_URI
               valueFrom:
                 secretKeyRef:
