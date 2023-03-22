@@ -101,7 +101,7 @@ export const semantic = {
     success: {
         base: '#16A249',
         hover: '#10652F',
-        faint: '#16A249',
+        faint: '#DAE0D6',
     },
     warning: {
         base: '#BE0A16',

@@ -92,6 +92,7 @@ import {
     faCircleUp,
     faHeadphones,
     faMinus,
+    faPlay,
     faQuoteRight,
     faSquare as faSquareSolid,
 } from '@fortawesome/pro-solid-svg-icons'
@@ -189,6 +190,7 @@ export const icons = Object.freeze({
     note: faNoteSticky,
     penToSquare: faPenToSquare,
     pencil: faPencil,
+    play: faPlay,
     plus: faPlus,
     priority_high: faCircleChevronUp,
     priority_low: faCircleChevronDown,
@@ -246,6 +248,7 @@ export const externalStatusIcons = Object.freeze({
 
 export const focusModeBackground = '/images/focus_mode_background.jpg'
 export const noteBackground = '/images/note_background.jpg'
+export const checkBig = '/images/check_big.svg'
 
 export type TLogoImage = keyof typeof logos
 export type TIconImage = keyof typeof icons
