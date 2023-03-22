@@ -43,7 +43,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
 
     const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
 
-    const previewSharingMenuItems: GTMenuItem[] = [
+    const sharingMenuItems: GTMenuItem[] = [
         ...(note.linked_event_id
             ? [
                   {
@@ -84,13 +84,13 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
         },
     ]
 
-    const previewDropdownItems: GTMenuItem[] = isShared
+    const dropdownItems: GTMenuItem[] = isShared
         ? [
               {
                   icon: icons.share,
                   label: 'Share note',
                   hideCheckmark: true,
-                  subItems: previewSharingMenuItems,
+                  subItems: sharingMenuItems,
               },
               {
                   icon: icons.external_link,
@@ -113,11 +113,11 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
                   onClick: unshareNote,
               },
           ]
-        : previewSharingMenuItems
+        : sharingMenuItems
 
     return (
         <GTDropdownMenu
-            items={previewDropdownItems}
+            items={dropdownItems}
             trigger={<GTButton styleType="secondary" icon={icons.share} value="Share" />}
         />
     )
