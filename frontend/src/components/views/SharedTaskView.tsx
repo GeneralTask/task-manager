@@ -10,6 +10,7 @@ import { TSubtask } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
+import MarkdownRenderer from '../atoms/MarkdownRenderer'
 import Spinner from '../atoms/Spinner'
 import { Truncated } from '../atoms/typography/Typography'
 import GTDatePickerButton from '../molecules/GTDatePickerButton'
@@ -124,15 +125,7 @@ const SharedTask = () => {
                                     <GTDatePickerButton currentDate={DateTime.fromISO(displayedTask?.due_date ?? '')} />
                                 </TaskFieldContainer>
                                 {displayedTask?.body.trim() ? (
-                                    <GTTextField
-                                        key={displayedTask.id}
-                                        type="markdown"
-                                        value={displayedTask?.body}
-                                        onChange={emptyFunction}
-                                        fontSize="small"
-                                        disabled
-                                        readOnly
-                                    />
+                                    <MarkdownRenderer>{displayedTask?.body}</MarkdownRenderer>
                                 ) : (
                                     <EmptyBody />
                                 )}
