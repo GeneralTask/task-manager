@@ -12,6 +12,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/testutils"
 
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -1520,5 +1521,94 @@ func TestModifyShareableTask(t *testing.T) {
 		responseBody := ServeRequest(t, authToken, "PATCH", url, body, http.StatusBadRequest, api)
 		expectedBody := `{"detail":"only General Task tasks can be shared"}`
 		assert.Equal(t, expectedBody, string(responseBody))
+	})
+}
+
+func TestIncrementDailyTaskCompletion(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+
+	dailyTaskCompletionCollection := database.GetDailyTaskCompletionCollection(db)
+	taskCollection := database.GetTaskCollection(db)
+
+	authToken := login("daily_task_completion@generaltask.com", "")
+	userID := getUserIDFromAuthToken(t, db, authToken)
+
+	isCompleted := false
+	insertResult, err := taskCollection.InsertOne(context.Background(), database.Task{
+		UserID:      userID,
+		IsCompleted: &isCompleted,
+		SourceID:    external.TASK_SOURCE_ID_GT_TASK,
+	})
+	assert.NoError(t, err)
+	insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+	router := GetRouter(api)
+
+	t.Run("UpdateDifferentField", func(t *testing.T) {
+		ServeRequest(t, authToken, "PATCH", fmt.Sprintf("/tasks/modify/%s/", insertedTaskID.Hex()), bytes.NewBuffer([]byte(`{"title": "new title"}`)), http.StatusOK, api)
+		result := dailyTaskCompletionCollection.FindOne(context.Background(), bson.M{"user_id": userID})
+		assert.Equal(t, mongo.ErrNoDocuments, result.Err())
+	})
+	t.Run("SuccessIncrement", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Timezone-Offset", "420")
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusOK, response.Code)
+
+		var dailyTaskCompletion database.DailyTaskCompletion
+		err := dailyTaskCompletionCollection.FindOne(context.Background(), bson.M{"user_id": userID}).Decode(&dailyTaskCompletion)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, dailyTaskCompletion.CompletedTasksCount)
+	})
+	t.Run("DoesNotIncrementTwice", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Timezone-Offset", "420")
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusOK, response.Code)
+
+		var dailyTaskCompletion database.DailyTaskCompletion
+		err := dailyTaskCompletionCollection.FindOne(context.Background(), bson.M{"user_id": userID}).Decode(&dailyTaskCompletion)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, dailyTaskCompletion.CompletedTasksCount)
+	})
+	t.Run("DoesNotIncrementIfMarkedAsIncomplete", func(t *testing.T) {
+		// Mark the task as incomplete then mark it as complete again
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"is_completed": false}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Timezone-Offset", "420")
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusOK, response.Code)
+		////
+		request, _ = http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Timezone-Offset", "420")
+		response = httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusOK, response.Code)
+
+		var dailyTaskCompletion database.DailyTaskCompletion
+		err := dailyTaskCompletionCollection.FindOne(context.Background(), bson.M{"user_id": userID}).Decode(&dailyTaskCompletion)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, dailyTaskCompletion.CompletedTasksCount)
 	})
 }

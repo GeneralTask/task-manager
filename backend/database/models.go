@@ -471,7 +471,7 @@ type DashboardTeamMember struct {
 
 type DailyTaskCompletion struct {
 	ID                  primitive.ObjectID `bson:"_id,omitempty"`
-	UserID              primitive.ObjectID `bson:"user_id"`
+	UserID              primitive.ObjectID `bson:"user_id,omitempty"`
 	Date                primitive.DateTime `bson:"date"`
 	CompletedTasksCount int                `bson:"completed_tasks_count"`
 }

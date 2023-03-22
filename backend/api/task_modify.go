@@ -444,7 +444,7 @@ func (api *API) IncrementDailyTaskCompletion(db *mongo.Database, userID primitiv
 			{"user_id": userID},
 			{"date": dateWithoutTimePrimitive},
 		}},
-		bson.M{"$inc": bson.M{"count": 1}},
+		bson.M{"$inc": bson.M{"completed_tasks_count": 1}},
 		options,
 	)
 	return err
