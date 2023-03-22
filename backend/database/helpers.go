@@ -1131,6 +1131,26 @@ func GetExternalTokens(db *mongo.Database, userID primitive.ObjectID, serviceID 
 	return &tokens, nil
 }
 
+func GetAllExternalTokens(db *mongo.Database, userID primitive.ObjectID) ([]ExternalAPIToken, error) {
+	var tokens []ExternalAPIToken
+	externalAPITokenCollection := GetExternalTokenCollection(db)
+	cursor, err := externalAPITokenCollection.Find(
+		context.Background(),
+		bson.M{"user_id": userID},
+	)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch api tokens")
+		return []ExternalAPIToken{}, err
+	}
+	err = cursor.All(context.Background(), &tokens)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to iterate through api tokens")
+		return []ExternalAPIToken{}, err
+	}
+	return tokens, nil
+}
+
 func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string {
 	return constants.TaskSectionNameDefault
 }

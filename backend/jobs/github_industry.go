@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -42,44 +43,126 @@ func updateGithubIndustryData(logID primitive.ObjectID, endCutoff time.Time, loo
 		logger.Error().Err(err).Msg("failed to log event")
 	}
 
-	pullRequestCollection := database.GetPullRequestCollection(db)
-	findOptions := options.Find()
-	// sort by increasing last_fetched, so the more recently updated PRs override the more stale PRs when looping through
-	findOptions.SetSort(bson.D{{Key: "last_fetched", Value: 1}})
-	cursor, err := pullRequestCollection.Find(
-		context.Background(),
-		bson.M{"created_at_external": bson.M{"$gte": endCutoff.Add(-time.Hour * 24 * time.Duration(lookbackDays))}},
-		findOptions,
-	)
+	pullRequestIDToValue, err := getPullRequestsMapAfterCutoff(db, []bson.M{}, getPullRequestCutoffTime(endCutoff, lookbackDays))
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch github PRs")
 		return err
 	}
+	err = database.InsertLogEvent(db, logID, "github_industry_job_fetched_prs"+strconv.Itoa(len(pullRequestIDToValue)))
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to log event")
+	}
+
+	err = saveDataPointsForPullRequests(db, pullRequestIDToValue, primitive.NilObjectID, primitive.NilObjectID)
+	if err != nil {
+		return err
+	}
+	err = database.InsertLogEvent(db, logID, "github_industry_job_completed")
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to log event")
+	}
+	return nil
+}
+
+func UpdateGithubTeamData(userID primitive.ObjectID, endCutoff time.Time, lookbackDays int) error {
+	logger := logging.GetSentryLogger()
+	db, cleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
+	defer cleanup()
+	pullRequestIDToValue, err := getPullRequestsMapAfterCutoff(db, []bson.M{{"user_id": userID}}, getPullRequestCutoffTime(endCutoff, lookbackDays))
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch github PRs")
+		return err
+	}
+	team, err := database.GetOrCreateDashboardTeam(db, userID)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to get dashboard team")
+		return err
+	}
+	teamMembers, err := database.GetDashboardTeamMembers(db, team.ID)
+	if err != nil || teamMembers == nil {
+		logger.Error().Err(err).Msg("failed to get dashboard team members")
+		return err
+	}
+	authorToPullRequests := make(map[string]map[string]database.PullRequest)
+	for _, pullRequest := range pullRequestIDToValue {
+		for _, comment := range pullRequest.Comments {
+			if comment.Author != CODECOV_BOT && comment.Author != pullRequest.Author {
+				_, exists := authorToPullRequests[comment.Author]
+				if !exists {
+					authorToPullRequests[comment.Author] = make(map[string]database.PullRequest)
+				}
+				authorToPullRequests[comment.Author][pullRequest.IDExternal] = pullRequest
+			}
+		}
+	}
+	teamPullRequests := make(map[string]database.PullRequest)
+	for _, teamMember := range *teamMembers {
+		if teamMember.GithubID == "" {
+			continue
+		}
+		idToPullRequest, exists := authorToPullRequests[teamMember.GithubID]
+		if !exists {
+			continue
+		}
+		err = saveDataPointsForPullRequests(db, idToPullRequest, team.ID, teamMember.ID)
+		if err != nil {
+			logger.Error().Err(err).Msgf("failed to save team %s member %s data points", team.ID, teamMember.ID)
+			return err
+		}
+		for externalID, pullRequest := range idToPullRequest {
+			teamPullRequests[externalID] = pullRequest
+		}
+	}
+	err = saveDataPointsForPullRequests(db, teamPullRequests, team.ID, primitive.NilObjectID)
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to save team %s data points", team.ID)
+		return err
+	}
+	return nil
+}
+
+func getPullRequestsMapAfterCutoff(db *mongo.Database, filters []bson.M, cutoffTime time.Time) (map[string]database.PullRequest, error) {
+	pullRequestCollection := database.GetPullRequestCollection(db)
+	findOptions := options.Find()
+	// sort by increasing last_fetched, so the more recently updated PRs override the more stale PRs when looping through
+	findOptions.SetSort(bson.D{{Key: "last_fetched", Value: 1}})
+	filters = append(filters, bson.M{"created_at_external": bson.M{"$gte": primitive.NewDateTimeFromTime(cutoffTime)}})
+	cursor, err := pullRequestCollection.Find(
+		context.Background(),
+		bson.M{"$and": filters},
+		findOptions,
+	)
+	if err != nil {
+		return nil, err
+	}
 	var pullRequests []database.PullRequest
 	err = cursor.All(context.Background(), &pullRequests)
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to iterate through github PRs")
-		return err
-	}
-	err = database.InsertLogEvent(db, logID, "github_industry_job_fetched_prs"+strconv.Itoa(len(pullRequests)))
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to log event")
+		return nil, err
 	}
 	pullRequestIDToValue := make(map[string]database.PullRequest)
 	for _, pullRequest := range pullRequests {
 		pullRequestIDToValue[pullRequest.IDExternal] = pullRequest
 	}
+	return pullRequestIDToValue, nil
+}
+
+func saveDataPointsForPullRequests(db *mongo.Database, pullRequestIDToValue map[string]database.PullRequest, teamID primitive.ObjectID, individualID primitive.ObjectID) error {
+	logger := logging.GetSentryLogger()
 	dateToTotalResponseTime := make(map[primitive.DateTime]int)
 	dateToPRCount := make(map[primitive.DateTime]int)
 	for _, pullRequest := range pullRequestIDToValue {
-		firstCommentTime := endCutoff
+		firstCommentTime := time.Time{}
 		for _, comment := range pullRequest.Comments {
 			if comment.Author != CODECOV_BOT && comment.Author != pullRequest.Author {
 				firstCommentTime = comment.CreatedAt.Time()
 				break
 			}
 		}
-		if firstCommentTime == endCutoff {
+		if firstCommentTime.IsZero() {
 			// skip pull requests with no comments
 			continue
 		}
@@ -88,10 +171,6 @@ func updateGithubIndustryData(logID primitive.ObjectID, endCutoff time.Time, loo
 		pullRequestDate := primitive.NewDateTimeFromTime(time.Date(createdAt.Year(), createdAt.Month(), createdAt.Day(), constants.UTC_OFFSET, 0, 0, 0, time.UTC))
 		dateToTotalResponseTime[pullRequestDate] += responseTime
 		dateToPRCount[pullRequestDate] += 1
-	}
-	err = database.InsertLogEvent(db, logID, "github_industry_job_calc_response_time"+strconv.Itoa(len(dateToTotalResponseTime)))
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to log event")
 	}
 	dataPointCollection := database.GetDashboardDataPointCollection(db)
 	for dateTime, totalResponseTime := range dateToTotalResponseTime {
@@ -102,19 +181,34 @@ func updateGithubIndustryData(logID primitive.ObjectID, endCutoff time.Time, loo
 		}
 		averageResponseTime := totalResponseTime / pullRequestCount
 		dashboardDataPoint := database.DashboardDataPoint{
-			Subject:   constants.DashboardSubjectGlobal,
 			GraphType: constants.DashboardGraphTypePRResponseTime,
 			Value:     averageResponseTime,
 			Date:      dateTime,
 			CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
 		}
+		filters := []bson.M{
+			{"date": dateTime},
+			{"graph_type": constants.DashboardGraphTypePRResponseTime},
+		}
+		if teamID != primitive.NilObjectID {
+			dashboardDataPoint.TeamID = teamID
+			filters = append(filters, bson.M{"team_id": teamID})
+		} else {
+			filters = append(filters, bson.M{"team_id": bson.M{"$exists": false}})
+		}
+		if individualID != primitive.NilObjectID {
+			dashboardDataPoint.IndividualID = individualID
+			filters = append(filters, bson.M{"individual_id": teamID})
+		} else {
+			filters = append(filters, bson.M{"individual_id": bson.M{"$exists": false}})
+		}
+		if teamID == primitive.NilObjectID && individualID == primitive.NilObjectID {
+			dashboardDataPoint.Subject = constants.DashboardSubjectGlobal
+			filters = append(filters, bson.M{"subject": constants.DashboardSubjectGlobal})
+		}
 		result := dataPointCollection.FindOneAndUpdate(
 			context.Background(),
-			bson.M{"$and": []bson.M{
-				{"subject": constants.DashboardSubjectGlobal},
-				{"date": dateTime},
-				{"graph_type": constants.DashboardGraphTypePRResponseTime},
-			}},
+			bson.M{"$and": filters},
 			bson.M{"$set": dashboardDataPoint},
 			options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
 		)
@@ -124,9 +218,9 @@ func updateGithubIndustryData(logID primitive.ObjectID, endCutoff time.Time, loo
 			return err
 		}
 	}
-	err = database.InsertLogEvent(db, logID, "github_industry_job_completed")
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to log event")
-	}
 	return nil
+}
+
+func getPullRequestCutoffTime(endCutoff time.Time, lookbackDays int) time.Time {
+	return endCutoff.Add(-time.Hour * 24 * time.Duration(lookbackDays))
 }
