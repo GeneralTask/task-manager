@@ -153,19 +153,19 @@ func TestDashboardData(t *testing.T) {
 		{
 			"id": "000000000000000000000030",
 			"date_start": "2022-12-19",
-			"date_end": "2022-12-24",
+			"date_end": "2022-12-23",
 			"is_default": false
 		},
 		{
 			"id": "000000000000000000000031",
 			"date_start": "2022-12-26",
-			"date_end": "2022-12-31",
+			"date_end": "2022-12-30",
 			"is_default": false
 		},
 		{
 			"id": "000000000000000000000032",
 			"date_start": "2023-01-02",
-			"date_end": "2023-01-07",
+			"date_end": "2023-01-06",
 			"is_default": true
 		}
 	],
