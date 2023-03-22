@@ -328,6 +328,7 @@ func TestMarkAsComplete(t *testing.T) {
 		assert.Equal(t, false, *task.IsCompleted)
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Timezone-Offset", "0")
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
@@ -350,6 +351,7 @@ func TestMarkAsComplete(t *testing.T) {
 		assert.Equal(t, false, *task.IsCompleted)
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Timezone-Offset", "0")
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
@@ -371,6 +373,7 @@ func TestMarkAsComplete(t *testing.T) {
 		assert.Equal(t, false, *task.IsCompleted)
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Timezone-Offset", "0")
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
@@ -398,6 +401,7 @@ func TestMarkAsComplete(t *testing.T) {
 		assert.Equal(t, true, *task.IsCompleted)
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Timezone-Offset", "0")
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
@@ -419,6 +423,7 @@ func TestMarkAsComplete(t *testing.T) {
 		assert.Equal(t, false, *task.IsCompleted)
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Timezone-Offset", "0")
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
@@ -442,6 +447,7 @@ func TestMarkAsComplete(t *testing.T) {
 		assert.Equal(t, false, *task.IsCompleted)
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Timezone-Offset", "0")
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
@@ -1555,6 +1561,16 @@ func TestIncrementDailyTaskCompletion(t *testing.T) {
 		ServeRequest(t, authToken, "PATCH", fmt.Sprintf("/tasks/modify/%s/", insertedTaskID.Hex()), bytes.NewBuffer([]byte(`{"title": "new title"}`)), http.StatusOK, api)
 		result := dailyTaskCompletionCollection.FindOne(context.Background(), bson.M{"user_id": userID})
 		assert.Equal(t, mongo.ErrNoDocuments, result.Err())
+	})
+	t.Run("MissingTimezoneOffset", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
 	t.Run("SuccessIncrement", func(t *testing.T) {
 		request, _ := http.NewRequest(
