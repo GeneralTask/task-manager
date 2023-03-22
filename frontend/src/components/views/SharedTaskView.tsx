@@ -58,6 +58,9 @@ const TaskFieldContainer = styled.div`
     display: flex;
     margin-bottom: ${Spacing._12};
 `
+const MarkdownContainer = styled.div`
+    padding: 0 ${Spacing._8};
+`
 const SubtaskContainer = styled.div`
     margin-top: ${Spacing._24};
     display: flex;
@@ -125,7 +128,9 @@ const SharedTask = () => {
                                     <GTDatePickerButton currentDate={DateTime.fromISO(displayedTask?.due_date ?? '')} />
                                 </TaskFieldContainer>
                                 {displayedTask?.body.trim() ? (
-                                    <MarkdownRenderer>{displayedTask?.body}</MarkdownRenderer>
+                                    <MarkdownContainer>
+                                        <MarkdownRenderer>{displayedTask?.body}</MarkdownRenderer>
+                                    </MarkdownContainer>
                                 ) : (
                                     <EmptyBody />
                                 )}
