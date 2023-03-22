@@ -70,7 +70,7 @@ export const useAddDashboardTeamMember = () => {
                 queryClient.setQueryData('dashboard-team-members', [...teamMembers, teamMember])
             }
         },
-        onSuccess: async (response: TAddTeamMemberResponse, createData: TDashboardTeamMember) => {
+        onSuccess: (response: TAddTeamMemberResponse, createData: TDashboardTeamMember) => {
             if (!createData.optimisticId) return
             setOptimisticId(createData.optimisticId, response.team_member_id)
 
