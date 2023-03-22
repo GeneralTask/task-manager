@@ -1531,6 +1531,9 @@ func TestIncrementDailyTaskCompletion(t *testing.T) {
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 
+	testTime := time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
+	api.OverrideTime = &testTime
+
 	dailyTaskCompletionCollection := database.GetDailyTaskCompletionCollection(db)
 	taskCollection := database.GetTaskCollection(db)
 
@@ -1546,6 +1549,7 @@ func TestIncrementDailyTaskCompletion(t *testing.T) {
 	assert.NoError(t, err)
 	insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 	router := GetRouter(api)
+	var dailyTaskCompletion database.DailyTaskCompletion
 
 	t.Run("UpdateDifferentField", func(t *testing.T) {
 		ServeRequest(t, authToken, "PATCH", fmt.Sprintf("/tasks/modify/%s/", insertedTaskID.Hex()), bytes.NewBuffer([]byte(`{"title": "new title"}`)), http.StatusOK, api)
@@ -1558,15 +1562,16 @@ func TestIncrementDailyTaskCompletion(t *testing.T) {
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
-		request.Header.Add("Timezone-Offset", "420")
+		request.Header.Add("Timezone-Offset", "240")
 		response := httptest.NewRecorder()
 		router.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusOK, response.Code)
 
-		var dailyTaskCompletion database.DailyTaskCompletion
 		err := dailyTaskCompletionCollection.FindOne(context.Background(), bson.M{"user_id": userID}).Decode(&dailyTaskCompletion)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, dailyTaskCompletion.CompletedTasksCount)
+		dayBefore := primitive.NewDateTimeFromTime(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC).Add(-24 * time.Hour))
+		assert.Equal(t, dayBefore, dailyTaskCompletion.Date)
 	})
 	t.Run("DoesNotIncrementTwice", func(t *testing.T) {
 		request, _ := http.NewRequest(
@@ -1574,39 +1579,38 @@ func TestIncrementDailyTaskCompletion(t *testing.T) {
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
-		request.Header.Add("Timezone-Offset", "420")
+		request.Header.Add("Timezone-Offset", "240")
 		response := httptest.NewRecorder()
 		router.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusOK, response.Code)
 
-		var dailyTaskCompletion database.DailyTaskCompletion
 		err := dailyTaskCompletionCollection.FindOne(context.Background(), bson.M{"user_id": userID}).Decode(&dailyTaskCompletion)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, dailyTaskCompletion.CompletedTasksCount)
 	})
 	t.Run("DoesNotIncrementIfMarkedAsIncomplete", func(t *testing.T) {
-		// Mark the task as incomplete then mark it as complete again
+		// Mark task as incomplete
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": false}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
-		request.Header.Add("Timezone-Offset", "420")
+		request.Header.Add("Timezone-Offset", "240")
 		response := httptest.NewRecorder()
 		router.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusOK, response.Code)
-		////
+
+		// Mark task as complete again
 		request, _ = http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
-		request.Header.Add("Timezone-Offset", "420")
+		request.Header.Add("Timezone-Offset", "240")
 		response = httptest.NewRecorder()
 		router.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusOK, response.Code)
 
-		var dailyTaskCompletion database.DailyTaskCompletion
 		err := dailyTaskCompletionCollection.FindOne(context.Background(), bson.M{"user_id": userID}).Decode(&dailyTaskCompletion)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, dailyTaskCompletion.CompletedTasksCount)
