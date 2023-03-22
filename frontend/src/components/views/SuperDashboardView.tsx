@@ -1,7 +1,7 @@
 import { Suspense, lazy } from 'react'
 import { Navigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { useGetDashboardData } from '../../services/api/super-dashboard.hooks'
+import { useFetchExternalDashboardData, useGetDashboardData } from '../../services/api/super-dashboard.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Spacing } from '../../styles'
 import Spinner from '../atoms/Spinner'
@@ -20,6 +20,7 @@ const FullWidthScroller = styled.div`
 const SuperDashboardView = () => {
     const { data: userInfo, isLoading: isUserInfoLoading } = useGetUserInfo()
     const { data: dashboard, isLoading: isDashboardLoading } = useGetDashboardData()
+    useFetchExternalDashboardData()
 
     if (!userInfo?.business_mode_enabled && !isUserInfoLoading) {
         return <Navigate to="/" replace />
