@@ -64,7 +64,7 @@ const LineGraph = ({ graphId }: LineGraphProps) => {
                     type="number"
                     name="minutes"
                     domain={['auto', 'auto']}
-                    tickFormatter={(minutes: number) => roundToNDecimalPlaces(minutes / 60, 0)}
+                    tickFormatter={(minutes: number) => roundToNDecimalPlaces(minutes / 60, 0).toString()}
                     tickLine={false}
                     stroke={Colors.text.muted}
                 />
