@@ -44,16 +44,20 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
     const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
 
     const previewSharingMenuItems: GTMenuItem[] = [
-        {
-            icon: icons.user,
-            label: 'Share with attendees',
-            hideCheckmark: !isShared,
-            selected: note.shared_access === 'meeting_attendees',
-            onClick: () => {
-                shareNote(SHARED_ITEM_INDEFINITE_DATE, 'meeting_attendees')
-                copyNoteLink()
-            },
-        },
+        ...(note.linked_event_id
+            ? [
+                  {
+                      icon: icons.user,
+                      label: 'Share with attendees',
+                      hideCheckmark: !isShared,
+                      selected: note.shared_access === 'meeting_attendees',
+                      onClick: () => {
+                          shareNote(SHARED_ITEM_INDEFINITE_DATE, 'meeting_attendees')
+                          copyNoteLink()
+                      },
+                  },
+              ]
+            : []),
         ...(userInfo?.is_company_email
             ? [
                   {
