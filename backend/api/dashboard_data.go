@@ -245,7 +245,7 @@ func (api *API) getWeekdayIntervalsFromLookbackDays(lookbackDays int) []Dashboar
 		intervals = append(intervals, DashboardInterval{
 			ID:            primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, []byte(strconv.Itoa(index))[0]},
 			DateStart:     mondayStartOfDay.Format("2006-01-02"),
-			DateEnd:       saturdayStartOfDay.Format("2006-01-02"),
+			DateEnd:       saturdayStartOfDay.Add(-24 * time.Hour).Format("2006-01-02"), // frontend would like interval to end Friday
 			DatetimeStart: mondayStartOfDay,
 			DatetimeEnd:   saturdayStartOfDay,
 			IsDefault:     isDefault,
