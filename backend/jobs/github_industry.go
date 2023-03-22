@@ -43,7 +43,7 @@ func updateGithubIndustryData(logID primitive.ObjectID, endCutoff time.Time, loo
 		logger.Error().Err(err).Msg("failed to log event")
 	}
 
-	pullRequestIDToValue, err := getPullRequestsMapAfterCutoff(db, []bson.M{}, getPullRequestCutoffTime(endCutoff, lookbackDays))
+	pullRequestIDToValue, err := getPullRequestsMapAfterCutoff(db, []bson.M{}, getDashboardCutoffTime(endCutoff, lookbackDays))
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch github PRs")
 		return err
@@ -71,7 +71,7 @@ func UpdateGithubTeamData(userID primitive.ObjectID, endCutoff time.Time, lookba
 		return err
 	}
 	defer cleanup()
-	pullRequestIDToValue, err := getPullRequestsMapAfterCutoff(db, []bson.M{{"user_id": userID}}, getPullRequestCutoffTime(endCutoff, lookbackDays))
+	pullRequestIDToValue, err := getPullRequestsMapAfterCutoff(db, []bson.M{{"user_id": userID}}, getDashboardCutoffTime(endCutoff, lookbackDays))
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch github PRs")
 		return err
@@ -217,6 +217,6 @@ func saveDataPointsForPullRequests(db *mongo.Database, pullRequestIDToValue map[
 	return nil
 }
 
-func getPullRequestCutoffTime(endCutoff time.Time, lookbackDays int) time.Time {
+func getDashboardCutoffTime(endCutoff time.Time, lookbackDays int) time.Time {
 	return endCutoff.Add(-time.Hour * 24 * time.Duration(lookbackDays))
 }

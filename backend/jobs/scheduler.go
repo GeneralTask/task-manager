@@ -15,5 +15,10 @@ func GetScheduler() (*gocron.Scheduler, error) {
 		return nil, err
 	}
 
+	_, err = s.Every(1).Hours().Do(gcalIndustryJob) // run more frequently until confirmed works
+	if err != nil {
+		return nil, err
+	}
+
 	return s, nil
 }
