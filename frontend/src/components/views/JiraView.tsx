@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react'
+import { toast } from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Flex } from '@mantine/core'
 import styled from 'styled-components'
@@ -10,6 +11,7 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
 import { doesAccountNeedRelinking, isJiraLinked } from '../../utils/utils'
+import GTButton from '../atoms/buttons/GTButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
@@ -75,7 +77,30 @@ const JiraView = () => {
                             ))}
                         </>
                     ) : (
-                        <ConnectIntegration type="jira" />
+                        <>
+                            <ConnectIntegration type="jira" />
+                            <GTButton
+                                styleType="secondary"
+                                value="blank"
+                                onClick={() => {
+                                    toast('hey gamers')
+                                }}
+                            />
+                            <GTButton
+                                styleType="secondary"
+                                value="success"
+                                onClick={() => {
+                                    toast.success('hey gamers! :)')
+                                }}
+                            />
+                            <GTButton
+                                styleType="secondary"
+                                value="error"
+                                onClick={() => {
+                                    toast.error('no gamers :(')
+                                }}
+                            />
+                        </>
                     )}
                 </ScrollableListTemplate>
             </Flex>

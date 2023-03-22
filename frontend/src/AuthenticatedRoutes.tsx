@@ -1,14 +1,19 @@
 import { lazy } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
+import { Toaster, resolveValue } from 'react-hot-toast'
 import { Outlet, Route, Routes } from 'react-router-dom'
 import { enableMapSet } from 'immer'
+import { Icon } from './components/atoms/Icon'
 import StyledToastContainer from './components/atoms/toast/StyledToastContainer'
 import { CalendarContextProvider } from './components/calendar/CalendarContext'
+import ToastContainer from './components/molecules/ToastContainer'
 import FocusModeScreen from './components/screens/FocusModeScreen'
 import MainScreen from './components/screens/MainScreen'
 import { FOCUS_MODE_ROUTE } from './constants'
 import AppContextProvider from './context/AppContextProvider'
+import { Border, Colors, Shadows } from './styles'
+import { icons } from './styles/images'
 
 const TermsOfServiceSummaryScreen = lazy(() => import('./components/screens/TermsOfServiceSummaryScreen'))
 enableMapSet() // this allows immer to produce immutable maps and sets
@@ -79,6 +84,9 @@ const AuthenticatedRoutes = () => {
                     </Routes>
                 </AppContextProvider>
                 <StyledToastContainer />
+                <Toaster position="bottom-right" reverseOrder>
+                    {(t) => <ToastContainer toast={t}>{resolveValue(t.message, t)}</ToastContainer>}
+                </Toaster>
             </DndProvider>
         </>
     )
