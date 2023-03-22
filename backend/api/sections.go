@@ -2,12 +2,13 @@ package api
 
 import (
 	"context"
+	"sort"
+
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"sort"
 )
 
 type SectionCreateParams struct {
@@ -153,9 +154,7 @@ func (api *API) SectionModify(c *gin.Context) {
 	}
 
 	sectionCollection := database.GetTaskSectionCollection(api.DB)
-
-	userIDRaw, _ := c.Get("user")
-	userID := userIDRaw.(primitive.ObjectID)
+	userID := getUserIDFromContext(c)
 
 	updateFields := bson.M{}
 	if params.Name != "" {
@@ -200,10 +199,9 @@ func (api *API) SectionDelete(c *gin.Context) {
 		Handle404(c)
 		return
 	}
-	sectionCollection := database.GetTaskSectionCollection(api.DB)
 
-	userIDRaw, _ := c.Get("user")
-	userID := userIDRaw.(primitive.ObjectID)
+	sectionCollection := database.GetTaskSectionCollection(api.DB)
+	userID := getUserIDFromContext(c)
 
 	res, err := sectionCollection.DeleteOne(
 		context.Background(),

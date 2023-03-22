@@ -1,13 +1,11 @@
 import { DateTime } from 'luxon'
 import { SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
-import { usePreviewMode, useToast } from '../../hooks'
+import { useToast } from '../../hooks'
 import { useModifyNote } from '../../services/api/notes.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { icons } from '../../styles/images'
 import { TNote, TNoteSharedAccess } from '../../utils/types'
-import { getFormattedDuration } from '../../utils/utils'
 import GTButton from '../atoms/buttons/GTButton'
-import { LabelWrap } from '../radix/DropdownLabel'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTMenuItem } from '../radix/RadixUIConstants'
 import { getNoteURL } from './utils'
@@ -17,7 +15,6 @@ interface NoteSharingDropdownProps {
 }
 const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
     const { mutate: modifyNote } = useModifyNote()
-    const { isPreviewMode } = usePreviewMode()
     const { data: userInfo } = useGetUserInfo()
     const toast = useToast()
 
@@ -45,81 +42,6 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
     }
 
     const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
-    const sharedUntilString = note.shared_until
-        ? note.shared_until === SHARED_ITEM_INDEFINITE_DATE
-            ? 'The link will never expire'
-            : `The link will expire in ${getFormattedDuration(
-                  DateTime.fromISO(note.shared_until).diffNow('milliseconds', { conversionAccuracy: 'longterm' }),
-                  2
-              )}`
-        : 'not shared'
-    const dropdownItems: GTMenuItem[] = isShared
-        ? [
-              {
-                  icon: icons.copy,
-                  label: 'Copy link',
-                  hideCheckmark: true,
-                  onClick: copyNoteLink,
-              },
-              {
-                  icon: icons.external_link,
-                  label: 'Go to shared note page',
-                  hideCheckmark: true,
-                  onClick: goToSharedLink,
-              },
-              {
-                  icon: icons.link_slashed,
-                  label: 'Disable shared link',
-                  hideCheckmark: true,
-                  onClick: unshareNote,
-                  iconColor: 'red',
-                  textColor: 'red',
-              },
-              {
-                  label: 'Shared note info',
-                  disabled: true,
-                  keepOpenOnSelect: true,
-                  renderer: () => <LabelWrap>{`This note is currently being shared. ${sharedUntilString}.`}</LabelWrap>,
-              },
-          ]
-        : [
-              {
-                  icon: icons.copy,
-                  label: 'Create & copy link',
-                  hideCheckmark: true,
-                  subItems: [
-                      {
-                          icon: icons.infinity,
-                          label: 'Share indefinitely',
-                          hideCheckmark: true,
-                          onClick: () => {
-                              shareNote(SHARED_ITEM_INDEFINITE_DATE)
-                              copyNoteLink()
-                          },
-                      },
-                      {
-                          icon: icons.timer,
-                          label: 'Share for 3 months',
-                          hideCheckmark: true,
-                          onClick: () => {
-                              shareNote(DateTime.local().plus({ months: 3 }).toISO())
-                              copyNoteLink()
-                          },
-                      },
-                  ],
-              },
-              {
-                  label: 'Unshared note info',
-                  disabled: true,
-                  keepOpenOnSelect: true,
-                  renderer: () => (
-                      <LabelWrap>
-                          This note is currently private. Sharing a note will reveal your full name to anyone with the
-                          link.
-                      </LabelWrap>
-                  ),
-              },
-          ]
 
     const previewSharingMenuItems: GTMenuItem[] = [
         {
@@ -191,7 +113,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
 
     return (
         <GTDropdownMenu
-            items={isPreviewMode ? previewDropdownItems : dropdownItems}
+            items={previewDropdownItems}
             trigger={<GTButton styleType="secondary" icon={icons.share} value="Share" />}
         />
     )

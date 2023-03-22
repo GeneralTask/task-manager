@@ -133,6 +133,10 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		result <- emptyCalendarResult(err)
 		return
 	}
+	err = updateUserTimezone(calendarService, db, userID, accountID)
+	if err != nil {
+		log.Error().Err(err).Send()
+	}
 	calendarAccount := database.CalendarAccount{
 		UserID:     userID,
 		IDExternal: accountID,
@@ -453,4 +457,17 @@ func createGcalService(overrideURL *string, userID primitive.ObjectID, accountID
 		return nil, fmt.Errorf("unable to create calendar service")
 	}
 	return calendarService, nil
+}
+
+func updateUserTimezone(calendarService *calendar.Service, db *mongo.Database, userID primitive.ObjectID, accountID string) error {
+	setting, err := calendarService.Settings.Get("timezone").Do()
+	if err != nil {
+		return err
+	}
+	token, err := getExternalToken(db, userID, accountID, TASK_SERVICE_ID_GOOGLE)
+	if err != nil {
+		return err
+	}
+	_, err = database.GetExternalTokenCollection(db).UpdateByID(context.Background(), token.ID, bson.M{"$set": bson.M{"timezone": setting.Value}})
+	return err
 }

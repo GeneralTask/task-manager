@@ -1,38 +1,22 @@
 package api
 
 import (
-	"context"
-
 	"github.com/GeneralTask/task-manager/backend/external"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (api *API) PullRequestsFetch(c *gin.Context) {
-	userID, _ := c.Get("user")
-
-	var tokens []database.ExternalAPIToken
-	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
-	cursor, err := externalAPITokenCollection.Find(
-		context.Background(),
-		bson.M{"user_id": userID},
-	)
+	userID := getUserIDFromContext(c)
+	tokens, err := database.GetAllExternalTokens(api.DB, userID)
 	if err != nil {
-		api.Logger.Error().Err(err).Msg("failed to fetch api tokens")
-		Handle500(c)
-		return
-	}
-	err = cursor.All(context.Background(), &tokens)
-	if err != nil {
-		api.Logger.Error().Err(err).Msg("failed to iterate through api tokens")
 		Handle500(c)
 		return
 	}
 
-	currentPRs, err := database.GetActivePRs(api.DB, userID.(primitive.ObjectID))
+	currentPRs, err := database.GetActivePRs(api.DB, userID)
 	if err != nil {
 		Handle500(c)
 		return

@@ -4,7 +4,7 @@ import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import { v4 as uuidv4 } from 'uuid'
 import { EVENT_UNDO_TIMEOUT, NO_TITLE } from '../../constants'
-import { useKeyboardShortcut, useNavigateToPullRequest, useNavigateToTask, usePreviewMode, useToast } from '../../hooks'
+import { useKeyboardShortcut, useNavigateToPullRequest, useNavigateToTask, useToast } from '../../hooks'
 import { useDeleteEvent, useGetCalendars } from '../../services/api/events.hooks'
 import { useCreateNote, useGetNotes } from '../../services/api/notes.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
@@ -39,7 +39,6 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
     const { data: userInfo } = useGetUserInfo()
     const { data: calendars } = useGetCalendars()
     const navigate = useNavigate()
-    const { isPreviewMode } = usePreviewMode()
 
     useEffect(() => {
         if (isOpen || hidePopover) return
@@ -172,24 +171,22 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                         }}
                     />
                 )}
-                {isPreviewMode && (
-                    <GTButton
-                        styleType="secondary"
-                        value="Meeting Notes"
-                        icon={icons.note}
-                        fitContent={false}
-                        onClick={() => {
-                            setIsOpen(false)
-                            if (event.linked_note_id) {
-                                navigate(`/notes/${event.linked_note_id}`)
-                                return
-                            }
-                            const note = notes?.find((n) => n.linked_event_id === event.id && !n.is_deleted)
-                            const id = note ? note.id : createMeetingNote()
-                            navigate(`/notes/${id}`)
-                        }}
-                    />
-                )}
+                <GTButton
+                    styleType="secondary"
+                    value="Meeting Notes"
+                    icon={icons.note}
+                    fitContent={false}
+                    onClick={() => {
+                        setIsOpen(false)
+                        if (event.linked_note_id) {
+                            navigate(`/notes/${event.linked_note_id}`)
+                            return
+                        }
+                        const note = notes?.find((n) => n.linked_event_id === event.id && !n.is_deleted)
+                        const id = note ? note.id : createMeetingNote()
+                        navigate(`/notes/${id}`)
+                    }}
+                />
             </Flex>
             {event.conference_call.logo && (
                 <Flex flex="1" alignItems="center" gap={Spacing._4}>

@@ -1632,6 +1632,32 @@ func TestGetExternalTokens(t *testing.T) {
 	})
 }
 
+func TestGetAllExternalTokens(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	_, err = GetExternalTokenCollection(db).InsertOne(
+		context.Background(),
+		&ExternalAPIToken{
+			UserID: userID,
+		},
+	)
+	assert.NoError(t, err)
+
+	t.Run("NoExternalTokens", func(t *testing.T) {
+		tokens, err := GetAllExternalTokens(db, primitive.NewObjectID())
+		assert.NoError(t, err)
+		assert.Equal(t, 0, len(tokens))
+	})
+	t.Run("Success", func(t *testing.T) {
+		tokens, err := GetAllExternalTokens(db, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(tokens))
+		assert.Equal(t, userID, tokens[0].UserID)
+	})
+}
+
 func TestAdjustOrderingIDs(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
