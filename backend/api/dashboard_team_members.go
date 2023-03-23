@@ -51,7 +51,41 @@ func (api *API) DashboardTeamMemberCreate(c *gin.Context) {
 	}
 
 	c.JSON(201, gin.H{"team_member_id": insertResult.InsertedID.(primitive.ObjectID)})
+}
 
+func (api *API) DashboardTeamMemberDelete(c *gin.Context) {
+	teamMemberIDHex := c.Param("team_member_id")
+
+	teamMemberID, err := primitive.ObjectIDFromHex(teamMemberIDHex)
+	if err != nil {
+		Handle404(c)
+		return
+	}
+
+	userID := getUserIDFromContext(c)
+	dashboardTeam, err := database.GetOrCreateDashboardTeam(api.DB, userID)
+	if err != nil || dashboardTeam == nil {
+		api.Logger.Error().Err(err).Msg("failed to get dashboard team")
+		c.JSON(500, gin.H{"detail": "failed to get dashboard team"})
+		return
+	}
+
+	teamMemberCollection := database.GetDashboardTeamMemberCollection(api.DB)
+	deletedResult, err := teamMemberCollection.DeleteOne(context.Background(), database.DashboardTeamMember{
+		ID:     teamMemberID,
+		TeamID: dashboardTeam.ID,
+	})
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to delete team member")
+		c.JSON(500, gin.H{"detail": "failed to delete team member"})
+		return
+	}
+	if deletedResult.DeletedCount == 0 {
+		Handle404(c)
+		return
+	}
+
+	c.JSON(204, gin.H{})
 }
 
 func (api *API) DashboardTeamMembersList(c *gin.Context) {
