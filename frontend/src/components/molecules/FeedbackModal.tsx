@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
+import { toast } from 'react-hot-toast'
 import styled from 'styled-components'
-import { useKeyboardShortcut, useToast } from '../../hooks'
+import { useKeyboardShortcut, usePreviewMode, useToast } from '../../hooks'
 import { usePostFeedback } from '../../services/api/feedback.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
@@ -26,21 +27,26 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
     const [modalIsOpen, setModalIsOpen] = useState(false)
     const [feedback, setFeedback] = useState('')
     const { mutate: postFeedback } = usePostFeedback()
-    const toast = useToast()
+    const oldToast = useToast()
+    const { isPreviewMode } = usePreviewMode()
     const submitFeedback = () => {
         if (feedback.trim().length === 0) return
         postFeedback({ feedback: feedback })
         setFeedback('')
         setModalIsOpen(false)
-        toast.show(
-            {
-                message: 'Thank you for your feedback',
-            },
-            {
-                autoClose: 2000,
-                theme: 'dark',
-            }
-        )
+        if (isPreviewMode) {
+            toast('Thank you for your feedback')
+        } else {
+            oldToast.show(
+                {
+                    message: 'Thank you for your feedback',
+                },
+                {
+                    autoClose: 2000,
+                    theme: 'dark',
+                }
+            )
+        }
     }
 
     useKeyboardShortcut(

@@ -8,7 +8,7 @@ import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import Log from '../../services/api/log'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
-import { icons } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
 import { doesAccountNeedRelinking, isJiraLinked } from '../../utils/utils'
 import GTButton from '../atoms/buttons/GTButton'
@@ -80,25 +80,12 @@ const JiraView = () => {
                         <>
                             <ConnectIntegration type="jira" />
                             <GTButton
-                                styleType="secondary"
-                                value="blank"
                                 onClick={() => {
-                                    toast('hey gamers')
+                                    toast(<>hey</>, {
+                                        icon: logos.gcal,
+                                    })
                                 }}
-                            />
-                            <GTButton
-                                styleType="secondary"
-                                value="success"
-                                onClick={() => {
-                                    toast.success('hey gamers! :)')
-                                }}
-                            />
-                            <GTButton
-                                styleType="secondary"
-                                value="error"
-                                onClick={() => {
-                                    toast.error('no gamers :(')
-                                }}
+                                styleType="primary"
                             />
                         </>
                     )}
