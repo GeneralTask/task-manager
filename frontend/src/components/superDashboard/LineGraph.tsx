@@ -64,7 +64,7 @@ const LineGraph = ({ graphId }: LineGraphProps) => {
                     type="number"
                     name="minutes"
                     domain={['auto', 'auto']}
-                    tickFormatter={(minutes: number) => `${Math.round(minutes / 60)}`}
+                    tickFormatter={(minutes: number) => (minutes / 60).toFixed(0).toString()}
                     tickLine={false}
                     stroke={Colors.text.muted}
                 />
