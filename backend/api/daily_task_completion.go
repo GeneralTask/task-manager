@@ -15,16 +15,15 @@ type DailyTaskCompletionParams struct {
 	DatetimeStart *time.Time `form:"datetime_start" binding:"required"`
 	DatetimeEnd   *time.Time `form:"datetime_end" binding:"required"`
 }
-
 type DailyTaskCompletion struct {
 	Date  string `json:"date"`
 	Count int    `json:"count"`
 }
 
-
 func (api *API) GetDailyTaskCompletionList(userID primitive.ObjectID, datetimeStart time.Time, dateTimeEnd time.Time) (*[]DailyTaskCompletion, error) {
 	taskCollection := database.GetTaskCollection(api.DB)
 
+	// Get all tasks completed between datetimeStart and dateTimeEnd
 	matchStage := bson.D{
 		{Key: "$match", Value: bson.D{
 			{Key: "user_id", Value: userID},
@@ -35,6 +34,7 @@ func (api *API) GetDailyTaskCompletionList(userID primitive.ObjectID, datetimeSt
 			}},
 		}},
 	}
+	// Convert completed_at to string for grouping
 	projectStage := bson.D{
 		{Key: "$project", Value: bson.D{
 			{Key: "completed_at_string", Value: bson.D{
@@ -46,6 +46,7 @@ func (api *API) GetDailyTaskCompletionList(userID primitive.ObjectID, datetimeSt
 			{Key: "completed_at", Value: "$completed_at"},
 		}},
 	}
+	// Group by completed_at_string and count
 	groupStage := bson.D{
 		{Key: "$group", Value: bson.D{
 			{Key: "_id", Value: "$completed_at_string"},
@@ -53,11 +54,13 @@ func (api *API) GetDailyTaskCompletionList(userID primitive.ObjectID, datetimeSt
 			{Key: "count", Value: bson.D{{Key: "$sum", Value: 1}}}},
 		},
 	}
+	// Sort by completed_at
 	sortStage := bson.D{
 		{Key: "$sort", Value: bson.D{
 			{Key: "completed_at", Value: 1},
 		}},
 	}
+	// Rename _id to date
 	renameFieldsStage := bson.D{
 		{Key: "$project", Value: bson.D{
 			{Key: "date", Value: "$_id"},

@@ -37,7 +37,7 @@ func TestGetDailyTaskCompletionList(t *testing.T) {
 	_, err = taskCollection.InsertOne(context.Background(), database.Task{
 		UserID:      userID,
 		IsCompleted: &completedTrue,
-		CompletedAt: primitive.NewDateTimeFromTime(testTime.AddDate(0,0,1)),
+		CompletedAt: primitive.NewDateTimeFromTime(testTime.AddDate(0, 0, 1)),
 	})
 	assert.NoError(t, err)
 
@@ -78,7 +78,6 @@ func TestGetDailyTaskCompletionList(t *testing.T) {
 		assert.Equal(t, 1, (*result)[1].Count)
 	})
 }
-
 
 func TestDailyTaskCompletionList(t *testing.T) {
 	api, dbCleanup := GetAPIWithDBCleanup()
