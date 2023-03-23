@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import styled from 'styled-components'
 import { useDeleteDashboardTeamMember } from '../../../services/api/super-dashboard.hooks'
 import { Spacing } from '../../../styles'
 import { icons } from '../../../styles/images'
@@ -8,10 +7,6 @@ import { Icon } from '../../atoms/Icon'
 import GTButton from '../../atoms/buttons/GTButton'
 import { BodyMedium, LabelSmall } from '../../atoms/typography/Typography'
 import { TDashboardTeamMember } from '../types'
-
-const TeamMemberLabel = styled(LabelSmall)<{ isVisible: boolean }>`
-    visibility: ${({ isVisible }) => (isVisible ? 'visible' : 'hidden')};
-`
 
 interface TeamMemberProps {
     teamMember: TDashboardTeamMember
