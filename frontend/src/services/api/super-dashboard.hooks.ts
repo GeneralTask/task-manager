@@ -46,7 +46,7 @@ export const useGetDashboardTeamMembers = () => {
 
 const getDashboardTeamMembers = async ({ signal }: QueryFunctionContext) => {
     try {
-        const res = await apiClient.get(`/dashboard/team-members/`, { signal })
+        const res = await apiClient.get(`/dashboard/team_members/`, { signal })
         return castImmutable(res.data)
     } catch {
         throw 'getDashboardTeamMembers failed'
