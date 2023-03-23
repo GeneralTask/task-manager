@@ -135,6 +135,8 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/pull_requests/", handlers.PullRequestsList)
 	router.GET("/pull_requests/fetch/", handlers.PullRequestsFetch)
 
+	router.GET("/daily_task_completion/", handlers.DailyTaskCompletionList)
+
 	// Add business middleware. Endpoints below this require business mode to be enabled
 	router.Use(BusinessMiddleware(handlers.DB))
 	router.GET("/dashboard/data/", handlers.DashboardData)
