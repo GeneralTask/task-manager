@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
@@ -9,12 +10,23 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+type DailyTaskCompletionParams struct {
+	DatetimeStart *time.Time `form:"datetime_start" binding:"required"`
+	DatetimeEnd   *time.Time `form:"datetime_end" binding:"required"`
+}
+
 type DailyTaskCompletion struct {
 	Date  string `json:"date"`
 	Count int    `json:"count"`
 }
 
 func (api *API) DailyTaskCompletionList(c *gin.Context) {
+	var dailyTaskCompletionParams DailyTaskCompletionParams
+	err := c.BindQuery(&dailyTaskCompletionParams)
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "invalid or missing parameter."})
+		return
+	}
 	userID := getUserIDFromContext(c)
 	taskCollection := database.GetTaskCollection(api.DB)
 
@@ -22,7 +34,11 @@ func (api *API) DailyTaskCompletionList(c *gin.Context) {
 		{Key: "$match", Value: bson.D{
 			{Key: "user_id", Value: userID},
 			{Key: "is_completed", Value: true},
-		},
+			{Key: "completed_at", Value: bson.D{
+				{Key: "$gte", Value: dailyTaskCompletionParams.DatetimeStart},
+				{Key: "$lte", Value: dailyTaskCompletionParams.DatetimeEnd},
+			},
+			}},
 		}}
 	projectStage := bson.D{
 		{Key: "$project", Value: bson.D{
