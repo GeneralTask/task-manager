@@ -51,15 +51,11 @@ const Metric = ({ graphId }: MetricProps) => {
                             {dashboard.data[line.subject_id_override || selectedSubject.id]?.[selectedInterval.id]?.[
                                 line.data_id
                             ]?.aggregated_value !== undefined
-                                ? `${
-                                      Math.round(
-                                          (dashboard.data[line.subject_id_override || selectedSubject.id][
-                                              selectedInterval.id
-                                          ][line.data_id].aggregated_value /
-                                              60) *
-                                              10
-                                      ) / 10
-                                  } hours`
+                                ? `${(
+                                      dashboard.data[line.subject_id_override || selectedSubject.id][
+                                          selectedInterval.id
+                                      ][line.data_id].aggregated_value / 60
+                                  ).toFixed(1)} hours`
                                 : 'N/A'}
                         </HeadlineLarge>
                     </Flex>
