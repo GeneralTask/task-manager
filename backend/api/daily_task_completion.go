@@ -22,8 +22,8 @@ type DailyTaskCompletion struct {
 }
 
 
-func GetDailyTaskCompletionList(db *mongo.Database, userID primitive.ObjectID, datetimeStart time.Time, dateTimeEnd time.Time) (*[]DailyTaskCompletion, error) {
-	taskCollection := database.GetTaskCollection(db)
+func (api *API) GetDailyTaskCompletionList(userID primitive.ObjectID, datetimeStart time.Time, dateTimeEnd time.Time) (*[]DailyTaskCompletion, error) {
+	taskCollection := database.GetTaskCollection(api.DB)
 
 	matchStage := bson.D{
 		{Key: "$match", Value: bson.D{
@@ -76,6 +76,9 @@ func GetDailyTaskCompletionList(db *mongo.Database, userID primitive.ObjectID, d
 	if err = cursor.All(context.Background(), &dailyTaskCompletion); err != nil {
 		return nil, err
 	}
+	if dailyTaskCompletion == nil {
+		dailyTaskCompletion = []DailyTaskCompletion{}
+	}
 	return &dailyTaskCompletion, nil
 }
 
@@ -87,7 +90,7 @@ func (api *API) DailyTaskCompletionList(c *gin.Context) {
 		return
 	}
 	userID := getUserIDFromContext(c)
-	result, err := GetDailyTaskCompletionList(api.DB, userID, *dailyTaskCompletionParams.DatetimeStart, *dailyTaskCompletionParams.DatetimeEnd)
+	result, err := api.GetDailyTaskCompletionList(userID, *dailyTaskCompletionParams.DatetimeStart, *dailyTaskCompletionParams.DatetimeEnd)
 	if err != nil {
 		c.JSON(500, gin.H{"detail": "internal server error"})
 		return
