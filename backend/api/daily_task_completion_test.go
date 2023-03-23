@@ -13,13 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// func TestGetDailyTaskCompletionList(t *testing.T) {
-// 	api, dbCleanup := GetAPIWithDBCleanup()
-// 	defer dbCleanup()
-
-// 	authToken := login("daily_task_completion_list")
-// }
-
 func TestDailyTaskCompletionList(t *testing.T) {
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
@@ -28,6 +21,9 @@ func TestDailyTaskCompletionList(t *testing.T) {
 	userID := getUserIDFromAuthToken(t, api.DB, authToken)
 	taskCollection := database.GetTaskCollection(api.DB)
 
+	testTime := time.Date(2023, time.January, 4, 20, 0, 0, 0, time.UTC)
+	api.OverrideTime = &testTime
+
 	completedTrue := true
 	completedFalse := false
 
@@ -35,14 +31,14 @@ func TestDailyTaskCompletionList(t *testing.T) {
 	_, err := taskCollection.InsertOne(context.Background(), database.Task{
 		UserID:      userID,
 		IsCompleted: &completedTrue,
-		CompletedAt: primitive.NewDateTimeFromTime(time.Now()),
+		CompletedAt: primitive.NewDateTimeFromTime(testTime),
 	})
 	assert.NoError(t, err)
 	// Insert second complete task in next day
 	_, err = taskCollection.InsertOne(context.Background(), database.Task{
 		UserID:      userID,
 		IsCompleted: &completedTrue,
-		CompletedAt: primitive.NewDateTimeFromTime(time.Now().AddDate(0,0,1)),
+		CompletedAt: primitive.NewDateTimeFromTime(testTime.AddDate(0,0,1)),
 	})
 	assert.NoError(t, err)
 	// Insert incomplete task
@@ -55,13 +51,13 @@ func TestDailyTaskCompletionList(t *testing.T) {
 	_, err = taskCollection.InsertOne(context.Background(), database.Task{
 		UserID:      userID,
 		IsCompleted: &completedTrue,
-		CompletedAt: primitive.NewDateTimeFromTime(time.Now().AddDate(1, 0, 0)),
+		CompletedAt: primitive.NewDateTimeFromTime(testTime.AddDate(1, 0, 0)),
 	})
 	assert.NoError(t, err)
 
 	t.Run("Expect two days with count of 1", func(t *testing.T) {
-		datetimeStart := time.Now()
-		datetimeEnd := time.Now().AddDate(0, 1, 0)
+		datetimeStart := testTime
+		datetimeEnd := testTime.AddDate(0, 1, 0)
 
 		params := url.Values{}
 		params.Add("datetime_start", datetimeStart.Format(time.RFC3339))
@@ -72,10 +68,9 @@ func TestDailyTaskCompletionList(t *testing.T) {
 		err := json.Unmarshal(response, &dailyTaskCompletionList)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(dailyTaskCompletionList))
-		assert.Equal(t, "2020-01-01", dailyTaskCompletionList[0].Date)
-		assert.Equal(t, "2020-01-02", dailyTaskCompletionList[1].Date)
+		assert.Equal(t, "2023-01-04", dailyTaskCompletionList[0].Date)
+		assert.Equal(t, "2023-01-05", dailyTaskCompletionList[1].Date)
 		assert.Equal(t, 1, dailyTaskCompletionList[0].Count)
 		assert.Equal(t, 1, dailyTaskCompletionList[1].Count)
-
 	})
 }
