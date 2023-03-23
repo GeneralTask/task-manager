@@ -16,7 +16,8 @@ const useConnectGoogleAccountToast = () => {
             emit({
                 message: 'Connect your Google account to create events from tasks.',
                 action: {
-                    label: 'Connect',
+                    styleType: 'secondary',
+                    value: 'Connect',
                     onClick: () => {
                         openAuthWindow({ url: googleSupportedType?.authorization_url, isGoogleSignIn: true })
                     },

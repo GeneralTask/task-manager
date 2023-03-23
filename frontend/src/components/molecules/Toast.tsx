@@ -5,7 +5,7 @@ import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
 import { Icon, TIconType } from '../atoms/Icon'
-import GTButton from '../atoms/buttons/GTButton'
+import GTButton, { GTButtonProps } from '../atoms/buttons/GTButton'
 
 const OuterContainer = styled.div<{ backgroundColor: string; visible: boolean }>`
     box-sizing: border-box;
@@ -66,24 +66,21 @@ const Toast = (props: ToastProps) => {
     )
 }
 
-interface EmitProps {
+export interface EmitProps {
     toastId?: string
     title?: string
     message: string
     type?: ToastType
     duration?: number
-    action?: {
-        icon: TIconType
-        label: string
-        onClick: () => void
-    }
+    action?: GTButtonProps
+    actions?: GTButtonProps[]
     undoAction?: {
         onClick: () => void
         onDismiss: () => void
     }
 }
 export const emit = (props: EmitProps) => {
-    const { toastId, title, message, type, duration, action, undoAction } = props
+    const { toastId, title, message, type, duration, action, actions, undoAction } = props
 
     const id = toastId ?? uuidv4()
 
@@ -95,9 +92,14 @@ export const emit = (props: EmitProps) => {
             </Flex>
             {action && (
                 <div>
-                    <GTButton styleType="secondary" value={action.label} icon={action.icon} onClick={action.onClick} />
+                    <GTButton {...action} />
                 </div>
             )}
+            {actions?.map((a, i) => (
+                <div key={i}>
+                    <GTButton {...a} />
+                </div>
+            ))}
             {undoAction && (
                 <div>
                     <GTButton styleType="secondary" value="Undo" onClick={undoAction.onClick} />

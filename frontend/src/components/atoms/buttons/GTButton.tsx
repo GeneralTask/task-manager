@@ -124,7 +124,7 @@ const Button = styled(NoStyleButton)<GTButtonProps>`
 const MarginLeftAuto = styled.div`
     margin-left: auto;
 `
-interface GTButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value'> {
+export interface GTButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value'> {
     // style
     styleType: TButtonType
     // text
