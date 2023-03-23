@@ -12,7 +12,7 @@ const TeamMemberList = styled.div`
     display: flex;
     flex-direction: column;
     gap: ${Spacing._16};
-    max-height: 75vh;
+    max-height: 50vh;
     overflow-y: auto;
 `
 
