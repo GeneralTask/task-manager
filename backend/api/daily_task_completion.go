@@ -24,7 +24,7 @@ func (api *API) DailyTaskCompletionList(c *gin.Context) {
 	var dailyTaskCompletionParams DailyTaskCompletionParams
 	err := c.BindQuery(&dailyTaskCompletionParams)
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "invalid or missing parameter."})
+		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
 		return
 	}
 	userID := getUserIDFromContext(c)
@@ -44,7 +44,7 @@ func (api *API) DailyTaskCompletionList(c *gin.Context) {
 		{Key: "$project", Value: bson.D{
 			{Key: "completed_at_string", Value: bson.D{
 				{Key: "$dateToString", Value: bson.D{
-					{Key: "format", Value: "%m-%d-%Y"},
+					{Key: "format", Value: "%Y-%m-%d"},
 					{Key: "date", Value: "$completed_at"},
 				}},
 			}},
