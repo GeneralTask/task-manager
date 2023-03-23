@@ -14,6 +14,7 @@ const OuterContainer = styled.div<{ backgroundColor: string; visible: boolean }>
     gap: ${Spacing._8};
     padding: ${Spacing._16};
     min-height: ${Spacing._48};
+    max-width: 400px;
     border: ${Border.stroke.medium} solid ${Colors.background.border};
     border-radius: ${Border.radius.small};
     background-color: ${({ backgroundColor }) => backgroundColor};
@@ -60,12 +61,17 @@ const Toast = (props: ToastContainerProps) => {
             <Flex alignItems="center" gap={Spacing._8}>
                 {children}
             </Flex>
-            {t.type !== 'loading' && <GTButton styleType="icon" icon={icons.x} onClick={() => toast.dismiss(t.id)} />}
+            {t.type !== 'loading' && (
+                <div>
+                    <GTButton styleType="icon" icon={icons.x} onClick={() => toast.dismiss(t.id)} />
+                </div>
+            )}
         </OuterContainer>
     )
 }
 
 interface ToastProps {
+    title?: string
     message: string
     type?: ToastType
     action?: {
@@ -77,14 +83,19 @@ interface ToastProps {
 export const emit = (props: ToastProps) => {
     const toastMessage = (
         <>
-            {props.message}
+            <Flex column>
+                {props.title && <strong>{props.title}</strong>}
+                {props.message}
+            </Flex>
             {props.action && (
-                <GTButton
-                    styleType="secondary"
-                    value={props.action.label}
-                    icon={props.action.icon}
-                    onClick={props.action.onClick}
-                />
+                <div>
+                    <GTButton
+                        styleType="secondary"
+                        value={props.action.label}
+                        icon={props.action.icon}
+                        onClick={props.action.onClick}
+                    />
+                </div>
             )}
         </>
     )

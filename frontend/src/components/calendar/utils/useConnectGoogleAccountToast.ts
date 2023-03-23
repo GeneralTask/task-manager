@@ -14,6 +14,7 @@ const useConnectGoogleAccountToast = () => {
     return () => {
         if (isPreviewMode) {
             emit({
+                title: 'Connect this long title this long title this long title this long title',
                 message: 'Connect your Google account to create events from tasks.',
                 action: {
                     label: 'Connect',
