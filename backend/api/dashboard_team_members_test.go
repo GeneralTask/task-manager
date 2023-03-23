@@ -121,6 +121,42 @@ func TestDashboardTeamMemberCreate(t *testing.T) {
 	})
 }
 
+func TestDashboardTeamMemberDelete(t *testing.T) {
+	authToken := login("test_dashboard_team_members_delete@generaltask.com", "")
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+	userID := getUserIDFromAuthToken(t, api.DB, authToken)
+
+	teamMemberCollection := database.GetDashboardTeamMemberCollection(api.DB)
+
+	UnauthorizedTest(t, "DELETE", "/dashboard/team_members/id/", nil)
+	NoBusinessAccessTest(t, "DELETE", "/dashboard/team_members/id/", api, authToken)
+	EnableBusinessAccess(t, api, userID)
+	t.Run("InvalidID", func(t *testing.T) {
+		ServeRequest(t, authToken, "DELETE", "/dashboard/team_members/123/", nil, http.StatusNotFound, api)
+	})
+	t.Run("WrongCompany", func(t *testing.T) {
+		newTeamID := primitive.NewObjectID()
+		_, err := teamMemberCollection.InsertOne(context.Background(), database.DashboardTeamMember{
+			TeamID: newTeamID,
+		})
+		assert.NoError(t, err)
+		ServeRequest(t, authToken, "DELETE", "/dashboard/team_members/"+newTeamID.Hex()+"/", nil, http.StatusNotFound, api)
+	})
+	t.Run("Success", func(t *testing.T) {
+		dashboardTeam, err := database.GetOrCreateDashboardTeam(api.DB, userID)
+		insertedResult, err := teamMemberCollection.InsertOne(context.Background(), database.DashboardTeamMember{
+			TeamID:   dashboardTeam.ID,
+			Name:     "Scott",
+			Email:    "scott@gt.com",
+			GithubID: "scottmai",
+		})
+		assert.NoError(t, err)
+		teamMemberID := insertedResult.InsertedID.(primitive.ObjectID)
+		ServeRequest(t, authToken, "DELETE", "/dashboard/team_members/"+teamMemberID.Hex()+"/", nil, http.StatusNoContent, api)
+	})
+}
+
 func TestDashboardTeamMemberList(t *testing.T) {
 	authToken := login("test_dashboard_team_members_list@generaltask.com", "")
 	api, dbCleanup := GetAPIWithDBCleanup()
