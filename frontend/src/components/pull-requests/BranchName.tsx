@@ -1,6 +1,7 @@
-import { useToast } from '../../hooks'
+import { usePreviewMode, useToast } from '../../hooks'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
+import { emit } from '../molecules/Toast'
 import Tip from '../radix/Tip'
 import { BranchNameContainer, BranchNameText } from './styles'
 
@@ -8,19 +9,24 @@ interface BranchNameProps {
     name: string
 }
 const BranchName = ({ name }: BranchNameProps) => {
-    const toast = useToast()
+    const oldToast = useToast()
+    const { isPreviewMode } = usePreviewMode()
     const handleClick = () => {
         navigator.clipboard.writeText(name)
-        toast.show(
-            {
-                message: 'Branch copied to clipboard',
-            },
-            {
-                autoClose: 2000,
-                pauseOnFocusLoss: false,
-                theme: 'dark',
-            }
-        )
+        if (isPreviewMode) {
+            emit({ message: 'Branch copied to clipboard' })
+        } else {
+            oldToast.show(
+                {
+                    message: 'Branch copied to clipboard',
+                },
+                {
+                    autoClose: 2000,
+                    pauseOnFocusLoss: false,
+                    theme: 'dark',
+                }
+            )
+        }
     }
     return (
         <Tip content={name}>

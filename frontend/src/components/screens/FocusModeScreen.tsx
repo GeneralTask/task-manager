@@ -273,7 +273,7 @@ const FocusModeScreen = () => {
     )
 
     const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
-    const gtToast = useToast()
+    const toast = useToast()
     useGlobalKeyboardShortcuts()
 
     const onDelete = useCallback(() => {
@@ -286,13 +286,13 @@ const FocusModeScreen = () => {
             datetime_start: chosenEvent.datetime_start,
             datetime_end: chosenEvent.datetime_end,
         })
-        gtToast.show(
+        toast.show(
             {
                 message: 'This calendar event has been deleted',
                 undoableButton: {
                     label: 'Undo',
                     onClick: () => {
-                        gtToast.dismiss()
+                        toast.dismiss()
                         undoDeleteEventInCache(chosenEvent, date)
                     },
                     undoableAction: () =>
@@ -313,7 +313,7 @@ const FocusModeScreen = () => {
                 theme: 'dark',
             }
         )
-    }, [chosenEvent, deleteEvent, deleteEventInCache, setSelectedEvent, gtToast, undoDeleteEventInCache])
+    }, [chosenEvent, deleteEvent, deleteEventInCache, setSelectedEvent, toast, undoDeleteEventInCache])
 
     const navigate = useNavigate()
     return (

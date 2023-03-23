@@ -1,11 +1,12 @@
 import { DateTime } from 'luxon'
 import { SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
-import { useToast } from '../../hooks'
+import { usePreviewMode, useToast } from '../../hooks'
 import { useModifyNote } from '../../services/api/notes.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { icons } from '../../styles/images'
 import { TNote, TNoteSharedAccess } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
+import { emit } from '../molecules/Toast'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTMenuItem } from '../radix/RadixUIConstants'
 import { getNoteURL } from './utils'
@@ -16,7 +17,8 @@ interface NoteSharingDropdownProps {
 const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
     const { mutate: modifyNote } = useModifyNote()
     const { data: userInfo } = useGetUserInfo()
-    const toast = useToast()
+    const oldToast = useToast()
+    const { isPreviewMode } = usePreviewMode()
 
     const shareNote = (sharedUntil?: string, sharedAccess?: TNoteSharedAccess) => {
         modifyNote({ id: note.id, shared_until: sharedUntil, shared_access: sharedAccess })
@@ -26,16 +28,20 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
     }
     const copyNoteLink = () => {
         navigator.clipboard.writeText(getNoteURL(note.id))
-        toast.show(
-            {
-                message: `Note URL copied to clipboard`,
-            },
-            {
-                autoClose: 2000,
-                pauseOnFocusLoss: false,
-                theme: 'light',
-            }
-        )
+        if (isPreviewMode) {
+            emit({ message: 'Note URL copied to clipboard' })
+        } else {
+            oldToast.show(
+                {
+                    message: `Note URL copied to clipboard`,
+                },
+                {
+                    autoClose: 2000,
+                    pauseOnFocusLoss: false,
+                    theme: 'dark',
+                }
+            )
+        }
     }
     const goToSharedLink = () => {
         window.open(getNoteURL(note.id), '_blank')

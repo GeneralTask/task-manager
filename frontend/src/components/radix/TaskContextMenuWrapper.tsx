@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_FOLDER_ID, EMPTY_MONGO_OBJECT_ID, TASK_PRIORITIES } from '../../constants'
 import useSelectionContext from '../../context/SelectionContextProvider'
-import { useToast } from '../../hooks'
+import { usePreviewMode, useToast } from '../../hooks'
 import { useGetFolders } from '../../services/api/folders.hooks'
 import {
     useCreateTask,
@@ -16,6 +16,7 @@ import { externalStatusIcons, icons } from '../../styles/images'
 import { TTaskFolder, TTaskV4 } from '../../utils/types'
 import adf2md from '../atoms/GTTextField/AtlassianEditor/adfToMd'
 import GTDatePicker from '../molecules/GTDatePicker'
+import { emit } from '../molecules/Toast'
 import RecurringTaskTemplateModal from '../molecules/recurring-tasks/RecurringTaskTemplateModal'
 import GTContextMenu from './GTContextMenu'
 import { GTMenuItem } from './RadixUIConstants'
@@ -91,7 +92,8 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted(false)
     const [isRecurringTaskTemplateModalOpen, setIsRecurringTaskTemplateModalOpen] = useState(false)
     const { inMultiSelectMode, selectedTaskIds, clearSelectedTaskIds } = useSelectionContext()
-    const toast = useToast()
+    const oldToast = useToast()
+    const { isPreviewMode } = usePreviewMode()
 
     const parentTask = allTasks?.find((t) => t.id === task.id_parent)
 
@@ -250,11 +252,12 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                               },
                               optimisticId
                           )
-                          toast.show({
-                              message: `Task duplicated in folder ${
-                                  folders?.find((f) => f.id === task.id_folder)?.name ?? 'Task Inbox'
-                              }`,
-                          })
+                          const folderName = folders?.find((f) => f.id === task.id_folder)?.name ?? 'Task Inbox'
+                          if (isPreviewMode) {
+                              emit({ message: `Task duplicated in folder ${folderName}` })
+                          } else {
+                              oldToast.show({ message: `Task duplicated in folder ${folderName}` })
+                          }
                       },
                   },
               ]

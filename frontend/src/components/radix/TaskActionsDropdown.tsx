@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_FOLDER_ID } from '../../constants'
-import { useToast } from '../../hooks'
+import { usePreviewMode, useToast } from '../../hooks'
 import { useGetFolders } from '../../services/api/folders.hooks'
 import { useCreateTask, useMarkTaskDoneOrDeleted, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
@@ -9,6 +9,7 @@ import { TTaskV4 } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedMini } from '../atoms/typography/Typography'
+import { emit } from '../molecules/Toast'
 import GTDropdownMenu from './GTDropdownMenu'
 import { GTMenuItem } from './RadixUIConstants'
 import { getDeleteLabel } from './TaskContextMenuWrapper'
@@ -22,7 +23,8 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
     const { mutate: modifyTask } = useModifyTask()
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
-    const toast = useToast()
+    const oldToast = useToast()
+    const { isPreviewMode } = usePreviewMode()
 
     const updatedAt = DateTime.fromISO(task.updated_at).toFormat(`MMM d 'at' h:mm a`)
     const createdAt = DateTime.fromISO(task.created_at).toFormat(`MMM d 'at' h:mm a`)
@@ -56,11 +58,12 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
                 },
                 optimisticId
             )
-            toast.show({
-                message: `Task duplicated in folder ${
-                    folders?.find((f) => f.id === task.id_folder)?.name ?? 'Task Inbox'
-                }`,
-            })
+            const folderName = folders?.find((f) => f.id === task.id_folder)?.name ?? 'Task Inbox'
+            if (isPreviewMode) {
+                emit({ message: `Task duplicated in folder ${folderName}` })
+            } else {
+                oldToast.show({ message: `Task duplicated in folder ${folderName}` })
+            }
         },
     })
 

@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import { REACT_APP_TASK_BASE_URL, SHARED_ITEM_INDEFINITE_DATE } from '../../constants'
-import { useToast } from '../../hooks'
+import { usePreviewMode, useToast } from '../../hooks'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { icons } from '../../styles/images'
@@ -8,6 +8,7 @@ import { TTaskSharedAccess, TTaskV4 } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTMenuItem } from '../radix/RadixUIConstants'
+import { emit } from './Toast'
 
 interface TaskharingDropdownProps {
     task: TTaskV4
@@ -16,20 +17,25 @@ interface TaskharingDropdownProps {
 const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
     const { mutate: modifyTask } = useModifyTask()
     const { data: userInfo } = useGetUserInfo()
-    const toast = useToast()
+    const oldToast = useToast()
+    const { isPreviewMode } = usePreviewMode()
 
     const copyTaskLink = () => {
         navigator.clipboard.writeText(`${REACT_APP_TASK_BASE_URL}/shareable_tasks/${task.id}`)
-        toast.show(
-            {
-                message: `Task URL copied to clipboard`,
-            },
-            {
-                autoClose: 2000,
-                pauseOnFocusLoss: false,
-                theme: 'dark',
-            }
-        )
+        if (isPreviewMode) {
+            emit({ message: 'Task URL copied to clipboard' })
+        } else {
+            oldToast.show(
+                {
+                    message: `Task URL copied to clipboard`,
+                },
+                {
+                    autoClose: 2000,
+                    pauseOnFocusLoss: false,
+                    theme: 'dark',
+                }
+            )
+        }
     }
 
     const shareAndCopy = (shareAccess: TTaskSharedAccess) => {
