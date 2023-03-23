@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { toast } from 'react-hot-toast'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
@@ -11,6 +12,7 @@ import {
     useInterval,
     useKeyboardShortcut,
     usePageFocus,
+    usePreviewMode,
     useToast,
 } from '../../hooks'
 import { useDeleteEvent, useEvents } from '../../services/api/events.hooks'
@@ -36,6 +38,7 @@ import EventMeetingAction from '../focus-mode/EventMeetingAction'
 import FlexTime from '../focus-mode/FlexTime'
 import CardSwitcher from '../molecules/CardSwitcher'
 import CommandPalette from '../molecules/CommandPalette'
+import { emit } from '../molecules/Toast'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
 import CalendarView from '../views/CalendarView'
 
@@ -273,8 +276,9 @@ const FocusModeScreen = () => {
     )
 
     const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
-    const toast = useToast()
+    const oldToast = useToast()
     useGlobalKeyboardShortcuts()
+    const { isPreviewMode } = usePreviewMode()
 
     const onDelete = useCallback(() => {
         if (!chosenEvent) return
@@ -286,16 +290,31 @@ const FocusModeScreen = () => {
             datetime_start: chosenEvent.datetime_start,
             datetime_end: chosenEvent.datetime_end,
         })
-        toast.show(
-            {
-                message: 'This calendar event has been deleted',
-                undoableButton: {
-                    label: 'Undo',
-                    onClick: () => {
-                        toast.dismiss()
-                        undoDeleteEventInCache(chosenEvent, date)
+        if (isPreviewMode) {
+            const eventDeleteTimeout = setTimeout(() => {
+                deleteEvent(
+                    {
+                        id: chosenEvent.id,
+                        date: date,
+                        datetime_start: chosenEvent.datetime_start,
+                        datetime_end: chosenEvent.datetime_end,
                     },
-                    undoableAction: () =>
+                    chosenEvent.optimisticId
+                )
+                toast.dismiss(chosenEvent.id)
+            }, EVENT_UNDO_TIMEOUT)
+            emit({
+                toastId: chosenEvent.id,
+                message: 'This calendar event has been deleted',
+                duration: EVENT_UNDO_TIMEOUT,
+                undoAction: {
+                    onClick: () => {
+                        clearTimeout(eventDeleteTimeout)
+                        undoDeleteEventInCache(chosenEvent, date)
+                        toast.dismiss(chosenEvent.id)
+                    },
+                    onDismiss: () => {
+                        clearTimeout(eventDeleteTimeout)
                         deleteEvent(
                             {
                                 id: chosenEvent.id,
@@ -304,16 +323,40 @@ const FocusModeScreen = () => {
                                 datetime_end: chosenEvent.datetime_end,
                             },
                             chosenEvent.optimisticId
-                        ),
+                        )
+                    },
                 },
-            },
-            {
-                autoClose: EVENT_UNDO_TIMEOUT,
-                pauseOnFocusLoss: false,
-                theme: 'dark',
-            }
-        )
-    }, [chosenEvent, deleteEvent, deleteEventInCache, setSelectedEvent, toast, undoDeleteEventInCache])
+            })
+        } else {
+            oldToast.show(
+                {
+                    message: 'This calendar event has been deleted',
+                    undoableButton: {
+                        label: 'Undo',
+                        onClick: () => {
+                            oldToast.dismiss()
+                            undoDeleteEventInCache(chosenEvent, date)
+                        },
+                        undoableAction: () =>
+                            deleteEvent(
+                                {
+                                    id: chosenEvent.id,
+                                    date: date,
+                                    datetime_start: chosenEvent.datetime_start,
+                                    datetime_end: chosenEvent.datetime_end,
+                                },
+                                chosenEvent.optimisticId
+                            ),
+                    },
+                },
+                {
+                    autoClose: EVENT_UNDO_TIMEOUT,
+                    pauseOnFocusLoss: false,
+                    theme: 'dark',
+                }
+            )
+        }
+    }, [chosenEvent, deleteEvent, deleteEventInCache, setSelectedEvent, oldToast, undoDeleteEventInCache])
 
     const navigate = useNavigate()
     return (

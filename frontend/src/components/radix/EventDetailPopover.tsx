@@ -1,4 +1,5 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react'
+import { toast } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
@@ -27,7 +28,7 @@ interface EventDetailPopoverProps {
     children: ReactNode
 }
 const EventDetailPopover = ({ event, date, hidePopover = false, children }: EventDetailPopoverProps) => {
-    const toast = useToast()
+    const oldToast = useToast()
     const { isPreviewMode } = usePreviewMode()
     const [isOpen, setIsOpen] = useState(false)
     const { selectedEvent, setSelectedEvent } = useCalendarContext()
@@ -54,16 +55,31 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
             datetime_start: event.datetime_start,
             datetime_end: event.datetime_end,
         })
-        toast.show(
-            {
-                message: 'This calendar event has been deleted',
-                undoableButton: {
-                    label: 'Undo',
-                    onClick: () => {
-                        toast.dismiss()
-                        undoDeleteEventInCache(event, date)
+        if (isPreviewMode) {
+            const eventDeleteTimeout = setTimeout(() => {
+                deleteEvent(
+                    {
+                        id: event.id,
+                        date: date,
+                        datetime_start: event.datetime_start,
+                        datetime_end: event.datetime_end,
                     },
-                    undoableAction: () =>
+                    event.optimisticId
+                )
+                toast.dismiss(event.id)
+            }, EVENT_UNDO_TIMEOUT)
+            emit({
+                toastId: event.id,
+                message: 'This calendar event has been deleted',
+                duration: EVENT_UNDO_TIMEOUT,
+                undoAction: {
+                    onClick: () => {
+                        clearTimeout(eventDeleteTimeout)
+                        undoDeleteEventInCache(event, date)
+                        toast.dismiss(event.id)
+                    },
+                    onDismiss: () => {
+                        clearTimeout(eventDeleteTimeout)
                         deleteEvent(
                             {
                                 id: event.id,
@@ -72,15 +88,39 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                                 datetime_end: event.datetime_end,
                             },
                             event.optimisticId
-                        ),
+                        )
+                    },
                 },
-            },
-            {
-                autoClose: EVENT_UNDO_TIMEOUT,
-                pauseOnFocusLoss: false,
-                theme: 'dark',
-            }
-        )
+            })
+        } else {
+            oldToast.show(
+                {
+                    message: 'This calendar event has been deleted',
+                    undoableButton: {
+                        label: 'Undo',
+                        onClick: () => {
+                            oldToast.dismiss()
+                            undoDeleteEventInCache(event, date)
+                        },
+                        undoableAction: () =>
+                            deleteEvent(
+                                {
+                                    id: event.id,
+                                    date: date,
+                                    datetime_start: event.datetime_start,
+                                    datetime_end: event.datetime_end,
+                                },
+                                event.optimisticId
+                            ),
+                    },
+                },
+                {
+                    autoClose: EVENT_UNDO_TIMEOUT,
+                    pauseOnFocusLoss: false,
+                    theme: 'dark',
+                }
+            )
+        }
     }, [event])
 
     const onCopyMeetingLink = () => {
@@ -88,7 +128,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
         if (isPreviewMode) {
             emit({ message: 'Meeting link copied to clipboard' })
         } else {
-            toast.show(
+            oldToast.show(
                 {
                     message: 'Meeting link copied to clipboard',
                 },

@@ -1,5 +1,6 @@
 import { Toast as HotToast, ToastType, toast } from 'react-hot-toast'
 import styled, { keyframes } from 'styled-components'
+import { v4 as uuidv4 } from 'uuid'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
@@ -61,54 +62,70 @@ const Toast = (props: ToastProps) => {
             <Flex alignItems="center" gap={Spacing._8}>
                 {children}
             </Flex>
-            {t.type !== 'loading' && (
-                <div>
-                    <GTButton styleType="icon" icon={icons.x} onClick={() => toast.dismiss(t.id)} />
-                </div>
-            )}
         </OuterContainer>
     )
 }
 
 interface EmitProps {
+    toastId?: string
     title?: string
     message: string
     type?: ToastType
+    duration?: number
     action?: {
         icon: TIconType
         label: string
         onClick: () => void
     }
+    undoAction?: {
+        onClick: () => void
+        onDismiss: () => void
+    }
 }
 export const emit = (props: EmitProps) => {
-    const toastMessage = (
+    const { toastId, title, message, type, duration, action, undoAction } = props
+
+    const id = toastId ?? uuidv4()
+
+    const toastContent = (
         <>
             <Flex column>
-                {props.title && <strong>{props.title}</strong>}
-                {props.message}
+                {title && <strong>{title}</strong>}
+                {message}
             </Flex>
-            {props.action && (
+            {action && (
+                <div>
+                    <GTButton styleType="secondary" value={action.label} icon={action.icon} onClick={action.onClick} />
+                </div>
+            )}
+            {undoAction && (
+                <div>
+                    <GTButton styleType="secondary" value="Undo" onClick={undoAction.onClick} />
+                </div>
+            )}
+            {type !== 'loading' && (
                 <div>
                     <GTButton
-                        styleType="secondary"
-                        value={props.action.label}
-                        icon={props.action.icon}
-                        onClick={props.action.onClick}
+                        styleType="icon"
+                        icon={icons.x}
+                        onClick={() => {
+                            undoAction?.onDismiss?.()
+                            toast.dismiss(id)
+                        }}
                     />
                 </div>
             )}
         </>
     )
-    switch (props.type) {
+
+    const passProps = { id, duration }
+    switch (type) {
         case 'success':
-            toast.success(toastMessage)
-            return
+            return toast.success(toastContent, passProps)
         case 'error':
-            toast.error(toastMessage)
-            return
-        default:
-            toast(toastMessage)
+            return toast.error(toastContent, passProps)
     }
+    return toast(toastContent, passProps)
 }
 
 const getIcon = (type: ToastType): { icon: TIconType | null; iconColor: string | null } => {
