@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from 'react'
-import { toast } from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Flex } from '@mantine/core'
 import styled from 'styled-components'
@@ -8,10 +7,9 @@ import useGetActiveTasks from '../../hooks/useGetActiveTasks'
 import Log from '../../services/api/log'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
-import { icons, logos } from '../../styles/images'
+import { icons } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
 import { doesAccountNeedRelinking, isJiraLinked } from '../../utils/utils'
-import GTButton from '../atoms/buttons/GTButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
@@ -77,17 +75,7 @@ const JiraView = () => {
                             ))}
                         </>
                     ) : (
-                        <>
-                            <ConnectIntegration type="jira" />
-                            <GTButton
-                                onClick={() => {
-                                    toast(<>hey</>, {
-                                        icon: logos.gcal,
-                                    })
-                                }}
-                                styleType="primary"
-                            />
-                        </>
+                        <ConnectIntegration type="jira" />
                     )}
                 </ScrollableListTemplate>
             </Flex>
