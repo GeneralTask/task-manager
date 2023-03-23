@@ -301,17 +301,17 @@ const FocusModeScreen = () => {
                     },
                     chosenEvent.optimisticId
                 )
-                toast.dismiss(chosenEvent.id)
+                toast.dismiss(`${chosenEvent.id}-focusmode`)
             }, EVENT_UNDO_TIMEOUT)
             emit({
-                toastId: chosenEvent.id,
+                toastId: `${chosenEvent.id}-focusmode`,
                 message: 'This calendar event has been deleted',
                 duration: EVENT_UNDO_TIMEOUT,
                 undoAction: {
                     onClick: () => {
                         clearTimeout(eventDeleteTimeout)
                         undoDeleteEventInCache(chosenEvent, date)
-                        toast.dismiss(chosenEvent.id)
+                        toast.dismiss(`${chosenEvent.id}-focusmode`)
                     },
                     onDismiss: () => {
                         clearTimeout(eventDeleteTimeout)

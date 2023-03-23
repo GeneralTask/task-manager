@@ -79,7 +79,7 @@ export default function useEventBanners(date: DateTime) {
                 const eventTitle = event.title.length > 0 ? event.title : NO_TITLE
                 const lastShownAt = eventBannerLastShownAt.current.get(event.id)
                 const previewToastProps: EmitProps = {
-                    toastId: event.id,
+                    toastId: `${event.id}-banner`,
                     title: eventTitle,
                     message: timeUntilEventMessage,
                     duration: Infinity,
@@ -204,7 +204,7 @@ export default function useEventBanners(date: DateTime) {
                             (lastShownAt > timeUntilEvent && [0, 1, 5].includes(timeUntilEvent))
                         ) {
                             oldToast(<ToastTemplate {...toastProps} />, {
-                                toastId: event.id,
+                                toastId: `${event.id}-banner`,
                                 autoClose: false,
                                 closeOnClick: false,
                                 theme: 'light',

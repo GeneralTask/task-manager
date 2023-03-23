@@ -45,17 +45,17 @@ const FocusModeContextMenuWrapper = ({ event, children }: FocusModeContextMenuPr
                     },
                     event.optimisticId
                 )
-                toast.dismiss(event.id)
+                toast.dismiss(`${event.id}-context`)
             }, EVENT_UNDO_TIMEOUT)
             emit({
-                toastId: event.id,
+                toastId: `${event.id}-context`,
                 message: 'This calendar event has been deleted',
                 duration: EVENT_UNDO_TIMEOUT,
                 undoAction: {
                     onClick: () => {
                         clearTimeout(eventDeleteTimeout)
                         undoDeleteEventInCache(event, date)
-                        toast.dismiss(event.id)
+                        toast.dismiss(`${event.id}-context`)
                     },
                     onDismiss: () => {
                         clearTimeout(eventDeleteTimeout)
