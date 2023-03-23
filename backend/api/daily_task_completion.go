@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
@@ -58,7 +57,6 @@ func (api *API) DailyTaskCompletionList(c *gin.Context) {
 	pipeline := mongo.Pipeline{matchStage, projectStage, groupStage, sortStage, renameFieldsStage}
 	cursor, err := taskCollection.Aggregate(context.Background(), pipeline)
 	if err != nil {
-		fmt.Println(err)
 		c.JSON(500, gin.H{"detail": "failed to get daily task completion"})
 		return
 	}
