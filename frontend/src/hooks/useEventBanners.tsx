@@ -93,8 +93,7 @@ export default function useEventBanners(date: DateTime) {
                             onClick: () => window.open(event.conference_call?.url, '_blank'),
                         },
                     ]
-                }
-                if (event.deeplink) {
+                } else if (event.deeplink) {
                     previewToastProps.actions = [
                         {
                             styleType: 'secondary',
@@ -106,8 +105,9 @@ export default function useEventBanners(date: DateTime) {
                 }
                 if (event.conference_call.url || event.deeplink) {
                     previewToastProps.actions?.push({
-                        styleType: 'icon',
+                        styleType: 'secondary',
                         icon: icons.note,
+                        value: 'Notes',
                         onClick: () => {
                             if (event.linked_note_id) {
                                 navigate(`/notes/${event.linked_note_id}`)

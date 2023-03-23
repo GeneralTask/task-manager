@@ -15,7 +15,7 @@ const OuterContainer = styled.div<{ backgroundColor: string; visible: boolean }>
     gap: ${Spacing._8};
     padding: ${Spacing._16};
     min-height: ${Spacing._48};
-    max-width: 400px;
+    max-width: 480px;
     border: ${Border.stroke.medium} solid ${Colors.background.border};
     border-radius: ${Border.radius.small};
     background-color: ${({ backgroundColor }) => backgroundColor};
