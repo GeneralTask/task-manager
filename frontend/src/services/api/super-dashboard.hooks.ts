@@ -47,11 +47,6 @@ export const useGetDashboardTeamMembers = () => {
 const getDashboardTeamMembers = async ({ signal }: QueryFunctionContext) => {
     try {
         const res = await apiClient.get(`/dashboard/team_members/`, { signal })
-        if (!res.data)
-            res.data = [
-                { id: Math.random().toString(), name: 'Scott', email: 'scott@generaltask.com', github_id: 'scottmai' },
-                { id: Math.random().toString(), name: 'Scott', email: 'scott@generaltask.com', github_id: 'scottmai' },
-            ]
         return castImmutable(res.data)
     } catch {
         throw 'getDashboardTeamMembers failed'
