@@ -55,13 +55,11 @@ func (api *API) DashboardTeamMemberCreate(c *gin.Context) {
 
 func (api *API) DashboardTeamMemberDelete(c *gin.Context) {
 	teamMemberIDHex := c.Param("team_member_id")
-
 	teamMemberID, err := primitive.ObjectIDFromHex(teamMemberIDHex)
 	if err != nil {
 		Handle404(c)
 		return
 	}
-
 	userID := getUserIDFromContext(c)
 	dashboardTeam, err := database.GetOrCreateDashboardTeam(api.DB, userID)
 	if err != nil || dashboardTeam == nil {
@@ -69,7 +67,6 @@ func (api *API) DashboardTeamMemberDelete(c *gin.Context) {
 		c.JSON(500, gin.H{"detail": "failed to get dashboard team"})
 		return
 	}
-
 	teamMemberCollection := database.GetDashboardTeamMemberCollection(api.DB)
 	deletedResult, err := teamMemberCollection.DeleteOne(context.Background(), database.DashboardTeamMember{
 		ID:     teamMemberID,
@@ -84,7 +81,6 @@ func (api *API) DashboardTeamMemberDelete(c *gin.Context) {
 		Handle404(c)
 		return
 	}
-
 	c.JSON(204, gin.H{})
 }
 
