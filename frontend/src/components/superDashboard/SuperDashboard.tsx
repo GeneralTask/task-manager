@@ -5,6 +5,7 @@ import DateSelector from './DateSelector'
 import Metric from './Metric'
 import SubjectSelector from './SubjectSelector'
 import { useSuperDashboardContext } from './SuperDashboardContext'
+import TeamRosterModalButton from './TeamRosterModalButton'
 
 const Metrics = styled.div`
     display: flex;
@@ -20,7 +21,10 @@ const SuperDashboard = () => {
         <Flex column gap={Spacing._24}>
             <Flex justifyContent="space-between" alignItems="center">
                 <DateSelector />
-                <SubjectSelector />
+                <Flex alignItems="center" gap={Spacing._16}>
+                    <SubjectSelector />
+                    <TeamRosterModalButton />
+                </Flex>
             </Flex>
             <Metrics>
                 {selectedSubject.graph_ids.map((graphId) => (
