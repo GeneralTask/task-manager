@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { useGetDashboardTeamMembers } from '../../../services/api/super-dashboard.hooks'
+import { useDeleteDashboardTeamMember, useGetDashboardTeamMembers } from '../../../services/api/super-dashboard.hooks'
 import { Spacing } from '../../../styles'
 import { icons } from '../../../styles/images'
 import Flex from '../../atoms/Flex'
@@ -20,6 +20,7 @@ const TeamMemberList = styled.div`
 
 const TeamRosterModalContent = () => {
     const { data: teamMembers, isLoading } = useGetDashboardTeamMembers()
+    const { mutate: deleteDashboardTeamMember } = useDeleteDashboardTeamMember()
 
     if (isLoading) {
         return <Spinner />
@@ -45,6 +46,9 @@ const TeamRosterModalContent = () => {
                                 icon={icons.trash}
                                 iconColor="red"
                                 tooltipText="Remove team member"
+                                onClick={() =>
+                                    deleteDashboardTeamMember({ id: teamMember.id }, teamMember.optimisticId)
+                                }
                             />
                         </Flex>
                     ))

@@ -94,3 +94,29 @@ const addDashboardTeamMember = async (teamMember: TDashboardTeamMember) => {
         throw 'addDashboardTeamMember failed'
     }
 }
+
+export const useDeleteDashboardTeamMember = () => {
+    const queryClient = useGTQueryClient()
+    return useGTMutation(({ id }: { id: string }) => deleteDashboardTeamMember(id), {
+        tag: 'dashboard-team-members',
+        invalidateTagsOnSettled: ['dashboard-team-members', 'fetch-dashboard'],
+        errorMessage: 'delete team member',
+        onMutate: async ({ id }) => {
+            await queryClient.cancelQueries('dashboard-team-members')
+            const teamMembers = queryClient.getImmutableQueryData<TDashboardTeamMember[]>('dashboard-team-members')
+            if (!teamMembers) return
+            queryClient.setQueryData(
+                'dashboard-team-members',
+                teamMembers.filter((member) => member.id !== id)
+            )
+        },
+    })
+}
+
+const deleteDashboardTeamMember = async (teamMemberId: string) => {
+    try {
+        await apiClient.delete(`/dashboard/team_members/${teamMemberId}/`)
+    } catch {
+        throw 'deleteDashboardTeamMember failed'
+    }
+}
