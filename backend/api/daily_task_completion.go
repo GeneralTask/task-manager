@@ -37,9 +37,9 @@ func (api *API) DailyTaskCompletionList(c *gin.Context) {
 			{Key: "completed_at", Value: bson.D{
 				{Key: "$gte", Value: dailyTaskCompletionParams.DatetimeStart},
 				{Key: "$lte", Value: dailyTaskCompletionParams.DatetimeEnd},
-			},
 			}},
-		}}
+		}},
+	}
 	projectStage := bson.D{
 		{Key: "$project", Value: bson.D{
 			{Key: "completed_at_string", Value: bson.D{
@@ -56,7 +56,8 @@ func (api *API) DailyTaskCompletionList(c *gin.Context) {
 			{Key: "_id", Value: "$completed_at_string"},
 			{Key: "completed_at", Value: bson.D{{Key: "$first", Value: "$completed_at"}}},
 			{Key: "count", Value: bson.D{{Key: "$sum", Value: 1}}}},
-		}}
+		},
+	}
 	sortStage := bson.D{
 		{Key: "$sort", Value: bson.D{
 			{Key: "completed_at", Value: 1},
