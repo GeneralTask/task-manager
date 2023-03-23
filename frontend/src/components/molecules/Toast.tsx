@@ -7,6 +7,8 @@ import Flex from '../atoms/Flex'
 import { Icon, TIconType } from '../atoms/Icon'
 import GTButton, { GTButtonProps } from '../atoms/buttons/GTButton'
 
+const TOAST_MAX_WIDTH = '480px'
+
 const OuterContainer = styled.div<{ backgroundColor: string; visible: boolean }>`
     box-sizing: border-box;
     display: flex;
@@ -15,7 +17,7 @@ const OuterContainer = styled.div<{ backgroundColor: string; visible: boolean }>
     gap: ${Spacing._8};
     padding: ${Spacing._16};
     min-height: ${Spacing._48};
-    max-width: 480px;
+    max-width: ${TOAST_MAX_WIDTH};
     border: ${Border.stroke.medium} solid ${Colors.background.border};
     border-radius: ${Border.radius.small};
     background-color: ${({ backgroundColor }) => backgroundColor};
