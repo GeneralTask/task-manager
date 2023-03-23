@@ -7,6 +7,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -20,23 +21,17 @@ type DailyTaskCompletion struct {
 	Count int    `json:"count"`
 }
 
-func (api *API) DailyTaskCompletionList(c *gin.Context) {
-	var dailyTaskCompletionParams DailyTaskCompletionParams
-	err := c.BindQuery(&dailyTaskCompletionParams)
-	if err != nil {
-		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
-		return
-	}
-	userID := getUserIDFromContext(c)
-	taskCollection := database.GetTaskCollection(api.DB)
+
+func GetDailyTaskCompletionList(db *mongo.Database, userID primitive.ObjectID, datetimeStart time.Time, dateTimeEnd time.Time) (*[]DailyTaskCompletion, error) {
+	taskCollection := database.GetTaskCollection(db)
 
 	matchStage := bson.D{
 		{Key: "$match", Value: bson.D{
 			{Key: "user_id", Value: userID},
 			{Key: "is_completed", Value: true},
 			{Key: "completed_at", Value: bson.D{
-				{Key: "$gte", Value: dailyTaskCompletionParams.DatetimeStart},
-				{Key: "$lte", Value: dailyTaskCompletionParams.DatetimeEnd},
+				{Key: "$gte", Value: datetimeStart},
+				{Key: "$lte", Value: dateTimeEnd},
 			}},
 		}},
 	}
@@ -74,13 +69,28 @@ func (api *API) DailyTaskCompletionList(c *gin.Context) {
 	pipeline := mongo.Pipeline{matchStage, projectStage, groupStage, sortStage, renameFieldsStage}
 	cursor, err := taskCollection.Aggregate(context.Background(), pipeline)
 	if err != nil {
-		c.JSON(500, gin.H{"detail": "failed to get daily task completion"})
-		return
+		return nil, err
 	}
+
 	var dailyTaskCompletion []DailyTaskCompletion
 	if err = cursor.All(context.Background(), &dailyTaskCompletion); err != nil {
-		c.JSON(500, gin.H{"detail": "failed to get daily task completion"})
+		return nil, err
+	}
+	return &dailyTaskCompletion, nil
+}
+
+func (api *API) DailyTaskCompletionList(c *gin.Context) {
+	var dailyTaskCompletionParams DailyTaskCompletionParams
+	err := c.BindQuery(&dailyTaskCompletionParams)
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
 		return
 	}
-	c.JSON(200, dailyTaskCompletion)
+	userID := getUserIDFromContext(c)
+	result, err := GetDailyTaskCompletionList(api.DB, userID, *dailyTaskCompletionParams.DatetimeStart, *dailyTaskCompletionParams.DatetimeEnd)
+	if err != nil {
+		c.JSON(500, gin.H{"detail": "internal server error"})
+		return
+	}
+	c.JSON(200, result)
 }
