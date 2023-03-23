@@ -37,7 +37,7 @@ const GTInput = forwardRef(({ value, onChange, fontSize = 'small', showSearchIco
     const inputRef = useRef<HTMLInputElement | null>(null)
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
-        if (inputRef.current && (e.key === 'Escape' || e.key === 'Enter')) inputRef.current.blur()
+        if (inputRef.current && e.key === 'Escape') inputRef.current.blur()
         e.stopPropagation()
     }
 
