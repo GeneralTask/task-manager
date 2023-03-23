@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { icons } from '../../styles/images'
-import GTButton from '../atoms/buttons/GTButton'
-import GTModal from '../mantine/GTModal'
-import TeamRoster from './TeamRoster'
+import { icons } from '../../../styles/images'
+import GTButton from '../../atoms/buttons/GTButton'
+import GTModal from '../../mantine/GTModal'
+import TeamRosterModalContent from './TeamRosterModalContent'
 
 const TeamRosterModalButton = () => {
     const [showRosterModal, setShowRosterModal] = useState(false)
@@ -19,7 +19,7 @@ const TeamRosterModalButton = () => {
                 setIsModalOpen={setShowRosterModal}
                 tabs={{
                     title: 'Team Roster',
-                    body: <TeamRoster />,
+                    body: <TeamRosterModalContent />,
                 }}
             />
         </>
