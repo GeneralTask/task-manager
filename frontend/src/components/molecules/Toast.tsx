@@ -46,11 +46,11 @@ const leave = keyframes`
     }
 `
 
-interface ToastContainerProps {
+interface ToastProps {
     children: React.ReactNode
     toast: HotToast
 }
-const Toast = (props: ToastContainerProps) => {
+const Toast = (props: ToastProps) => {
     const { children, toast: t } = props
     const { icon, iconColor } = getIcon(t.type)
     const backgroundColor = getBgColor(t.type)
@@ -70,7 +70,7 @@ const Toast = (props: ToastContainerProps) => {
     )
 }
 
-interface ToastProps {
+interface EmitProps {
     title?: string
     message: string
     type?: ToastType
@@ -80,7 +80,7 @@ interface ToastProps {
         onClick: () => void
     }
 }
-export const emit = (props: ToastProps) => {
+export const emit = (props: EmitProps) => {
     const toastMessage = (
         <>
             <Flex column>
