@@ -64,8 +64,8 @@ const MiddleContainer = styled.div`
     }
 `
 const LowerContainer = styled.div`
-    margin-top: auto;
-    margin-bottom: auto;
+    margin: auto 0;
+    padding-top: ${Spacing._8};
     display: flex;
     flex-direction: column;
     gap: ${Spacing._8};
