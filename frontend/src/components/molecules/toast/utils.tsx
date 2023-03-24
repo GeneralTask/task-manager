@@ -19,9 +19,7 @@ export interface ToastArgs {
 }
 export const toast = (message: string, args?: ToastArgs) => {
     const { toastId, title, type, duration, actions, undoAction } = args ?? {}
-
     const action = !Array.isArray(actions) ? actions : null
-
     const id = toastId ?? uuidv4()
 
     const toastContent = (
