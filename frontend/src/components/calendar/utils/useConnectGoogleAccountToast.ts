@@ -13,8 +13,7 @@ const useConnectGoogleAccountToast = () => {
 
     return () => {
         if (isPreviewMode) {
-            toast({
-                message: 'Connect your Google account to create events from tasks.',
+            toast('Connect your Google account to create events from tasks.', {
                 actions: {
                     styleType: 'secondary',
                     value: 'Connect',

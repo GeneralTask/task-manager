@@ -303,9 +303,8 @@ const FocusModeScreen = () => {
                 )
                 hotToast.dismiss(`${chosenEvent.id}-focusmode`)
             }, EVENT_UNDO_TIMEOUT)
-            toast({
+            toast('This calendar event has been deleted', {
                 toastId: `${chosenEvent.id}-focusmode`,
-                message: 'This calendar event has been deleted',
                 duration: EVENT_UNDO_TIMEOUT,
                 undoAction: {
                     onClick: () => {

@@ -47,9 +47,8 @@ const FocusModeContextMenuWrapper = ({ event, children }: FocusModeContextMenuPr
                 )
                 hotToast.dismiss(`${event.id}-context`)
             }, EVENT_UNDO_TIMEOUT)
-            toast({
+            toast('This calendar event has been deleted', {
                 toastId: `${event.id}-context`,
-                message: 'This calendar event has been deleted',
                 duration: EVENT_UNDO_TIMEOUT,
                 undoAction: {
                     onClick: () => {

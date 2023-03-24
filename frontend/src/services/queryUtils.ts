@@ -100,8 +100,7 @@ export const useGTMutation = <TData = unknown, TError = unknown, TVariables = vo
         onError: (error, variables, context) => {
             mutationOptions.onError?.(error, variables, context)
             if (isPreviewMode) {
-                toast({
-                    message: `Failed to ${mutationOptions.errorMessage}: Request failed.`,
+                toast(`Failed to ${mutationOptions.errorMessage}: Request failed.`, {
                     type: 'error',
                 })
             } else {

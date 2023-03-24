@@ -68,9 +68,8 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                 )
                 hotToast.dismiss(`${event.id}-popover`)
             }, EVENT_UNDO_TIMEOUT)
-            toast({
+            toast('This calendar event has been deleted', {
                 toastId: `${event.id}-popover`,
-                message: 'This calendar event has been deleted',
                 duration: EVENT_UNDO_TIMEOUT,
                 undoAction: {
                     onClick: () => {
@@ -126,7 +125,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
     const onCopyMeetingLink = () => {
         navigator.clipboard.writeText(event.conference_call.url)
         if (isPreviewMode) {
-            toast({ message: 'Meeting link copied to clipboard' })
+            toast('Meeting link copied to clipboard')
         } else {
             oldToast.show(
                 {

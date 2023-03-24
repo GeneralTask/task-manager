@@ -14,7 +14,7 @@ const BranchName = ({ name }: BranchNameProps) => {
     const handleClick = () => {
         navigator.clipboard.writeText(name)
         if (isPreviewMode) {
-            toast({ message: 'Branch copied to clipboard' })
+            toast('Branch copied to clipboard')
         } else {
             oldToast.show(
                 {

@@ -35,7 +35,7 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
         setFeedback('')
         setModalIsOpen(false)
         if (isPreviewMode) {
-            toast({ message: 'Thank you for your feedback' })
+            toast('Thank you for your feedback')
         } else {
             oldToast.show(
                 {

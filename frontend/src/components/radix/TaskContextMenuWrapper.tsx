@@ -254,7 +254,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                           )
                           const folderName = folders?.find((f) => f.id === task.id_folder)?.name ?? 'Task Inbox'
                           if (isPreviewMode) {
-                              toast({ message: `Task duplicated in folder ${folderName}` })
+                              toast(`Task duplicated in folder ${folderName}`)
                           } else {
                               oldToast.show({ message: `Task duplicated in folder ${folderName}` })
                           }

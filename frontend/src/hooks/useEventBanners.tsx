@@ -81,7 +81,6 @@ export default function useEventBanners(date: DateTime) {
                 const previewToastArgs: ToastArgs = {
                     toastId: `${event.id}-banner`,
                     title: eventTitle,
-                    message: timeUntilEventMessage,
                     duration: Infinity,
                 }
                 if (event.conference_call.url) {
@@ -183,14 +182,14 @@ export default function useEventBanners(date: DateTime) {
                 }
                 if (isPreviewMode) {
                     if (toasts.find((toast) => toast.id === event.id)) {
-                        toast(previewToastArgs)
+                        toast(timeUntilEventMessage, previewToastArgs)
                         eventBannerLastShownAt.current.set(event.id, timeUntilEvent)
                     } else {
                         if (
                             lastShownAt === undefined ||
                             (lastShownAt > timeUntilEvent && [0, 1, 5].includes(timeUntilEvent))
                         ) {
-                            toast(previewToastArgs)
+                            toast(timeUntilEventMessage, previewToastArgs)
                             eventBannerLastShownAt.current.set(event.id, timeUntilEvent)
                         }
                     }

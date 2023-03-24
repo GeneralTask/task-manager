@@ -23,7 +23,7 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
     const copyTaskLink = () => {
         navigator.clipboard.writeText(`${REACT_APP_TASK_BASE_URL}/shareable_tasks/${task.id}`)
         if (isPreviewMode) {
-            toast({ message: 'Task URL copied to clipboard' })
+            toast('Task URL copied to clipboard')
         } else {
             oldToast.show(
                 {

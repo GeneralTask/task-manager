@@ -29,7 +29,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
     const copyNoteLink = () => {
         navigator.clipboard.writeText(getNoteURL(note.id))
         if (isPreviewMode) {
-            toast({ message: 'Note URL copied to clipboard' })
+            toast('Note URL copied to clipboard')
         } else {
             oldToast.show(
                 {

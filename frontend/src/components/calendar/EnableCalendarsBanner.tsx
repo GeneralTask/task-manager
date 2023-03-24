@@ -91,9 +91,7 @@ const EnableCalendarsBanner = () => {
     const handleDismiss = () => {
         setHasDismissedMulticalPrompt('true')
         if (isPreviewMode) {
-            toast({
-                message: 'You can always authorize your calendars from the settings page.',
-            })
+            toast('You can always authorize your calendars from the settings page.')
         } else {
             oldToast.show({
                 message: 'You can always authorize your calendars from the settings page.',

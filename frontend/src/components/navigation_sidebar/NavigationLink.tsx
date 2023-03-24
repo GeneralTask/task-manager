@@ -111,7 +111,7 @@ const NavigationLink = ({
             if (taskFolder.id === item.sectionId) return
             if (item.task.source.name === 'Jira' && taskFolder.id === TRASH_FOLDER_ID) {
                 if (isPreviewMode) {
-                    toast({ message: 'Cannot delete Jira tasks', type: 'error' })
+                    toast('Cannot delete Jira tasks', { type: 'error' })
                 } else {
                     oldToast.show({
                         message: 'Cannot delete Jira tasks',

@@ -9,7 +9,6 @@ import GTButton, { GTButtonProps } from '../../atoms/buttons/GTButton'
 export interface ToastArgs {
     toastId?: string
     title?: string
-    message: string
     type?: ToastType
     duration?: number
     actions?: GTButtonProps | GTButtonProps[]
@@ -18,8 +17,8 @@ export interface ToastArgs {
         onDismiss: () => void
     }
 }
-export const toast = (props: ToastArgs) => {
-    const { toastId, title, message, type, duration, actions, undoAction } = props
+export const toast = (message: string, args?: ToastArgs) => {
+    const { toastId, title, type, duration, actions, undoAction } = args ?? {}
 
     const action = !Array.isArray(actions) ? actions : null
 
