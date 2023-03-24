@@ -2,7 +2,7 @@ import { MutationFunction, QueryClient, QueryKey, UseMutationOptions, useMutatio
 import { QueryFilters } from 'react-query/types/core/utils'
 import { Immutable } from 'immer'
 import { DateTime } from 'luxon'
-import { emit } from '../components/molecules/Toast'
+import { emit } from '../components/molecules/toast/Toast'
 import { DEFAULT_BACKGROUND_QUERY_STALE_TIME, QUEUED_MUTATION_DEBOUNCE, TASK_REFETCH_INTERVAL } from '../constants'
 import useQueryContext from '../context/QueryContext'
 import { usePreviewMode, useToast } from '../hooks'

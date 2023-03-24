@@ -38,7 +38,7 @@ import EventMeetingAction from '../focus-mode/EventMeetingAction'
 import FlexTime from '../focus-mode/FlexTime'
 import CardSwitcher from '../molecules/CardSwitcher'
 import CommandPalette from '../molecules/CommandPalette'
-import { emit } from '../molecules/Toast'
+import { emit } from '../molecules/toast/Toast'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
 import CalendarView from '../views/CalendarView'
 

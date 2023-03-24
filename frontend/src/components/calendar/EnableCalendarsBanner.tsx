@@ -13,7 +13,7 @@ import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedLabel, Truncated } from '../atoms/typography/Typography'
-import { emit } from '../molecules/Toast'
+import { emit } from '../molecules/toast/Toast'
 import { getCalendarAuthButton } from './utils/utils'
 
 const Container = styled.div`

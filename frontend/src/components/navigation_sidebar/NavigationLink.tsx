@@ -14,7 +14,7 @@ import { DropItem, DropType, TTaskFolder } from '../../utils/types'
 import { countWithOverflow } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import { useCalendarContext } from '../calendar/CalendarContext'
-import { emit } from '../molecules/Toast'
+import { emit } from '../molecules/toast/Toast'
 import Tip from '../radix/Tip'
 
 export const CollapsedIconContainer = styled.div<{ isSelected?: boolean }>`

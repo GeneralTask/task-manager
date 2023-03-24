@@ -16,7 +16,7 @@ import GTTextField from '../atoms/GTTextField'
 import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedLabel } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
-import { emit } from '../molecules/Toast'
+import { emit } from '../molecules/toast/Toast'
 import { getNoteURL } from './utils'
 
 interface NoteCreateModalProps {

@@ -18,7 +18,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedLabel } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import { Description, EventBoxStyle, EventHeader, EventTitle, FlexAnchor } from '../molecules/EventDetailPopover-styles'
-import { emit } from '../molecules/Toast'
+import { emit } from '../molecules/toast/Toast'
 import GTPopover from './GTPopover'
 
 interface EventDetailPopoverProps {
