@@ -13,7 +13,7 @@ import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedLabel, Truncated } from '../atoms/typography/Typography'
-import { emit } from '../molecules/toast/Toast'
+import { toast } from '../molecules/toast/utils'
 import { getCalendarAuthButton } from './utils/utils'
 
 const Container = styled.div`
@@ -91,7 +91,7 @@ const EnableCalendarsBanner = () => {
     const handleDismiss = () => {
         setHasDismissedMulticalPrompt('true')
         if (isPreviewMode) {
-            emit({
+            toast({
                 message: 'You can always authorize your calendars from the settings page.',
             })
         } else {

@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react'
-import { toast, useToasterStore } from 'react-hot-toast'
+import { toast as hotToast, useToasterStore } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import { toast as oldToast } from 'react-toastify'
 import { DateTime } from 'luxon'
@@ -8,7 +8,7 @@ import { useInterval, useKeyboardShortcut, usePreviewMode } from '.'
 import Flex from '../components/atoms/Flex'
 import GTButton from '../components/atoms/buttons/GTButton'
 import ToastTemplate, { ToastTemplateProps } from '../components/atoms/toast/ToastTemplate'
-import { EmitProps, emit } from '../components/molecules/toast/Toast'
+import { ToastArgs, toast } from '../components/molecules/toast/utils'
 import { NO_TITLE, SINGLE_SECOND_INTERVAL } from '../constants'
 import { useEvents } from '../services/api/events.hooks'
 import { useCreateNote, useGetNotes } from '../services/api/notes.hooks'
@@ -62,7 +62,7 @@ export default function useEventBanners(date: DateTime) {
             }
             eventBannerLastShownAt.current.forEach((_, id) => {
                 if (!eventsWithinTenMinutes.current.map((event) => event.id).includes(id)) {
-                    toast.dismiss(id)
+                    hotToast.dismiss(id)
                     oldToast.dismiss(id)
                     eventBannerLastShownAt.current.delete(id)
                 }
@@ -78,14 +78,14 @@ export default function useEventBanners(date: DateTime) {
                         : 'is now.'
                 const eventTitle = event.title.length > 0 ? event.title : NO_TITLE
                 const lastShownAt = eventBannerLastShownAt.current.get(event.id)
-                const previewToastProps: EmitProps = {
+                const previewToastArgs: ToastArgs = {
                     toastId: `${event.id}-banner`,
                     title: eventTitle,
                     message: timeUntilEventMessage,
                     duration: Infinity,
                 }
                 if (event.conference_call.url) {
-                    previewToastProps.actions = [
+                    previewToastArgs.actions = [
                         {
                             styleType: 'secondary',
                             icon: event.conference_call?.logo,
@@ -94,7 +94,7 @@ export default function useEventBanners(date: DateTime) {
                         },
                     ]
                 } else if (event.deeplink) {
-                    previewToastProps.actions = [
+                    previewToastArgs.actions = [
                         {
                             styleType: 'secondary',
                             icon: icons.external_link,
@@ -104,7 +104,7 @@ export default function useEventBanners(date: DateTime) {
                     ]
                 }
                 if (event.conference_call.url || event.deeplink) {
-                    previewToastProps.actions?.push({
+                    previewToastArgs.actions?.push({
                         styleType: 'secondary',
                         icon: icons.note,
                         value: 'Notes',
@@ -183,14 +183,14 @@ export default function useEventBanners(date: DateTime) {
                 }
                 if (isPreviewMode) {
                     if (toasts.find((toast) => toast.id === event.id)) {
-                        emit(previewToastProps)
+                        toast(previewToastArgs)
                         eventBannerLastShownAt.current.set(event.id, timeUntilEvent)
                     } else {
                         if (
                             lastShownAt === undefined ||
                             (lastShownAt > timeUntilEvent && [0, 1, 5].includes(timeUntilEvent))
                         ) {
-                            emit(previewToastProps)
+                            toast(previewToastArgs)
                             eventBannerLastShownAt.current.set(event.id, timeUntilEvent)
                         }
                     }

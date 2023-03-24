@@ -17,7 +17,7 @@ import { TTaskFolder, TTaskV4 } from '../../utils/types'
 import adf2md from '../atoms/GTTextField/AtlassianEditor/adfToMd'
 import GTDatePicker from '../molecules/GTDatePicker'
 import RecurringTaskTemplateModal from '../molecules/recurring-tasks/RecurringTaskTemplateModal'
-import { emit } from '../molecules/toast/Toast'
+import { toast } from '../molecules/toast/utils'
 import GTContextMenu from './GTContextMenu'
 import { GTMenuItem } from './RadixUIConstants'
 
@@ -254,7 +254,7 @@ const TaskContextMenuWrapper = ({ task, children, onOpenChange }: TaskContextMen
                           )
                           const folderName = folders?.find((f) => f.id === task.id_folder)?.name ?? 'Task Inbox'
                           if (isPreviewMode) {
-                              emit({ message: `Task duplicated in folder ${folderName}` })
+                              toast({ message: `Task duplicated in folder ${folderName}` })
                           } else {
                               oldToast.show({ message: `Task duplicated in folder ${folderName}` })
                           }

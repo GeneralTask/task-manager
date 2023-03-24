@@ -8,7 +8,7 @@ import { TTaskSharedAccess, TTaskV4 } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTMenuItem } from '../radix/RadixUIConstants'
-import { emit } from './toast/Toast'
+import { toast } from './toast/utils'
 
 interface TaskharingDropdownProps {
     task: TTaskV4
@@ -23,7 +23,7 @@ const TaskSharingDropdown = ({ task }: TaskharingDropdownProps) => {
     const copyTaskLink = () => {
         navigator.clipboard.writeText(`${REACT_APP_TASK_BASE_URL}/shareable_tasks/${task.id}`)
         if (isPreviewMode) {
-            emit({ message: 'Task URL copied to clipboard' })
+            toast({ message: 'Task URL copied to clipboard' })
         } else {
             oldToast.show(
                 {

@@ -1,5 +1,5 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react'
-import { toast } from 'react-hot-toast'
+import { toast as hotToast } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
@@ -18,7 +18,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedLabel } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import { Description, EventBoxStyle, EventHeader, EventTitle, FlexAnchor } from '../molecules/EventDetailPopover-styles'
-import { emit } from '../molecules/toast/Toast'
+import { toast } from '../molecules/toast/utils'
 import GTPopover from './GTPopover'
 
 interface EventDetailPopoverProps {
@@ -66,9 +66,9 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                     },
                     event.optimisticId
                 )
-                toast.dismiss(`${event.id}-popover`)
+                hotToast.dismiss(`${event.id}-popover`)
             }, EVENT_UNDO_TIMEOUT)
-            emit({
+            toast({
                 toastId: `${event.id}-popover`,
                 message: 'This calendar event has been deleted',
                 duration: EVENT_UNDO_TIMEOUT,
@@ -76,7 +76,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                     onClick: () => {
                         clearTimeout(eventDeleteTimeout)
                         undoDeleteEventInCache(event, date)
-                        toast.dismiss(`${event.id}-popover`)
+                        hotToast.dismiss(`${event.id}-popover`)
                     },
                     onDismiss: () => {
                         clearTimeout(eventDeleteTimeout)
@@ -126,7 +126,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
     const onCopyMeetingLink = () => {
         navigator.clipboard.writeText(event.conference_call.url)
         if (isPreviewMode) {
-            emit({ message: 'Meeting link copied to clipboard' })
+            toast({ message: 'Meeting link copied to clipboard' })
         } else {
             oldToast.show(
                 {

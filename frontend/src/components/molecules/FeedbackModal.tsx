@@ -12,7 +12,7 @@ import { DeprecatedBodySmall } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
 import { CollapsedIconContainer } from '../navigation_sidebar/NavigationLink'
 import Tip from '../radix/Tip'
-import { emit } from './toast/Toast'
+import { toast } from './toast/utils'
 
 const FEEDBACK_MIN_HEIGHT = 100
 
@@ -35,7 +35,7 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
         setFeedback('')
         setModalIsOpen(false)
         if (isPreviewMode) {
-            emit({ message: 'Thank you for your feedback' })
+            toast({ message: 'Thank you for your feedback' })
         } else {
             oldToast.show(
                 {

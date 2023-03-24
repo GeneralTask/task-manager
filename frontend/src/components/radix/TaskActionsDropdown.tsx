@@ -9,7 +9,7 @@ import { TTaskV4 } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedMini } from '../atoms/typography/Typography'
-import { emit } from '../molecules/toast/Toast'
+import { toast } from '../molecules/toast/utils'
 import GTDropdownMenu from './GTDropdownMenu'
 import { GTMenuItem } from './RadixUIConstants'
 import { getDeleteLabel } from './TaskContextMenuWrapper'
@@ -60,7 +60,7 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
             )
             const folderName = folders?.find((f) => f.id === task.id_folder)?.name ?? 'Task Inbox'
             if (isPreviewMode) {
-                emit({ message: `Task duplicated in folder ${folderName}` })
+                toast({ message: `Task duplicated in folder ${folderName}` })
             } else {
                 oldToast.show({ message: `Task duplicated in folder ${folderName}` })
             }

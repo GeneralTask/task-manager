@@ -14,7 +14,7 @@ import { DropItem, DropType, TTaskFolder } from '../../utils/types'
 import { countWithOverflow } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import { useCalendarContext } from '../calendar/CalendarContext'
-import { emit } from '../molecules/toast/Toast'
+import { toast } from '../molecules/toast/utils'
 import Tip from '../radix/Tip'
 
 export const CollapsedIconContainer = styled.div<{ isSelected?: boolean }>`
@@ -111,7 +111,7 @@ const NavigationLink = ({
             if (taskFolder.id === item.sectionId) return
             if (item.task.source.name === 'Jira' && taskFolder.id === TRASH_FOLDER_ID) {
                 if (isPreviewMode) {
-                    emit({ message: 'Cannot delete Jira tasks', type: 'error' })
+                    toast({ message: 'Cannot delete Jira tasks', type: 'error' })
                 } else {
                     oldToast.show({
                         message: 'Cannot delete Jira tasks',

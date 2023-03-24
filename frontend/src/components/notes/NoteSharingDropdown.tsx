@@ -6,7 +6,7 @@ import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { icons } from '../../styles/images'
 import { TNote, TNoteSharedAccess } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
-import { emit } from '../molecules/toast/Toast'
+import { toast } from '../molecules/toast/utils'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTMenuItem } from '../radix/RadixUIConstants'
 import { getNoteURL } from './utils'
@@ -29,7 +29,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
     const copyNoteLink = () => {
         navigator.clipboard.writeText(getNoteURL(note.id))
         if (isPreviewMode) {
-            emit({ message: 'Note URL copied to clipboard' })
+            toast({ message: 'Note URL copied to clipboard' })
         } else {
             oldToast.show(
                 {

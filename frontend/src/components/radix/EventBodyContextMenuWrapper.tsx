@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { toast } from 'react-hot-toast'
+import { toast as hotToast } from 'react-hot-toast'
 import { DateTime } from 'luxon'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
 import { useNavigateToPullRequest, useNavigateToTask, usePreviewMode, useToast } from '../../hooks'
@@ -8,7 +8,7 @@ import { icons, logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 import { useCalendarContext } from '../calendar/CalendarContext'
-import { emit } from '../molecules/toast/Toast'
+import { toast } from '../molecules/toast/utils'
 import GTContextMenu from './GTContextMenu'
 import { GTMenuItem } from './RadixUIConstants'
 
@@ -45,9 +45,9 @@ const FocusModeContextMenuWrapper = ({ event, children }: FocusModeContextMenuPr
                     },
                     event.optimisticId
                 )
-                toast.dismiss(`${event.id}-context`)
+                hotToast.dismiss(`${event.id}-context`)
             }, EVENT_UNDO_TIMEOUT)
-            emit({
+            toast({
                 toastId: `${event.id}-context`,
                 message: 'This calendar event has been deleted',
                 duration: EVENT_UNDO_TIMEOUT,
@@ -55,7 +55,7 @@ const FocusModeContextMenuWrapper = ({ event, children }: FocusModeContextMenuPr
                     onClick: () => {
                         clearTimeout(eventDeleteTimeout)
                         undoDeleteEventInCache(event, date)
-                        toast.dismiss(`${event.id}-context`)
+                        hotToast.dismiss(`${event.id}-context`)
                     },
                     onDismiss: () => {
                         clearTimeout(eventDeleteTimeout)

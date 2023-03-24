@@ -16,7 +16,7 @@ import GTTextField from '../atoms/GTTextField'
 import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedLabel } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
-import { emit } from '../molecules/toast/Toast'
+import { toast } from '../molecules/toast/utils'
 import { getNoteURL } from './utils'
 
 interface NoteCreateModalProps {
@@ -54,7 +54,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
     const copyNoteLink = (realId: string) => {
         navigator.clipboard.writeText(getNoteURL(realId))
         if (isPreviewMode) {
-            emit({ message: 'Note URL copied to clipboard' })
+            toast({ message: 'Note URL copied to clipboard' })
         } else {
             oldToast.show(
                 {

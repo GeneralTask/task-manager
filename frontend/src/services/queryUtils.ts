@@ -2,7 +2,7 @@ import { MutationFunction, QueryClient, QueryKey, UseMutationOptions, useMutatio
 import { QueryFilters } from 'react-query/types/core/utils'
 import { Immutable } from 'immer'
 import { DateTime } from 'luxon'
-import { emit } from '../components/molecules/toast/Toast'
+import { toast } from '../components/molecules/toast/utils'
 import { DEFAULT_BACKGROUND_QUERY_STALE_TIME, QUEUED_MUTATION_DEBOUNCE, TASK_REFETCH_INTERVAL } from '../constants'
 import useQueryContext from '../context/QueryContext'
 import { usePreviewMode, useToast } from '../hooks'
@@ -100,7 +100,7 @@ export const useGTMutation = <TData = unknown, TError = unknown, TVariables = vo
         onError: (error, variables, context) => {
             mutationOptions.onError?.(error, variables, context)
             if (isPreviewMode) {
-                emit({
+                toast({
                     message: `Failed to ${mutationOptions.errorMessage}: Request failed.`,
                     type: 'error',
                 })

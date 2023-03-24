@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
-import { toast } from 'react-hot-toast'
+import { toast as hotToast } from 'react-hot-toast'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
@@ -38,7 +38,7 @@ import EventMeetingAction from '../focus-mode/EventMeetingAction'
 import FlexTime from '../focus-mode/FlexTime'
 import CardSwitcher from '../molecules/CardSwitcher'
 import CommandPalette from '../molecules/CommandPalette'
-import { emit } from '../molecules/toast/Toast'
+import { toast } from '../molecules/toast/utils'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
 import CalendarView from '../views/CalendarView'
 
@@ -301,9 +301,9 @@ const FocusModeScreen = () => {
                     },
                     chosenEvent.optimisticId
                 )
-                toast.dismiss(`${chosenEvent.id}-focusmode`)
+                hotToast.dismiss(`${chosenEvent.id}-focusmode`)
             }, EVENT_UNDO_TIMEOUT)
-            emit({
+            toast({
                 toastId: `${chosenEvent.id}-focusmode`,
                 message: 'This calendar event has been deleted',
                 duration: EVENT_UNDO_TIMEOUT,
@@ -311,7 +311,7 @@ const FocusModeScreen = () => {
                     onClick: () => {
                         clearTimeout(eventDeleteTimeout)
                         undoDeleteEventInCache(chosenEvent, date)
-                        toast.dismiss(`${chosenEvent.id}-focusmode`)
+                        hotToast.dismiss(`${chosenEvent.id}-focusmode`)
                     },
                     onDismiss: () => {
                         clearTimeout(eventDeleteTimeout)

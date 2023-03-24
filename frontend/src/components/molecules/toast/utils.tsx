@@ -1,4 +1,4 @@
-import { ToastType, toast } from 'react-hot-toast'
+import { ToastType, toast as hotToast } from 'react-hot-toast'
 import { v4 as uuidv4 } from 'uuid'
 import { Colors } from '../../../styles'
 import { icons } from '../../../styles/images'
@@ -6,7 +6,7 @@ import Flex from '../../atoms/Flex'
 import { TIconType } from '../../atoms/Icon'
 import GTButton, { GTButtonProps } from '../../atoms/buttons/GTButton'
 
-export interface EmitProps {
+export interface ToastArgs {
     toastId?: string
     title?: string
     message: string
@@ -19,7 +19,7 @@ export interface EmitProps {
         onDismiss: () => void
     }
 }
-export const emit = (props: EmitProps) => {
+export const toast = (props: ToastArgs) => {
     const { toastId, title, message, type, duration, action, actions, undoAction } = props
 
     const id = toastId ?? uuidv4()
@@ -52,7 +52,7 @@ export const emit = (props: EmitProps) => {
                         icon={icons.x}
                         onClick={() => {
                             undoAction?.onDismiss?.()
-                            toast.dismiss(id)
+                            hotToast.dismiss(id)
                         }}
                     />
                 </div>
@@ -63,11 +63,11 @@ export const emit = (props: EmitProps) => {
     const passProps = { id, duration }
     switch (type) {
         case 'success':
-            return toast.success(toastContent, passProps)
+            return hotToast.success(toastContent, passProps)
         case 'error':
-            return toast.error(toastContent, passProps)
+            return hotToast.error(toastContent, passProps)
     }
-    return toast(toastContent, passProps)
+    return hotToast(toastContent, passProps)
 }
 
 export const getToastIcon = (type: ToastType): { icon: TIconType | null; iconColor: string | null } => {

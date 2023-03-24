@@ -2,7 +2,7 @@ import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../../constants'
 import { useAuthWindow, usePreviewMode, useToast } from '../../../hooks'
 import { useGetSupportedTypes } from '../../../services/api/settings.hooks'
 import { logos } from '../../../styles/images'
-import { emit } from '../../molecules/toast/Toast'
+import { toast } from '../../molecules/toast/utils'
 
 const useConnectGoogleAccountToast = () => {
     const { openAuthWindow } = useAuthWindow()
@@ -13,7 +13,7 @@ const useConnectGoogleAccountToast = () => {
 
     return () => {
         if (isPreviewMode) {
-            emit({
+            toast({
                 message: 'Connect your Google account to create events from tasks.',
                 action: {
                     styleType: 'secondary',
