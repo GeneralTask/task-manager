@@ -12,15 +12,16 @@ export interface ToastArgs {
     message: string
     type?: ToastType
     duration?: number
-    action?: GTButtonProps
-    actions?: GTButtonProps[]
+    actions?: GTButtonProps | GTButtonProps[]
     undoAction?: {
         onClick: () => void
         onDismiss: () => void
     }
 }
 export const toast = (props: ToastArgs) => {
-    const { toastId, title, message, type, duration, action, actions, undoAction } = props
+    const { toastId, title, message, type, duration, actions, undoAction } = props
+
+    const action = !Array.isArray(actions) ? actions : null
 
     const id = toastId ?? uuidv4()
 
@@ -35,11 +36,12 @@ export const toast = (props: ToastArgs) => {
                     <GTButton {...action} />
                 </div>
             )}
-            {actions?.map((a, i) => (
-                <div key={i}>
-                    <GTButton {...a} />
-                </div>
-            ))}
+            {Array.isArray(actions) &&
+                actions?.map((a, i) => (
+                    <div key={i}>
+                        <GTButton {...a} />
+                    </div>
+                ))}
             {undoAction && (
                 <div>
                     <GTButton styleType="secondary" value="Undo" onClick={undoAction.onClick} />

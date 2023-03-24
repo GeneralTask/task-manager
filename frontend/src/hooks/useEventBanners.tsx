@@ -103,8 +103,8 @@ export default function useEventBanners(date: DateTime) {
                         },
                     ]
                 }
-                if (event.conference_call.url || event.deeplink) {
-                    previewToastArgs.actions?.push({
+                if ((event.conference_call.url || event.deeplink) && Array.isArray(previewToastArgs.actions)) {
+                    previewToastArgs.actions.push({
                         styleType: 'secondary',
                         icon: icons.note,
                         value: 'Notes',
