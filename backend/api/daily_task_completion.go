@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -16,12 +15,17 @@ type DailyTaskCompletionParams struct {
 	DatetimeStart *time.Time `form:"datetime_start" binding:"required"`
 	DatetimeEnd   *time.Time `form:"datetime_end" binding:"required"`
 }
+
+type TaskCompletionSource struct {
+	Count    int    `json:"count" bson:"count"`
+	SourceID string `json:"source_id" bson:"source_id"`
+}
 type DailyTaskCompletion struct {
-	Date  string `json:"date"`
-	Count int    `json:"count"`
+	Date    string                 `json:"date"`
+	Sources []TaskCompletionSource `json:"sources"`
 }
 
-func (api *API) GetDailyTaskCompletionList(userID primitive.ObjectID, datetimeStart time.Time, dateTimeEnd time.Time) ([]bson.M, error) {
+func (api *API) GetDailyTaskCompletionList(userID primitive.ObjectID, datetimeStart time.Time, dateTimeEnd time.Time) (*[]DailyTaskCompletion, error) {
 	taskCollection := database.GetTaskCollection(api.DB)
 
 	// Get all tasks completed between datetimeStart and dateTimeEnd
@@ -35,7 +39,7 @@ func (api *API) GetDailyTaskCompletionList(userID primitive.ObjectID, datetimeSt
 			}},
 		}},
 	}
-	// Convert completed_at to string for grouping
+	// Convert completed_at to string for grouping by date and source
 	projectStage := bson.D{
 		{Key: "$project", Value: bson.D{
 			{Key: "completed_at_string", Value: bson.D{
@@ -48,7 +52,7 @@ func (api *API) GetDailyTaskCompletionList(userID primitive.ObjectID, datetimeSt
 			{Key: "source_id", Value: "$source_id"},
 		}},
 	}
-	// Group by completed_at_string and count
+	// Group by completed_at_string and source_id
 	groupStage := bson.D{
 		{Key: "$group", Value: bson.D{
 			{Key: "_id", Value: bson.D{
@@ -59,55 +63,48 @@ func (api *API) GetDailyTaskCompletionList(userID primitive.ObjectID, datetimeSt
 			{Key: "count", Value: bson.D{{Key: "$sum", Value: 1}}}},
 		},
 	}
+	// Group by date string and push all sources with counts
+	groupStage2 := bson.D{
+		{Key: "$group", Value: bson.D{
+			{Key: "_id", Value: "$_id.completed_at_string"},
+			{Key: "completed_at", Value: bson.D{{Key: "$first", Value: "$completed_at"}}},
+			{Key: "sources", Value: bson.D{
+				{Key: "$push", Value: bson.D{
+					{Key: "source_id", Value: "$_id.source_id"},
+					{Key: "count", Value: "$count"},
+				}},
+			}},
+		}},
+	}
 	// Sort by completed_at
 	sortStage := bson.D{
 		{Key: "$sort", Value: bson.D{
 			{Key: "completed_at", Value: 1},
 		}},
 	}
-	// Rename _id to date
-	renameFieldsStage := bson.D{
+	// Rename _id to date and remove completed_at
+	renameFieldsStage2 := bson.D{
 		{Key: "$project", Value: bson.D{
-			{Key: "date", Value: "$_id.completed_at_string"},
-			{Key: "source_id", Value: "$_id.source_id"},
-			{Key: "count", Value: 1},
+			{Key: "date", Value: "$_id"},
+			{Key: "sources", Value: 1},
 			{Key: "_id", Value: 0},
 		}},
 	}
-	// Group by date string
-	groupStage2 := bson.D{
-		{Key: "$group", Value: bson.D{
-			{Key: "_id", Value: "$date"},
-			{Key: "sources", Value: bson.D{
-				{Key: "$push", Value: bson.D{
-					{Key: "source_id", Value: "$source_id"},
-					{Key: "count", Value: "$count"},
-				}},
-			}},
-		}},
-	}
 
-	pipeline := mongo.Pipeline{matchStage, projectStage, groupStage, sortStage, renameFieldsStage, groupStage2}
+	pipeline := mongo.Pipeline{matchStage, projectStage, groupStage, groupStage2, sortStage, renameFieldsStage2}
 	cursor, err := taskCollection.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		return nil, err
 	}
 
-	var result []bson.M
-	if err = cursor.All(context.Background(), &result); err != nil {
-		fmt.Println(err)
+	var dailyTaskCompletion []DailyTaskCompletion
+	if err = cursor.All(context.Background(), &dailyTaskCompletion); err != nil {
 		return nil, err
 	}
-	return result, nil
-
-	// var dailyTaskCompletion []DailyTaskCompletion
-	// if err = cursor.All(context.Background(), &dailyTaskCompletion); err != nil {
-	// 	return nil, err
-	// }
-	// if dailyTaskCompletion == nil {
-	// 	dailyTaskCompletion = []DailyTaskCompletion{}
-	// }
-	// return &dailyTaskCompletion, nil
+	if dailyTaskCompletion == nil {
+		dailyTaskCompletion = []DailyTaskCompletion{}
+	}
+	return &dailyTaskCompletion, nil
 }
 
 func (api *API) DailyTaskCompletionList(c *gin.Context) {
