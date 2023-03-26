@@ -1,8 +1,7 @@
 import { createGlobalStyle } from 'styled-components'
 import { Colors } from '.'
 
-const GlobalStyle = () => {
-    const Styles = createGlobalStyle`
+const GlobalStyle = createGlobalStyle`
     :root {
        --animate-duration: 250ms !important;
        --animate-border-easing: 150ms ease-out !important;
@@ -35,7 +34,5 @@ const GlobalStyle = () => {
     }
 
 `
-    return <Styles />
-}
 
 export default GlobalStyle
