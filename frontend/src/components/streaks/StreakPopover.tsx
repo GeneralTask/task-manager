@@ -5,14 +5,13 @@ import { DateTime } from 'luxon'
 import { useGetDailyTaskCompletionByMonth } from '../../services/api/daily_task_completion.hooks'
 import { Border, Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
-import Flex from '../atoms/Flex'
 import GTButton from '../atoms/buttons/GTButton'
 import GTPopover from '../radix/GTPopover'
 
 const CALENDAR_DAY_SIZE = '26px'
 const HIGHEST_SAUTRATION_COUNT = 8
 
-const CalendarStyles: Styles<CalendarBaseStylesNames, Record<string, any>> = {
+const CalendarStyles: Styles<CalendarBaseStylesNames, Record<string, string>> = {
     calendarBase: {
         maxWidth: 'none',
         width: '240px',
