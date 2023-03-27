@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { GITHUB_SUPPORTED_TYPE_NAME } from '../../../constants'
 import { useAuthWindow } from '../../../hooks'
@@ -14,6 +14,7 @@ import Flex from '../../atoms/Flex'
 import { Icon } from '../../atoms/Icon'
 import GTButton from '../../atoms/buttons/GTButton'
 import { BodyMedium, LabelSmall, TitleLarge } from '../../atoms/typography/Typography'
+import RepositorySelectionModal from './RepositorySelectionModal'
 
 const Banner = styled.div`
     padding: ${Spacing._36};
@@ -35,6 +36,8 @@ const OnboardingSplash = () => {
     const { data: supportedTypes } = useGetSupportedTypes()
     const { openAuthWindow } = useAuthWindow()
 
+    const [isRepositorySelectionModalOpen, setIsRepositorySelectionModalOpen] = useState(true)
+
     const linkedGithubAccounts = useMemo(() => {
         return linkedAccounts?.filter((account) => account.name === GITHUB_SUPPORTED_TYPE_NAME) ?? []
     }, [linkedAccounts])
@@ -48,6 +51,8 @@ const OnboardingSplash = () => {
         if (linkedGithubAccounts.length === 0) {
             const url = supportedTypes?.find((type) => type.name === GITHUB_SUPPORTED_TYPE_NAME)?.authorization_url
             if (url) openAuthWindow({ url: url })
+        } else {
+            setIsRepositorySelectionModalOpen(true)
         }
     }
 
@@ -97,6 +102,10 @@ const OnboardingSplash = () => {
                     ))}
                 </LinkedGithubAccounts>
             )}
+            <RepositorySelectionModal
+                isOpen={isRepositorySelectionModalOpen}
+                setIsOpen={setIsRepositorySelectionModalOpen}
+            />
         </>
     )
 }

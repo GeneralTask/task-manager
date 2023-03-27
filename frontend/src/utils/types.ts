@@ -457,3 +457,9 @@ export type TParentTask = TTaskV4 & Required<Pick<TTaskV4, 'id_folder'>>
 export type TSubtask = TTaskV4 & Required<Pick<TTaskV4, 'id_parent'>>
 
 export type SharedTaskStatus = 'complete' | 'in-progress'
+
+export interface TLeaderboardRepository {
+    id: string
+    name: string
+    image_url: string
+}

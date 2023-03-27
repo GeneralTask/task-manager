@@ -42,6 +42,7 @@ export type TSettingsKey =
     | 'sidebar_slack_preference'
     | 'sidebar_jira_preference'
     | 'has_dismissed_multical_prompt'
+    | 'leaderboard_github_repository_id'
 
 type TUpdateSettingsData = {
     key: TSettingsKey
