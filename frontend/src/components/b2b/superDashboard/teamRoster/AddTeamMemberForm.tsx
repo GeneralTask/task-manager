@@ -1,12 +1,12 @@
 import { FormEvent, useState } from 'react'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
-import { useAddDashboardTeamMember } from '../../../services/api/super-dashboard.hooks'
-import { Spacing } from '../../../styles'
-import { icons } from '../../../styles/images'
-import Flex from '../../atoms/Flex'
-import GTInput from '../../atoms/GTInput'
-import GTButton from '../../atoms/buttons/GTButton'
+import { useAddDashboardTeamMember } from '../../../../services/api/super-dashboard.hooks'
+import { Spacing } from '../../../../styles'
+import { icons } from '../../../../styles/images'
+import Flex from '../../../atoms/Flex'
+import GTInput from '../../../atoms/GTInput'
+import GTButton from '../../../atoms/buttons/GTButton'
 
 const Form = styled.form`
     display: flex;

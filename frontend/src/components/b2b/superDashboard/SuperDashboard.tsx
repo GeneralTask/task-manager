@@ -1,6 +1,6 @@
 import styled from 'styled-components'
-import { Spacing } from '../../styles'
-import Flex from '../atoms/Flex'
+import { Spacing } from '../../../styles'
+import Flex from '../../atoms/Flex'
 import DateSelector from './DateSelector'
 import Metric from './Metric'
 import SubjectSelector from './SubjectSelector'

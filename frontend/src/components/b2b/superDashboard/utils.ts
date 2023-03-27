@@ -1,4 +1,4 @@
-import { Colors } from '../../styles'
+import { Colors } from '../../../styles'
 import { TLineColor } from './types'
 
 export const getLineColor = (colorKey: TLineColor) => {

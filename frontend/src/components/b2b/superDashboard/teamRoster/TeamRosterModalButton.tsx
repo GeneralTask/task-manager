@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { icons } from '../../../styles/images'
-import GTButton from '../../atoms/buttons/GTButton'
-import GTModal from '../../mantine/GTModal'
+import { icons } from '../../../../styles/images'
+import GTButton from '../../../atoms/buttons/GTButton'
+import GTModal from '../../../mantine/GTModal'
 import TeamRosterModalContent from './TeamRosterModalContent'
 
 const TeamRosterModalButton = () => {

@@ -5,10 +5,10 @@ import { useFetchExternalDashboardData, useGetDashboardData } from '../../servic
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Spacing } from '../../styles'
 import Spinner from '../atoms/Spinner'
+import { SuperDashboardContextProvider } from '../b2b/superDashboard/SuperDashboardContext'
 import { Header } from '../molecules/Header'
-import { SuperDashboardContextProvider } from '../superDashboard/SuperDashboardContext'
 
-const SuperDashboard = lazy(() => import('../superDashboard/SuperDashboard'))
+const SuperDashboard = lazy(() => import('../b2b/superDashboard/SuperDashboard'))
 
 const FullWidthScroller = styled.div`
     padding: ${Spacing._32} ${Spacing._16} 100px;

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from 'react'
-import { emptyFunction } from '../../utils/utils'
+import { emptyFunction } from '../../../utils/utils'
 import { TDashboard, TInterval, TSubject } from './types'
 
 export interface ContextValues {
