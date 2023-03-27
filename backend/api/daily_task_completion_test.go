@@ -26,7 +26,7 @@ func TestGetDailyTaskCompletionList(t *testing.T) {
 	completedTrue := true
 	completedFalse := false
 
-	// Insert complete task
+	// Insert complete GT task
 	_, err := taskCollection.InsertOne(context.Background(), database.Task{
 		UserID:      userID,
 		IsCompleted: &completedTrue,
@@ -35,7 +35,16 @@ func TestGetDailyTaskCompletionList(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	// Insert second complete task in next day
+	// Insert complete Linear task
+	_, err = taskCollection.InsertOne(context.Background(), database.Task{
+		UserID:      userID,
+		IsCompleted: &completedTrue,
+		CompletedAt: primitive.NewDateTimeFromTime(testTime),
+		SourceID:    external.TASK_SOURCE_ID_LINEAR,
+	})
+	assert.NoError(t, err)
+
+	// Insert second complete GT task in next day
 	_, err = taskCollection.InsertOne(context.Background(), database.Task{
 		UserID:      userID,
 		IsCompleted: &completedTrue,
@@ -44,7 +53,7 @@ func TestGetDailyTaskCompletionList(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	// Insert incomplete task
+	// Insert incomplete GT task
 	_, err = taskCollection.InsertOne(context.Background(), database.Task{
 		UserID:      userID,
 		IsCompleted: &completedFalse,
@@ -52,7 +61,7 @@ func TestGetDailyTaskCompletionList(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	// Insert completed task outside of date range
+	// Insert completed GT task outside of date range
 	_, err = taskCollection.InsertOne(context.Background(), database.Task{
 		UserID:      userID,
 		IsCompleted: &completedTrue,
@@ -76,12 +85,31 @@ func TestGetDailyTaskCompletionList(t *testing.T) {
 
 		result, err := api.GetDailyTaskCompletionList(userID, datetimeStart, datetimeEnd)
 		assert.NoError(t, err)
-		assert.NotNil(t, result)
-		assert.Equal(t, 2, len(*result))
-		assert.Equal(t, "2023-01-04", (*result)[0].Date)
-		assert.Equal(t, "2023-01-05", (*result)[1].Date)
-		assert.Equal(t, 1, (*result)[0].Sources[0].Count)
-		assert.Equal(t, 1, (*result)[1].Sources[0].Count)
+		expectedResult := []DailyTaskCompletion{
+			{
+				Date: "2023-01-04",
+				Sources: []TaskCompletionSource{
+					{
+						SourceID: external.TASK_SOURCE_ID_LINEAR,
+						Count:    1,
+					},
+					{
+						SourceID: external.TASK_SOURCE_ID_GT_TASK,
+						Count:    1,
+					},
+				},
+			},
+			{
+				Date: "2023-01-05",
+				Sources: []TaskCompletionSource{
+					{
+						SourceID: external.TASK_SOURCE_ID_GT_TASK,
+						Count:    1,
+					},
+				},
+			},
+		}
+		assert.Equal(t, expectedResult, *result)
 	})
 }
 
