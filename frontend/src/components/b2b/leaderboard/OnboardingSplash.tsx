@@ -83,8 +83,8 @@ const OnboardingSplash = () => {
                 <LinkedGithubAccounts>
                     <LabelSmall>GitHub account</LabelSmall>
                     {linkedGithubAccounts.map((account) => (
-                        <Flex key={account.id} justifyContent="space-between">
-                            <Flex gap={Spacing._8}>
+                        <Flex key={account.id} justifyContent="space-between" alignItems="center">
+                            <Flex gap={Spacing._8} alignItems="center">
                                 <Icon icon={icons.github} />
                                 <BodyMedium>{account.display_id}</BodyMedium>
                             </Flex>
