@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { NOTE_SYNC_TIMEOUT, NO_TITLE, SYNC_MESSAGES } from '../../constants'
 import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
 import useQueryContext from '../../context/QueryContext'
-import { useToast } from '../../hooks'
+import { usePreviewMode, useToast } from '../../hooks'
 import { useCreateNote, useGetNotes, useModifyNote } from '../../services/api/notes.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Spacing } from '../../styles'
@@ -16,6 +16,7 @@ import GTTextField from '../atoms/GTTextField'
 import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedLabel } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
+import { toast } from '../molecules/toast'
 import { getNoteURL } from './utils'
 
 interface NoteCreateModalProps {
@@ -34,8 +35,9 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
     const timer = useRef<{ timeout: NodeJS.Timeout; callback: () => void }>()
-    const toast = useToast()
+    const oldToast = useToast()
     const navigate = useNavigate()
+    const { isPreviewMode } = usePreviewMode()
 
     useEffect(() => {
         if (isEditing || isLoading) {
@@ -51,16 +53,20 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
 
     const copyNoteLink = (realId: string) => {
         navigator.clipboard.writeText(getNoteURL(realId))
-        toast.show(
-            {
-                message: `Note URL copied to clipboard`,
-            },
-            {
-                autoClose: 2000,
-                pauseOnFocusLoss: false,
-                theme: 'dark',
-            }
-        )
+        if (isPreviewMode) {
+            toast('Note URL copied to clipboard')
+        } else {
+            oldToast.show(
+                {
+                    message: `Note URL copied to clipboard`,
+                },
+                {
+                    autoClose: 2000,
+                    pauseOnFocusLoss: false,
+                    theme: 'dark',
+                }
+            )
+        }
     }
 
     const onEdit = (

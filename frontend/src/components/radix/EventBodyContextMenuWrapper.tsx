@@ -1,12 +1,14 @@
 import { useCallback } from 'react'
+import { toast as hotToast } from 'react-hot-toast'
 import { DateTime } from 'luxon'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
-import { useNavigateToPullRequest, useNavigateToTask, useToast } from '../../hooks'
+import { useNavigateToPullRequest, useNavigateToTask, usePreviewMode, useToast } from '../../hooks'
 import { useDeleteEvent } from '../../services/api/events.hooks'
 import { icons, logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 import { useCalendarContext } from '../calendar/CalendarContext'
+import { toast } from '../molecules/toast'
 import GTContextMenu from './GTContextMenu'
 import { GTMenuItem } from './RadixUIConstants'
 
@@ -19,7 +21,8 @@ const FocusModeContextMenuWrapper = ({ event, children }: FocusModeContextMenuPr
     const navigateToTask = useNavigateToTask()
     const navigateToPullRequest = useNavigateToPullRequest()
     const { setSelectedEvent } = useCalendarContext()
-    const toast = useToast()
+    const oldToast = useToast()
+    const { isPreviewMode } = usePreviewMode()
 
     const onDelete = useCallback(() => {
         if (!event) return
@@ -31,34 +34,70 @@ const FocusModeContextMenuWrapper = ({ event, children }: FocusModeContextMenuPr
             datetime_start: event.datetime_start,
             datetime_end: event.datetime_end,
         })
-        toast.show(
-            {
-                message: 'This calendar event has been deleted',
-                undoableButton: {
-                    label: 'Undo',
-                    onClick: () => {
-                        toast.dismiss()
-                        undoDeleteEventInCache(event, date)
+        if (isPreviewMode) {
+            const eventDeleteTimeout = setTimeout(() => {
+                deleteEvent(
+                    {
+                        id: event.id,
+                        date: date,
+                        datetime_start: event.datetime_start,
+                        datetime_end: event.datetime_end,
                     },
-                    undoableAction: () =>
-                        deleteEvent(
-                            {
-                                id: event.id,
-                                date: date,
-                                datetime_start: event.datetime_start,
-                                datetime_end: event.datetime_end,
-                            },
-                            event.optimisticId
-                        ),
+                    event.optimisticId
+                )
+                hotToast.dismiss(`${event.id}-context`)
+            }, EVENT_UNDO_TIMEOUT)
+            toast('This calendar event has been deleted', {
+                toastId: `${event.id}-context`,
+                duration: EVENT_UNDO_TIMEOUT,
+                undoAction: () => {
+                    clearTimeout(eventDeleteTimeout)
+                    undoDeleteEventInCache(event, date)
+                    hotToast.dismiss(`${event.id}-context`)
                 },
-            },
-            {
-                autoClose: EVENT_UNDO_TIMEOUT,
-                pauseOnFocusLoss: false,
-                theme: 'dark',
-            }
-        )
-    }, [event, deleteEvent, deleteEventInCache, toast, undoDeleteEventInCache])
+                onDismiss: () => {
+                    clearTimeout(eventDeleteTimeout)
+                    deleteEvent(
+                        {
+                            id: event.id,
+                            date: date,
+                            datetime_start: event.datetime_start,
+                            datetime_end: event.datetime_end,
+                        },
+                        event.optimisticId
+                    )
+                },
+            })
+        } else {
+            oldToast.show(
+                {
+                    message: 'This calendar event has been deleted',
+                    undoableButton: {
+                        label: 'Undo',
+                        onClick: () => {
+                            oldToast.dismiss()
+                            undoDeleteEventInCache(event, date)
+                        },
+                        undoableAction: () =>
+                            deleteEvent(
+                                {
+                                    id: event.id,
+                                    date: date,
+                                    datetime_start: event.datetime_start,
+                                    datetime_end: event.datetime_end,
+                                },
+                                event.optimisticId
+                            ),
+                    },
+                },
+                {
+                    autoClose: EVENT_UNDO_TIMEOUT,
+                    pauseOnFocusLoss: false,
+                    theme: 'dark',
+                }
+            )
+        }
+    }, [event, deleteEvent, deleteEventInCache, oldToast, undoDeleteEventInCache])
 
     const contextMenuItems: GTMenuItem[] = [
         ...(event.linked_task_id

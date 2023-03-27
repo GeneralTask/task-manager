@@ -1,10 +1,11 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react'
+import { toast as hotToast } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import { v4 as uuidv4 } from 'uuid'
 import { EVENT_UNDO_TIMEOUT, NO_TITLE } from '../../constants'
-import { useKeyboardShortcut, useNavigateToPullRequest, useNavigateToTask, useToast } from '../../hooks'
+import { useKeyboardShortcut, useNavigateToPullRequest, useNavigateToTask, usePreviewMode, useToast } from '../../hooks'
 import { useDeleteEvent, useGetCalendars } from '../../services/api/events.hooks'
 import { useCreateNote, useGetNotes } from '../../services/api/notes.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
@@ -17,6 +18,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedLabel } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import { Description, EventBoxStyle, EventHeader, EventTitle, FlexAnchor } from '../molecules/EventDetailPopover-styles'
+import { toast } from '../molecules/toast'
 import GTPopover from './GTPopover'
 
 interface EventDetailPopoverProps {
@@ -26,7 +28,8 @@ interface EventDetailPopoverProps {
     children: ReactNode
 }
 const EventDetailPopover = ({ event, date, hidePopover = false, children }: EventDetailPopoverProps) => {
-    const toast = useToast()
+    const oldToast = useToast()
+    const { isPreviewMode } = usePreviewMode()
     const [isOpen, setIsOpen] = useState(false)
     const { selectedEvent, setSelectedEvent } = useCalendarContext()
     const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
@@ -52,47 +55,87 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
             datetime_start: event.datetime_start,
             datetime_end: event.datetime_end,
         })
-        toast.show(
-            {
-                message: 'This calendar event has been deleted',
-                undoableButton: {
-                    label: 'Undo',
-                    onClick: () => {
-                        toast.dismiss()
-                        undoDeleteEventInCache(event, date)
+        if (isPreviewMode) {
+            const eventDeleteTimeout = setTimeout(() => {
+                deleteEvent(
+                    {
+                        id: event.id,
+                        date: date,
+                        datetime_start: event.datetime_start,
+                        datetime_end: event.datetime_end,
                     },
-                    undoableAction: () =>
-                        deleteEvent(
-                            {
-                                id: event.id,
-                                date: date,
-                                datetime_start: event.datetime_start,
-                                datetime_end: event.datetime_end,
-                            },
-                            event.optimisticId
-                        ),
+                    event.optimisticId
+                )
+                hotToast.dismiss(`${event.id}-popover`)
+            }, EVENT_UNDO_TIMEOUT)
+            toast('This calendar event has been deleted', {
+                toastId: `${event.id}-popover`,
+                duration: EVENT_UNDO_TIMEOUT,
+                undoAction: () => {
+                    clearTimeout(eventDeleteTimeout)
+                    undoDeleteEventInCache(event, date)
+                    hotToast.dismiss(`${event.id}-popover`)
                 },
-            },
-            {
-                autoClose: EVENT_UNDO_TIMEOUT,
-                pauseOnFocusLoss: false,
-                theme: 'dark',
-            }
-        )
+                onDismiss: () => {
+                    clearTimeout(eventDeleteTimeout)
+                    deleteEvent(
+                        {
+                            id: event.id,
+                            date: date,
+                            datetime_start: event.datetime_start,
+                            datetime_end: event.datetime_end,
+                        },
+                        event.optimisticId
+                    )
+                },
+            })
+        } else {
+            oldToast.show(
+                {
+                    message: 'This calendar event has been deleted',
+                    undoableButton: {
+                        label: 'Undo',
+                        onClick: () => {
+                            oldToast.dismiss()
+                            undoDeleteEventInCache(event, date)
+                        },
+                        undoableAction: () =>
+                            deleteEvent(
+                                {
+                                    id: event.id,
+                                    date: date,
+                                    datetime_start: event.datetime_start,
+                                    datetime_end: event.datetime_end,
+                                },
+                                event.optimisticId
+                            ),
+                    },
+                },
+                {
+                    autoClose: EVENT_UNDO_TIMEOUT,
+                    pauseOnFocusLoss: false,
+                    theme: 'dark',
+                }
+            )
+        }
     }, [event])
 
     const onCopyMeetingLink = () => {
         navigator.clipboard.writeText(event.conference_call.url)
-        toast.show(
-            {
-                message: 'Meeting link copied to clipboard',
-            },
-            {
-                autoClose: 2000,
-                pauseOnFocusLoss: false,
-                theme: 'dark',
-            }
-        )
+        if (isPreviewMode) {
+            toast('Meeting link copied to clipboard')
+        } else {
+            oldToast.show(
+                {
+                    message: 'Meeting link copied to clipboard',
+                },
+                {
+                    autoClose: 2000,
+                    pauseOnFocusLoss: false,
+                    theme: 'dark',
+                }
+            )
+        }
     }
 
     const createMeetingNote = () => {

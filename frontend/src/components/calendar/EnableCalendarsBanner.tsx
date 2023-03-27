@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
-import { useAuthWindow, useSetting, useToast } from '../../hooks'
+import { useAuthWindow, usePreviewMode, useSetting, useToast } from '../../hooks'
 import { getEvents, useGetCalendars } from '../../services/api/events.hooks'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Border, Colors, Spacing } from '../../styles'
@@ -13,6 +13,7 @@ import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import { DeprecatedLabel, Truncated } from '../atoms/typography/Typography'
+import { toast } from '../molecules/toast'
 import { getCalendarAuthButton } from './utils/utils'
 
 const Container = styled.div`
@@ -38,7 +39,8 @@ const EnableCalendarsBanner = () => {
         updateSetting: setHasDismissedMulticalPrompt,
         isLoading,
     } = useSetting('has_dismissed_multical_prompt')
-    const { show } = useToast()
+    const oldToast = useToast()
+    const { isPreviewMode } = usePreviewMode()
 
     const [accountBeingAuthorized, setAccountBeingAuthorized] = useState<string | null>(null)
     // wait for calendars to be refetched before resetting the "Authorizing..." state
@@ -88,9 +90,13 @@ const EnableCalendarsBanner = () => {
 
     const handleDismiss = () => {
         setHasDismissedMulticalPrompt('true')
-        show({
-            message: 'You can always authorize your calendars from the settings page.',
-        })
+        if (isPreviewMode) {
+            toast('You can always authorize your calendars from the settings page.')
+        } else {
+            oldToast.show({
+                message: 'You can always authorize your calendars from the settings page.',
+            })
+        }
     }
 
     if (

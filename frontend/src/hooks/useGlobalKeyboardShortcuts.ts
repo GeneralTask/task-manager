@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
+import { toast } from 'react-hot-toast'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
+import { toast as oldToast } from 'react-toastify'
 import { useKeyboardShortcut, usePreviewMode } from '.'
 
 const useGlobalKeyboardShortcuts = () => {
@@ -54,8 +55,9 @@ const useGlobalKeyboardShortcuts = () => {
     useKeyboardShortcut(
         'dismissNotifications',
         useCallback(() => {
+            oldToast.dismiss()
             toast.dismiss()
-        }, [toast])
+        }, [oldToast, toast])
     )
 }
 
