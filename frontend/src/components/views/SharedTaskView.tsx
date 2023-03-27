@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import { Navigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { usePreviewMode } from '../../hooks'
 import { useGetSharedTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
@@ -76,7 +75,6 @@ const SubtaskList = styled.div`
     gap: ${Spacing._4};
 `
 const SharedTask = () => {
-    const { isPreviewMode, isLoading: isPreviewModeLoading } = usePreviewMode()
     const { taskId } = useParams()
 
     const { data, isLoading } = useGetSharedTask({ id: taskId ?? '' })
@@ -92,9 +90,6 @@ const SharedTask = () => {
         setSelectedSubtaskId(null)
     }
 
-    if (!isPreviewMode && !isPreviewModeLoading) {
-        return <Navigate to="/" replace />
-    }
     if (isLoading) {
         return <Spinner />
     }
