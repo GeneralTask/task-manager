@@ -19,7 +19,7 @@ import { Icon } from '../atoms/Icon'
 import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
-import { DeprecatedBodySmall, DeprecatedLabel } from '../atoms/typography/Typography'
+import { BodyMedium, BodySmall } from '../atoms/typography/Typography'
 
 const COMMAND_PALETTE_WIDTH = '512px'
 const COMMAND_PALETTE_MAX_LIST_HEIGHT = '50vh'
@@ -46,7 +46,7 @@ const CommandInput = styled(Command.Input)`
     flex: 1;
     outline: none;
     border: none;
-    ${Typography.deprecated_subtitle};
+    ${Typography.title.medium};
     &::placeholder {
         color: ${Colors.text.light};
     }
@@ -57,7 +57,7 @@ const CommandList = styled(Command.List)`
 `
 const CommandGroup = styled(Command.Group)`
     [cmdk-group-heading] {
-        ${Typography.deprecated_label}
+        ${Typography.body.small}
         padding: ${Spacing._8} ${Spacing._16};
         color: ${Colors.text.light};
     }
@@ -66,7 +66,7 @@ const CommandItem = styled(Command.Item)`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    ${Typography.deprecated_bodySmall}
+    ${Typography.body.medium}
     border-radius: ${Border.radius.medium};
     margin: 0 ${Spacing._4};
     cursor: pointer;
@@ -79,7 +79,7 @@ const CommandItem = styled(Command.Item)`
     }
 `
 const CommandEmpty = styled(Command.Empty)`
-    ${Typography.deprecated_bodySmall}
+    ${Typography.body.medium}
     display: flex;
     justify-content: center;
     margin: ${Spacing._8} ${Spacing._8};
@@ -90,7 +90,7 @@ const IconContainer = styled.div`
     justify-content: center;
     padding: ${Spacing._16};
 `
-const TruncatedTitle = styled(DeprecatedBodySmall)<{ strike?: boolean }>`
+const TruncatedTitle = styled(BodyMedium)<{ strike?: boolean }>`
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -101,7 +101,7 @@ const TruncatedTitle = styled(DeprecatedBodySmall)<{ strike?: boolean }>`
 const FlexWidth100 = styled(Flex)`
     width: 100%;
 `
-const RightLabel = styled(DeprecatedLabel)`
+const RightLabel = styled(BodySmall)`
     margin-left: auto;
 `
 
@@ -219,9 +219,9 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                         >
                                             <Flex flex="1" alignItems="center">
                                                 <IconContainer>{icon && <Icon icon={icons[icon]} />}</IconContainer>
-                                                <DeprecatedBodySmall>
+                                                <BodyMedium>
                                                     <BoldMatches text={label} query={searchValue} />
-                                                </DeprecatedBodySmall>
+                                                </BodyMedium>
                                             </Flex>
                                             <KeyboardShortcutContainer>{keyLabel}</KeyboardShortcutContainer>
                                         </CommandItem>

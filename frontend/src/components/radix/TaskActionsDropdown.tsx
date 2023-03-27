@@ -8,7 +8,7 @@ import { icons } from '../../styles/images'
 import { TTaskV4 } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import GTButton from '../atoms/buttons/GTButton'
-import { DeprecatedMini } from '../atoms/typography/Typography'
+import { LabelSmall } from '../atoms/typography/Typography'
 import { toast } from '../molecules/toast'
 import GTDropdownMenu from './GTDropdownMenu'
 import { GTMenuItem } from './RadixUIConstants'
@@ -80,8 +80,8 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
         disabled: true,
         renderer: () => (
             <Flex column>
-                <DeprecatedMini color="light">{`Last updated ${updatedAt}`}</DeprecatedMini>
-                <DeprecatedMini color="light">{`Created ${createdAt}`}</DeprecatedMini>
+                <LabelSmall color="light">{`Last updated ${updatedAt}`}</LabelSmall>
+                <LabelSmall color="light">{`Created ${createdAt}`}</LabelSmall>
             </Flex>
         ),
     })

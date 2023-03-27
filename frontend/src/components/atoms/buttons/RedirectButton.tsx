@@ -7,7 +7,7 @@ import NoStyleLink from '../NoStyleLink'
 const PurpleText = styled.span`
     color: ${Colors.legacyColors.purple};
     margin-right: ${Spacing._4};
-    ${Typography.deprecated_bodySmall};
+    ${Typography.body.medium};
 `
 const VerticalFlex = styled.div`
     display: flex;

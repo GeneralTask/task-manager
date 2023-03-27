@@ -16,7 +16,7 @@ const ViewHeaderContainer = styled.div`
     align-items: center;
     padding: ${Spacing._8};
     color: ${Colors.text.light};
-    ${Typography.deprecated_subtitle};
+    ${Typography.title.medium};
 `
 const DragOverlay = styled.div`
     position: fixed;

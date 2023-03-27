@@ -7,14 +7,14 @@ import GTButton from '../../atoms/buttons/GTButton'
 
 const TextContainerWidth = '40%'
 const MessageContainer = styled.div`
-    ${Typography.deprecated_bodySmall};
+    ${Typography.body.medium};
     border: ${Border.stroke.medium} solid ${Colors.background.border};
     border-radius: ${Border.radius.small};
     padding: ${Spacing._16};
     display: flex;
 `
 const Title = styled.div`
-    ${Typography.deprecated_bold};
+    ${Typography.bold};
 `
 const TextContainer = styled.div`
     width: ${TextContainerWidth};

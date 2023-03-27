@@ -18,7 +18,7 @@ import { Icon } from '../atoms/Icon'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
-import { DeprecatedBody, DeprecatedBodySmall, DeprecatedLabel } from '../atoms/typography/Typography'
+import { BodyLarge, BodyMedium, BodySmall } from '../atoms/typography/Typography'
 import CalendarSettings from '../calendar/CalendarSettings'
 import { getCalendarAuthButton } from '../calendar/utils/utils'
 import GTModal from '../mantine/GTModal'
@@ -39,11 +39,11 @@ const Service = styled.div`
     width: ${SERVICE_WIDTH};
 `
 const ServiceDetails = styled.div`
-    ${Typography.deprecated_label};
+    ${Typography.body.small};
     color: ${Colors.text.light};
     margin-bottom: auto;
 `
-const TruncatedLabel = styled(DeprecatedLabel)`
+const TruncatedLabel = styled(BodySmall)`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -154,14 +154,14 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                     icon: icons.globe,
                     body: (
                         <Flex column gap={Spacing._24}>
-                            <DeprecatedBody>Add a new service</DeprecatedBody>
+                            <BodyLarge>Add a new service</BodyLarge>
                             <ServicesContainer>
                                 {supportedTypes
                                     ?.sort((a, b) => a.name.localeCompare(b.name))
                                     .map((supportedType) => (
                                         <Service key={supportedType.name}>
                                             <Icon icon={logos[supportedType.logo_v2]} />
-                                            <DeprecatedBodySmall>{supportedType.name}</DeprecatedBodySmall>
+                                            <BodyMedium>{supportedType.name}</BodyMedium>
                                             <ServiceDetails>
                                                 {serviceDetails[supportedType.name as keyof typeof serviceDetails]}
                                             </ServiceDetails>
@@ -188,7 +188,7 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                                     ))}
                                 <Service>
                                     <Icon icon={logos.slack} />
-                                    <DeprecatedBodySmall>Slack (workspace)</DeprecatedBodySmall>
+                                    <BodyMedium>Slack (workspace)</BodyMedium>
                                     <ServiceDetails>
                                         Add General Task to your Slack workspace. This is only required once per
                                         workspace.
@@ -202,15 +202,15 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                                 </Service>
                             </ServicesContainer>
                             <Divider color={Colors.background.border} />
-                            <DeprecatedBody>My integrations</DeprecatedBody>
+                            <BodyLarge>My integrations</BodyLarge>
                             {linkedAccounts && linkedAccounts.length > 0 ? (
                                 linkedAccounts?.map((account) => (
                                     <Flex justifyContent="space-between" alignItems="center" key={account.id}>
                                         <Flex alignItems="center" gap={Spacing._16}>
                                             <Icon icon={logos[account.logo_v2]} />
                                             <Flex column>
-                                                <DeprecatedLabel>{account.name}</DeprecatedLabel>
-                                                <DeprecatedLabel color="light">{account.display_id}</DeprecatedLabel>
+                                                <BodySmall>{account.name}</BodySmall>
+                                                <BodySmall color="light">{account.display_id}</BodySmall>
                                             </Flex>
                                         </Flex>
                                         <Flex gap={Spacing._8} alignItems="center">
@@ -256,7 +256,7 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                     body: (
                         <Flex column gap={Spacing._24}>
                             <Flex column gap={Spacing._12}>
-                                <DeprecatedLabel color="light">Email</DeprecatedLabel>
+                                <BodySmall color="light">Email</BodySmall>
                                 <TruncatedLabel>{userInfo?.email}</TruncatedLabel>
                             </Flex>
                             <div>
@@ -281,8 +281,8 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                                               disabled
                                           />
                                           <Flex column gap={Spacing._4}>
-                                              <DeprecatedBody>Dark mode</DeprecatedBody>
-                                              <DeprecatedLabel color="light">Activate dark mode</DeprecatedLabel>
+                                              <BodyLarge>Dark mode</BodyLarge>
+                                              <BodySmall color="light">Activate dark mode</BodySmall>
                                           </Flex>
                                       </Flex>
                                       <Flex gap={Spacing._16} alignItems="center">
@@ -292,10 +292,10 @@ const SettingsModal = ({ isOpen, setIsOpen, defaultTabIndex }: SettingsModalProp
                                               disabled
                                           />
                                           <Flex column gap={Spacing._4}>
-                                              <DeprecatedBody>Resizable task details</DeprecatedBody>
-                                              <DeprecatedLabel color="light">
+                                              <BodyLarge>Resizable task details</BodyLarge>
+                                              <BodySmall color="light">
                                                   Some supporting secondary copy to describe this feature
-                                              </DeprecatedLabel>
+                                              </BodySmall>
                                           </Flex>
                                       </Flex>
                                   </Flex>

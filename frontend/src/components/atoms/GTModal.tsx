@@ -24,7 +24,7 @@ const Header = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    ${Typography.deprecated_title};
+    ${Typography.headline.large};
 `
 const Body = styled.div`
     overflow-y: auto;

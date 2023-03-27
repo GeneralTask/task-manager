@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import { Typography } from '../../styles'
 
 const GTHeader = styled.div`
-    ${Typography.deprecated_header}
+    ${Typography.display.medium}
     overflow: hidden;
 `
 export default GTHeader

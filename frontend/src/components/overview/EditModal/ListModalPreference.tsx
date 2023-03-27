@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import { Colors, Spacing } from '../../../styles'
 import { icons } from '../../../styles/images'
 import { Icon } from '../../atoms/Icon'
-import { DeprecatedLabel, DeprecatedMini } from '../../atoms/typography/Typography'
+import { BodySmall, LabelSmall } from '../../atoms/typography/Typography'
 
 const Preference = styled.div`
     margin-top: ${Spacing._16};
@@ -15,7 +15,7 @@ const PreferenceDescription = styled.div`
     flex-direction: column;
     width: 100%;
 `
-const StyledMini = styled(DeprecatedMini)`
+const StyledMini = styled(LabelSmall)`
     padding-top: ${Spacing._4};
     color: ${Colors.text.light};
     cursor: pointer;
@@ -23,7 +23,7 @@ const StyledMini = styled(DeprecatedMini)`
     user-select: none;
     white-space: pre;
 `
-const StyledLabel = styled(DeprecatedLabel)`
+const StyledLabel = styled(BodySmall)`
     width: fit-content;
     cursor: pointer;
     user-select: none;

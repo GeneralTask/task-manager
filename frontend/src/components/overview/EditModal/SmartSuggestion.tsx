@@ -34,7 +34,7 @@ const ListContainer = styled.div`
     border-radius: ${Border.radius.medium};
 `
 const Reasoning = styled.span`
-    ${Typography.deprecated_label};
+    ${Typography.body.small};
     width: 300px;
     color: ${Colors.text.light};
 `

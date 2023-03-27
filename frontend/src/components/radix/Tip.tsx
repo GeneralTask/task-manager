@@ -15,7 +15,7 @@ const TooltipArrow = styled(Tooltip.Arrow)`
 const TooltipContent = styled(Tooltip.Content)`
     ${MenuContentShared};
     padding: ${Spacing._8} ${Spacing._12};
-    ${Typography.deprecated_bodySmall};
+    ${Typography.body.medium};
 `
 const TriggerSpan = styled.span<{ fitContent?: boolean }>`
     ${(props) =>

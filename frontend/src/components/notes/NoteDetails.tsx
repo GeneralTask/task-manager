@@ -10,7 +10,7 @@ import { getFormattedEventTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
-import { DeprecatedLabel, LabelSmall } from '../atoms/typography/Typography'
+import { BodySmall, LabelSmall } from '../atoms/typography/Typography'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import NoteActionsDropdown from './NoteActionsDropdown'
 import NoteSharingDropdown from './NoteSharingDropdown'
@@ -72,13 +72,13 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                     <Icon icon={isMeetingNote ? logos.gcal : icons.note} />
                 </DetailItem>
                 <DetailItem>
-                    <DeprecatedLabel color="light">{syncIndicatorText}</DeprecatedLabel>
+                    <BodySmall color="light">{syncIndicatorText}</BodySmall>
                 </DetailItem>
                 <MarginLeftAuto>
                     {isShared && (
                         <Flex gap={Spacing._8}>
                             <Icon icon={icons.link} color="green" />
-                            <DeprecatedLabel color="green">{sharedUntil}</DeprecatedLabel>
+                            <BodySmall color="green">{sharedUntil}</BodySmall>
                         </Flex>
                     )}
                     <NoteSharingDropdown note={note} />

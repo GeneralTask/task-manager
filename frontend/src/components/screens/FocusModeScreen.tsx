@@ -32,7 +32,7 @@ import { Icon } from '../atoms/Icon'
 import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
-import { DeprecatedBold } from '../atoms/typography/Typography'
+import { Bold } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import EventMeetingAction from '../focus-mode/EventMeetingAction'
 import FlexTime from '../focus-mode/FlexTime'
@@ -84,13 +84,13 @@ const ClockContainer = styled.div`
     display: flex;
     justify-content: space-between;
     border-top: ${Border.radius.small} solid ${Colors.background.border};
-    ${Typography.deprecated_header};
+    ${Typography.display.medium};
     padding: ${Spacing._24} ${Spacing._32};
     font-weight: 274;
 `
 
 const NextEventContainer = styled.div`
-    ${Typography.deprecated_body};
+    ${Typography.body.large};
 `
 const AdvanceEventContainer = styled.div`
     position: absolute;
@@ -100,7 +100,7 @@ const AdvanceEventContainer = styled.div`
     user-select: none;
     cursor: pointer;
     gap: ${Spacing._8};
-    ${Typography.deprecated_body};
+    ${Typography.body.large};
 `
 const EventContainer = styled.div`
     padding: ${Spacing._32};
@@ -119,16 +119,17 @@ const FloatTopLeft = styled.div`
     right: ${Spacing._16};
 `
 const BodyHeader = styled.div`
-    ${Typography.deprecated_eyebrow};
+    text-transform: uppercase;
     margin-bottom: ${Spacing._16};
+    ${Typography.body.small};
 `
 const Body = styled.div<{ $isEmpty: boolean }>`
     ${({ $isEmpty }) => $isEmpty && `color: ${Colors.text.light};`}
-    ${Typography.deprecated_body};
+    ${Typography.body.large};
     overflow-wrap: break-word;
 `
 const Subtitle = styled.div`
-    ${Typography.deprecated_subtitle};
+    ${Typography.title.medium};
 `
 const CurrentEventsContainer = styled.div`
     display: flex;
@@ -136,7 +137,7 @@ const CurrentEventsContainer = styled.div`
     gap: ${Spacing._8};
 `
 const CurrentEvent = styled(GTShadowContainer)`
-    ${Typography.deprecated_body};
+    ${Typography.body.large};
     display: flex;
     justify-content: space-between;
     border-radius: ${Border.radius.medium};
@@ -462,7 +463,7 @@ const FocusModeScreen = () => {
                             {nextEvent && isDateToday(DateTime.fromISO(nextEvent.datetime_start)) && (
                                 <span>
                                     Next event is in
-                                    <DeprecatedBold> {getTimeUntilNextEvent(nextEvent)}</DeprecatedBold>.
+                                    <Bold> {getTimeUntilNextEvent(nextEvent)}</Bold>.
                                 </span>
                             )}
                         </NextEventContainer>

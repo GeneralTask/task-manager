@@ -73,7 +73,7 @@ export const CalendarTD = styled.td<{ borderLeft?: boolean }>`
 export const CalendarCell = styled.div`
     width: ${CELL_TIME_WIDTH};
     padding-top: ${Spacing._12};
-    ${Typography.deprecated_mini}
+    ${Typography.label.small}
     color: ${Colors.text.light};
     text-align: center;
 `
@@ -134,7 +134,7 @@ export const EventInfo = styled.div<{ type: TEventBodyHeight }>`
             flex-direction: column;
             justify-content: center;
         `};
-    ${Typography.deprecated_label};
+    ${Typography.body.small};
 `
 export const EventIconAndTitle = styled.div`
     display: flex;
@@ -204,7 +204,7 @@ export const DayHeaderText = styled.div<{ isToday: boolean; isPreviewMode: boole
     color: ${(props) => (props.isToday ? Colors.text.white : Colors.text.black)};
     background-color: ${(props) =>
         !props.isToday ? 'transparent' : props.isPreviewMode ? Colors.legacyColors.blue : Colors.legacyColors.purple};
-    ${Typography.deprecated_body};
+    ${Typography.body.large};
 `
 export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: boolean; hasLeftBorder: boolean }>`
     min-width: 300px;

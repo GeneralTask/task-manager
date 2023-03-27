@@ -8,42 +8,6 @@ const SharedStyles = css<{ color?: TTextColor }>`
         Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 `
 
-export const DeprecatedHeader = styled.span<{ color?: TTextColor }>`
-    ${SharedStyles};
-    ${Typography.deprecated_header};
-`
-export const DeprecatedTitle = styled.span<{ color?: TTextColor }>`
-    ${SharedStyles};
-    ${Typography.deprecated_title};
-`
-export const DeprecatedSubtitle = styled.span<{ color?: TTextColor }>`
-    ${SharedStyles};
-    ${Typography.deprecated_subtitle};
-`
-export const DeprecatedBody = styled.span<{ color?: TTextColor }>`
-    ${SharedStyles};
-    ${Typography.deprecated_body};
-`
-export const DeprecatedBodySmall = styled.span<{ color?: TTextColor }>`
-    ${SharedStyles};
-    ${Typography.deprecated_bodySmall};
-`
-export const DeprecatedLabel = styled.span<{ color?: TTextColor }>`
-    ${SharedStyles};
-    ${Typography.deprecated_label};
-`
-export const DeprecatedEyebrow = styled.span<{ color?: TTextColor }>`
-    ${SharedStyles};
-    ${Typography.deprecated_eyebrow};
-`
-export const DeprecatedMini = styled.span<{ color?: TTextColor }>`
-    ${SharedStyles};
-    ${Typography.deprecated_mini};
-`
-export const DeprecatedBold = styled.span`
-    ${Typography.deprecated_bold};
-`
-
 export const DisplayLarge = styled.span<{ color?: TTextColor }>`
     ${SharedStyles};
     ${Typography.display.large};
@@ -103,6 +67,16 @@ export const LabelMedium = styled.span<{ color?: TTextColor }>`
 export const LabelSmall = styled.span<{ color?: TTextColor }>`
     ${SharedStyles};
     ${Typography.label.small};
+`
+
+export const BodySmallUpper = styled.span<{ color?: TTextColor }>`
+    ${SharedStyles};
+    text-transform: uppercase;
+    ${Typography.body.small};
+`
+
+export const Bold = styled.span`
+    ${Typography.bold};
 `
 
 export const Truncated = styled.span`

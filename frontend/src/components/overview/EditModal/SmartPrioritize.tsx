@@ -13,7 +13,7 @@ import Flex from '../../atoms/Flex'
 import { Icon } from '../../atoms/Icon'
 import GTButton from '../../atoms/buttons/GTButton'
 import RefreshSpinner from '../../atoms/buttons/RefreshSpinner'
-import { DeprecatedBodySmall, DeprecatedLabel, DeprecatedMini } from '../../atoms/typography/Typography'
+import { BodyMedium, BodySmall, LabelSmall } from '../../atoms/typography/Typography'
 import Tip from '../../radix/Tip'
 import SmartSuggestion from './SmartSuggestion'
 
@@ -92,11 +92,11 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                             onClick={getSuggestion}
                             disabled={!hasSuggestionsRemaining && !isPreviewMode}
                         />
-                        <DeprecatedMini color="light">
+                        <LabelSmall color="light">
                             {hasSuggestionsRemaining
                                 ? `${suggestionsRemaining} uses remaining today`
                                 : `No more uses remaining today${isPreviewMode ? " (but you're an employee 😎)" : ''}`}
-                        </DeprecatedMini>
+                        </LabelSmall>
                     </Flex>
                 )
             case SmartPrioritizeState.LOADING:
@@ -105,19 +105,19 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                         <RefreshSpinner isRefreshing>
                             <Icon icon={icons.gear} />
                         </RefreshSpinner>
-                        <DeprecatedLabel>Prioritizing your lists...</DeprecatedLabel>
+                        <BodySmall>Prioritizing your lists...</BodySmall>
                     </Flex>
                 )
             case SmartPrioritizeState.ERROR:
                 return (
                     <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
                         <Icon icon={icons.warningTriangle} color="red" />
-                        <DeprecatedLabel color="red">
+                        <BodySmall color="red">
                             There was an error sorting your lists.
                             {hasSuggestionsRemaining
                                 ? ` Please try again. (${suggestionsRemaining} uses remaining)`
                                 : null}
-                        </DeprecatedLabel>
+                        </BodySmall>
                         <GTButton
                             value="Cancel"
                             styleType="secondary"
@@ -141,13 +141,13 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                     <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
                         <Icon icon={icons.warningTriangle} color="red" />
                         <Flex column justifyContent="center">
-                            <DeprecatedLabel color="red">
+                            <BodySmall color="red">
                                 Some of your lists are too long to be prioritized. Try removing items from your Daily
                                 Overview.
-                            </DeprecatedLabel>
-                            <DeprecatedLabel color="red">
+                            </BodySmall>
+                            <BodySmall color="red">
                                 {hasSuggestionsRemaining ? ` (${suggestionsRemaining} uses remaining)` : null}
-                            </DeprecatedLabel>
+                            </BodySmall>
                         </Flex>
                         <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
                             <GTButton
@@ -180,15 +180,15 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
             <Description>
                 <Flex gap={Spacing._8} alignItems="center">
                     <Icon icon={icons.bolt} />
-                    <DeprecatedBodySmall>
+                    <BodyMedium>
                         Smart Prioritize<sup>AI</sup> (Alpha)
-                    </DeprecatedBodySmall>
+                    </BodyMedium>
                 </Flex>
-                <DeprecatedLabel color="light">
+                <BodySmall color="light">
                     Using AI, Smart Prioritize helps you focus on your most important work by organizing your lists
                     based on effectiveness. Please note Smart Prioritize can be used up to three times a day and is
                     currently in Alpha testing.
-                </DeprecatedLabel>
+                </BodySmall>
             </Description>
             <Body>{getBodyContent()}</Body>
         </Container>

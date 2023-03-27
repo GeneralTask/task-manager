@@ -12,7 +12,7 @@ export const KeyboardShortcutContainer = styled.div<{ isSelected?: boolean }>`
     background-color: ${Colors.background.sub};
     color: ${Colors.text.light};
     user-select: none;
-    ${Typography.deprecated_bodySmall};
+    ${Typography.body.medium};
     padding: 0 ${Spacing._8};
 `
 

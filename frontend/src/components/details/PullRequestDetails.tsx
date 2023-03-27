@@ -9,7 +9,7 @@ import { getHumanTimeSinceDateTime } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
-import { DeprecatedEyebrow, DeprecatedLabel } from '../atoms/typography/Typography'
+import { BodySmall, BodySmallUpper } from '../atoms/typography/Typography'
 import BranchName from '../pull-requests/BranchName'
 import Status from '../pull-requests/Status'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
@@ -26,7 +26,7 @@ const TitleContainer = styled.div`
     color: ${Colors.text.black};
     font: inherit;
     margin: ${Spacing._16} 0;
-    ${Typography.deprecated_subtitle};
+    ${Typography.title.medium};
 `
 const MarginLeftAuto = styled.div`
     display: flex;
@@ -41,7 +41,7 @@ const InfoContainer = styled.div`
     gap: ${Spacing._8};
     align-items: center;
     color: ${Colors.text.light};
-    ${Typography.deprecated_bodySmall};
+    ${Typography.body.medium};
 `
 const BranchInfoContainer = styled.div`
     display: flex;
@@ -51,8 +51,8 @@ const BranchInfoContainer = styled.div`
 `
 const LinesModified = styled.span<{ color: 'green' | 'red' }>`
     color: ${(props) => Colors.text[props.color]};
-    ${Typography.deprecated_bodySmall};
-    ${Typography.deprecated_bold};
+    ${Typography.body.medium};
+    ${Typography.bold};
 `
 const Gap4 = styled.div`
     display: flex;
@@ -93,7 +93,7 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
         <DetailsViewTemplate>
             <DetailsTopContainer>
                 <Icon icon={logos.github} color="black" />
-                <DeprecatedLabel color="light">{repository?.name}</DeprecatedLabel>
+                <BodySmall color="light">{repository?.name}</BodySmall>
                 <MarginLeftAuto>
                     <ExternalLinkButton link={deeplink} />
                 </MarginLeftAuto>
@@ -106,23 +106,23 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
                     <LinesModified color="red">{`-${deletions}`}</LinesModified>
                 </Gap4>
             </InfoContainer>
-            <DeprecatedLabel color="light">{`#${number} updated ${formattedTimeSince} by ${author} (${num_commits} commits)`}</DeprecatedLabel>
+            <BodySmall color="light">{`#${number} updated ${formattedTimeSince} by ${author} (${num_commits} commits)`}</BodySmall>
             <BranchInfoContainer>
                 <BranchName name={base_branch} />
-                <DeprecatedLabel color="light">from</DeprecatedLabel>
+                <BodySmall color="light">from</BodySmall>
                 <BranchName name={branch} />
             </BranchInfoContainer>
             <PaddingVertical24>
                 <Divider color={Colors.background.border} />
             </PaddingVertical24>
-            <DeprecatedEyebrow color="light">Description</DeprecatedEyebrow>
+            <BodySmallUpper color="light">Description</BodySmallUpper>
             <PullRequestComment author={author} body={body} lastUpdatedAt={last_updated_at} isAuthorOfPR />
             {num_comments > 0 && (
                 <>
                     <PaddingVertical24>
                         <Divider color={Colors.background.border} />
                     </PaddingVertical24>
-                    <DeprecatedEyebrow color="light">{`Comments (${num_comments})`}</DeprecatedEyebrow>
+                    <BodySmallUpper color="light">{`Comments (${num_comments})`}</BodySmallUpper>
                     {comments
                         .slice()
                         .sort((a, b) => +DateTime.fromISO(a.last_updated_at) - +DateTime.fromISO(b.last_updated_at))

@@ -24,12 +24,12 @@ const TermsOfServiceContainer = styled.div`
 `
 const Title = styled.div`
     color: ${Colors.text.black};
-    ${Typography.deprecated_subtitle};
+    ${Typography.title.medium};
 `
 const Subtitle = styled.div`
     color: ${Colors.text.black};
-    ${Typography.deprecated_label};
-    ${Typography.deprecated_bold};
+    ${Typography.body.small};
+    ${Typography.bold};
 `
 const TermsScrollDiv = styled.div`
     flex: 1;
@@ -59,11 +59,11 @@ const AgreementText = styled.div<{ required?: boolean }>`
     font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu, Cantarell,
         Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     color: ${Colors.text.light};
-    ${Typography.deprecated_label};
+    ${Typography.body.small};
 `
 const RedAsterisk = styled.span`
     color: ${Colors.status.red.default};
-    ${Typography.deprecated_label};
+    ${Typography.body.small};
 `
 const SubmitButtonContainer = styled.div`
     display: flex;

@@ -4,7 +4,7 @@ import { icons } from '../../styles/images'
 import { TNote } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import GTButton from '../atoms/buttons/GTButton'
-import { DeprecatedMini } from '../atoms/typography/Typography'
+import { LabelSmall } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTMenuItem } from '../radix/RadixUIConstants'
 
@@ -39,8 +39,8 @@ const NoteActionsDropdown = ({ note, isOwner = true }: NoteActionsDropdownProps)
                         disabled: true,
                         renderer: () => (
                             <Flex column>
-                                <DeprecatedMini color="light">{`Last updated ${updatedAt}`}</DeprecatedMini>
-                                <DeprecatedMini color="light">{`Created ${createdAt}`}</DeprecatedMini>
+                                <LabelSmall color="light">{`Last updated ${updatedAt}`}</LabelSmall>
+                                <LabelSmall color="light">{`Created ${createdAt}`}</LabelSmall>
                             </Flex>
                         ),
                     },

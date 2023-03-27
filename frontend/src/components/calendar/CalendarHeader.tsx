@@ -8,7 +8,7 @@ import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
-import { DeprecatedSubtitle } from '../atoms/typography/Typography'
+import { TitleMedium } from '../atoms/typography/Typography'
 import { useCalendarContext } from './CalendarContext'
 
 const RelativeDiv = styled.div`
@@ -130,7 +130,7 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                             {isCalendarExpanded && (
                                 <>
                                     {nextPreviousButtons}
-                                    <DeprecatedSubtitle>{date.toFormat('LLLL yyyy')}</DeprecatedSubtitle>
+                                    <TitleMedium>{date.toFormat('LLLL yyyy')}</TitleMedium>
                                 </>
                             )}
                         </Flex>
@@ -152,7 +152,7 @@ export default function CalendarHeader({ showHeader = true, additionalHeaderCont
                     <Divider color={Colors.background.border} />
                     {!isCalendarExpanded && (
                         <PaddedContainer>
-                            <DeprecatedSubtitle>{date.toFormat('ccc, LLLL d')}</DeprecatedSubtitle>
+                            <TitleMedium>{date.toFormat('ccc, LLLL d')}</TitleMedium>
                             {nextPreviousButtons}
                         </PaddedContainer>
                     )}

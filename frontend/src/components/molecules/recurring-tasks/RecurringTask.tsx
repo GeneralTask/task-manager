@@ -13,7 +13,7 @@ import ItemContainer from '../ItemContainer'
 const Title = styled(Truncated)<{ deleted?: boolean }>`
     text-decoration: ${({ deleted }) => (deleted ? 'line-through' : 'none')};
     color: ${({ deleted }) => (deleted ? Colors.text.light : Colors.text.black)};
-    ${Typography.deprecated_bodySmall};
+    ${Typography.body.medium};
 `
 
 interface RecurringTaskProps {

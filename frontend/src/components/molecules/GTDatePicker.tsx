@@ -16,7 +16,8 @@ const GTDatePickerWrapper = styled.div`
     display: flex;
     flex-direction: column;
     .mantine-Calendar-calendarHeaderLevel {
-        ${Typography.deprecated_eyebrow};
+        text-transform: uppercase;
+        ${Typography.body.small};
     }
 `
 const DateViewContainer = styled.div`
@@ -31,7 +32,7 @@ const DateViewContainer = styled.div`
     background-color: ${Colors.background.base};
 `
 const DateViewText = styled.span`
-    ${Typography.deprecated_bodySmall};
+    ${Typography.body.medium};
     flex: 1;
 `
 
