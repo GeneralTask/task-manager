@@ -460,10 +460,11 @@ type DashboardTeam struct {
 }
 
 type DashboardTeamMember struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty"`
-	TeamID    primitive.ObjectID `bson:"team_id,omitempty"`
-	Email     string             `bson:"email,omitempty"`
-	GithubID  string             `bson:"github_id,omitempty"`
-	Name      string             `bson:"name,omitempty"`
-	CreatedAt primitive.DateTime `bson:"created_at,omitempty"`
+	ID                          primitive.ObjectID `bson:"_id,omitempty"`
+	TeamID                      primitive.ObjectID `bson:"team_id,omitempty"`
+	Email                       string             `bson:"email,omitempty"`
+	GithubID                    string             `bson:"github_id,omitempty"`
+	Name                        string             `bson:"name,omitempty"`
+	CreatedAt                   primitive.DateTime `bson:"created_at,omitempty"`
+	HasBeenInvitedToLeaderboard bool               `bson:"has_been_invited_to_leaderboard,omitempty"`
 }

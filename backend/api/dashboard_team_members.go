@@ -14,10 +14,11 @@ type DashboardTeamMemberCreateParams struct {
 	GithubID string `json:"github_id"`
 }
 type DashboardTeamMemberResult struct {
-	ID       string `json:"id,omitempty"`
-	Name     string `json:"name,omitempty"`
-	Email    string `json:"email,omitempty"`
-	GithubID string `json:"github_id,omitempty"`
+	ID                          string `json:"id,omitempty"`
+	Name                        string `json:"name,omitempty"`
+	Email                       string `json:"email,omitempty"`
+	GithubID                    string `json:"github_id,omitempty"`
+	HasBeenInvitedToLeaderboard bool   `json:"has_been_invited_to_leaderboard,omitempty"`
 }
 
 func (api *API) DashboardTeamMemberCreate(c *gin.Context) {
@@ -105,10 +106,11 @@ func (api *API) DashboardTeamMembersList(c *gin.Context) {
 	var teamMemberResults []DashboardTeamMemberResult
 	for _, dashboardTeamMember := range *dashboardTeamMembers {
 		teamMemberResults = append(teamMemberResults, DashboardTeamMemberResult{
-			ID:       dashboardTeamMember.ID.Hex(),
-			Name:     dashboardTeamMember.Name,
-			Email:    dashboardTeamMember.Email,
-			GithubID: dashboardTeamMember.GithubID,
+			ID:                          dashboardTeamMember.ID.Hex(),
+			Name:                        dashboardTeamMember.Name,
+			Email:                       dashboardTeamMember.Email,
+			GithubID:                    dashboardTeamMember.GithubID,
+			HasBeenInvitedToLeaderboard: dashboardTeamMember.HasBeenInvitedToLeaderboard,
 		})
 	}
 	c.JSON(200, teamMemberResults)

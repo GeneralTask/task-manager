@@ -180,10 +180,11 @@ func TestDashboardTeamMemberList(t *testing.T) {
 		assert.NoError(t, err)
 
 		teamMember1 := database.DashboardTeamMember{
-			TeamID:   dashboardTeam.ID,
-			Name:     "scott",
-			Email:    "scott@gt.com",
-			GithubID: "scottmai",
+			TeamID:                      dashboardTeam.ID,
+			Name:                        "scott",
+			Email:                       "scott@gt.com",
+			GithubID:                    "scottmai",
+			HasBeenInvitedToLeaderboard: true,
 		}
 		teamMember2 := database.DashboardTeamMember{
 			TeamID: dashboardTeam.ID,
@@ -219,10 +220,11 @@ func TestDashboardTeamMemberList(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 4, len(result))
 		assertDashboardTeamMemberResultsAreEqual(t, DashboardTeamMemberResult{
-			ID:       insertResult.InsertedIDs[0].(primitive.ObjectID).Hex(),
-			Name:     "scott",
-			Email:    "scott@gt.com",
-			GithubID: "scottmai",
+			ID:                          insertResult.InsertedIDs[0].(primitive.ObjectID).Hex(),
+			Name:                        "scott",
+			Email:                       "scott@gt.com",
+			GithubID:                    "scottmai",
+			HasBeenInvitedToLeaderboard: true,
 		}, result[0])
 		assertDashboardTeamMemberResultsAreEqual(t, DashboardTeamMemberResult{
 			ID:    insertResult.InsertedIDs[1].(primitive.ObjectID).Hex(),
@@ -254,4 +256,5 @@ func assertDashboardTeamMemberResultsAreEqual(t *testing.T, expected, actual Das
 	assert.Equal(t, expected.Name, actual.Name)
 	assert.Equal(t, expected.Email, actual.Email)
 	assert.Equal(t, expected.GithubID, actual.GithubID)
+	assert.Equal(t, expected.HasBeenInvitedToLeaderboard, actual.HasBeenInvitedToLeaderboard)
 }
