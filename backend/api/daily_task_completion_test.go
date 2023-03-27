@@ -90,11 +90,11 @@ func TestGetDailyTaskCompletionList(t *testing.T) {
 				Date: "2023-01-04",
 				Sources: []TaskCompletionSource{
 					{
-						SourceID: external.TASK_SOURCE_ID_LINEAR,
+						SourceID: external.TASK_SOURCE_ID_GT_TASK,
 						Count:    1,
 					},
 					{
-						SourceID: external.TASK_SOURCE_ID_GT_TASK,
+						SourceID: external.TASK_SOURCE_ID_LINEAR,
 						Count:    1,
 					},
 				},

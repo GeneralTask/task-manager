@@ -63,6 +63,12 @@ func (api *API) GetDailyTaskCompletionList(userID primitive.ObjectID, datetimeSt
 			{Key: "count", Value: bson.D{{Key: "$sum", Value: 1}}}},
 		},
 	}
+	// Sort by source_id so that the sources are in alphabetical order
+	sortSourceStage := bson.D{
+		{Key: "$sort", Value: bson.D{
+			{Key: "_id.source_id", Value: 1},
+		}},
+	}
 	// Group by date string and push all sources with counts
 	groupStage2 := bson.D{
 		{Key: "$group", Value: bson.D{
@@ -91,7 +97,7 @@ func (api *API) GetDailyTaskCompletionList(userID primitive.ObjectID, datetimeSt
 		}},
 	}
 
-	pipeline := mongo.Pipeline{matchStage, projectStage, groupStage, groupStage2, sortStage, renameFieldsStage2}
+	pipeline := mongo.Pipeline{matchStage, projectStage, groupStage, sortSourceStage, groupStage2, sortStage, renameFieldsStage2}
 	cursor, err := taskCollection.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		return nil, err
