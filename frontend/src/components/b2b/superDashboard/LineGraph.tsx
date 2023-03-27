@@ -2,8 +2,8 @@ import { Fragment, useMemo } from 'react'
 import { DateTime } from 'luxon'
 import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, XAxis, YAxis } from 'recharts'
 import styled from 'styled-components'
-import { Colors, Typography } from '../../styles'
-import { BodyMedium } from '../atoms/typography/Typography'
+import { Colors, Typography } from '../../../styles'
+import { BodyMedium } from '../../atoms/typography/Typography'
 import { useSuperDashboardContext } from './SuperDashboardContext'
 import {
     DAYS_PER_WEEK,

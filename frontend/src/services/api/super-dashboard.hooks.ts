@@ -1,6 +1,6 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
-import { TDashboard, TDashboardTeamMember } from '../../components/superDashboard/types'
+import { TDashboard, TDashboardTeamMember } from '../../components/b2b/superDashboard/types'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
 import { useGTMutation, useGTQueryClient } from '../queryUtils'

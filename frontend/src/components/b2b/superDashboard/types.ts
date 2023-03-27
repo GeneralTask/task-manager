@@ -1,4 +1,4 @@
-import { TIconImage } from '../../styles/images'
+import { TIconImage } from '../../../styles/images'
 
 export interface TDashboard {
     intervals: TInterval[]

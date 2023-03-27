@@ -1,7 +1,7 @@
-import { icons } from '../../styles/images'
-import GTButton from '../atoms/buttons/GTButton'
-import GTDropdownMenu from '../radix/GTDropdownMenu'
-import { GTMenuItem } from '../radix/RadixUIConstants'
+import { icons } from '../../../styles/images'
+import GTButton from '../../atoms/buttons/GTButton'
+import GTDropdownMenu from '../../radix/GTDropdownMenu'
+import { GTMenuItem } from '../../radix/RadixUIConstants'
 import { useSuperDashboardContext } from './SuperDashboardContext'
 
 const SubjectSelector = () => {
