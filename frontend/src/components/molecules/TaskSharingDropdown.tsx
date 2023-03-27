@@ -8,7 +8,7 @@ import { TTaskSharedAccess, TTaskV4 } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTMenuItem } from '../radix/RadixUIConstants'
-import { toast } from './toast/utils'
+import { toast } from './toast'
 
 interface TaskharingDropdownProps {
     task: TTaskV4

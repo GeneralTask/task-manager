@@ -8,7 +8,7 @@ import { icons, logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 import { useCalendarContext } from '../calendar/CalendarContext'
-import { toast } from '../molecules/toast/utils'
+import { toast } from '../molecules/toast'
 import GTContextMenu from './GTContextMenu'
 import { GTMenuItem } from './RadixUIConstants'
 

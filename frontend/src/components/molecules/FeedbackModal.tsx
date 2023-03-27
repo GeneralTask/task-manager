@@ -12,7 +12,7 @@ import { DeprecatedBodySmall } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
 import { CollapsedIconContainer } from '../navigation_sidebar/NavigationLink'
 import Tip from '../radix/Tip'
-import { toast } from './toast/utils'
+import { toast } from './toast'
 
 const FEEDBACK_MIN_HEIGHT = 100
 

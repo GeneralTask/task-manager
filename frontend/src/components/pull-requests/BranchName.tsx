@@ -1,7 +1,7 @@
 import { usePreviewMode, useToast } from '../../hooks'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
-import { toast } from '../molecules/toast/utils'
+import { toast } from '../molecules/toast'
 import Tip from '../radix/Tip'
 import { BranchNameContainer, BranchNameText } from './styles'
 

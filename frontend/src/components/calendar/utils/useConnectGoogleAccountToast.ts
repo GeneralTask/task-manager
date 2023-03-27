@@ -2,7 +2,7 @@ import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../../constants'
 import { useAuthWindow, usePreviewMode, useToast } from '../../../hooks'
 import { useGetSupportedTypes } from '../../../services/api/settings.hooks'
 import { logos } from '../../../styles/images'
-import { toast } from '../../molecules/toast/utils'
+import { toast } from '../../molecules/toast'
 
 const useConnectGoogleAccountToast = () => {
     const { openAuthWindow } = useAuthWindow()
