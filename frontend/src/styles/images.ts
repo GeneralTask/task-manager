@@ -82,7 +82,7 @@ import {
     faVideo,
     faXmark,
 } from '@fortawesome/pro-light-svg-icons'
-import { faGripDotsVertical } from '@fortawesome/pro-regular-svg-icons'
+import { faFire, faGripDotsVertical } from '@fortawesome/pro-regular-svg-icons'
 import {
     faBold,
     faCaretDown,
@@ -162,6 +162,7 @@ export const icons = Object.freeze({
     eye: faEye,
     eye_slash: faEyeSlash,
     filter: faBarsFilter,
+    fire: faFire,
     flask: faFlask,
     folder: faFolder,
     gcal: logos.gcal,
