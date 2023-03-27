@@ -6,7 +6,7 @@ interface TDailyTaskCompletionSource {
     source_id: string
     count: number
 }
-interface TDailyTaskCompletion {
+export interface TDailyTaskCompletion {
     date: string
     sources: TDailyTaskCompletionSource[]
 }
