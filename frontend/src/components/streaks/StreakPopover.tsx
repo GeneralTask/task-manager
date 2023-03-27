@@ -2,14 +2,23 @@ import { useState } from 'react'
 import { Calendar, CalendarBaseStylesNames, DayModifiers } from '@mantine/dates'
 import { Styles } from '@mantine/styles'
 import { DateTime } from 'luxon'
+import styled from 'styled-components'
 import { TDailyTaskCompletion, useGetDailyTaskCompletionByMonth } from '../../services/api/daily_task_completion.hooks'
 import { Border, Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import GTButton from '../atoms/buttons/GTButton'
 import GTPopover from '../radix/GTPopover'
+import CompletionLegend from './CompletionLegend'
 
 const CALENDAR_DAY_SIZE = '26px'
 const HIGHEST_SAUTRATION_COUNT = 8
+
+const CompletionLegendContainer = styled.div`
+    margin: ${Spacing._12} 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`
 
 const getDayStyleFunction = (completionData: TDailyTaskCompletion[]) => {
     return (date: Date, modifiers: DayModifiers) => {
@@ -97,15 +106,20 @@ const StreakPopoverContent = () => {
     const dayStyle = getDayStyleFunction(dataForMonth)
 
     return (
-        <Calendar
-            value={currentDate.toJSDate()}
-            onChange={handleOnChange}
-            firstDayOfWeek="sunday"
-            allowLevelChange={false}
-            size="sm"
-            dayStyle={dayStyle}
-            styles={CalendarStyles}
-        />
+        <div>
+            <Calendar
+                value={currentDate.toJSDate()}
+                onChange={handleOnChange}
+                firstDayOfWeek="sunday"
+                allowLevelChange={false}
+                size="sm"
+                dayStyle={dayStyle}
+                styles={CalendarStyles}
+            />
+            <CompletionLegendContainer>
+                <CompletionLegend />
+            </CompletionLegendContainer>
+        </div>
     )
 }
 
