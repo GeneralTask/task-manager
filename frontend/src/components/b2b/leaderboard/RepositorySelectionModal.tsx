@@ -58,7 +58,7 @@ const RepositorySelectionModal = ({ isOpen, setIsOpen }: RepositorySelectionModa
                                         <Icon icon={repository.image_url} />
                                         <BodyMedium>{repository.name}</BodyMedium>
                                     </Flex>
-                                    {(selectedRepositoryId || '2') === repository.id && <Icon icon={icons.check} />}
+                                    {selectedRepositoryId === repository.id && <Icon icon={icons.check} />}
                                 </Repository>
                             ))}
                         </RepositoryList>
