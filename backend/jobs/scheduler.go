@@ -15,7 +15,7 @@ func GetScheduler() (*gocron.Scheduler, error) {
 		return nil, err
 	}
 
-	_, err = s.Every(1).Hour().Do(dripCampaignJob)
+	_, err = s.Every(1).Day().At("08:00").Do(dripCampaignJob)
 	if err != nil {
 		return nil, err
 	}
