@@ -41,7 +41,16 @@ const StreakPopoverContent = () => {
         setCurrentDate(DateTime.fromJSDate(date))
     }
 
-    const { data } = useGetDailyTaskCompletionByMonth(currentDate.month, currentDate.year)
+    const { data: previousMonth } = useGetDailyTaskCompletionByMonth(
+        currentDate.minus({ months: 1 }).month,
+        currentDate.minus({ months: 1 }).year
+    )
+    const { data: currentMonth } = useGetDailyTaskCompletionByMonth(currentDate.month, currentDate.year)
+    const { data: nextMonth } = useGetDailyTaskCompletionByMonth(
+        currentDate.plus({ months: 1 }).month,
+        currentDate.plus({ months: 1 }).year
+    )
+    const dataForMonth = [...(previousMonth ?? []), ...(currentMonth ?? []), ...(nextMonth ?? [])]
 
     const dayStyle = (date: Date, modifiers: DayModifiers) => {
         let styles: React.CSSProperties = {
@@ -62,9 +71,9 @@ const StreakPopoverContent = () => {
                 backgroundColor: Colors.background.hover,
                 color: Colors.text.muted,
             }
-        } else if (data !== undefined) {
+        } else if (dataForMonth !== undefined) {
             const formattedDate = DateTime.fromJSDate(date).toFormat('yyyy-MM-dd')
-            const dataForDate = data.find((item) => item.date === formattedDate)
+            const dataForDate = dataForMonth.find((item) => item.date === formattedDate)
             if (dataForDate !== undefined) {
                 const totalCompletedItems = dataForDate.sources.reduce((acc, source) => acc + source.count, 0)
                 const colorIntensity = totalCompletedItems === 0 ? 0 : totalCompletedItems / 8
