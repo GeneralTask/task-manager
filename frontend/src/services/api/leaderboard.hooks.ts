@@ -13,10 +13,4 @@ const getLeaderboardRepositories = async () => {
         name: `Repository ${i}`,
         image_url: logos.generaltask_yellow_circle,
     }))
-    // try {
-    //     const res = await apiClient.get(`/leaderboard/repositories/`, { signal })
-    //     return castImmutable(res.data)
-    // } catch {
-    //     throw 'getLeaderboardRepositories failed'
-    // }
 }
