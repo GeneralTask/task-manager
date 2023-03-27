@@ -71,24 +71,22 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
             toast('This calendar event has been deleted', {
                 toastId: `${event.id}-popover`,
                 duration: EVENT_UNDO_TIMEOUT,
-                undoAction: {
-                    onClick: () => {
-                        clearTimeout(eventDeleteTimeout)
-                        undoDeleteEventInCache(event, date)
-                        hotToast.dismiss(`${event.id}-popover`)
-                    },
-                    onDismiss: () => {
-                        clearTimeout(eventDeleteTimeout)
-                        deleteEvent(
-                            {
-                                id: event.id,
-                                date: date,
-                                datetime_start: event.datetime_start,
-                                datetime_end: event.datetime_end,
-                            },
-                            event.optimisticId
-                        )
-                    },
+                undoAction: () => {
+                    clearTimeout(eventDeleteTimeout)
+                    undoDeleteEventInCache(event, date)
+                    hotToast.dismiss(`${event.id}-popover`)
+                },
+                onDismiss: () => {
+                    clearTimeout(eventDeleteTimeout)
+                    deleteEvent(
+                        {
+                            id: event.id,
+                            date: date,
+                            datetime_start: event.datetime_start,
+                            datetime_end: event.datetime_end,
+                        },
+                        event.optimisticId
+                    )
                 },
             })
         } else {

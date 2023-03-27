@@ -306,24 +306,22 @@ const FocusModeScreen = () => {
             toast('This calendar event has been deleted', {
                 toastId: `${chosenEvent.id}-focusmode`,
                 duration: EVENT_UNDO_TIMEOUT,
-                undoAction: {
-                    onClick: () => {
-                        clearTimeout(eventDeleteTimeout)
-                        undoDeleteEventInCache(chosenEvent, date)
-                        hotToast.dismiss(`${chosenEvent.id}-focusmode`)
-                    },
-                    onDismiss: () => {
-                        clearTimeout(eventDeleteTimeout)
-                        deleteEvent(
-                            {
-                                id: chosenEvent.id,
-                                date: date,
-                                datetime_start: chosenEvent.datetime_start,
-                                datetime_end: chosenEvent.datetime_end,
-                            },
-                            chosenEvent.optimisticId
-                        )
-                    },
+                undoAction: () => {
+                    clearTimeout(eventDeleteTimeout)
+                    undoDeleteEventInCache(chosenEvent, date)
+                    hotToast.dismiss(`${chosenEvent.id}-focusmode`)
+                },
+                onDismiss: () => {
+                    clearTimeout(eventDeleteTimeout)
+                    deleteEvent(
+                        {
+                            id: chosenEvent.id,
+                            date: date,
+                            datetime_start: chosenEvent.datetime_start,
+                            datetime_end: chosenEvent.datetime_end,
+                        },
+                        chosenEvent.optimisticId
+                    )
                 },
             })
         } else {

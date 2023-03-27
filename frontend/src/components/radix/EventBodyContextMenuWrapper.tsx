@@ -50,24 +50,22 @@ const FocusModeContextMenuWrapper = ({ event, children }: FocusModeContextMenuPr
             toast('This calendar event has been deleted', {
                 toastId: `${event.id}-context`,
                 duration: EVENT_UNDO_TIMEOUT,
-                undoAction: {
-                    onClick: () => {
-                        clearTimeout(eventDeleteTimeout)
-                        undoDeleteEventInCache(event, date)
-                        hotToast.dismiss(`${event.id}-context`)
-                    },
-                    onDismiss: () => {
-                        clearTimeout(eventDeleteTimeout)
-                        deleteEvent(
-                            {
-                                id: event.id,
-                                date: date,
-                                datetime_start: event.datetime_start,
-                                datetime_end: event.datetime_end,
-                            },
-                            event.optimisticId
-                        )
-                    },
+                undoAction: () => {
+                    clearTimeout(eventDeleteTimeout)
+                    undoDeleteEventInCache(event, date)
+                    hotToast.dismiss(`${event.id}-context`)
+                },
+                onDismiss: () => {
+                    clearTimeout(eventDeleteTimeout)
+                    deleteEvent(
+                        {
+                            id: event.id,
+                            date: date,
+                            datetime_start: event.datetime_start,
+                            datetime_end: event.datetime_end,
+                        },
+                        event.optimisticId
+                    )
                 },
             })
         } else {

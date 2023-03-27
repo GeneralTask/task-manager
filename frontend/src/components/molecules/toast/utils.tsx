@@ -12,10 +12,8 @@ export interface ToastArgs {
     type?: ToastType
     duration?: number
     actions?: GTButtonProps | GTButtonProps[]
-    undoAction?: {
-        onClick: () => void
-        onDismiss: () => void
-    }
+    undoAction?: () => void
+    onDismiss?: () => void
 }
 export const toast = (message: string, args?: ToastArgs) => {
     const { toastId, title, type, duration, actions, undoAction } = args ?? {}
@@ -41,7 +39,7 @@ export const toast = (message: string, args?: ToastArgs) => {
                 ))}
             {undoAction && (
                 <div>
-                    <GTButton styleType="secondary" value="Undo" onClick={undoAction.onClick} />
+                    <GTButton styleType="secondary" value="Undo" onClick={undoAction} />
                 </div>
             )}
             {type !== 'loading' && (
@@ -50,7 +48,7 @@ export const toast = (message: string, args?: ToastArgs) => {
                         styleType="icon"
                         icon={icons.x}
                         onClick={() => {
-                            undoAction?.onDismiss?.()
+                            undoAction?.()
                             hotToast.dismiss(id)
                         }}
                     />
