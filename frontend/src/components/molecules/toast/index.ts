@@ -1,3 +1,1 @@
-import { toast } from './utils'
-
-export { toast }
+export { toast } from './utils'
