@@ -10,13 +10,13 @@ import GTButton from '../atoms/buttons/GTButton'
 import GTPopover from '../radix/GTPopover'
 
 const CALENDAR_DAY_SIZE = '26px'
+const HIGHEST_SAUTRATION_COUNT = 8
 
 const CalendarStyles: Styles<CalendarBaseStylesNames, Record<string, any>> = {
     calendarBase: {
         maxWidth: 'none',
         width: '240px',
     },
-
     calendarHeader: {
         color: Colors.text.light,
         width: '240px',
@@ -35,9 +35,7 @@ const CalendarStyles: Styles<CalendarBaseStylesNames, Record<string, any>> = {
 const StreakPopoverContent = () => {
     const [currentDate, setCurrentDate] = useState<DateTime>(DateTime.local())
     const handleOnChange = (date: Date | null) => {
-        if (!date) {
-            return
-        }
+        if (!date) return
         setCurrentDate(DateTime.fromJSDate(date))
     }
 
@@ -76,9 +74,9 @@ const StreakPopoverContent = () => {
             const dataForDate = dataForMonth.find((item) => item.date === formattedDate)
             if (dataForDate !== undefined) {
                 const totalCompletedItems = dataForDate.sources.reduce((acc, source) => acc + source.count, 0)
-                const colorIntensity = totalCompletedItems === 0 ? 0 : totalCompletedItems / 8
-                const intensityNormalized = colorIntensity > 1 ? 1 : colorIntensity
-                const colorIntensityHex = Math.round(intensityNormalized * 255).toString(16)
+                const colorIntensity = totalCompletedItems === 0 ? 0 : totalCompletedItems / HIGHEST_SAUTRATION_COUNT
+                const cappedIntensity = colorIntensity > 1 ? 1 : colorIntensity
+                const colorIntensityHex = Math.round(cappedIntensity * 255).toString(16)
 
                 styles = {
                     ...styles,
@@ -97,17 +95,15 @@ const StreakPopoverContent = () => {
     }
 
     return (
-        <Flex>
-            <Calendar
-                value={currentDate.toJSDate()}
-                onChange={handleOnChange}
-                firstDayOfWeek="sunday"
-                allowLevelChange={false}
-                size="sm"
-                dayStyle={dayStyle}
-                styles={CalendarStyles}
-            />
-        </Flex>
+        <Calendar
+            value={currentDate.toJSDate()}
+            onChange={handleOnChange}
+            firstDayOfWeek="sunday"
+            allowLevelChange={false}
+            size="sm"
+            dayStyle={dayStyle}
+            styles={CalendarStyles}
+        />
     )
 }
 
