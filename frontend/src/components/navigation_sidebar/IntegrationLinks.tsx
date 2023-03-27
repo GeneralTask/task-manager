@@ -105,13 +105,22 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                             />
                         </Tip>
                         {userInfo?.business_mode_enabled && (
-                            <NavigationLink
-                                link="/super-dashboard"
-                                title="Super Dashboard"
-                                icon={icons.chartLineUp}
-                                isCurrentPage={pathname.split('/')[1] === 'super-dashboard'}
-                                isCollapsed={isCollapsed}
-                            />
+                            <>
+                                <NavigationLink
+                                    link="/super-dashboard"
+                                    title="Super Dashboard"
+                                    icon={icons.chartLineUp}
+                                    isCurrentPage={pathname.split('/')[1] === 'super-dashboard'}
+                                    isCollapsed={isCollapsed}
+                                />
+                                <NavigationLink
+                                    link="/leaderboard"
+                                    title="Leaderboard"
+                                    icon={icons.rankingStar}
+                                    isCurrentPage={pathname.split('/')[1] === 'leaderboard'}
+                                    isCollapsed={isCollapsed}
+                                />
+                            </>
                         )}
                         <Tip shortcutName="goToRecurringTasksPage" side="right">
                             <NavigationLink

@@ -16,6 +16,7 @@ import DragLayer from '../molecules/DragLayer'
 import DefaultTemplate from '../templates/DefaultTemplate'
 import DailyOverviewView from '../views/DailyOverviewView'
 import JiraView from '../views/JiraView'
+import LeaderboardView from '../views/LeaderboardView'
 import LinearView from '../views/LinearView'
 import NoteListView from '../views/NoteListView'
 import PullRequestsView from '../views/PullRequestsView'
@@ -59,6 +60,8 @@ const MainScreen = () => {
                 return <JiraView />
             case 'super-dashboard':
                 return <SuperDashboardView />
+            case 'leaderboard':
+                return <LeaderboardView />
             default:
                 return (
                     <OverviewContextProvider>
