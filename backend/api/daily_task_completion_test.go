@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -25,34 +26,47 @@ func TestGetDailyTaskCompletionList(t *testing.T) {
 	completedTrue := true
 	completedFalse := false
 
-	// Insert complete task
+	// Insert complete GT task
 	_, err := taskCollection.InsertOne(context.Background(), database.Task{
 		UserID:      userID,
 		IsCompleted: &completedTrue,
 		CompletedAt: primitive.NewDateTimeFromTime(testTime),
+		SourceID:    external.TASK_SOURCE_ID_GT_TASK,
 	})
 	assert.NoError(t, err)
 
-	// Insert second complete task in next day
+	// Insert complete Linear task
+	_, err = taskCollection.InsertOne(context.Background(), database.Task{
+		UserID:      userID,
+		IsCompleted: &completedTrue,
+		CompletedAt: primitive.NewDateTimeFromTime(testTime),
+		SourceID:    external.TASK_SOURCE_ID_LINEAR,
+	})
+	assert.NoError(t, err)
+
+	// Insert second complete GT task in next day
 	_, err = taskCollection.InsertOne(context.Background(), database.Task{
 		UserID:      userID,
 		IsCompleted: &completedTrue,
 		CompletedAt: primitive.NewDateTimeFromTime(testTime.AddDate(0, 0, 1)),
+		SourceID:    external.TASK_SOURCE_ID_GT_TASK,
 	})
 	assert.NoError(t, err)
 
-	// Insert incomplete task
+	// Insert incomplete GT task
 	_, err = taskCollection.InsertOne(context.Background(), database.Task{
 		UserID:      userID,
 		IsCompleted: &completedFalse,
+		SourceID:    external.TASK_SOURCE_ID_GT_TASK,
 	})
 	assert.NoError(t, err)
 
-	// Insert completed task outside of date range
+	// Insert completed GT task outside of date range
 	_, err = taskCollection.InsertOne(context.Background(), database.Task{
 		UserID:      userID,
 		IsCompleted: &completedTrue,
 		CompletedAt: primitive.NewDateTimeFromTime(testTime.AddDate(1, 0, 0)),
+		SourceID:    external.TASK_SOURCE_ID_GT_TASK,
 	})
 	assert.NoError(t, err)
 
@@ -61,6 +75,7 @@ func TestGetDailyTaskCompletionList(t *testing.T) {
 		UserID:      primitive.NewObjectID(),
 		IsCompleted: &completedTrue,
 		CompletedAt: primitive.NewDateTimeFromTime(testTime),
+		SourceID:    external.TASK_SOURCE_ID_GT_TASK,
 	})
 	assert.NoError(t, err)
 
@@ -70,12 +85,31 @@ func TestGetDailyTaskCompletionList(t *testing.T) {
 
 		result, err := api.GetDailyTaskCompletionList(userID, datetimeStart, datetimeEnd)
 		assert.NoError(t, err)
-		assert.NotNil(t, result)
-		assert.Equal(t, 2, len(*result))
-		assert.Equal(t, "2023-01-04", (*result)[0].Date)
-		assert.Equal(t, "2023-01-05", (*result)[1].Date)
-		assert.Equal(t, 1, (*result)[0].Count)
-		assert.Equal(t, 1, (*result)[1].Count)
+		expectedResult := []DailyTaskCompletion{
+			{
+				Date: "2023-01-04",
+				Sources: []TaskCompletionSource{
+					{
+						SourceID: external.TASK_SOURCE_ID_GT_TASK,
+						Count:    1,
+					},
+					{
+						SourceID: external.TASK_SOURCE_ID_LINEAR,
+						Count:    1,
+					},
+				},
+			},
+			{
+				Date: "2023-01-05",
+				Sources: []TaskCompletionSource{
+					{
+						SourceID: external.TASK_SOURCE_ID_GT_TASK,
+						Count:    1,
+					},
+				},
+			},
+		}
+		assert.Equal(t, expectedResult, *result)
 	})
 }
 
@@ -122,13 +156,14 @@ func TestDailyTaskCompletionList(t *testing.T) {
 			UserID:      userID,
 			IsCompleted: &isCompleted,
 			CompletedAt: primitive.NewDateTimeFromTime(time.Date(2023, time.January, 4, 20, 0, 0, 0, time.UTC)),
+			SourceID:    external.TASK_SOURCE_ID_GT_TASK,
 		})
 
 		params := url.Values{}
 		params.Add("datetime_start", datetimeStart.Format(time.RFC3339))
 		params.Add("datetime_end", datetimeEnd.Format(time.RFC3339))
 		body := ServeRequest(t, authToken, http.MethodGet, "/daily_task_completion/?"+params.Encode(), nil, http.StatusOK, api)
-		assert.Equal(t, `[{"date":"2023-01-04","count":1}]`, string(body))
+		assert.Equal(t, `[{"date":"2023-01-04","sources":[{"count":1,"source_id":"gt_task"}]}]`, string(body))
 	})
 	t.Run("DifferentUser", func(t *testing.T) {
 		differentUserAuthToken := login("bad_user_daily_task_completion@generaltask.com", "")
