@@ -76,6 +76,9 @@ const AuthenticatedRoutes = () => {
                         <Route path="super-dashboard" element={<Outlet />}>
                             <Route index element={<MainScreen />} />
                         </Route>
+                        <Route path="leaderboard" element={<Outlet />}>
+                            <Route index element={<MainScreen />} />
+                        </Route>
                     </Routes>
                 </AppContextProvider>
                 <StyledToastContainer />
