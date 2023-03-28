@@ -30,10 +30,10 @@ const Repository = styled.div`
 
 interface RepositorySelectionModalProps {
     isOpen: boolean
-    setIsOpen: (isOpen: boolean) => void
+    onClose: () => void
 }
 
-const RepositorySelectionModal = ({ isOpen, setIsOpen }: RepositorySelectionModalProps) => {
+const RepositorySelectionModal = ({ isOpen, onClose }: RepositorySelectionModalProps) => {
     const { data: repositories } = useGetLeaderboardRepositories()
     const { field_value: selectedRepositoryId, updateSetting: updateSelectedRepositoryId } = useSetting(
         'leaderboard_github_repository_id'
@@ -42,7 +42,7 @@ const RepositorySelectionModal = ({ isOpen, setIsOpen }: RepositorySelectionModa
     return (
         <GTModal
             open={isOpen}
-            setIsModalOpen={setIsOpen}
+            setIsModalOpen={onClose}
             tabs={{
                 title: 'Select a Repository',
                 subtitle: 'Choose which Repository to feature on the leaderboard',
@@ -63,8 +63,8 @@ const RepositorySelectionModal = ({ isOpen, setIsOpen }: RepositorySelectionModa
                             ))}
                         </RepositoryList>
                         <Flex alignItems="center" gap={Spacing._16}>
-                            <GTButton styleType="primary" value="Continue" onClick={() => setIsOpen(false)} />
-                            <GTButton styleType="secondary" value="Cancel" onClick={() => setIsOpen(false)} />
+                            <GTButton styleType="primary" value="Continue" onClick={onClose} />
+                            <GTButton styleType="secondary" value="Cancel" onClick={onClose} />
                         </Flex>
                     </>
                 ),

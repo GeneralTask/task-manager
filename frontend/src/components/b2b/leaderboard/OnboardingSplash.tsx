@@ -14,6 +14,7 @@ import Flex from '../../atoms/Flex'
 import { Icon } from '../../atoms/Icon'
 import GTButton from '../../atoms/buttons/GTButton'
 import { BodyMedium, LabelSmall, TitleLarge } from '../../atoms/typography/Typography'
+import InviteTeammatesModal from './InviteTeammatesModal'
 import RepositorySelectionModal from './RepositorySelectionModal'
 
 const Banner = styled.div`
@@ -36,7 +37,8 @@ const OnboardingSplash = () => {
     const { data: supportedTypes } = useGetSupportedTypes()
     const { openAuthWindow } = useAuthWindow()
 
-    const [isRepositorySelectionModalOpen, setIsRepositorySelectionModalOpen] = useState(true)
+    const [isRepositorySelectionModalOpen, setIsRepositorySelectionModalOpen] = useState(false)
+    const [isTeamInviteModalOpen, setIsTeamInviteModalOpen] = useState(false)
 
     const linkedGithubAccounts = useMemo(() => {
         return linkedAccounts?.filter((account) => account.name === GITHUB_SUPPORTED_TYPE_NAME) ?? []
@@ -104,8 +106,12 @@ const OnboardingSplash = () => {
             )}
             <RepositorySelectionModal
                 isOpen={isRepositorySelectionModalOpen}
-                setIsOpen={setIsRepositorySelectionModalOpen}
+                onClose={() => {
+                    setIsRepositorySelectionModalOpen(false)
+                    setIsTeamInviteModalOpen(true)
+                }}
             />
+            <InviteTeammatesModal isOpen={isTeamInviteModalOpen} onClose={() => setIsTeamInviteModalOpen(false)} />
         </>
     )
 }

@@ -463,3 +463,11 @@ export interface TLeaderboardRepository {
     name: string
     image_url: string
 }
+
+export interface TLeaderboardTeammate {
+    id: string
+    name: string
+    avatar_url: string
+    github_id: string
+    has_been_invited?: boolean
+}
