@@ -19,6 +19,7 @@ type DailyTaskCompletionParams struct {
 type TaskCompletionSource struct {
 	Count    int    `json:"count" bson:"count"`
 	SourceID string `json:"source_id" bson:"source_id"`
+	Logo     string `json:"logo" bson:"logo"`
 }
 type DailyTaskCompletion struct {
 	Date    string                 `json:"date"`
@@ -107,9 +108,21 @@ func (api *API) GetDailyTaskCompletionList(userID primitive.ObjectID, datetimeSt
 	if err = cursor.All(context.Background(), &dailyTaskCompletion); err != nil {
 		return nil, err
 	}
+	emptyDailyTaskCompletion := []DailyTaskCompletion{}
 	if dailyTaskCompletion == nil {
-		dailyTaskCompletion = []DailyTaskCompletion{}
+		dailyTaskCompletion = emptyDailyTaskCompletion
 	}
+	// Populate source logos
+	for i := range dailyTaskCompletion {
+		for j, source := range dailyTaskCompletion[i].Sources {
+			taskSourceResult, err := api.ExternalConfig.GetSourceResult(source.SourceID)
+			if err != nil {
+				return &emptyDailyTaskCompletion, err
+			}
+			dailyTaskCompletion[i].Sources[j].Logo = taskSourceResult.Details.LogoV2
+		}
+	}
+
 	return &dailyTaskCompletion, nil
 }
 

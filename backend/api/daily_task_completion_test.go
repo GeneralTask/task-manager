@@ -92,10 +92,12 @@ func TestGetDailyTaskCompletionList(t *testing.T) {
 					{
 						SourceID: external.TASK_SOURCE_ID_GT_TASK,
 						Count:    1,
+						Logo:     "generaltask",
 					},
 					{
 						SourceID: external.TASK_SOURCE_ID_LINEAR,
 						Count:    1,
+						Logo:     "linear",
 					},
 				},
 			},
@@ -105,6 +107,7 @@ func TestGetDailyTaskCompletionList(t *testing.T) {
 					{
 						SourceID: external.TASK_SOURCE_ID_GT_TASK,
 						Count:    1,
+						Logo:     "generaltask",
 					},
 				},
 			},
@@ -163,7 +166,7 @@ func TestDailyTaskCompletionList(t *testing.T) {
 		params.Add("datetime_start", datetimeStart.Format(time.RFC3339))
 		params.Add("datetime_end", datetimeEnd.Format(time.RFC3339))
 		body := ServeRequest(t, authToken, http.MethodGet, "/daily_task_completion/?"+params.Encode(), nil, http.StatusOK, api)
-		assert.Equal(t, `[{"date":"2023-01-04","sources":[{"count":1,"source_id":"gt_task"}]}]`, string(body))
+		assert.Equal(t, `[{"date":"2023-01-04","sources":[{"count":1,"source_id":"gt_task","logo":"generaltask"}]}]`, string(body))
 	})
 	t.Run("DifferentUser", func(t *testing.T) {
 		differentUserAuthToken := login("bad_user_daily_task_completion@generaltask.com", "")
