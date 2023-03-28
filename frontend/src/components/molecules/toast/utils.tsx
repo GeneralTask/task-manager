@@ -39,7 +39,7 @@ export const toast = (message: string, args?: ToastArgs) => {
                 ))}
             {undoAction && (
                 <div>
-                    <GTButton styleType="secondary" value="Undo" onClick={undoAction} />
+                    <GTButton styleType="secondary" value="Undo" onClick={() => undoAction()} />
                 </div>
             )}
             {type !== 'loading' && (

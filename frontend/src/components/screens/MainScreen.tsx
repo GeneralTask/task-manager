@@ -1,9 +1,8 @@
 import { useLocation } from 'react-router-dom'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
-import { DateTime } from 'luxon'
 import { OverviewContextProvider } from '../../context/OverviewContextProvider'
-import { useEventBanners, usePageFocus } from '../../hooks'
+import { useMeetingBanners, usePageFocus } from '../../hooks'
 import { useGetFolders } from '../../services/api/folders.hooks'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
@@ -33,7 +32,7 @@ const MainScreen = () => {
     useGetOverviewViews()
     useFetchPullRequests()
     useFetchExternalTasks()
-    useEventBanners(DateTime.now())
+    useMeetingBanners()
     usePageFocus(true)
 
     const currentPage = () => {

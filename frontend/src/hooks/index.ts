@@ -8,6 +8,7 @@ import useInterval from './useInterval'
 import useIsDragging from './useIsDragging'
 import useItemSelectionController from './useItemSelectionController'
 import useKeyboardShortcut from './useKeyboardShortcut'
+import useMeetingBanners from './useMeetingBanners'
 import useNavigateToPullRequest from './useNavigateToPullRequest'
 import useNavigateToTask from './useNavigateToTask'
 import usePageFocus from './usePageFocus'
@@ -36,4 +37,5 @@ export {
     usePageFocus,
     useWindowSize,
     useDebouncedEdit,
+    useMeetingBanners,
 }
