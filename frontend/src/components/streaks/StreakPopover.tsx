@@ -6,9 +6,12 @@ import styled from 'styled-components'
 import { TDailyTaskCompletion, useGetDailyTaskCompletionByMonth } from '../../services/api/daily_task_completion.hooks'
 import { Border, Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
+import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
+import { BodyMedium } from '../atoms/typography/Typography'
 import GTPopover from '../radix/GTPopover'
 import CompletionLegend from './CompletionLegend'
+import DaiilyTaskCompletionBreakdown from './DailyTaskCompletionBreakdown'
 
 const CALENDAR_DAY_SIZE = '26px'
 const HIGHEST_SAUTRATION_COUNT = 8
@@ -18,6 +21,12 @@ const CompletionLegendContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+`
+const CompletionBreakdownContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${Spacing._8};
+    padding: ${Spacing._12};
 `
 
 const getDayStyleFunction = (completionData: TDailyTaskCompletion[]) => {
@@ -87,20 +96,20 @@ const CalendarStyles: Styles<CalendarBaseStylesNames, Record<string, string>> = 
 }
 
 const StreakPopoverContent = () => {
-    const [currentDate, setCurrentDate] = useState<DateTime>(DateTime.local())
+    const [selectedDate, setSelectedDate] = useState<DateTime>(DateTime.local())
     const handleOnChange = (date: Date | null) => {
         if (!date) return
-        setCurrentDate(DateTime.fromJSDate(date))
+        setSelectedDate(DateTime.fromJSDate(date))
     }
 
     const { data: previousMonth } = useGetDailyTaskCompletionByMonth(
-        currentDate.minus({ months: 1 }).month,
-        currentDate.minus({ months: 1 }).year
+        selectedDate.minus({ months: 1 }).month,
+        selectedDate.minus({ months: 1 }).year
     )
-    const { data: currentMonth } = useGetDailyTaskCompletionByMonth(currentDate.month, currentDate.year)
+    const { data: currentMonth } = useGetDailyTaskCompletionByMonth(selectedDate.month, selectedDate.year)
     const { data: nextMonth } = useGetDailyTaskCompletionByMonth(
-        currentDate.plus({ months: 1 }).month,
-        currentDate.plus({ months: 1 }).year
+        selectedDate.plus({ months: 1 }).month,
+        selectedDate.plus({ months: 1 }).year
     )
     const dataForMonth = [...(previousMonth ?? []), ...(currentMonth ?? []), ...(nextMonth ?? [])]
     const dayStyle = getDayStyleFunction(dataForMonth)
@@ -108,7 +117,7 @@ const StreakPopoverContent = () => {
     return (
         <div>
             <Calendar
-                value={currentDate.toJSDate()}
+                value={selectedDate.toJSDate()}
                 onChange={handleOnChange}
                 firstDayOfWeek="sunday"
                 allowLevelChange={false}
@@ -119,6 +128,11 @@ const StreakPopoverContent = () => {
             <CompletionLegendContainer>
                 <CompletionLegend />
             </CompletionLegendContainer>
+            <Divider />
+            <CompletionBreakdownContainer>
+                <BodyMedium color="title">{selectedDate.toFormat('EEE, LLL d')}</BodyMedium>
+                <DaiilyTaskCompletionBreakdown date={selectedDate} />
+            </CompletionBreakdownContainer>
         </div>
     )
 }
@@ -129,6 +143,7 @@ const StreakPopover = () => {
             content={<StreakPopoverContent />}
             align="start"
             trigger={<GTButton styleType="icon" icon={icons.fire} />}
+            removePadding
         />
     )
 }
