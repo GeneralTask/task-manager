@@ -2,6 +2,8 @@ import styled from 'styled-components'
 import { Colors, Spacing } from '../../styles'
 import { LabelSmall } from '../atoms/typography/Typography'
 
+const COLOR_INTENSITY_HEX = ['40', '80', 'FF']
+
 const Container = styled.div`
     display: flex;
     gap: ${Spacing._8};
@@ -10,16 +12,15 @@ const Container = styled.div`
 `
 const ColoredCircle = styled.div<{ color: string }>`
     background-color: ${(props) => props.color};
-    width: 12px;
-    height: 12px;
+    width: ${Spacing._12};
+    height: ${Spacing._12};
     border-radius: 50%;
 `
 const CompletionLegend = () => {
-    const colorIntensityHex = ['40', '80', 'FF']
     return (
         <Container>
             <LabelSmall>Less</LabelSmall>
-            {colorIntensityHex.map((hex) => (
+            {COLOR_INTENSITY_HEX.map((hex) => (
                 <ColoredCircle key={hex} color={`${Colors.accent.yellow}${hex}`} />
             ))}
             <LabelSmall>More</LabelSmall>
