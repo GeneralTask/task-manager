@@ -26,14 +26,6 @@ data:
       username: eksadmin
       groups:
         - prd-gtsk-uswest1-full-access-group
-    - userarn: arn:aws:iam::257821106339:user/maz@generaltask.com
-      username: maz
-      groups:
-        - prd-gtsk-uswest1-full-access-group
-    - userarn: arn:aws:iam::257821106339:user/nolan@generaltask.com
-      username: nolan
-      groups:
-        - prd-gtsk-uswest1-full-access-group
     - userarn: arn:aws:iam::257821106339:user/julian@generaltask.com
       username: julian
       groups:
