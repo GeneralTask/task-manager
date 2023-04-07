@@ -17,11 +17,11 @@ spec:
         - image: "257821106339.dkr.ecr.us-west-1.amazonaws.com/prd-gtsk-uswest1"
           resources:
             requests:
-              memory: "1Gi"
-              cpu: "256m"
+              memory: "2Gi"
+              cpu: "512m"
             limits:
-              memory: "1Gi"
-              cpu: "256m"
+              memory: "2Gi"
+              cpu: "512m"
           imagePullPolicy: Always
           name: "core"
           env:
