@@ -12,7 +12,7 @@ import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
-import { DeprecatedLabel, Truncated } from '../atoms/typography/Typography'
+import { BodySmall, Truncated } from '../atoms/typography/Typography'
 import { toast } from '../molecules/toast'
 import { getCalendarAuthButton } from './utils/utils'
 
@@ -25,7 +25,7 @@ const Container = styled.div`
     border-radius: ${Border.radius.medium};
 `
 const AccountName = styled(Truncated)`
-    ${Typography.deprecated_bodySmall};
+    ${Typography.body.medium};
 `
 const MarginLeftAuto = styled.div`
     margin-left: auto;
@@ -112,11 +112,11 @@ const EnableCalendarsBanner = () => {
             {calendarsWithBadTokens.length > 0 && (
                 <>
                     <Flex justifyContent="space-between" alignItems="center">
-                        <DeprecatedLabel color="light">
+                        <BodySmall color="light">
                             {calendarsWithBadTokens.length > 1
                                 ? 'There was a problem authorizing your accounts. Re-link to display and create events for these accounts'
                                 : 'There was a problem authorizing your account. Re-link to display and create events for this account'}
-                        </DeprecatedLabel>
+                        </BodySmall>
                         <GTButton icon={icons.x} tooltipText="Dismiss" onClick={handleDismiss} styleType="icon" />
                     </Flex>
                     {calendarsWithBadTokens.map((calendar) => (
@@ -146,10 +146,10 @@ const EnableCalendarsBanner = () => {
                         <Divider color={Colors.background.border} />
                     )}
                     <Flex justifyContent="space-between" alignItems="center">
-                        <DeprecatedLabel color="light">
+                        <BodySmall color="light">
                             Authorize our app to see all the calendars in your account
                             {calendarsNeedingMultical.length > 1 && 's'}.
-                        </DeprecatedLabel>
+                        </BodySmall>
                         {/* only show dismiss button if these are the only calendars being displayed */}
                         {calendarsWithBadTokens.length === 0 && (
                             <GTButton icon={icons.x} tooltipText="Dismiss" onClick={handleDismiss} styleType="icon" />

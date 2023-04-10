@@ -9,7 +9,7 @@ import { TCalendar, TCalendarAccount } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
-import { DeprecatedBody, DeprecatedBodySmall, DeprecatedLabel } from '../atoms/typography/Typography'
+import { BodyLarge, BodyMedium, BodySmall } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { getCalendarAuthButton, getCalendarName } from './utils/utils'
 
@@ -64,8 +64,8 @@ const CalendarSettings = () => {
     return (
         <Flex gap={Spacing._24} column>
             <Flex column gap={Spacing._4}>
-                <DeprecatedBody>Choose default calendar</DeprecatedBody>
-                <DeprecatedLabel>Choose the default calendar to create new events in</DeprecatedLabel>
+                <BodyLarge>Choose default calendar</BodyLarge>
+                <BodySmall>Choose the default calendar to create new events in</BodySmall>
             </Flex>
 
             {calendars?.map((account) => (
@@ -73,7 +73,7 @@ const CalendarSettings = () => {
                     <Flex alignItems="center" justifyContent="space-between">
                         <Flex alignItems="center" gap={Spacing._8}>
                             <Icon icon={logos.gcal} />
-                            <DeprecatedBodySmall>{account.account_id}</DeprecatedBodySmall>
+                            <BodyMedium>{account.account_id}</BodyMedium>
                         </Flex>
                         <Flex gap={Spacing._8}>
                             {getCalendarAuthButton(account, handleReauthorization)}
@@ -121,9 +121,7 @@ const CalendarSettings = () => {
                                         }
                                     />
                                     <Icon icon={icons.square} colorHex={calendar.color_background} />
-                                    <DeprecatedBodySmall>
-                                        {getCalendarName(account.account_id, calendar.title)}
-                                    </DeprecatedBodySmall>
+                                    <BodyMedium>{getCalendarName(account.account_id, calendar.title)}</BodyMedium>
                                 </Calendar>
                             ))}
                     </div>
@@ -131,10 +129,10 @@ const CalendarSettings = () => {
             ))}
             {isPreviewMode && (
                 <Flex justifyContent="space-between" alignItems="center">
-                    <DeprecatedBodySmall>
+                    <BodyMedium>
                         Secret button to un-dismiss calendar auth banner (if you have calendars that need multi-cal
                         enabled)
-                    </DeprecatedBodySmall>
+                    </BodyMedium>
                     <GTButton
                         value="Un-dismiss"
                         styleType="secondary"

@@ -17,9 +17,9 @@ const PlainTextArea = styled.textarea<{ fontSize: FontSize }>`
     padding: ${Spacing._8};
     white-space: pre-wrap;
     color: ${Colors.text.black};
-    ${({ fontSize }) => fontSize === 'small' && Typography.deprecated_bodySmall};
-    ${({ fontSize }) => fontSize === 'medium' && Typography.deprecated_subtitle};
-    ${({ fontSize }) => fontSize === 'large' && Typography.deprecated_title};
+    ${({ fontSize }) => fontSize === 'small' && Typography.body.medium};
+    ${({ fontSize }) => fontSize === 'medium' && Typography.title.medium};
+    ${({ fontSize }) => fontSize === 'large' && Typography.headline.large};
 `
 
 const PlainTextEditor = forwardRef((props: PlainTextEditorProps, textAreaRef) => {

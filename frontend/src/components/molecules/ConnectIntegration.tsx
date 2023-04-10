@@ -14,7 +14,7 @@ const Container = styled(GTShadowContainer)`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    ${Typography.deprecated_bodySmall};
+    ${Typography.body.medium};
     box-sizing: border-box;
     height: fit-content;
 `

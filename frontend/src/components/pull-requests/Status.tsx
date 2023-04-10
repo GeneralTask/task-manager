@@ -16,8 +16,8 @@ const StatusContainer = styled.div<{ type: TStatusColors }>`
     white-space: nowrap;
     text-overflow: ellipsis;
     max-width: fit-content;
-    ${Typography.deprecated_label};
-    ${Typography.deprecated_bold};
+    ${Typography.body.small};
+    ${Typography.bold};
 `
 
 interface StatusProps {

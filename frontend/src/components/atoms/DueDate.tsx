@@ -6,7 +6,7 @@ import { getFormattedDate } from '../../utils/utils'
 
 export const DueDateContainer = styled.span<{ color?: TTextColor }>`
     ${({ color }) => color && `color: ${Colors.text[color]}`};
-    ${Typography.deprecated_bodySmall};
+    ${Typography.body.medium};
 `
 
 interface DueDateProps {

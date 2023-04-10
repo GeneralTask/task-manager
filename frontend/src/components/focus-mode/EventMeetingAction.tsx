@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { TEvent } from '../../utils/types'
 import JoinMeetingButton from '../atoms/buttons/JoinMeetingButton'
-import { DeprecatedBold } from '../atoms/typography/Typography'
+import { Bold } from '../atoms/typography/Typography'
 
 const NotificationMessage = styled.div<{ isCentered?: boolean }>`
     justify-content: ${({ isCentered }) => (isCentered ? `center` : `space-between`)};
@@ -12,7 +12,7 @@ const NotificationMessage = styled.div<{ isCentered?: boolean }>`
     display: flex;
     padding: ${Spacing._24} ${Spacing._16};
     align-items: center;
-    ${Typography.deprecated_bodySmall};
+    ${Typography.body.medium};
 `
 
 interface EventMeetingAction {
@@ -26,21 +26,21 @@ const EventMeetingAction = ({ event }: EventMeetingAction) => {
         eventMessage = (
             <>
                 <span>This event is</span>
-                <DeprecatedBold> in the past</DeprecatedBold>.
+                <Bold> in the past</Bold>.
             </>
         )
     } else if (DateTime.fromISO(event.datetime_start) > DateTime.local()) {
         eventMessage = (
             <>
                 <span>This event is</span>
-                <DeprecatedBold> in the future</DeprecatedBold>.
+                <Bold> in the future</Bold>.
             </>
         )
     } else {
         eventMessage = (
             <>
                 <span>This event is happening</span>
-                <DeprecatedBold> right now</DeprecatedBold>.
+                <Bold> right now</Bold>.
             </>
         )
     }

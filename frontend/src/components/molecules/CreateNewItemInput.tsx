@@ -31,7 +31,7 @@ export const TaskInput = styled.input`
     outline: none;
     background-color: transparent;
     flex: 1;
-    ${Typography.deprecated_bodySmall};
+    ${Typography.body.medium};
 `
 
 const blurShortcuts = [KEYBOARD_SHORTCUTS.close.key]

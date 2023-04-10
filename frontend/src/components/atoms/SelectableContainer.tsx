@@ -16,7 +16,7 @@ const SelectableContainer = styled.div<{ isSelected: boolean }>`
     gap: ${Spacing._8};
     padding: ${Spacing._12} ${Spacing._8} ${Spacing._12} ${Spacing._16};
     margin-bottom: ${Spacing._4};
-    ${Typography.deprecated_bodySmall};
+    ${Typography.body.medium};
 `
 
 export const EdgeHighlight = styled.div<{ color: string; squareStart?: boolean; squareEnd?: boolean }>`

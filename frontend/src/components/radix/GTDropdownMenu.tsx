@@ -6,7 +6,7 @@ import { icons } from '../../styles/images'
 import { emptyFunction, stopKeydownPropogation } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
-import { DeprecatedLabel } from '../atoms/typography/Typography'
+import { BodySmall } from '../atoms/typography/Typography'
 import {
     FixedSizeIcon,
     GTMenuItem,
@@ -23,7 +23,7 @@ const DropdownMenuContent = styled(DropdownMenu.Content)<{
     $menuInModal?: boolean
     $width?: number
     $textColor?: string
-    $fontStyle?: 'deprecated_body' | 'deprecated_bodySmall' | 'deprecated_label'
+    $fontStyle?: 'large' | 'medium' | 'small'
 }>`
     ${MenuContentShared};
     max-height: ${DROPDOWN_MENU_ITEM_MAX_HEIGHT};
@@ -32,7 +32,7 @@ const DropdownMenuContent = styled(DropdownMenu.Content)<{
     ${({ $width }) => $width && `width: ${$width}px;`}
     max-width: ${({ $width }) => ($width ? `${$width}px` : `${DROPDOWN_MENU_ITEM_MAX_WIDTH}`)};
     ${({ $textColor }) => $textColor && `color: ${$textColor};`}
-    ${({ $fontStyle }) => $fontStyle && Typography[$fontStyle]};
+    ${({ $fontStyle }) => $fontStyle && Typography.body[$fontStyle]};
     box-sizing: border-box;
     z-index: 10000; // higher than toast z-index of 9999
 `
@@ -51,7 +51,7 @@ const DropdownMenuSubContent = styled(DropdownMenu.SubContent)`
     ${MenuContentShared};
     user-select: none;
 `
-const Description = styled(DeprecatedLabel)`
+const Description = styled(BodySmall)`
     padding: ${Spacing._8} ${Spacing._12};
     display: block;
 `
@@ -70,7 +70,7 @@ interface GTDropdownMenuProps {
     menuInModal?: boolean
     useTriggerWidth?: boolean
     keepOpenOnSelect?: boolean
-    fontStyle?: 'deprecated_body' | 'deprecated_bodySmall' | 'deprecated_label'
+    fontStyle?: 'large' | 'medium' | 'small'
     description?: string
 }
 
@@ -86,7 +86,7 @@ const GTDropdownMenu = ({
     menuInModal = false,
     useTriggerWidth = false,
     keepOpenOnSelect = false,
-    fontStyle = 'deprecated_body',
+    fontStyle = 'large',
     description,
 }: GTDropdownMenuProps) => {
     const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTMenuItem[][]

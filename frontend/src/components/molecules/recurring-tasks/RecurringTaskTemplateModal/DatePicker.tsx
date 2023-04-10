@@ -7,7 +7,7 @@ import { icons } from '../../../../styles/images'
 import { RecurrenceRate } from '../../../../utils/enums'
 import Flex from '../../../atoms/Flex'
 import GTButton from '../../../atoms/buttons/GTButton'
-import { DeprecatedEyebrow, DeprecatedLabel } from '../../../atoms/typography/Typography'
+import { BodySmall, BodySmallUpper } from '../../../atoms/typography/Typography'
 
 const Container = styled.div`
     width: 250px;
@@ -23,7 +23,7 @@ const Header = styled.div`
 const ReturnToCurrentMonthButton = styled(GTButton)<{ visible: boolean }>`
     visibility: ${(props) => (props.visible ? 'visible' : 'hidden')};
 `
-const MonthLabel = styled(DeprecatedEyebrow)`
+const MonthLabel = styled(BodySmallUpper)`
     margin-left: ${Spacing._32};
 `
 const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
@@ -40,10 +40,11 @@ const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
     }
     .mantine-Calendar-calendarHeaderLevel {
         color: ${Colors.text.light};
-        ${Typography.deprecated_eyebrow};
+        text-transform: uppercase;
+        ${Typography.body.small};
     }
     .mantine-Text-root {
-        ${Typography.deprecated_label};
+        ${Typography.body.small};
     }
     .mantine-Calendar-day {
         color: ${Colors.text.black};
@@ -84,7 +85,7 @@ const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
         background-color: ${Colors.legacyColors.secondary};
     }
 `
-const HelpText = styled(DeprecatedLabel)<{ show: boolean }>`
+const HelpText = styled(BodySmall)<{ show: boolean }>`
     margin-left: ${Spacing._4};
     color: ${Colors.text.light};
     visibility: ${(props) => (props.show ? 'visible' : 'hidden')};

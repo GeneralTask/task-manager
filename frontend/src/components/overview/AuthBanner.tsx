@@ -23,7 +23,7 @@ const IconContainer = styled.div`
     gap: ${Spacing._8};
 `
 const Title = styled.span`
-    ${Typography.deprecated_bodySmall};
+    ${Typography.body.medium};
 `
 
 interface AuthBannerProps {

@@ -1,8 +1,8 @@
 import styled from 'styled-components'
-import { DeprecatedLabel } from '../atoms/typography/Typography'
+import { BodySmall } from '../atoms/typography/Typography'
 import { MENU_WIDTH } from './RadixUIConstants'
 
-export const LabelWrap = styled(DeprecatedLabel)`
+export const LabelWrap = styled(BodySmall)`
     width: ${MENU_WIDTH};
 `
 

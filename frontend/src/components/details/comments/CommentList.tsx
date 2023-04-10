@@ -12,7 +12,8 @@ const CommentListContainer = styled.div`
 `
 const CommentHeader = styled.div`
     color: ${Colors.text.light};
-    ${Typography.deprecated_eyebrow};
+    text-transform: uppercase;
+    ${Typography.body.small};
     margin-bottom: ${Spacing._16};
 `
 

@@ -19,7 +19,7 @@ const AddTaskbutton = styled.div`
     align-items: center;
     gap: ${Spacing._8};
     color: ${Colors.text.light};
-    ${Typography.deprecated_label};
+    ${Typography.body.small};
     cursor: pointer;
     user-select: none;
     padding: ${Spacing._8};

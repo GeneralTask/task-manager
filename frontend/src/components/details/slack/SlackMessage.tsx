@@ -20,7 +20,7 @@ const BodyContainer = styled.div`
 `
 const BlackText = styled.span`
     color: ${Colors.text.black};
-    ${Typography.deprecated_bodySmall};
+    ${Typography.body.medium};
 `
 const GrayText = styled(BlackText)`
     color: ${Colors.text.light};

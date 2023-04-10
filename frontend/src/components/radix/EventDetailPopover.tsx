@@ -15,7 +15,7 @@ import { TEvent } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
-import { DeprecatedLabel } from '../atoms/typography/Typography'
+import { BodySmall } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import { Description, EventBoxStyle, EventHeader, EventTitle, FlexAnchor } from '../molecules/EventDetailPopover-styles'
 import { toast } from '../molecules/toast'
@@ -177,18 +177,18 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
             {calendarAccount && calendar && (
                 <Flex gap={Spacing._8}>
                     <Icon icon={icons.square} colorHex={calendar.color_background} />
-                    <DeprecatedLabel>
+                    <BodySmall>
                         {calendar.title && calendar.title !== calendarAccount.account_id
                             ? `${calendar.title} (${calendarAccount.account_id})`
                             : calendarAccount.account_id}
-                    </DeprecatedLabel>
+                    </BodySmall>
                 </Flex>
             )}
             <Flex gap={Spacing._8}>
                 <Icon icon={icons.calendar_blank} />
-                <DeprecatedLabel>
+                <BodySmall>
                     {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
-                </DeprecatedLabel>
+                </BodySmall>
             </Flex>
             <Description dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.body) }} />
             <Flex flex="1" gap={Spacing._8}>

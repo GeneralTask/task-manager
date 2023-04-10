@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
-import { DeprecatedLabel } from '../atoms/typography/Typography'
+import { BodySmall } from '../atoms/typography/Typography'
 import { useCalendarContext } from './CalendarContext'
 
 const TasksDueHeaderContainer = styled.div`
@@ -48,7 +48,7 @@ const TasksDueHeader = ({ type, dueType, numTasksDue, hideCollapseButton, date }
                 }
             }}
         >
-            <DeprecatedLabel color={dueType === 'due' ? 'light' : 'red'}>{message}</DeprecatedLabel>
+            <BodySmall color={dueType === 'due' ? 'light' : 'red'}>{message}</BodySmall>
             {!hideCollapseButton && (
                 <CaretContainer>
                     <Icon icon={caretIcon} color={dueType === 'due' ? 'gray' : 'red'} />

@@ -32,7 +32,7 @@ const DefaultTemplateContainer = styled.div<{ $calendarType: TCalendarType; $sho
         font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu,
             Cantarell, Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji',
             'Segoe UI Symbol' !important;
-        ${Typography.deprecated_bodySmall};
+        ${Typography.body.medium};
         padding: ${Spacing._8} !important;
         max-width: ${TOOLTIP_MAX_WIDTH};
     }

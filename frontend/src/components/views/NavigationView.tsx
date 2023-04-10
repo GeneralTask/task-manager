@@ -10,7 +10,7 @@ import { DropType } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import GTButton from '../atoms/buttons/GTButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { DeprecatedEyebrow } from '../atoms/typography/Typography'
+import { BodySmallUpper } from '../atoms/typography/Typography'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackModal from '../molecules/FeedbackModal'
 import SettingsModalButton from '../molecules/SettingsModalButton'
@@ -122,12 +122,12 @@ const NavigationView = ({ isCollapsed, setIsCollapsed }: NavigationViewProps) =>
                     <CopyrightText>
                         {userInfo?.is_employee ? (
                             <NoStyleButton onClick={() => togglePreviewMode()}>
-                                <DeprecatedEyebrow color={isPreviewMode ? 'purple' : 'light'}>
+                                <BodySmallUpper color={isPreviewMode ? 'purple' : 'light'}>
                                     {isPreviewMode ? '© 2023 GENERAL KENOBI' : '© 2023 GENERAL TASK'}
-                                </DeprecatedEyebrow>
+                                </BodySmallUpper>
                             </NoStyleButton>
                         ) : (
-                            <DeprecatedEyebrow color="light">© 2023 GENERAL TASK</DeprecatedEyebrow>
+                            <BodySmallUpper color="light">© 2023 GENERAL TASK</BodySmallUpper>
                         )}
                     </CopyrightText>
                 </>

@@ -25,10 +25,10 @@ export const EventTitle = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
-    ${Typography.deprecated_bodySmall};
+    ${Typography.body.medium};
 `
 export const Description = styled.div`
-    ${Typography.deprecated_label};
+    ${Typography.body.small};
     color: ${Colors.text.black};
     overflow-wrap: break-word;
     overflow-y: auto;

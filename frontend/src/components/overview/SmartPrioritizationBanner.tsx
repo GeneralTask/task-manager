@@ -14,7 +14,7 @@ const Banner = styled.div`
     margin-bottom: ${Spacing._16};
 `
 const Text = styled.div`
-    ${Typography.deprecated_label};
+    ${Typography.body.small};
     margin: ${Spacing._4} ${Spacing._8} ${Spacing._8} ${Spacing._8};
 `
 

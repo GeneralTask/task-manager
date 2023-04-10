@@ -7,7 +7,7 @@ import Flex from '../atoms/Flex'
 import { Icon, TIconType } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
-import { DeprecatedEyebrow, DeprecatedLabel, DeprecatedSubtitle } from '../atoms/typography/Typography'
+import { BodySmall, BodySmallUpper, TitleMedium } from '../atoms/typography/Typography'
 
 const SIDEBAR_WIDTH = '185px'
 const MODAL_HEIGHT = '642px'
@@ -84,7 +84,7 @@ const GTModal = ({ title, tabs, defaultTabIndex = 0, ...baseModalProps }: GTModa
                 {Array.isArray(tabs) && (
                     <ModalSidebar>
                         <MarginBottom8>
-                            <DeprecatedEyebrow color="light">{title}</DeprecatedEyebrow>
+                            <BodySmallUpper color="light">{title}</BodySmallUpper>
                         </MarginBottom8>
                         {tabs.map((tab, index) => (
                             <Link
@@ -93,14 +93,14 @@ const GTModal = ({ title, tabs, defaultTabIndex = 0, ...baseModalProps }: GTModa
                                 onClick={() => setSelectedTab(index)}
                             >
                                 <Icon icon={tab.icon || icons.arrow_right} color="black" />
-                                <DeprecatedLabel>{tab.title}</DeprecatedLabel>
+                                <BodySmall>{tab.title}</BodySmall>
                             </Link>
                         ))}
                     </ModalSidebar>
                 )}
                 <ModalContent smallGap={!Array.isArray(tabs)}>
                     <Flex justifyContent="space-between" alignItems="center">
-                        <DeprecatedSubtitle>{tab.title}</DeprecatedSubtitle>
+                        <TitleMedium>{tab.title}</TitleMedium>
                         <GTButton
                             styleType="icon"
                             tooltipText="Close"
@@ -111,7 +111,7 @@ const GTModal = ({ title, tabs, defaultTabIndex = 0, ...baseModalProps }: GTModa
                             }}
                         />
                     </Flex>
-                    {tab.subtitle && <DeprecatedLabel color="light">{tab.subtitle}</DeprecatedLabel>}
+                    {tab.subtitle && <BodySmall color="light">{tab.subtitle}</BodySmall>}
                     {Array.isArray(tabs) && <Divider color={Colors.background.border} />}
                     <div>{tab.body}</div>
                 </ModalContent>

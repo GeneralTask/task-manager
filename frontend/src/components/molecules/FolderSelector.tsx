@@ -10,7 +10,7 @@ interface FolderSelectorProps {
     value: string
     onChange: (value: string) => void
     useTriggerWidth?: boolean
-    fontStyle?: 'deprecated_body' | 'deprecated_bodySmall' | 'deprecated_label'
+    fontStyle?: 'large' | 'medium' | 'small'
     enableKeyboardShortcut?: boolean
 }
 const FolderSelector = ({

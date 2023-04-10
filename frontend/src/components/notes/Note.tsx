@@ -8,13 +8,13 @@ import { getFormattedEventTime, getHumanDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import TaskTemplate from '../atoms/TaskTemplate'
-import { DeprecatedLabel, Truncated } from '../atoms/typography/Typography'
+import { BodySmall, Truncated } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import ItemContainer from '../molecules/ItemContainer'
 import NoteContextMenuWrapper from './NoteContextMenuWrapper'
 
 const NoteTitle = styled(Truncated)`
-    ${Typography.deprecated_bodySmall};
+    ${Typography.body.medium};
 `
 const TitleContainer = styled.span<{ deleted?: boolean }>`
     display: flex;
@@ -56,20 +56,18 @@ const Note = ({ note, isSelected, onSelect }: NoteProps) => {
                         {isMeetingNote ? (
                             <>
                                 {isMeetingNote && note.linked_event_start && note.linked_event_end && (
-                                    <DeprecatedLabel color="base">
+                                    <BodySmall color="base">
                                         {getFormattedEventTime(
                                             DateTime.fromISO(note.linked_event_start),
                                             DateTime.fromISO(note.linked_event_end),
                                             'short'
                                         )}
-                                    </DeprecatedLabel>
+                                    </BodySmall>
                                 )}
                                 <Icon icon={icons.calendar_blank} />
                             </>
                         ) : (
-                            <DeprecatedLabel color="base">
-                                {getHumanDateTime(DateTime.fromISO(note.created_at))}
-                            </DeprecatedLabel>
+                            <BodySmall color="base">{getHumanDateTime(DateTime.fromISO(note.created_at))}</BodySmall>
                         )}
                     </Flex>
                 </ItemContainer>
