@@ -242,12 +242,12 @@ func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder
 	return recorder
 }
 
-func runBusinessEndpoint(attemptedHeader string) *httptest.ResponseRecorder {
+func runSubscribedEndpoint(attemptedHeader string) *httptest.ResponseRecorder {
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	router := GetRouter(api)
 
-	request, _ := http.NewRequest("GET", "/ping_business/", nil)
+	request, _ := http.NewRequest("GET", "/ping_subscribed/", nil)
 	request.Header.Add("Authorization", attemptedHeader)
 
 	recorder := httptest.NewRecorder()
@@ -290,13 +290,13 @@ func UnauthorizedTest(t *testing.T, method string, url string, body io.Reader) b
 	})
 }
 
-func NoBusinessAccessTest(t *testing.T, method string, url string, api *API, authToken string) {
-	t.Run("NoBusinessAccess", func(t *testing.T) {
+func NoSubscriptionAccessTest(t *testing.T, method string, url string, api *API, authToken string) {
+	t.Run("NoSubscriptionAccess", func(t *testing.T) {
 		ServeRequest(t, authToken, method, url, nil, http.StatusForbidden, api)
 	})
 }
 
-func EnableBusinessAccess(t *testing.T, api *API, userID primitive.ObjectID) {
-	_, err := database.GetUserCollection(api.DB).UpdateOne(context.Background(), bson.M{"_id": userID}, bson.M{"$set": bson.M{"business_mode_enabled": true}})
+func EnableSubscriptionAccess(t *testing.T, api *API, userID primitive.ObjectID) {
+	_, err := database.GetUserCollection(api.DB).UpdateOne(context.Background(), bson.M{"_id": userID}, bson.M{"$set": bson.M{"subscription_status": "active"}})
 	assert.NoError(t, err)
 }

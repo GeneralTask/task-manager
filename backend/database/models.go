@@ -15,12 +15,17 @@ type User struct {
 	LastRefreshed         primitive.DateTime `bson:"last_refreshed,omitempty"`
 	AgreedToTerms         *bool              `bson:"agreed_to_terms,omitempty"`
 	OptedIntoMarketing    *bool              `bson:"opted_into_marketing,omitempty"`
-	BusinessModeEnabled   *bool              `bson:"business_mode_enabled,omitempty"`
 	CreatedAt             primitive.DateTime `bson:"created_at,omitempty"`
 	LinearName            string             `bson:"linear_name"`
 	LinearDisplayName     string             `bson:"linear_display_name"`
 	GPTSuggestionsLeft    int                `bson:"gpt_suggestions_left"`
 	GPTLastSuggestionTime primitive.DateTime `bson:"gpt_last_suggestion_time"`
+	// Stripe subscription fields
+	StripeCustomerID           string             `bson:"stripe_customer_id,omitempty"`
+	SubscriptionID             string             `bson:"subscription_id,omitempty"`
+	SubscriptionStatus         string             `bson:"subscription_status,omitempty"`
+	SubscriptionPriceID        string             `bson:"subscription_price_id,omitempty"`
+	SubscriptionCurrentPeriodEnd primitive.DateTime `bson:"subscription_current_period_end,omitempty"`
 }
 
 type UserChangeable struct {

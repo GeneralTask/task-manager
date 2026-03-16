@@ -132,8 +132,8 @@ func TestDashboardData(t *testing.T) {
 	})
 	assert.NoError(t, err)
 	UnauthorizedTest(t, "GET", "/dashboard/data/", nil)
-	NoBusinessAccessTest(t, "GET", "/dashboard/data/", api, authToken)
-	EnableBusinessAccess(t, api, userID)
+	NoSubscriptionAccessTest(t, "GET", "/dashboard/data/", api, authToken)
+	EnableSubscriptionAccess(t, api, userID)
 	t.Run("Success", func(t *testing.T) {
 		request, _ := http.NewRequest("GET", "/dashboard/data/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)

@@ -104,7 +104,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                                 isCollapsed={isCollapsed}
                             />
                         </Tip>
-                        {userInfo?.business_mode_enabled && (
+                        {userInfo?.is_subscribed && (
                             <>
                                 <NavigationLink
                                     link="/super-dashboard"

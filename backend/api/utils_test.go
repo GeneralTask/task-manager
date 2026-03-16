@@ -104,27 +104,27 @@ func TestAuthenticationMiddleware(t *testing.T) {
 	})
 }
 
-func TestBusinessMiddleware(t *testing.T) {
-	authToken := login("test_business_middleware@generaltask.com", "")
+func TestSubscriptionMiddleware(t *testing.T) {
+	authToken := login("test_subscription_middleware@generaltask.com", "")
 
 	t.Run("Forbidden", func(t *testing.T) {
-		recorder := runBusinessEndpoint("Bearer " + authToken)
+		recorder := runSubscribedEndpoint("Bearer " + authToken)
 		assert.Equal(t, http.StatusForbidden, recorder.Code)
 		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"business access is required to use this endpoint\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"an active subscription is required to use this endpoint\"}", string(body))
 	})
 
 	t.Run("Success", func(t *testing.T) {
-		// update to enable business mode flag
+		// update to enable subscription
 		db, dbCleanup, err := database.GetDBConnection()
 		assert.NoError(t, err)
 		defer dbCleanup()
 		userID := getUserIDFromAuthToken(t, db, authToken)
-		_, err = database.GetUserCollection(db).UpdateOne(context.Background(), bson.M{"_id": userID}, bson.M{"$set": bson.M{"business_mode_enabled": true}})
+		_, err = database.GetUserCollection(db).UpdateOne(context.Background(), bson.M{"_id": userID}, bson.M{"$set": bson.M{"subscription_status": "active"}})
 		assert.NoError(t, err)
 
-		recorder := runBusinessEndpoint("Bearer " + authToken)
+		recorder := runSubscribedEndpoint("Bearer " + authToken)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)

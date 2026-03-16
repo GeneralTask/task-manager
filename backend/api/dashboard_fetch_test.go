@@ -127,8 +127,8 @@ func TestDashboardFetch(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	NoBusinessAccessTest(t, "GET", "/dashboard/data/fetch/", api, authToken)
-	EnableBusinessAccess(t, api, userID)
+	NoSubscriptionAccessTest(t, "GET", "/dashboard/data/fetch/", api, authToken)
+	EnableSubscriptionAccess(t, api, userID)
 
 	t.Run("Success", func(t *testing.T) {
 		request, _ := http.NewRequest("GET", "/dashboard/data/fetch/", nil)

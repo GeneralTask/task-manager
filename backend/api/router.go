@@ -46,6 +46,9 @@ func GetRouter(handlers *API) *gin.Engine {
 
 	router.POST("/linear/webhook/", handlers.LinearWebhook)
 
+	// Stripe webhook (unauthenticated, signature-verified)
+	router.POST("/subscriptions/webhook/", handlers.StripeWebhook)
+
 	// Slack App (Workspace level) endpoint for oauth verification
 	// We need this as we don't actually use the token provided, but still need to access it to
 	// successfully install our app in a new Workspace
@@ -137,14 +140,19 @@ func GetRouter(handlers *API) *gin.Engine {
 
 	router.GET("/daily_task_completion/", handlers.DailyTaskCompletionList)
 
-	// Add business middleware. Endpoints below this require business mode to be enabled
-	router.Use(BusinessMiddleware(handlers.DB))
+	// Subscription management endpoints
+	router.GET("/subscriptions/status/", handlers.SubscriptionStatus)
+	router.POST("/subscriptions/create-checkout-session/", handlers.CreateCheckoutSession)
+	router.POST("/subscriptions/create-portal-session/", handlers.CreatePortalSession)
+
+	// Add subscription middleware. Endpoints below this require an active subscription
+	router.Use(SubscriptionMiddleware(handlers.DB))
 	router.GET("/dashboard/data/", handlers.DashboardData)
 	router.GET("/dashboard/team_members/", handlers.DashboardTeamMembersList)
 	router.POST("/dashboard/team_members/", handlers.DashboardTeamMemberCreate)
 	router.DELETE("/dashboard/team_members/:team_member_id/", handlers.DashboardTeamMemberDelete)
 	router.GET("/dashboard/data/fetch/", handlers.DashboardFetch)
-	router.GET("/ping_business/", handlers.Ping)
+	router.GET("/ping_subscribed/", handlers.Ping)
 
 	return router
 }

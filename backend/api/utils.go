@@ -68,7 +68,7 @@ func (api *API) Ping(c *gin.Context) {
 	c.JSON(200, "success")
 }
 
-func BusinessMiddleware(db *mongo.Database) func(c *gin.Context) {
+func SubscriptionMiddleware(db *mongo.Database) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		handlerName := c.HandlerName()
 		if handlerName[len(handlerName)-9:] == "Handle404" {
@@ -79,8 +79,8 @@ func BusinessMiddleware(db *mongo.Database) func(c *gin.Context) {
 		userCollection := database.GetUserCollection(db)
 		var userObject database.User
 		err := userCollection.FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
-		if err != nil || userObject.BusinessModeEnabled == nil || !*userObject.BusinessModeEnabled {
-			c.AbortWithStatusJSON(403, gin.H{"detail": "business access is required to use this endpoint"})
+		if err != nil || !isUserSubscribed(&userObject) {
+			c.AbortWithStatusJSON(403, gin.H{"detail": "an active subscription is required to use this endpoint"})
 			return
 		}
 	}

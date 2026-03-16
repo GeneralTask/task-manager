@@ -300,7 +300,8 @@ export interface TUserInfo {
     is_company_email: boolean
     linear_name?: string
     linear_display_name?: string
-    business_mode_enabled?: boolean
+    subscription_status?: string
+    is_subscribed?: boolean
 }
 
 // React-DND Item Types

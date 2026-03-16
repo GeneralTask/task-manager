@@ -22,7 +22,7 @@ const SuperDashboardView = () => {
     const { data: dashboard, isLoading: isDashboardLoading } = useGetDashboardData()
     useFetchExternalDashboardData()
 
-    if (!userInfo?.business_mode_enabled && !isUserInfoLoading) {
+    if (!userInfo?.is_subscribed && !isUserInfoLoading) {
         return <Navigate to="/" replace />
     }
     if (isDashboardLoading || !dashboard || isUserInfoLoading) {

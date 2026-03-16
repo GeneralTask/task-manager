@@ -24,8 +24,8 @@ func TestDashboardTeamMemberCreate(t *testing.T) {
 	userID := getUserIDFromAuthToken(t, api.DB, authToken)
 
 	UnauthorizedTest(t, "POST", "/dashboard/team_members/", nil)
-	NoBusinessAccessTest(t, "POST", "/dashboard/team_members/", api, authToken)
-	EnableBusinessAccess(t, api, userID)
+	NoSubscriptionAccessTest(t, "POST", "/dashboard/team_members/", api, authToken)
+	EnableSubscriptionAccess(t, api, userID)
 	t.Run("MissingName", func(t *testing.T) {
 		database.GetDashboardTeamMemberCollection(api.DB).DeleteMany(context.Background(), bson.M{})
 		bodyParams, err := json.Marshal(DashboardTeamMemberCreateParams{
@@ -130,8 +130,8 @@ func TestDashboardTeamMemberDelete(t *testing.T) {
 	teamMemberCollection := database.GetDashboardTeamMemberCollection(api.DB)
 
 	UnauthorizedTest(t, "DELETE", "/dashboard/team_members/id/", nil)
-	NoBusinessAccessTest(t, "DELETE", "/dashboard/team_members/id/", api, authToken)
-	EnableBusinessAccess(t, api, userID)
+	NoSubscriptionAccessTest(t, "DELETE", "/dashboard/team_members/id/", api, authToken)
+	EnableSubscriptionAccess(t, api, userID)
 	t.Run("InvalidID", func(t *testing.T) {
 		ServeRequest(t, authToken, "DELETE", "/dashboard/team_members/123/", nil, http.StatusNotFound, api)
 	})
@@ -165,8 +165,8 @@ func TestDashboardTeamMemberList(t *testing.T) {
 	teamMemberCollection := database.GetDashboardTeamMemberCollection(api.DB)
 
 	UnauthorizedTest(t, "GET", "/dashboard/team_members/", nil)
-	NoBusinessAccessTest(t, "GET", "/dashboard/team_members/", api, authToken)
-	EnableBusinessAccess(t, api, userID)
+	NoSubscriptionAccessTest(t, "GET", "/dashboard/team_members/", api, authToken)
+	EnableSubscriptionAccess(t, api, userID)
 	t.Run("SuccessNoResults", func(t *testing.T) {
 		teamMemberCollection.DeleteMany(context.Background(), bson.M{})
 		response := ServeRequest(t, authToken, "GET", "/dashboard/team_members/", nil, http.StatusOK, api)

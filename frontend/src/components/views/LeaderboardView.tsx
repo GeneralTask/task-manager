@@ -17,7 +17,7 @@ const FullWidthScroller = styled.div`
 
 const LeaderboardView = () => {
     const { data: userInfo, isLoading: isUserInfoLoading } = useGetUserInfo()
-    if (!userInfo?.business_mode_enabled && !isUserInfoLoading) {
+    if (!userInfo?.is_subscribed && !isUserInfoLoading) {
         return <Navigate to="/" replace />
     }
 

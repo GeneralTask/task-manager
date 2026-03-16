@@ -11,6 +11,9 @@ import (
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	guuid "github.com/google/uuid"
+	"github.com/stripe/stripe-go/v76"
+	checkoutsession "github.com/stripe/stripe-go/v76/checkout/session"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -158,9 +161,61 @@ func (api *API) LoginCallback(c *gin.Context) {
 		if userIsNew != nil && *userIsNew {
 			c.Redirect(302, config.GetConfigValue("HOME_URL")+"tos-summary")
 		} else {
-			c.Redirect(302, config.GetConfigValue("HOME_URL"))
+			// Check subscription status and redirect to Stripe Checkout if not subscribed
+			redirectURL := getPostLoginRedirectURL(api, userID)
+			c.Redirect(302, redirectURL)
 		}
 	}
+}
+
+func getPostLoginRedirectURL(api *API, userID primitive.ObjectID) string {
+	userCollection := database.GetUserCollection(api.DB)
+	var userObject database.User
+	err := userCollection.FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to find user for subscription check on login")
+		return config.GetConfigValue("HOME_URL")
+	}
+
+	if isUserSubscribed(&userObject) {
+		return config.GetConfigValue("HOME_URL")
+	}
+
+	// User is not subscribed — create a Stripe Checkout session and redirect
+	stripeCustomerID, err := getOrCreateStripeCustomer(api, &userObject)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to create stripe customer on login")
+		return config.GetConfigValue("HOME_URL")
+	}
+
+	stripe.Key = config.GetConfigValue("STRIPE_SECRET_KEY")
+	priceID := config.GetConfigValue("STRIPE_PRICE_ID")
+	homeURL := config.GetConfigValue("HOME_URL")
+
+	params := &stripe.CheckoutSessionParams{
+		Customer: stripe.String(stripeCustomerID),
+		Mode:     stripe.String(string(stripe.CheckoutSessionModeSubscription)),
+		LineItems: []*stripe.CheckoutSessionLineItemParams{
+			{
+				Price:    stripe.String(priceID),
+				Quantity: stripe.Int64(1),
+			},
+		},
+		SuccessURL:          stripe.String(homeURL + "?subscription=success"),
+		CancelURL:           stripe.String(homeURL + "?subscription=canceled"),
+		AllowPromotionCodes: stripe.Bool(true),
+		SubscriptionData: &stripe.CheckoutSessionSubscriptionDataParams{
+			TrialPeriodDays: stripe.Int64(14),
+		},
+	}
+
+	session, err := checkoutsession.New(params)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to create checkout session on login redirect")
+		return config.GetConfigValue("HOME_URL")
+	}
+
+	return session.URL
 }
 
 func createNewUserTasks(userID primitive.ObjectID, db *mongo.Database) error {
